@@ -1,0 +1,30 @@
+{% if dashboard_permissions is not defined %}
+{% set dashboard_permissions = current_user.get_permission_codes() if current_user.is_authenticated else [] %}
+{% endif %}
+{% set dashboard_option_count =
+    (1 if 'dashboard.admin' in dashboard_permissions else 0) +
+    (1 if 'dashboard.doctor' in dashboard_permissions else 0) +
+    (1 if 'dashboard.user' in dashboard_permissions else 0)
+%}
+{% if show_dashboard_switcher is not defined %}
+{% set show_dashboard_switcher = dashboard_option_count > 1 %}
+{% endif %}
+{% if show_dashboard_switcher %}
+<div class="dashboard-switcher dropdown">
+    <button class="dashboard-switcher-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+        aria-label="Dashboard switcher">
+        <span class="dashboard-switcher-icon" aria-hidden="true"></span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+        {% if 'dashboard.admin' in dashboard_permissions %}
+        <li><a class="dropdown-item" href="{{ url_for('dashboard.admin_dashboard') }}">Admin Dashboard</a></li>
+        {% endif %}
+        {% if 'dashboard.doctor' in dashboard_permissions %}
+        <li><a class="dropdown-item" href="{{ url_for('dashboard.doctor_dashboard') }}">Doctor Dashboard</a></li>
+        {% endif %}
+        {% if 'dashboard.user' in dashboard_permissions %}
+        <li><a class="dropdown-item" href="{{ url_for('dashboard.user_dashboard') }}">User Dashboard</a></li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}

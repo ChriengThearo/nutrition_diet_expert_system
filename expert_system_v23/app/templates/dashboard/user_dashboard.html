@@ -1,0 +1,230 @@
+{% extends "layouts/base_enhanced.html" %}
+
+{% block title %}User Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+{% endblock %}
+
+{% block content %}
+{% set last_plan = plan_history[0] if plan_history else None %}
+<div class="dashboard-shell user-shell">
+    <div class="dashboard-container">
+        <section class="role-hero">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="hero-chip"><i class="fas fa-leaf"></i> Personalized Nutrition Journey</span>
+                    <h1 class="hero-title">Welcome back, {{ user.full_name or user.username }}.</h1>
+                    <p class="hero-copy">Review your latest health profile, track progress across generated plans, and
+                        create a fresh recommendation in one click.</p>
+                    <div class="hero-actions">
+                        <a class="btn btn-light" href="{{ url_for('dashboard.user_diet_expert') }}"
+                           data-permission="user.dashboard.create" data-action="generate diet plans">
+                            <i class="fas fa-utensils me-2"></i>Generate New Plan
+                        </a>
+                        <a class="btn btn-outline-light" href="{{ url_for('dashboard.user_profile_edit') }}"
+                           data-permission="user.dashboard.update" data-action="update your profile">
+                            <i class="fas fa-user-edit me-2"></i>Edit Profile
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 mt-4 mt-lg-0">
+                    <div class="hero-meta-card">
+                        <p class="hero-meta-label">Latest Plan Snapshot</p>
+                        <p class="hero-meta-value">
+                            {% if last_plan and last_plan.generated_at %}
+                            {{ last_plan.generated_at.strftime('%b %d, %Y') }}
+                            {% else %}
+                            Not generated yet
+                            {% endif %}
+                        </p>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <span class="badge bg-light text-dark">{{ user.username }}</span>
+                            <span class="badge bg-dark-subtle text-dark">Member since {{ user.created_at.strftime('%Y')
+                                }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="metric-grid">
+            <article class="metric-card">
+                <div class="metric-head">
+                    <div>
+                        <p class="metric-label">Latest Diet Type</p>
+                        <p class="metric-value">
+                            {{ last_plan.diet_type|replace('_', ' ')|title if last_plan and last_plan.diet_type else 'Not set' }}
+                        </p>
+                    </div>
+                    <span class="metric-icon"><i class="fas fa-utensils"></i></span>
+                </div>
+                <p class="metric-meta">Most recent plan recommendation.</p>
+            </article>
+            <article class="metric-card">
+                <div class="metric-head">
+                    <div>
+                        <p class="metric-label">Meals / Day</p>
+                        <p class="metric-value">
+                            {{ last_plan.meals_per_day if last_plan and last_plan.meals_per_day else 'N/A' }}
+                        </p>
+                    </div>
+                    <span class="metric-icon"><i class="fas fa-bowl-rice"></i></span>
+                </div>
+                <p class="metric-meta">Based on your latest plan.</p>
+            </article>
+            <article class="metric-card">
+                <div class="metric-head">
+                    <div>
+                        <p class="metric-label">BMI</p>
+                        <p class="metric-value" id="user_bmi">
+                            {{ last_plan.bmi if last_plan and last_plan.bmi else (user_stats.user_bmi if user_stats and user_stats.user_bmi else 'N/A') }}
+                        </p>
+                    </div>
+                    <span class="metric-icon"><i class="fas fa-weight-scale"></i></span>
+                </div>
+                <p class="metric-meta">Latest recorded body mass index.</p>
+            </article>
+            <article class="metric-card">
+                <div class="metric-head">
+                    <div>
+                        <p class="metric-label">Calories</p>
+                        <p class="metric-value">
+                            {{ last_plan.calories if last_plan and last_plan.calories else 'N/A' }}
+                        </p>
+                    </div>
+                    <span class="metric-icon"><i class="fas fa-fire"></i></span>
+                </div>
+                <p class="metric-meta">Daily intake target.</p>
+            </article>
+            <article class="metric-card">
+                <div class="metric-head">
+                    <div>
+                        <p class="metric-label">Allergies</p>
+                        <p class="metric-value">
+                            {{ last_plan.allergies if last_plan and last_plan.allergies else 'None noted' }}
+                        </p>
+                    </div>
+                    <span class="metric-icon"><i class="fas fa-shield-heart"></i></span>
+                </div>
+                <p class="metric-meta">Saved from the latest profile.</p>
+            </article>
+            <article class="metric-card">
+                <div class="metric-head">
+                    <div>
+                        <p class="metric-label">Goals</p>
+                        <p class="metric-value">
+                            {% if user.goals %}
+                            {{ user.goals | map(attribute='name') | join(', ') }}
+                            {% else %}
+                            None selected
+                            {% endif %}
+                        </p>
+                    </div>
+                    <span class="metric-icon"><i class="fas fa-bullseye"></i></span>
+                </div>
+                <p class="metric-meta">Active goals tied to your account.</p>
+            </article>
+        </section>
+
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <article class="profile-card">
+                    <header class="panel-head">
+                        <div>
+                            <h3 class="panel-title"><i class="fas fa-id-card"></i> Profile Overview</h3>
+                            <p class="panel-subtitle">Core account details and selected targets.</p>
+                        </div>
+                    </header>
+                    <div class="panel-body">
+                        <ul class="profile-list">
+                            <li><strong>Name:</strong> {{ user.full_name or 'Not set' }}</li>
+                            <li><strong>Email:</strong> {{ user.email }}</li>
+                            <li><strong>Username:</strong> {{ user.username }}</li>
+                            <li><strong>Goals:</strong> {% if user.goals %}{{ user.goals | map(attribute='name') |
+                                join(', ') }}{% else %}None selected{% endif %}</li>
+                            <li><strong>Roles:</strong>
+                                {% for role in user.roles %}
+                                <span class="inline-pill">{{ role.name|title }}</span>
+                                {% endfor %}
+                            </li>
+                        </ul>
+                        <div class="alert alert-light mt-3 mb-0">
+                            <i class="fas fa-lightbulb me-2 text-success"></i>
+                            Keep your personal profile current for more accurate rule matching.
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <div class="col-lg-8">
+                <article class="history-card">
+                    <header class="panel-head">
+                        <div>
+                            <h3 class="panel-title"><i class="fas fa-clock-rotate-left"></i> Diet Plan History</h3>
+                            <p class="panel-subtitle">Recent generated plans and profile snapshots.</p>
+                        </div>
+                        <a class="btn btn-outline-success btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}"
+                           data-permission="user.dashboard.create" data-action="generate diet plans">
+                            <i class="fas fa-plus me-1"></i>Generate Plan
+                        </a>
+                    </header>
+                    <div class="panel-body">
+                        {% if plan_history %}
+                        <div class="table-responsive">
+                            <table class="table plan-history-table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Diet Type</th>
+                                        <th>Meals/Day</th>
+                                        <th>BMI</th>
+                                        <th>Calories</th>
+                                        <th>Allergies</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for plan in plan_history %}
+                                    <tr>
+                                        <td>{{ plan.generated_at.strftime('%b %d, %Y') if plan.generated_at else 'Unknown'
+                                            }}</td>
+                                        <td>
+                                            <span class="inline-pill">
+                                                {{ plan.diet_type|replace('_', ' ')|title if plan.diet_type else 'Not set' }}
+                                            </span>
+                                        </td>
+                                        <td>{{ plan.meals_per_day if plan.meals_per_day else 'N/A' }}</td>
+                                        <td>{{ plan.bmi if plan.bmi else 'N/A' }}</td>
+                                        <td>{{ plan.calories if plan.calories else 'N/A' }}</td>
+                                        <td>{{ plan.allergies if plan.allergies else 'N/A' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-clipboard-list fa-3x"></i>
+                            <h6>No diet plans yet</h6>
+                            <p>Generate your first plan and your progress history will appear here.</p>
+                            <a class="btn btn-success" href="{{ url_for('dashboard.user_diet_expert') }}"
+                               data-permission="user.dashboard.create" data-action="generate diet plans">
+                                <i class="fas fa-utensils me-2"></i>Generate First Plan
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

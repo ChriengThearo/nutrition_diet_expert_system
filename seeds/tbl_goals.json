@@ -1,0 +1,26 @@
+[
+  {
+    "id": 2,
+    "name": "Lose Weight",
+    "description": "Reduce body weight safely and steadily.",
+    "target_value": null,
+    "diet_rule_id": 28,
+    "updated_at": "2026-02-02T03:20:32"
+  },
+  {
+    "id": 3,
+    "name": "Maintain Weight",
+    "description": "Keep current weight stable and healthy.",
+    "target_value": null,
+    "diet_rule_id": 24,
+    "updated_at": "2026-02-02T03:20:32"
+  },
+  {
+    "id": 4,
+    "name": "Gain Weight",
+    "description": "Increase body weight in a healthy way.",
+    "target_value": null,
+    "diet_rule_id": 23,
+    "updated_at": "2026-02-02T03:20:32"
+  }
+]

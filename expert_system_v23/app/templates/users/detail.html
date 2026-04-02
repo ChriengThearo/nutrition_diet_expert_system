@@ -1,0 +1,61 @@
+{% extends "layouts/base.html" %} 
+{% block title %}User {{ user.username }}{%  endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">User: {{ user.username }}</h1>
+  <div>
+    <a
+      href="{{ url_for('tbl_users.edit', user_id=user.id) }}"
+      class="btn btn-sm btn-outline-secondary"
+      >Edit</a
+    >
+    <a href="{{ url_for('tbl_users.delete_confirm', user_id=user.id) }}"
+      class="btn btn-sm btn-outline-danger">
+      Delete
+    </a>
+    <a
+      href="{{ url_for('tbl_users.index') }}"
+      class="btn btn-sm btn-outline-primary"
+      >Back to list
+      </a>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <p><strong>Username:</strong>{{ user.username }}</p>
+    <p><strong>Full name:</strong>{{ user.full_name }}</p>
+    <p><strong>Email:</strong>{{ user.email }}</p>
+    <p>
+      <strong>Status:</strong>
+      {% if user.is_active %}
+        <span class="badge text-bg-success">Active</span>
+        {% else %}
+        <span class="badge text-bg-secondary">Inactive</span>
+        {% endif %}
+    </p>
+    <p>
+      <strong>Roles:</strong>
+      {% if user.roles %}
+        {{ user.roles | map(attribute="name") | join(", ") }}
+      {% else %}
+        <span class="text-muted">No role</span>
+      {% endif %}
+    </p>
+    <p>
+      <strong>Permissions:</strong>
+      {% set user_permissions = user.get_permission_codes() %}
+      {% if user_permissions %}
+        {% for permission in user_permissions %}
+          <span class="badge text-bg-info me-1">{{ permission }}</span>
+        {% endfor %}
+      {% else %}
+        <span class="text-muted">No permissions</span>
+      {% endif %}
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+

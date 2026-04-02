@@ -1,0 +1,394 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Q&A - Medical Questions{% endblock %}
+
+{% block extra_css %}
+<style>
+.qa-container {
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
+.qa-form {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.qa-form .form-control,
+.qa-form .form-control:focus {
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    color: #333;
+}
+
+.qa-form .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.answer-section {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.answer-card {
+    background: white;
+    border: none;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.question-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #e3f2fd;
+    border-radius: 8px;
+    border-left: 4px solid #2196f3;
+}
+
+.answer-text {
+    color: #495057;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.disclaimer {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.disclaimer h6 {
+    color: #856404;
+    margin-bottom: 0.5rem;
+}
+
+.disclaimer p {
+    color: #856404;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+.faq-section {
+    margin-top: 3rem;
+}
+
+.faq-item {
+    background: white;
+    border: none;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.faq-question {
+    background: #f8f9fa;
+    padding: 1rem 1.5rem;
+    border: none;
+    width: 100%;
+    text-align: left;
+    font-weight: 500;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.faq-question:hover {
+    background: #e9ecef;
+}
+
+.faq-question:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.faq-answer {
+    padding: 1rem 1.5rem;
+    color: #495057;
+    line-height: 1.6;
+    border-top: 1px solid #dee2e6;
+}
+
+.typing-indicator {
+    display: none;
+    text-align: center;
+    padding: 1rem;
+    color: #6c757d;
+}
+
+.typing-dots {
+    display: inline-block;
+}
+
+.typing-dots::after {
+    content: '...';
+    animation: typing 1.5s infinite;
+}
+
+@keyframes typing {
+    0% { content: '.'; }
+    33% { content: '..'; }
+    66% { content: '...'; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="qa-container">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold">Medical Q&A</h1>
+            <p class="lead text-muted">Ask health-related questions and get AI-powered guidance</p>
+        </div>
+
+        <!-- Q&A Form -->
+        <div class="qa-form">
+            <form method="POST" id="qaForm">
+                <div class="mb-3">
+                    <label for="question" class="form-label">
+                        <i class="fas fa-question-circle me-2"></i>Your Health Question
+                    </label>
+                    <textarea class="form-control form-control-lg" 
+                              id="question" 
+                              name="question" 
+                              rows="4" 
+                              placeholder="Type your health-related question here... For example: What are the symptoms of diabetes? or How can I improve my diet for better heart health?"
+                              required>{{ question or '' }}</textarea>
+                    <div class="form-text mt-2">
+                        Be as specific as possible for better answers. This is not a substitute for professional medical advice.
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-light btn-lg" id="submitBtn">
+                        <i class="fas fa-paper-plane me-2"></i>Get Answer
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Answer Section -->
+        {% if answer %}
+        <div class="answer-section">
+            <h5 class="mb-3">
+                <i class="fas fa-lightbulb me-2"></i>Answer to Your Question
+            </h5>
+            
+            <div class="answer-card">
+                <div class="question-text">
+                    <i class="fas fa-quote-left me-2"></i>{{ question }}
+                </div>
+                
+                <div class="answer-text">
+                    {{ answer }}
+                </div>
+                
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="copyAnswer()">
+                        <i class="fas fa-copy me-1"></i>Copy
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="shareAnswer()">
+                        <i class="fas fa-share me-1"></i>Share
+                    </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="printAnswer()">
+                        <i class="fas fa-print me-1"></i>Print
+                    </button>
+                </div>
+                
+                <div class="disclaimer">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Important Disclaimer</h6>
+                    <p>
+                        This AI-generated answer is for informational purposes only and should not be considered as medical advice. 
+                        Always consult with a qualified healthcare professional for medical concerns, diagnosis, or treatment.
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">AI is thinking</div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h3 class="mb-4">Frequently Asked Questions</h3>
+            
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    <i class="fas fa-chevron-right me-2"></i>What is BMI and how is it calculated?
+                </button>
+                <div class="faq-answer" style="display: none;">
+                    BMI (Body Mass Index) is a measure of body fat based on height and weight. It's calculated by dividing weight in kilograms by height in meters squared. A BMI between 18.5 and 24.9 is generally considered healthy.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    <i class="fas fa-chevron-right me-2"></i>What are the common symptoms of diabetes?
+                </button>
+                <div class="faq-answer" style="display: none;">
+                    Common symptoms of diabetes include increased thirst, frequent urination, unexplained weight loss, fatigue, blurred vision, and slow-healing sores. However, some people with type 2 diabetes may have no symptoms initially.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    <i class="fas fa-chevron-right me-2"></i>How can I improve my diet for better heart health?
+                </button>
+                <div class="faq-answer" style="display: none;">
+                    For better heart health, focus on a diet rich in fruits, vegetables, whole grains, and lean proteins. Limit saturated fats, trans fats, sodium, and added sugars. The Mediterranean diet and DASH diet are both evidence-based approaches for heart health.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    <i class="fas fa-chevron-right me-2"></i>What should I do if I think I have a medical emergency?
+                </button>
+                <div class="faq-answer" style="display: none;">
+                    If you believe you're experiencing a medical emergency, call emergency services (911 in the US) immediately or go to the nearest emergency room. Don't wait for online advice in emergency situations.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleFAQ(this)">
+                    <i class="fas fa-chevron-right me-2"></i>How often should I have a medical check-up?
+                </button>
+                <div class="faq-answer" style="display: none;">
+                    General recommendations suggest annual check-ups for adults, but your specific needs may vary based on age, health status, and risk factors. Consult with your healthcare provider for personalized recommendations.
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Resources -->
+        <div class="mt-5">
+            <h5>Related Resources</h5>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('main.bmi') }}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-calculator me-2"></i>BMI Calculator
+                    </a>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('main.match') }}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-search me-2"></i>Find Diet Plans
+                    </a>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <a href="{{ url_for('main.rules') }}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-book me-2"></i>Browse Rules
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleFAQ(button) {
+    const answer = button.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    if (answer.style.display === 'none') {
+        answer.style.display = 'block';
+        icon.classList.remove('fa-chevron-right');
+        icon.classList.add('fa-chevron-down');
+    } else {
+        answer.style.display = 'none';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-right');
+    }
+}
+
+function copyAnswer() {
+    const answerText = document.querySelector('.answer-text').textContent;
+    const dummy = document.createElement('textarea');
+    document.body.appendChild(dummy);
+    dummy.value = answerText;
+    dummy.select();
+    document.execCommand('copy');
+    document.body.removeChild(dummy);
+    
+    // Show feedback
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+    }, 2000);
+}
+
+function shareAnswer() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Medical Q&A Answer',
+            text: document.querySelector('.answer-text').textContent,
+            url: window.location.href
+        });
+    } else {
+        const dummy = document.createElement('input');
+        document.body.appendChild(dummy);
+        dummy.value = window.location.href;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        alert('Link copied to clipboard!');
+    }
+}
+
+function printAnswer() {
+    window.print();
+}
+
+// Form submission with loading state
+document.getElementById('qaForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const typingIndicator = document.getElementById('typingIndicator');
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+    typingIndicator.style.display = 'block';
+    
+    // Scroll to typing indicator
+    typingIndicator.scrollIntoView({ behavior: 'smooth' });
+});
+
+// Auto-resize textarea
+document.getElementById('question').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+});
+
+// Add print styles
+document.addEventListener('DOMContentLoaded', function() {
+    const printStyles = document.createElement('style');
+    printStyles.textContent = `
+        @media print {
+            .qa-form, .faq-section, .typing-indicator {
+                display: none !important;
+            }
+            .answer-section {
+                page-break-inside: avoid;
+            }
+        }
+    `;
+    document.head.appendChild(printStyles);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,275 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-shell admin-shell">
+    <div class="dashboard-container">
+        <section class="role-hero">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="hero-chip"><i class="fas fa-shield-alt"></i> Global Admin Control</span>
+                    <h1 class="hero-title">Administration Command Center</h1>
+                    <p class="hero-copy">Track platform health, manage users and security policy, and coordinate rule
+                        operations from one high-clarity workspace.</p>
+                    <div class="hero-actions">
+                        <a class="btn btn-light" href="{{ url_for('tbl_users.index') }}"
+                           data-permission="user.read" data-action="view users">
+                            <i class="fas fa-users me-2"></i>Open User Directory
+                        </a>
+                        <a class="btn btn-outline-light" href="{{ url_for('dashboard.doctor_dashboard') }}"
+                           data-permission="dashboard.doctor" data-action="open doctor dashboard">
+                            <i class="fas fa-stethoscope me-2"></i>Open Doctor Workspace
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-4 mt-4 mt-lg-0">
+                    <div class="hero-meta-card">
+                        <p class="hero-meta-label">Signed In As</p>
+                        <p class="hero-meta-value">{{ current_user.full_name or current_user.username }}</p>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            <span class="badge bg-danger">Administrator</span>
+                            <span class="badge bg-light text-dark">System Core</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="metric-grid">
+            <article class="metric-card">
+                <div class="metric-head">
+                    <div>
+                        <p class="metric-label">Total Users</p>
+                        <p class="metric-value" id="total_users">{{ total_users }}</p>
+                    </div>
+                    <span class="metric-icon"><i class="fas fa-users"></i></span>
+                </div>
+                <p class="metric-meta">All registered platform members.</p>
+            </article>
+            <article class="metric-card">
+                <div class="metric-head">
+                    <div>
+                        <p class="metric-label">Doctors</p>
+                        <p class="metric-value" id="total_doctors">{{ total_doctors }}</p>
+                    </div>
+                    <span class="metric-icon"><i class="fas fa-user-md"></i></span>
+                </div>
+                <p class="metric-meta">Experts maintaining diet intelligence.</p>
+            </article>
+            <article class="metric-card">
+                <div class="metric-head">
+                    <div>
+                        <p class="metric-label">Diet Rules</p>
+                        <p class="metric-value" id="total_rules">{{ total_rules }}</p>
+                    </div>
+                    <span class="metric-icon"><i class="fas fa-balance-scale"></i></span>
+                </div>
+                <p class="metric-meta">Knowledge rules powering recommendations.</p>
+            </article>
+            <article class="metric-card">
+                <div class="metric-head">
+                    <div>
+                        <p class="metric-label">Security Status</p>
+                        <p class="metric-value">Stable</p>
+                    </div>
+                    <span class="metric-icon"><i class="fas fa-shield-alt"></i></span>
+                </div>
+                <p class="metric-meta">No critical issues detected in this session.</p>
+            </article>
+        </section>
+
+        <section class="command-grid">
+            <article class="panel-card">
+                <header class="panel-head">
+                    <div>
+                        <h3 class="panel-title"><i class="fas fa-users-cog"></i> User & Access</h3>
+                        <p class="panel-subtitle">Identity, role, and permission administration.</p>
+                    </div>
+                </header>
+                <div class="panel-body">
+                    <div class="quick-actions">
+                        <a class="quick-action" href="{{ url_for('tbl_users.create') }}"
+                           data-permission="user.create" data-action="create users"><i class="fas fa-user-plus"></i>Create User</a>
+                        <a class="quick-action" href="{{ url_for('tbl_roles.index') }}"
+                           data-permission="role.read" data-action="view roles"><i class="fas fa-user-tag"></i>Manage Roles</a>
+                        <a class="quick-action" href="{{ url_for('tbl_permissions.index') }}"
+                           data-permission="permission.read" data-action="view permissions"><i class="fas fa-key"></i>Permissions</a>
+                        <button class="quick-action" onclick="showAuditLog()"
+                                data-permission="system.audit" data-action="view audit log"><i class="fas fa-history"></i>Audit Log</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel-card">
+                <header class="panel-head">
+                    <div>
+                        <h3 class="panel-title"><i class="fas fa-database"></i> Knowledge Hub</h3>
+                        <p class="panel-subtitle">Rules, foods, and goal exploration surfaces.</p>
+                    </div>
+                </header>
+                <div class="panel-body">
+                    <div class="quick-actions">
+                        <a class="quick-action" href="{{ url_for('main.match') }}"><i class="fas fa-bullseye"></i>Goal Matching</a>
+                        <a class="quick-action" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"
+                           data-permission="food.read" data-action="view foods"><i class="fas fa-carrot"></i>Food Database</a>
+                        <a class="quick-action" href="{{ url_for('main.rules') }}"
+                           data-permission="rule.read" data-action="view rules"><i class="fas fa-book-open"></i>Rule Library</a>
+                        <button class="quick-action" onclick="showComingSoon('Data export center')"><i class="fas fa-download"></i>Export Data</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel-card">
+                <header class="panel-head">
+                    <div>
+                        <h3 class="panel-title"><i class="fas fa-gavel"></i> Rule Operations</h3>
+                        <p class="panel-subtitle">Authoring, testing, and rule quality checks.</p>
+                    </div>
+                </header>
+                <div class="panel-body">
+                    <div class="quick-actions">
+                        <a class="quick-action" href="{{ url_for('dashboard.doctor_dashboard') }}#builder"
+                           data-permission="rule.create" data-action="create rules"><i class="fas fa-plus-circle"></i>Create Rule</a>
+                        <a class="quick-action" href="{{ url_for('dashboard.doctor_dashboard') }}#test"
+                           data-permission="rule.test" data-action="test rules"><i class="fas fa-vial"></i>Test Rules</a>
+                        <button class="quick-action" onclick="showComingSoon('Rule validator')"
+                                data-permission="rule.edit" data-action="validate rules"><i class="fas fa-check-double"></i>Validate</button>
+                        <button class="quick-action" onclick="showComingSoon('Rule analytics')"
+                                data-permission="rule.read" data-action="view rule analytics"><i class="fas fa-chart-line"></i>Analytics</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel-card">
+                <header class="panel-head">
+                    <div>
+                        <h3 class="panel-title"><i class="fas fa-cogs"></i> Platform Operations</h3>
+                        <p class="panel-subtitle">System-level maintenance and governance settings.</p>
+                    </div>
+                </header>
+                <div class="panel-body">
+                    <div class="quick-actions">
+                        <button class="quick-action" onclick="showComingSoon('Approval policy')"><i class="fas fa-user-check"></i>Approval Policy</button>
+                        <button class="quick-action" onclick="showComingSoon('System logs')"><i class="fas fa-file-alt"></i>System Logs</button>
+                        <button class="quick-action" onclick="showComingSoon('Backup automation')"><i class="fas fa-save"></i>Backup</button>
+                        <button class="quick-action" onclick="showComingSoon('Security hardening')"><i class="fas fa-shield-alt"></i>Security</button>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="panel-card mt-3">
+            <header class="panel-head">
+                <div>
+                    <h3 class="panel-title"><i class="fas fa-clock"></i> Recent Activity</h3>
+                    <p class="panel-subtitle">Live operational feed from the admin data endpoint.</p>
+                </div>
+                <button class="btn btn-outline-secondary btn-sm" onclick="refreshActivity()">Refresh</button>
+            </header>
+            <div class="panel-body">
+                <div class="activity-stream" id="activityFeed">
+                    <div class="activity-item">
+                        <p class="activity-time">Loading</p>
+                        <p class="activity-title mb-1">Fetching latest activity</p>
+                        <p class="activity-description">Dashboard stream is synchronizing with server data.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+function showComingSoon(featureName) {
+    const message = `${featureName} will be available soon.`;
+    if (window.showNotification) {
+        window.showNotification(message, 'info');
+        return;
+    }
+    alert(message);
+}
+
+function formatRelativeTime(timestamp) {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) {
+        return 'Unknown time';
+    }
+    const diffMs = Date.now() - date.getTime();
+    const diffMinutes = Math.floor(diffMs / 60000);
+    if (diffMinutes < 1) return 'Just now';
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return date.toLocaleDateString();
+}
+
+function renderActivities(activities) {
+    const feed = document.getElementById('activityFeed');
+    if (!feed) return;
+    if (!activities || activities.length === 0) {
+        feed.innerHTML = `
+            <div class="activity-item">
+                <p class="activity-time">No Updates</p>
+                <p class="activity-title mb-1">No recent activity</p>
+                <p class="activity-description">Try again in a few minutes.</p>
+            </div>
+        `;
+        return;
+    }
+    feed.innerHTML = activities.map(activity => `
+        <div class="activity-item">
+            <p class="activity-time">${formatRelativeTime(activity.timestamp)}</p>
+            <p class="activity-title mb-1">${activity.title || 'Activity'}</p>
+            <p class="activity-description">${activity.description || 'No details available.'}</p>
+        </div>
+    `).join('');
+}
+
+function refreshActivity() {
+    fetch('/dashboard/admin/data')
+        .then(response => response.json())
+        .then(data => {
+            if (data.total_users !== undefined) {
+                document.getElementById('total_users').textContent = data.total_users;
+            }
+            if (data.total_doctors !== undefined) {
+                document.getElementById('total_doctors').textContent = data.total_doctors;
+            }
+            if (data.total_rules !== undefined) {
+                document.getElementById('total_rules').textContent = data.total_rules;
+            }
+            renderActivities(data.activities || []);
+        })
+        .catch(() => {
+            showComingSoon('Live admin stream');
+        });
+}
+
+function showAuditLog() {
+    fetch('/dashboard/admin/audit-log')
+        .then(response => response.json())
+        .then(data => {
+            const normalized = (data || []).map(item => ({
+                timestamp: item.timestamp,
+                title: item.action || item.title || 'Audit Event',
+                description: item.details
+                    ? `${item.user || 'System'}: ${item.details}`
+                    : (item.description || 'No details available.')
+            }));
+            renderActivities(normalized);
+        })
+        .catch(() => showComingSoon('Audit log'));
+}
+
+document.addEventListener('DOMContentLoaded', refreshActivity);
+</script>
+{% endblock %}

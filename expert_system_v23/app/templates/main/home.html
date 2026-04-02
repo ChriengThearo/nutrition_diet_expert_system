@@ -1,0 +1,459 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Nutrition & Diet Expert System{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
+<style>
+    .home-shell {
+        padding-bottom: 2.5rem;
+    }
+
+    .hero-section {
+        background: linear-gradient(135deg, #0e6557, #177f6c 52%, #2d64c3);
+        color: white;
+        padding: 4.5rem 0;
+        border-radius: 0 0 80px 80px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 26px 60px rgba(12, 45, 66, 0.24);
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="80" r="4" fill="rgba(255,255,255,0.1)"/></svg>');
+        animation: float 20s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    .feature-card {
+        transition: all 0.3s ease;
+        border: 1px solid var(--dash-line);
+        box-shadow: var(--dash-shadow);
+        height: 100%;
+        border-radius: 18px;
+        overflow: hidden;
+        background: var(--dash-card);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--dash-glow);
+    }
+
+    .feature-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .nutrition-icon {
+        font-size: 10rem;
+        opacity: 0.2;
+        position: absolute;
+        right: 50px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .workflow-step {
+        text-align: center;
+        padding: 2rem;
+        position: relative;
+    }
+
+    .workflow-step::after {
+        content: '\f054';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        right: -20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #28a745;
+        font-size: 2rem;
+    }
+
+    .workflow-step:last-child::after {
+        display: none;
+    }
+
+    .workflow-step .list-unstyled {
+        text-align: left;
+    }
+
+    .workflow-step .list-unstyled li {
+        display: flex;
+        justify-content: flex-start;
+        gap: 0.5rem;
+    }
+
+    .stats-section {
+        background: transparent;
+        padding: 4rem 0;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 2rem;
+        background: var(--dash-card);
+        border-radius: 18px;
+        border: 1px solid var(--dash-line);
+        box-shadow: var(--dash-shadow);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-number {
+        font-size: 3.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .food-category {
+        padding: 1.5rem;
+        border-radius: 14px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid var(--dash-line);
+        background: var(--dash-card);
+        box-shadow: var(--dash-shadow);
+    }
+
+    .food-category:hover {
+        border-color: rgba(15, 118, 110, 0.35);
+        background: rgba(15, 118, 110, 0.06);
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #0e6557, #177f6c 52%, #2d64c3);
+        color: white;
+        padding: 4rem 0;
+        margin-top: 3rem;
+        border-radius: 80px 80px 0 0;
+    }
+
+    .benefit-card {
+        background: var(--dash-card);
+        border-radius: 18px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--dash-shadow);
+        border: 1px solid var(--dash-line);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .benefit-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .benefit-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--dash-primary);
+    }
+
+    .diet-plan-preview {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(255, 255, 255, 0.9));
+        border-radius: 18px;
+        padding: 2rem;
+        border-left: 5px solid var(--dash-accent);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .home-section {
+        padding: 3.5rem 0;
+    }
+
+    .home-section.bg-soft {
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 24px;
+        box-shadow: var(--dash-shadow);
+        border: 1px solid var(--dash-line);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-shell user-shell home-shell">
+    <div class="dashboard-container">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container position-relative">
+                <div class="row align-items-center">
+                    <div class="col-lg-7">
+                        <h1 class="display-3 fw-bold mb-4">Nutrition & Diet Expert System</h1>
+                        <p class="lead mb-4">
+                            Personalized nutrition recommendations powered by Expert System technology. Get expert
+                            dietary advice tailored to your health conditions, goals, and lifestyle.
+                        </p>
+                        <div class="mb-4">
+                            <span class="badge bg-light text-dark me-2 p-2"><i class="fas fa-apple-alt me-1"></i>Smart
+                                Food Analysis</span>
+                            <span class="badge bg-light text-dark me-2 p-2"><i
+                                    class="fas fa-heartbeat me-1"></i>Health-Based</span>
+                            <span class="badge bg-light text-dark p-2"><i class="fas fa-chart-line me-1"></i>Progress
+                                Tracking</span>
+                        </div>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-light btn-lg me-3">
+                            <i class="fas fa-utensils me-2"></i>Go to Dashboard
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg me-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Get Started
+                        </a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Sign Up Free
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="text-center position-relative">
+                            <i class="fas fa-carrot nutrition-icon"></i>
+                            <i class="fas fa-lemon"
+                                style="font-size: 3rem; opacity: 0.3; position: absolute; top: 20px; left: 20px;"></i>
+                            <i class="fas fa-apple-alt"
+                                style="font-size: 2rem; opacity: 0.3; position: absolute; bottom: 30px; right: 30px;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="home-section">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="display-5 fw-bold">How It Works</h2>
+                    <p class="lead text-muted">Your personalized nutrition journey in 3 simple steps</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 workflow-step">
+                        <div class="feature-card card h-100">
+                            <div class="card-body">
+                                <div class="feature-icon">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <h4>1. Profile Assessment</h4>
+                                <p class="text-muted">
+                                    Tell us about your health conditions, dietary preferences, and wellness goals.
+                                </p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Health conditions</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Dietary restrictions</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Personal goals</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 workflow-step">
+                        <div class="feature-card card h-100">
+                            <div class="card-body">
+                                <div class="feature-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <h4>2. Expert System Analysis</h4>
+                                <p class="text-muted">
+                                    Our expert system analyzes your profile against medical knowledge and nutrition
+                                    science.
+                                </p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Medical rules engine</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Nutrition database</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Personalized algorithms</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 workflow-step">
+                        <div class="feature-card card h-100">
+                            <div class="card-body">
+                                <div class="feature-icon">
+                                    <i class="fas fa-clipboard-list"></i>
+                                </div>
+                                <h4>3. Custom Diet Plan</h4>
+                                <p class="text-muted">
+                                    Receive your personalized nutrition plan with meal recommendations and food
+                                    guidelines.
+                                </p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Meal plans</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Food recommendations</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Progress tracking</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section class="home-section">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="display-5 fw-bold">Why Choose Our System</h2>
+                    <p class="lead text-muted">Evidence-based nutrition guidance for better health</p>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <h5>Medical Expertise</h5>
+                            <p class="text-muted">Developed with healthcare professionals and nutritionists</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-cogs"></i>
+                            </div>
+                            <h5>Expert System Algorithms</h5>
+                            <p class="text-muted">Expert system-powered analysis for personalized recommendations</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h5>Progress Tracking</h5>
+                            <p class="text-muted">Monitor your health improvements over time</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h5>Safe & Secure</h5>
+                            <p class="text-muted">Your health data is protected with enterprise security</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h5>Mobile Friendly</h5>
+                            <p class="text-muted">Access your nutrition plan anywhere, anytime</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="benefit-card">
+                            <div class="benefit-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h5>Community Support</h5>
+                            <p class="text-muted">Join thousands achieving their health goals</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="container text-center">
+                <h2 class="display-5 fw-bold mb-4">Start Your Nutrition Journey Today</h2>
+                <p class="lead mb-4">
+                    Join thousands who have transformed their health with personalized nutrition guidance
+                </p>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-light btn-lg me-3">
+                    <i class="fas fa-utensils me-2"></i>Access Your Dashboard
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg me-3">
+                    <i class="fas fa-rocket me-2"></i>Start Free Trial
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animated counter for stats
+    function animateCounter() {
+        const counters = document.querySelectorAll('.stat-number');
+        const speed = 200;
+
+        counters.forEach(counter => {
+            const animate = () => {
+                const target = +counter.getAttribute('data-count');
+                const count = +counter.innerText;
+                const increment = target / speed;
+
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(animate, 1);
+                } else {
+                    counter.innerText = target;
+                }
+            }
+
+            // Start animation when element is in viewport
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animate();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            });
+
+            observer.observe(counter);
+        });
+    }
+
+    // Initialize animations
+    document.addEventListener('DOMContentLoaded', function () {
+        animateCounter();
+    });
+</script>
+{% endblock %}

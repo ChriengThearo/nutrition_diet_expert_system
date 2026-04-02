@@ -1,0 +1,982 @@
+/* Dashboard Styles */
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Dashboard Header */
+.dashboard-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.dashboard-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+}
+
+.user-info {
+    font-size: 0.9rem;
+}
+
+.dashboard-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.dashboard-switcher-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.dashboard-switcher-btn:hover {
+    background: #f8fafc;
+}
+
+.dashboard-switcher-btn:focus-visible {
+    outline: 3px solid rgba(13, 110, 253, 0.5);
+    outline-offset: 2px;
+}
+
+.dashboard-switcher-icon {
+    position: relative;
+    display: block;
+    width: 22px;
+    height: 3px;
+    border-radius: 999px;
+    background: #111827;
+}
+
+.dashboard-switcher-icon::before,
+.dashboard-switcher-icon::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 22px;
+    height: 3px;
+    border-radius: 999px;
+    background: #111827;
+}
+
+.dashboard-switcher-icon::before {
+    top: -7px;
+}
+
+.dashboard-switcher-icon::after {
+    top: 7px;
+}
+
+.dashboard-switcher .dropdown-menu {
+    min-width: 220px;
+    margin-top: 0.5rem;
+}
+
+/* Stat Cards */
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--bs-primary), var(--bs-info));
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.stat-card.bg-primary::before {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+.stat-card.bg-success::before {
+    background: linear-gradient(90deg, #28a745, #1e7e34);
+}
+
+.stat-card.bg-info::before {
+    background: linear-gradient(90deg, #17a2b8, #117a8b);
+}
+
+.stat-card.bg-warning::before {
+    background: linear-gradient(90deg, #ffc107, #e0a800);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.stat-content h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.stat-content p {
+    margin: 0;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: none;
+    height: 100%;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+
+.dashboard-card .card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #dee2e6;
+    border-radius: 15px 15px 0 0;
+    padding: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-card .card-header h5 {
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Action Grid */
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.action-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #495057;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+}
+
+.action-item:hover {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-color: #007bff;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,123,255,0.3);
+}
+
+.action-item i {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+    transition: transform 0.3s ease;
+}
+
+.action-item:hover i {
+    transform: scale(1.1);
+}
+
+.action-item span {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+/* Activity Feed */
+.activity-feed,
+.consultation-feed,
+.diagnosis-history {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.activity-item,
+.consultation-item,
+.diagnosis-item {
+    padding: 1rem;
+    border-left: 4px solid #007bff;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+    border-radius: 0 8px 8px 0;
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover,
+.consultation-item:hover,
+.diagnosis-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.activity-item .activity-time,
+.consultation-item .consultation-time,
+.diagnosis-item .diagnosis-time {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.activity-item .activity-title,
+.consultation-item .consultation-title,
+.diagnosis-item .diagnosis-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+}
+
+.activity-item .activity-description,
+.consultation-item .consultation-description,
+.diagnosis-item .diagnosis-description {
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+/* Profile Info */
+.profile-info {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+}
+
+.profile-info p {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.profile-info strong {
+    color: #2c3e50;
+}
+
+/* Symptom Selector */
+.symptom-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+}
+
+.symptom-item {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.symptom-item:hover {
+    border-color: #007bff;
+    box-shadow: 0 3px 10px rgba(0,123,255,0.1);
+}
+
+.severity-selector {
+    margin-top: 0.5rem;
+}
+
+/* Diagnosis Results */
+.diagnosis-summary {
+    padding: 1rem;
+}
+
+.diagnosis-summary h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.5rem;
+}
+
+.next-steps {
+    margin-top: 1rem;
+}
+
+.step-item {
+    padding: 0.5rem 0;
+    color: #495057;
+}
+
+/* Diet Summary */
+.diet-summary {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+}
+
+.diet-summary h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Progress bar dynamic width */
+.carbs-progress, .protein-progress, .fats-progress {
+    width: 0% !important;
+    transition: width 1s ease-in-out;
+}
+
+/* Nutrition Overview */
+.nutrition-overview {
+    padding: 1rem;
+}
+
+.nutrition-macro {
+    margin-bottom: 1.5rem;
+}
+
+.macro-item {
+    margin-bottom: 1rem;
+}
+
+.macro-label {
+    font-weight: 600;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.calories-summary {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+}
+
+/* Meal Tracking */
+.meal-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.meal-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.meal-type {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.meal-items {
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.meal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.meal-item:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.1);
+}
+
+.item-name {
+    font-weight: 500;
+    color: #495057;
+}
+
+.item-calories {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+/* Recommendations */
+.recommendations-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.recommendation-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.recommendation-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.rec-icon {
+    font-size: 1.5rem;
+    color: #007bff;
+    margin-right: 1rem;
+    margin-top: 0.25rem;
+}
+
+.rec-content {
+    flex: 1;
+}
+
+.rec-content h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.rec-content p {
+    color: #495057;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Water Intake Tracker */
+.water-tracker {
+    text-align: center;
+    padding: 1rem;
+}
+
+.water-glasses {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+.water-glass {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #007bff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.water-glass:hover {
+    transform: scale(1.1);
+}
+
+.water-glass.filled {
+    background: #007bff;
+    color: white;
+}
+
+.water-glass i {
+    font-size: 1rem;
+}
+
+.water-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.water-stat {
+    text-align: center;
+}
+
+.water-stat small {
+    display: block;
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+.water-stat strong {
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+/* Supplement Tracker */
+.supplement-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.supplement-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.supplement-item:hover {
+    border-color: #28a745;
+    box-shadow: 0 2px 8px rgba(40,167,69,0.1);
+}
+
+.supplement-info h6 {
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.supplement-info small {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+.supplement-time {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.supplement-status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.supplement-status.taken {
+    background: #d4edda;
+    color: #155724;
+}
+
+.supplement-status.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.supplement-status.missed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Recipe Cards */
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.recipe-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.recipe-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.recipe-image {
+    height: 120px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+}
+
+.recipe-info {
+    padding: 1rem;
+}
+
+.recipe-info h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.recipe-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.recipe-tags {
+    display: flex;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.recipe-tag {
+    padding: 0.125rem 0.375rem;
+    background: #e9ecef;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    color: #495057;
+}
+
+/* Nutrition Score */
+.nutrition-score-display {
+    text-align: center;
+    padding: 2rem;
+}
+
+.score-circle {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 1rem;
+    position: relative;
+}
+
+.score-circle svg {
+    transform: rotate(-90deg);
+}
+
+.score-circle text {
+    font-size: 2rem;
+    font-weight: 700;
+    fill: #2c3e50;
+}
+
+.score-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.score-description {
+    color: #495057;
+    font-size: 0.85rem;
+}
+
+/* Progress Charts */
+.nutrition-progress {
+    margin-top: 1rem;
+}
+
+.progress-item {
+    margin-bottom: 1rem;
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.progress-label span:first-child {
+    color: #495057;
+    font-weight: 500;
+}
+
+.progress-label span:last-child {
+    color: #6c757d;
+}
+
+/* Food Search and Suggestions */
+.food-suggestion {
+    padding: 0.75rem;
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.food-suggestion:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.1);
+}
+
+.food-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.25rem;
+}
+
+.food-calories {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.selected-food-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.nutrition-preview {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .dashboard-title {
+        font-size: 2rem;
+        justify-content: center;
+    }
+    
+    .user-info {
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .dashboard-header-actions {
+        justify-content: center;
+    }
+    
+    .action-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.5rem;
+    }
+    
+    .action-item {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .action-item i {
+        font-size: 1.25rem;
+    }
+    
+    .action-item span {
+        font-size: 0.75rem;
+    }
+    
+    .stat-card {
+        margin-bottom: 0.75rem;
+    }
+    
+    .recipe-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .water-glasses {
+        gap: 0.25rem;
+    }
+    
+    .water-glass {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dashboard-card,
+.stat-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Custom Scrollbar */
+.activity-feed,
+.consultation-feed,
+.diagnosis-history,
+.symptom-list {
+    scrollbar-width: thin;
+    scrollbar-color: #007bff #f8f9fa;
+}
+
+.activity-feed::-webkit-scrollbar,
+.consultation-feed::-webkit-scrollbar,
+.diagnosis-history::-webkit-scrollbar,
+.symptom-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.activity-feed::-webkit-scrollbar-track,
+.consultation-feed::-webkit-scrollbar-track,
+.diagnosis-history::-webkit-scrollbar-track,
+.symptom-list::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.activity-feed::-webkit-scrollbar-thumb,
+.consultation-feed::-webkit-scrollbar-thumb,
+.diagnosis-history::-webkit-scrollbar-thumb,
+.symptom-list::-webkit-scrollbar-thumb {
+    background: #007bff;
+    border-radius: 4px;
+}
+
+.activity-feed::-webkit-scrollbar-thumb:hover,
+.consultation-feed::-webkit-scrollbar-thumb:hover,
+.diagnosis-history::-webkit-scrollbar-thumb:hover,
+.symptom-list::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
+}
+
+/* Loading States */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Badge Variations */
+.badge-doctor {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.badge-admin {
+    background: linear-gradient(135deg, #dc3545, #fd7e14);
+}
+
+.badge-user {
+    background: linear-gradient(135deg, #007bff, #6610f2);
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-indicator.online {
+    background: #28a745;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.offline {
+    background: #6c757d;
+}
+
+.status-indicator.busy {
+    background: #ffc107;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}

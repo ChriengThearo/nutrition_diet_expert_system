@@ -1,0 +1,188 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}BMI Calculator{% endblock %}
+
+{% block extra_css %}
+<style>
+.bmi-calculator {
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.bmi-result {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.bmi-value {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.bmi-category {
+    font-size: 1.5rem;
+    font-weight: 300;
+}
+
+.bmi-chart {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    background: white;
+}
+
+.category-underweight { border-left: 4px solid #3498db; }
+.category-normal { border-left: 4px solid #27ae60; }
+.category-overweight { border-left: 4px solid #f39c12; }
+.category-obese { border-left: 4px solid #e74c3c; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="bmi-calculator">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold">BMI Calculator</h1>
+            <p class="lead text-muted">Calculate your Body Mass Index to assess your weight status</p>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="height" class="form-label">Height (cm)</label>
+                            <div class="input-group">
+                                <input type="number" 
+                                       class="form-control form-control-lg" 
+                                       id="height" 
+                                       name="height" 
+                                       placeholder="170" 
+                                       step="0.1" 
+                                       min="100" 
+                                       max="250" 
+                                       required>
+                                <span class="input-group-text">cm</span>
+                            </div>
+                            <div class="form-text">Enter your height in centimeters</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="weight" class="form-label">Weight (kg)</label>
+                            <div class="input-group">
+                                <input type="number" 
+                                       class="form-control form-control-lg" 
+                                       id="weight" 
+                                       name="weight" 
+                                       placeholder="70" 
+                                       step="0.1" 
+                                       min="30" 
+                                       max="300" 
+                                       required>
+                                <span class="input-group-text">kg</span>
+                            </div>
+                            <div class="form-text">Enter your weight in kilograms</div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-calculator me-2"></i>Calculate BMI
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if bmi %}
+        <div class="bmi-result">
+            <div class="bmi-value">{{ bmi }}</div>
+            <div class="bmi-category">{{ category }}</div>
+            <div class="mt-3">
+                <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-light">
+                    <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                </a>
+                <a href="{{ url_for('main.match') }}" class="btn btn-outline-light ms-2">
+                    <i class="fas fa-search me-2"></i>Find Diet Plans
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="bmi-chart">
+            <h5 class="mb-3">BMI Categories</h5>
+            
+            <div class="category-item category-underweight">
+                <span>Underweight</span>
+                <span>&lt; 18.5</span>
+            </div>
+            
+            <div class="category-item category-normal">
+                <span>Normal weight</span>
+                <span>18.5 - 24.9</span>
+            </div>
+            
+            <div class="category-item category-overweight">
+                <span>Overweight</span>
+                <span>25.0 - 29.9</span>
+            </div>
+            
+            <div class="category-item category-obese">
+                <span>Obese</span>
+                <span>≥ 30.0</span>
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-4">
+            <h6><i class="fas fa-info-circle me-2"></i>About BMI</h6>
+            <p class="mb-0">
+                BMI is a widely used measure to assess weight status. However, it's important to note that BMI doesn't account for 
+                factors like muscle mass, bone density, or overall body composition. For personalized health advice, 
+                consult with a healthcare professional.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus on height field
+    document.getElementById('height').focus();
+    
+    // Add real-time BMI calculation (optional enhancement)
+    const heightInput = document.getElementById('height');
+    const weightInput = document.getElementById('weight');
+    
+    function calculateLiveBMI() {
+        const height = parseFloat(heightInput.value);
+        const weight = parseFloat(weightInput.value);
+        
+        if (height && weight && height > 0 && weight > 0) {
+            const heightInMeters = height / 100;
+            const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(1);
+            console.log('Live BMI:', bmi);
+        }
+    }
+    
+    heightInput.addEventListener('input', calculateLiveBMI);
+    weightInput.addEventListener('input', calculateLiveBMI);
+});
+</script>
+{% endblock %}

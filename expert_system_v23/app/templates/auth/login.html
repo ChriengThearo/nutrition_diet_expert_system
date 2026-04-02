@@ -1,0 +1,68 @@
+{% extends "layouts/base.html" %} {% block title %}Login{% endblock %} {% block
+content %}
+<div class="row justify-content-center align-items-center min-vh-50">
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-lg border-0 login-card">
+      <div class="card-header bg-gradient-primary text-white text-center py-4">
+        <i class="fas fa-lock fa-3x mb-3"></i>
+        <h4 class="mb-0 fw-bold">Welcome Back</h4>
+        <p class="mb-0 opacity-75">Sign in to your account</p>
+      </div>
+      <div class="card-body p-4">
+        <form method="POST" action="{{ url_for('auth.login') }}" class="login-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+          <div class="mb-4">
+            <label for="username" class="form-label fw-semibold">
+              <i class="fas fa-user me-2"></i>Username
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-at"></i></span>
+              <input
+                type="text"
+                class="form-control form-control-lg"
+                id="username"
+                name="username"
+                placeholder="Enter your username"
+                required
+                autofocus
+              />
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label for="password" class="form-label fw-semibold">
+              <i class="fas fa-key me-2"></i>Password
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-lock"></i></span>
+              <input
+                type="password"
+                class="form-control form-control-lg"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="d-grid mb-4">
+            <button type="submit" class="btn btn-primary btn-lg fw-bold">
+              <i class="fas fa-sign-in-alt me-2"></i>Log In
+            </button>
+          </div>
+        </form>
+
+        <hr class="my-4" />
+        <p class="mb-0 text-center">
+          <small class="text-muted">Don't have an account?</small><br>
+          <a href="{{ url_for('auth.register') }}" class="text-decoration-none fw-semibold">
+            <i class="fas fa-user-plus me-1"></i>Create Account
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

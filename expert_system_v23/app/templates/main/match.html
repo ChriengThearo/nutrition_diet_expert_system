@@ -1,0 +1,249 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Diet Plan Matcher{% endblock %}
+
+{% block extra_css %}
+<style>
+.matcher-container {
+    max-width: 900px;
+    margin: 2rem auto;
+}
+
+.rule-card {
+    border: none;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.rule-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.rule-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 10px 10px 0 0;
+}
+
+.rule-content {
+    padding: 1.5rem;
+}
+
+.match-indicator {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.match-high {
+    background: #d4edda;
+    color: #155724;
+}
+
+.match-medium {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.match-low {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.selection-form {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.bmi-display {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.no-results {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="matcher-container">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold">Diet Plan Matcher</h1>
+            <p class="lead text-muted">Find personalized diet plans based on your goals</p>
+        </div>
+
+        <div class="selection-form">
+            <form method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="goal" class="form-label">Health Goal</label>
+                        <select class="form-select form-select-lg" id="goal" name="goal" required>
+                            <option value="">Select a goal...</option>
+                            {% for goal in goals %}
+                            <option value="{{ goal.id }}" {% if selected_goal and selected_goal.id == goal.id %}selected{% endif %}>
+                                {{ goal.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="bmi" class="form-label">BMI (optional)</label>
+                        <input type="number" 
+                               class="form-control form-control-lg" 
+                               id="bmi" 
+                               name="bmi" 
+                               placeholder="24.5" 
+                               step="0.1" 
+                               min="10" 
+                               max="50"
+                               value="{{ bmi or '' }}">
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Find Diet Plans
+                    </button>
+                </div>
+            </form>
+            
+            {% if bmi %}
+            <div class="bmi-display">
+                <strong>Your BMI: {{ bmi }}</strong>
+                <div class="small">This helps us personalize your diet recommendations</div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if matching_rules %}
+        <div class="results-section">
+            <h3 class="mb-4">Matching Diet Plans ({{ matching_rules|length }} found)</h3>
+            
+            {% for rule in matching_rules %}
+            <div class="card rule-card">
+                <div class="rule-header">
+                    <h5 class="mb-0">{{ rule.name }}</h5>
+                    <small>Created by Medical Team</small>
+                </div>
+                <div class="rule-content">
+                    <p class="text-muted">{{ rule.description }}</p>
+                    
+                    <div class="mb-3">
+                        <span class="match-indicator match-high">
+                            <i class="fas fa-check-circle me-1"></i>High Match
+                        </span>
+                        {% if selected_goal %}
+                        <small class="text-muted ms-2">
+                            Matches {{ selected_goal.name }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    
+                    {% if rule.conditions %}
+                    <div class="mb-3">
+                        <h6>Conditions:</h6>
+                        <p class="text-muted">{{ rule.conditions }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('main.foods', rule_id=rule.id) }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-utensils me-1"></i>View Meal Plan
+                        </a>
+                        <button class="btn btn-outline-primary btn-sm" onclick="saveRule('{{ rule.id }}')">
+                            <i class="fas fa-bookmark me-1"></i>Save Plan
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="shareRule('{{ rule.id }}')">
+                            <i class="fas fa-share me-1"></i>Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% else %}
+        {% if selected_goal %}
+        <div class="no-results">
+            <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+            <h5>No matching diet plans found</h5>
+            <p class="text-muted">
+                We couldn't find diet plans matching your selected goal.
+                Try adjusting your selection or consult with a healthcare professional.
+            </p>
+            <div class="mt-3">
+                <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-primary">
+                    <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                </a>
+                <a href="{{ url_for('main.qa') }}" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-question me-2"></i>Ask a Question
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function saveRule(ruleId) {
+    // In a real implementation, this would save the rule to user's profile
+    console.log('Saving rule:', ruleId);
+    alert('Diet plan saved to your profile!');
+}
+
+function shareRule(ruleId) {
+    // In a real implementation, this would open a share dialog
+    console.log('Sharing rule:', ruleId);
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Diet Plan',
+            text: 'Check out this personalized diet plan!',
+            url: window.location.href
+        });
+    } else {
+        // Fallback for browsers that don't support Web Share API
+        const dummy = document.createElement('input');
+        document.body.appendChild(dummy);
+        dummy.value = window.location.href;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        alert('Link copied to clipboard!');
+    }
+}
+
+// Auto-submit form when both selections are made (optional enhancement)
+document.addEventListener('DOMContentLoaded', function() {
+    const goalSelect = document.getElementById('goal');
+
+    function checkAutoSubmit() {
+        if (goalSelect.value) {
+            // Selection made - could auto-submit or show a hint
+            console.log('Goal selected');
+        }
+    }
+
+    goalSelect.addEventListener('change', checkAutoSubmit);
+});
+</script>
+{% endblock %}

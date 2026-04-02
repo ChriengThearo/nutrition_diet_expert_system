@@ -1,0 +1,231 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Create Diet Rule{% endblock %}
+
+{% block extra_css %}
+<style>
+.rule-form-container {
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
+.form-section {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #667eea;
+}
+
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.checkbox-item:hover {
+    background-color: #f8f9fa;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 0.5rem;
+    transform: scale(1.1);
+}
+
+.checkbox-item label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.help-text {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="rule-form-container">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h1 class="display-5 fw-bold">Create Diet Rule</h1>
+            <p class="lead text-muted">Design a comprehensive diet rule for specific health goals</p>
+        </div>
+
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.rules') }}" class="text-decoration-none">Diet Rules</a>
+                </li>
+                <li class="breadcrumb-item active">Create New Rule</li>
+            </ol>
+        </nav>
+
+        <!-- Form -->
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <!-- Basic Information Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-info-circle me-2"></i>Basic Information
+                </h3>
+                
+                <div class="mb-3">
+                    {{ form.rule_name.label(class="form-label fw-bold") }}
+                    {{ form.rule_name(class="form-control form-control-lg") }}
+                    <div class="help-text">Enter a clear, descriptive name for the diet rule</div>
+                    {% if form.rule_name.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.rule_name.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.description.label(class="form-label fw-bold") }}
+                    {{ form.description(class="form-control") }}
+                    <div class="help-text">Provide a brief description of what this diet rule addresses</div>
+                    {% if form.description.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.description.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.conditions.label(class="form-label fw-bold") }}
+                    {{ form.conditions(class="form-control") }}
+                    <div class="help-text">Specify conditions, restrictions, or guidelines (e.g., "No more than 2000mg sodium per day")</div>
+                    {% if form.conditions.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.conditions.errors %}
+                                <small>{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-check mb-3">
+                    {{ form.active(class="form-check-input") }}
+                    {{ form.active.label(class="form-check-label") }}
+                </div>
+            </div>
+
+            <!-- Health Goals Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-bullseye me-2"></i>Health Goals
+                </h3>
+                <p class="text-muted mb-3">Select the health goals this diet rule helps achieve:</p>
+                
+                <div class="checkbox-group">
+                    {% for goal in form.goals %}
+                        <div class="checkbox-item">
+                            {{ goal }}
+                            {{ goal.label }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-save me-2"></i>Create Rule
+                </button>
+                <a href="{{ url_for('main.rules') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add interactive features for checkboxes
+    const checkboxItems = document.querySelectorAll('.checkbox-item');
+    
+    checkboxItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'INPUT') {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+            }
+        });
+    });
+
+    // Form validation feedback
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const ruleName = document.getElementById('rule_name');
+        const description = document.getElementById('description');
+        
+        if (!ruleName.value.trim()) {
+            e.preventDefault();
+            alert('Please enter a rule name');
+            ruleName.focus();
+            return;
+        }
+        
+        if (!description.value.trim()) {
+            e.preventDefault();
+            alert('Please enter a description');
+            description.focus();
+            return;
+        }
+    });
+});
+</script>
+{% endblock %}

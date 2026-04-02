@@ -1,0 +1,1298 @@
+[
+  {
+    "id": 21,
+    "rule_name": "Severe Thinness + Male + Normal",
+    "description": "Diet rule for Severe Thinness males on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals male\", \"diet_type equals normal\", \"recommend foods: Walnuts, Almonds, Cashews, Oats, Coconut, Coconut Milk, Avocado, Salmon, Chicken, Brown Rice, Quinoa, Bananas, Eggs\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=3682 kcal/day\", \"set_macros: protein=144g, carbs=230g, fat=263g\"], \"recommended_food_ids\": [46, 44, 45, 43, 79, 49, 55, 2, 3, 42, 41, 61, 19], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T03:20:32",
+    "updated_at": "2026-02-02T03:20:32"
+  },
+  {
+    "id": 22,
+    "rule_name": "Moderate Thinness + Male + Normal",
+    "description": "Diet rule for Moderate Thinness males on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals male\", \"diet_type equals normal\", \"recommend foods: Almonds, Cashews, Oats, Coconut, Coconut Milk, Avocado, Salmon, Chicken, Brown Rice, Quinoa, Bananas, Eggs\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3028 kcal/day\", \"set_macros: protein=129g, carbs=216g, fat=198g\"], \"recommended_food_ids\": [44, 45, 43, 79, 49, 55, 2, 3, 42, 41, 61, 19], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T03:20:32",
+    "updated_at": "2026-02-02T03:20:32"
+  },
+  {
+    "id": 23,
+    "rule_name": "Mild Thinness + Male + Normal",
+    "description": "Diet rule for Mild Thinness males on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals male\", \"diet_type equals normal\", \"recommend foods: Almonds, Oats, Coconut, Avocado, Salmon, Chicken, Brown Rice, Quinoa, Bananas, Eggs\", \"avoid foods: Broccoli, Bell Pepper\"], \"actions\": [\"set_calories: calories=2245 kcal/day\", \"set_macros: protein=108g, carbs=180g, fat=130g\"], \"recommended_food_ids\": [44, 43, 79, 55, 2, 3, 42, 41, 61, 19], \"excluded_food_ids\": [50, 56]}",
+    "created_at": "2026-02-02T03:20:32",
+    "updated_at": "2026-02-02T03:20:32"
+  },
+  {
+    "id": 24,
+    "rule_name": "Normal + Male + Normal",
+    "description": "Diet rule for Normal males on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals male\", \"diet_type equals normal\", \"recommend foods: Oats, Avocado, Chicken, Fish, Brown Rice, Quinoa, Broccoli, Bell Pepper, Apples, Bananas, Eggs, Almonds, Salmon\", \"avoid foods: Pork, Beef\"], \"actions\": [\"set_calories: calories=2104 kcal/day\", \"set_macros: protein=129g, carbs=192g, fat=100g\"], \"recommended_food_ids\": [43, 55, 3, 7, 42, 41, 50, 56, 60, 61, 19, 44, 2], \"excluded_food_ids\": [1, 5]}",
+    "created_at": "2026-02-02T03:20:32",
+    "updated_at": "2026-02-02T03:20:32"
+  },
+  {
+    "id": 25,
+    "rule_name": "Overweight + Male + Normal",
+    "description": "Diet rule for Overweight males on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals male\", \"diet_type equals normal\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Blueberries, Raspberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1263 kcal/day\", \"set_macros: protein=107g, carbs=178g, fat=18g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 64, 65, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T03:20:32",
+    "updated_at": "2026-02-02T03:20:32"
+  },
+  {
+    "id": 26,
+    "rule_name": "Obese Class I + Male + Normal",
+    "description": "Diet rule for Obese Class I males on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals male\", \"diet_type equals normal\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1154 kcal/day\", \"set_macros: protein=105g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T03:20:32",
+    "updated_at": "2026-02-02T03:20:32"
+  },
+  {
+    "id": 27,
+    "rule_name": "Obese Class II + Male + Normal",
+    "description": "Diet rule for Obese Class II males on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals male\", \"diet_type equals normal\", \"recommend foods: Chicken, Fish, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1055 kcal/day\", \"set_macros: protein=81g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T03:20:32",
+    "updated_at": "2026-02-02T03:20:32"
+  },
+  {
+    "id": 28,
+    "rule_name": "Obese Class III + Male + Normal",
+    "description": "Diet rule for Obese Class III males on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals male\", \"diet_type equals normal\", \"recommend foods: Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=989 kcal/day\", \"set_macros: protein=74g, carbs=151g, fat=13g\"], \"recommended_food_ids\": [7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T03:20:32",
+    "updated_at": "2026-02-02T03:20:32"
+  },
+  {
+    "id": 29,
+    "rule_name": "Severe Thinness + Female + Normal",
+    "description": "Diet rule for Severe Thinness females on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals female\", \"diet_type equals normal\", \"recommend foods: Walnuts, Almonds, Cashews, Oats, Coconut, Coconut Milk, Avocado, Salmon, Chicken, Brown Rice, Quinoa, Bananas, Eggs\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=3682 kcal/day\", \"set_macros: protein=144g, carbs=230g, fat=263g\"], \"recommended_food_ids\": [46, 44, 45, 43, 79, 49, 55, 2, 3, 42, 41, 61, 19], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T03:54:33",
+    "updated_at": "2026-02-02T03:54:33"
+  },
+  {
+    "id": 30,
+    "rule_name": "Moderate Thinness + Female + Normal",
+    "description": "Diet rule for Moderate Thinness females on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals female\", \"diet_type equals normal\", \"recommend foods: Almonds, Cashews, Oats, Coconut, Coconut Milk, Avocado, Salmon, Chicken, Brown Rice, Quinoa, Bananas, Eggs\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3028 kcal/day\", \"set_macros: protein=129g, carbs=216g, fat=198g\"], \"recommended_food_ids\": [44, 45, 43, 79, 49, 55, 2, 3, 42, 41, 61, 19], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T03:54:33",
+    "updated_at": "2026-02-02T03:54:33"
+  },
+  {
+    "id": 31,
+    "rule_name": "Mild Thinness + Female + Normal",
+    "description": "Diet rule for Mild Thinness females on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals female\", \"diet_type equals normal\", \"recommend foods: Almonds, Oats, Coconut, Avocado, Salmon, Chicken, Brown Rice, Quinoa, Bananas, Eggs\", \"avoid foods: Broccoli, Bell Pepper\"], \"actions\": [\"set_calories: calories=2245 kcal/day\", \"set_macros: protein=108g, carbs=180g, fat=130g\"], \"recommended_food_ids\": [44, 43, 79, 55, 2, 3, 42, 41, 61, 19], \"excluded_food_ids\": [50, 56]}",
+    "created_at": "2026-02-02T03:54:33",
+    "updated_at": "2026-02-02T03:54:33"
+  },
+  {
+    "id": 32,
+    "rule_name": "Normal + Female + Normal",
+    "description": "Diet rule for Normal females on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals female\", \"diet_type equals normal\", \"recommend foods: Oats, Avocado, Chicken, Fish, Brown Rice, Quinoa, Broccoli, Bell Pepper, Apples, Bananas, Eggs, Almonds, Salmon\", \"avoid foods: Pork, Beef\"], \"actions\": [\"set_calories: calories=2104 kcal/day\", \"set_macros: protein=129g, carbs=192g, fat=100g\"], \"recommended_food_ids\": [43, 55, 3, 7, 42, 41, 50, 56, 60, 61, 19, 44, 2], \"excluded_food_ids\": [1, 5]}",
+    "created_at": "2026-02-02T03:54:33",
+    "updated_at": "2026-02-02T03:54:33"
+  },
+  {
+    "id": 33,
+    "rule_name": "Overweight + Female + Normal",
+    "description": "Diet rule for Overweight females on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals female\", \"diet_type equals normal\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Blueberries, Raspberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1263 kcal/day\", \"set_macros: protein=107g, carbs=178g, fat=18g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 64, 65, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T03:54:33",
+    "updated_at": "2026-02-02T03:54:33"
+  },
+  {
+    "id": 34,
+    "rule_name": "Obese Class I + Female + Normal",
+    "description": "Diet rule for Obese Class I females on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals female\", \"diet_type equals normal\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1154 kcal/day\", \"set_macros: protein=105g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T03:54:33",
+    "updated_at": "2026-02-02T03:54:33"
+  },
+  {
+    "id": 35,
+    "rule_name": "Obese Class II + Female + Normal",
+    "description": "Diet rule for Obese Class II females on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals female\", \"diet_type equals normal\", \"recommend foods: Chicken, Fish, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1055 kcal/day\", \"set_macros: protein=81g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T03:54:33",
+    "updated_at": "2026-02-02T03:54:33"
+  },
+  {
+    "id": 36,
+    "rule_name": "Obese Class III + Female + Normal",
+    "description": "Diet rule for Obese Class III females on a normal diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals female\", \"diet_type equals normal\", \"recommend foods: Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=989 kcal/day\", \"set_macros: protein=74g, carbs=151g, fat=13g\"], \"recommended_food_ids\": [7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T03:54:33",
+    "updated_at": "2026-02-02T03:54:33"
+  },
+  {
+    "id": 37,
+    "rule_name": "Severe Thinness + Male + Vegan",
+    "description": "Diet rule for Severe Thinness males on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals male\", \"diet_type equals vegan\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=3911 kcal/day\", \"set_macros: protein=107g, carbs=292g, fat=283g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 38,
+    "rule_name": "Moderate Thinness + Male + Vegan",
+    "description": "Diet rule for Moderate Thinness males on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals male\", \"diet_type equals vegan\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3629 kcal/day\", \"set_macros: protein=104g, carbs=272g, fat=259g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 39,
+    "rule_name": "Mild Thinness + Male + Vegan",
+    "description": "Diet rule for Mild Thinness males on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals male\", \"diet_type equals vegan\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2202 kcal/day\", \"set_macros: protein=76g, carbs=235g, fat=120g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 40,
+    "rule_name": "Normal + Male + Vegan",
+    "description": "Diet rule for Normal males on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals male\", \"diet_type equals vegan\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1153 kcal/day\", \"set_macros: protein=38g, carbs=203g, fat=26g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 41,
+    "rule_name": "Overweight + Male + Vegan",
+    "description": "Diet rule for Overweight males on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals male\", \"diet_type equals vegan\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 42,
+    "rule_name": "Obese Class I + Male + Vegan",
+    "description": "Diet rule for Obese Class I males on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals male\", \"diet_type equals vegan\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut Milk, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [49, 46, 45]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 43,
+    "rule_name": "Obese Class II + Male + Vegan",
+    "description": "Diet rule for Obese Class II males on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals male\", \"diet_type equals vegan\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 44,
+    "rule_name": "Obese Class III + Male + Vegan",
+    "description": "Diet rule for Obese Class III males on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals male\", \"diet_type equals vegan\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 45,
+    "rule_name": "Severe Thinness + Female + Vegan",
+    "description": "Diet rule for Severe Thinness females on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals female\", \"diet_type equals vegan\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=3911 kcal/day\", \"set_macros: protein=107g, carbs=292g, fat=283g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 46,
+    "rule_name": "Moderate Thinness + Female + Vegan",
+    "description": "Diet rule for Moderate Thinness females on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals female\", \"diet_type equals vegan\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3629 kcal/day\", \"set_macros: protein=104g, carbs=272g, fat=259g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 47,
+    "rule_name": "Mild Thinness + Female + Vegan",
+    "description": "Diet rule for Mild Thinness females on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals female\", \"diet_type equals vegan\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2202 kcal/day\", \"set_macros: protein=76g, carbs=235g, fat=120g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 48,
+    "rule_name": "Normal + Female + Vegan",
+    "description": "Diet rule for Normal females on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals female\", \"diet_type equals vegan\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1153 kcal/day\", \"set_macros: protein=38g, carbs=203g, fat=26g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 49,
+    "rule_name": "Overweight + Female + Vegan",
+    "description": "Diet rule for Overweight females on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals female\", \"diet_type equals vegan\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 50,
+    "rule_name": "Obese Class I + Female + Vegan",
+    "description": "Diet rule for Obese Class I females on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals female\", \"diet_type equals vegan\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut Milk, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [49, 46, 45]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 51,
+    "rule_name": "Obese Class II + Female + Vegan",
+    "description": "Diet rule for Obese Class II females on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals female\", \"diet_type equals vegan\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 52,
+    "rule_name": "Obese Class III + Female + Vegan",
+    "description": "Diet rule for Obese Class III females on a vegan diet.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals female\", \"diet_type equals vegan\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:02:23",
+    "updated_at": "2026-02-02T04:02:23"
+  },
+  {
+    "id": 53,
+    "rule_name": "Severe Thinness + Male + Vegan (Soy Allergy)",
+    "description": "Diet rule for Severe Thinness males on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals male\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=3911 kcal/day\", \"set_macros: protein=107g, carbs=292g, fat=283g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 54,
+    "rule_name": "Moderate Thinness + Male + Vegan (Soy Allergy)",
+    "description": "Diet rule for Moderate Thinness males on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals male\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3629 kcal/day\", \"set_macros: protein=104g, carbs=272g, fat=259g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 55,
+    "rule_name": "Mild Thinness + Male + Vegan (Soy Allergy)",
+    "description": "Diet rule for Mild Thinness males on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals male\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2202 kcal/day\", \"set_macros: protein=76g, carbs=235g, fat=120g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 56,
+    "rule_name": "Normal + Male + Vegan (Soy Allergy)",
+    "description": "Diet rule for Normal males on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals male\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1153 kcal/day\", \"set_macros: protein=38g, carbs=203g, fat=26g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 57,
+    "rule_name": "Overweight + Male + Vegan (Soy Allergy)",
+    "description": "Diet rule for Overweight males on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals male\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 58,
+    "rule_name": "Obese Class I + Male + Vegan (Soy Allergy)",
+    "description": "Diet rule for Obese Class I males on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals male\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut Milk, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [49, 46, 45]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 59,
+    "rule_name": "Obese Class II + Male + Vegan (Soy Allergy)",
+    "description": "Diet rule for Obese Class II males on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals male\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 60,
+    "rule_name": "Obese Class III + Male + Vegan (Soy Allergy)",
+    "description": "Diet rule for Obese Class III males on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals male\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 61,
+    "rule_name": "Severe Thinness + Female + Vegan (Soy Allergy)",
+    "description": "Diet rule for Severe Thinness females on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals female\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=3911 kcal/day\", \"set_macros: protein=107g, carbs=292g, fat=283g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 62,
+    "rule_name": "Moderate Thinness + Female + Vegan (Soy Allergy)",
+    "description": "Diet rule for Moderate Thinness females on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals female\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3629 kcal/day\", \"set_macros: protein=104g, carbs=272g, fat=259g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 63,
+    "rule_name": "Mild Thinness + Female + Vegan (Soy Allergy)",
+    "description": "Diet rule for Mild Thinness females on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals female\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2202 kcal/day\", \"set_macros: protein=76g, carbs=235g, fat=120g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 64,
+    "rule_name": "Normal + Female + Vegan (Soy Allergy)",
+    "description": "Diet rule for Normal females on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals female\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1153 kcal/day\", \"set_macros: protein=38g, carbs=203g, fat=26g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 65,
+    "rule_name": "Overweight + Female + Vegan (Soy Allergy)",
+    "description": "Diet rule for Overweight females on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals female\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 66,
+    "rule_name": "Obese Class I + Female + Vegan (Soy Allergy)",
+    "description": "Diet rule for Obese Class I females on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals female\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut Milk, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [49, 46, 45]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 67,
+    "rule_name": "Obese Class II + Female + Vegan (Soy Allergy)",
+    "description": "Diet rule for Obese Class II females on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals female\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 68,
+    "rule_name": "Obese Class III + Female + Vegan (Soy Allergy)",
+    "description": "Diet rule for Obese Class III females on a vegan diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals female\", \"diet_type equals vegan\", \"allergy contains soy\", \"recommend foods: Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Quinoa, Brown Rice, Oats\", \"avoid foods: Coconut, Walnuts, Cashews\"], \"actions\": [\"set_calories: calories=903 kcal/day\", \"set_macros: protein=32g, carbs=178g, fat=12g\"], \"recommended_food_ids\": [50, 59, 56, 60, 63, 64, 65, 41, 42, 43], \"excluded_food_ids\": [79, 46, 45]}",
+    "created_at": "2026-02-02T04:09:57",
+    "updated_at": "2026-02-02T04:09:57"
+  },
+  {
+    "id": 69,
+    "rule_name": "Severe Thinness + Male + Normal (Egg Allergy)",
+    "description": "Diet rule for Severe Thinness males on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken, Salmon\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4284 kcal/day\", \"set_macros: protein=158g, carbs=292g, fat=300g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3, 2], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 70,
+    "rule_name": "Moderate Thinness + Male + Normal (Egg Allergy)",
+    "description": "Diet rule for Moderate Thinness males on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken, Salmon\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=4002 kcal/day\", \"set_macros: protein=155g, carbs=272g, fat=276g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3, 2], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 71,
+    "rule_name": "Mild Thinness + Male + Normal (Egg Allergy)",
+    "description": "Diet rule for Mild Thinness males on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2367 kcal/day\", \"set_macros: protein=107g, carbs=235g, fat=124g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 72,
+    "rule_name": "Normal + Male + Normal (Egg Allergy)",
+    "description": "Diet rule for Normal males on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken, Fish\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1414 kcal/day\", \"set_macros: protein=89g, carbs=203g, fat=32g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3, 7], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 73,
+    "rule_name": "Overweight + Male + Normal (Egg Allergy)",
+    "description": "Diet rule for Overweight males on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Blueberries, Raspberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1263 kcal/day\", \"set_macros: protein=107g, carbs=178g, fat=18g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 64, 65, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 74,
+    "rule_name": "Obese Class I + Male + Normal (Egg Allergy)",
+    "description": "Diet rule for Obese Class I males on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1154 kcal/day\", \"set_macros: protein=105g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 75,
+    "rule_name": "Obese Class II + Male + Normal (Egg Allergy)",
+    "description": "Diet rule for Obese Class II males on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Chicken, Fish, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1055 kcal/day\", \"set_macros: protein=81g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 76,
+    "rule_name": "Obese Class III + Male + Normal (Egg Allergy)",
+    "description": "Diet rule for Obese Class III males on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=989 kcal/day\", \"set_macros: protein=74g, carbs=151g, fat=13g\"], \"recommended_food_ids\": [7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 77,
+    "rule_name": "Severe Thinness + Female + Normal (Egg Allergy)",
+    "description": "Diet rule for Severe Thinness females on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken, Salmon\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4284 kcal/day\", \"set_macros: protein=158g, carbs=292g, fat=300g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3, 2], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 78,
+    "rule_name": "Moderate Thinness + Female + Normal (Egg Allergy)",
+    "description": "Diet rule for Moderate Thinness females on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken, Salmon\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=4002 kcal/day\", \"set_macros: protein=155g, carbs=272g, fat=276g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3, 2], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 79,
+    "rule_name": "Mild Thinness + Female + Normal (Egg Allergy)",
+    "description": "Diet rule for Mild Thinness females on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2367 kcal/day\", \"set_macros: protein=107g, carbs=235g, fat=124g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 80,
+    "rule_name": "Normal + Female + Normal (Egg Allergy)",
+    "description": "Diet rule for Normal females on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken, Fish\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1414 kcal/day\", \"set_macros: protein=89g, carbs=203g, fat=32g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3, 7], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 81,
+    "rule_name": "Overweight + Female + Normal (Egg Allergy)",
+    "description": "Diet rule for Overweight females on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Blueberries, Raspberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1263 kcal/day\", \"set_macros: protein=107g, carbs=178g, fat=18g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 64, 65, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 82,
+    "rule_name": "Obese Class I + Female + Normal (Egg Allergy)",
+    "description": "Diet rule for Obese Class I females on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1154 kcal/day\", \"set_macros: protein=105g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 83,
+    "rule_name": "Obese Class II + Female + Normal (Egg Allergy)",
+    "description": "Diet rule for Obese Class II females on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Chicken, Fish, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1055 kcal/day\", \"set_macros: protein=81g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 84,
+    "rule_name": "Obese Class III + Female + Normal (Egg Allergy)",
+    "description": "Diet rule for Obese Class III females on a normal diet with egg allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"recommend foods: Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=989 kcal/day\", \"set_macros: protein=74g, carbs=151g, fat=13g\"], \"recommended_food_ids\": [7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:17:44",
+    "updated_at": "2026-02-02T04:17:44"
+  },
+  {
+    "id": 85,
+    "rule_name": "Severe Thinness + Male + Normal (Soy Allergy)",
+    "description": "Diet rule for Severe Thinness males on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken, Salmon\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4284 kcal/day\", \"set_macros: protein=158g, carbs=292g, fat=300g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3, 2], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 86,
+    "rule_name": "Moderate Thinness + Male + Normal (Soy Allergy)",
+    "description": "Diet rule for Moderate Thinness males on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken, Salmon\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=4002 kcal/day\", \"set_macros: protein=155g, carbs=272g, fat=276g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3, 2], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 87,
+    "rule_name": "Mild Thinness + Male + Normal (Soy Allergy)",
+    "description": "Diet rule for Mild Thinness males on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2367 kcal/day\", \"set_macros: protein=107g, carbs=235g, fat=124g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 88,
+    "rule_name": "Normal + Male + Normal (Soy Allergy)",
+    "description": "Diet rule for Normal males on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken, Fish\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1414 kcal/day\", \"set_macros: protein=89g, carbs=203g, fat=32g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3, 7], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 89,
+    "rule_name": "Overweight + Male + Normal (Soy Allergy)",
+    "description": "Diet rule for Overweight males on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Blueberries, Raspberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1263 kcal/day\", \"set_macros: protein=107g, carbs=178g, fat=18g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 64, 65, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 90,
+    "rule_name": "Obese Class I + Male + Normal (Soy Allergy)",
+    "description": "Diet rule for Obese Class I males on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1154 kcal/day\", \"set_macros: protein=105g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 91,
+    "rule_name": "Obese Class II + Male + Normal (Soy Allergy)",
+    "description": "Diet rule for Obese Class II males on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1055 kcal/day\", \"set_macros: protein=81g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 92,
+    "rule_name": "Obese Class III + Male + Normal (Soy Allergy)",
+    "description": "Diet rule for Obese Class III males on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=989 kcal/day\", \"set_macros: protein=74g, carbs=151g, fat=13g\"], \"recommended_food_ids\": [7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 93,
+    "rule_name": "Severe Thinness + Female + Normal (Soy Allergy)",
+    "description": "Diet rule for Severe Thinness females on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken, Salmon\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4284 kcal/day\", \"set_macros: protein=158g, carbs=292g, fat=300g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3, 2], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 94,
+    "rule_name": "Moderate Thinness + Female + Normal (Soy Allergy)",
+    "description": "Diet rule for Moderate Thinness females on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken, Salmon\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=4002 kcal/day\", \"set_macros: protein=155g, carbs=272g, fat=276g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3, 2], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 95,
+    "rule_name": "Mild Thinness + Female + Normal (Soy Allergy)",
+    "description": "Diet rule for Mild Thinness females on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2367 kcal/day\", \"set_macros: protein=107g, carbs=235g, fat=124g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 96,
+    "rule_name": "Normal + Female + Normal (Soy Allergy)",
+    "description": "Diet rule for Normal females on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken, Fish\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1414 kcal/day\", \"set_macros: protein=89g, carbs=203g, fat=32g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3, 7], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 97,
+    "rule_name": "Overweight + Female + Normal (Soy Allergy)",
+    "description": "Diet rule for Overweight females on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Blueberries, Raspberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1263 kcal/day\", \"set_macros: protein=107g, carbs=178g, fat=18g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 64, 65, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 98,
+    "rule_name": "Obese Class I + Female + Normal (Soy Allergy)",
+    "description": "Diet rule for Obese Class I females on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1154 kcal/day\", \"set_macros: protein=105g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 99,
+    "rule_name": "Obese Class II + Female + Normal (Soy Allergy)",
+    "description": "Diet rule for Obese Class II females on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1055 kcal/day\", \"set_macros: protein=81g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 100,
+    "rule_name": "Obese Class III + Female + Normal (Soy Allergy)",
+    "description": "Diet rule for Obese Class III females on a normal diet with soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"recommend foods: Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=989 kcal/day\", \"set_macros: protein=74g, carbs=151g, fat=13g\"], \"recommended_food_ids\": [7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:21:29",
+    "updated_at": "2026-02-02T04:21:29"
+  },
+  {
+    "id": 101,
+    "rule_name": "Severe Thinness + Male + Normal (Seafood Allergy)",
+    "description": "Diet rule for Severe Thinness males on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken, Eggs\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4146 kcal/day\", \"set_macros: protein=144g, carbs=293g, fat=292g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3, 19], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 102,
+    "rule_name": "Moderate Thinness + Male + Normal (Seafood Allergy)",
+    "description": "Diet rule for Moderate Thinness males on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken, Eggs\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3864 kcal/day\", \"set_macros: protein=141g, carbs=273g, fat=268g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3, 19], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 103,
+    "rule_name": "Mild Thinness + Male + Normal (Seafood Allergy)",
+    "description": "Diet rule for Mild Thinness males on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken, Eggs\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2437 kcal/day\", \"set_macros: protein=113g, carbs=236g, fat=129g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3, 19], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 104,
+    "rule_name": "Normal + Male + Normal (Seafood Allergy)",
+    "description": "Diet rule for Normal males on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken, Eggs\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1388 kcal/day\", \"set_macros: protein=75g, carbs=204g, fat=35g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3, 19], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 105,
+    "rule_name": "Overweight + Male + Normal (Seafood Allergy)",
+    "description": "Diet rule for Overweight males on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 106,
+    "rule_name": "Obese Class I + Male + Normal (Seafood Allergy)",
+    "description": "Diet rule for Obese Class I males on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 107,
+    "rule_name": "Obese Class II + Male + Normal (Seafood Allergy)",
+    "description": "Diet rule for Obese Class II males on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 108,
+    "rule_name": "Obese Class III + Male + Normal (Seafood Allergy)",
+    "description": "Diet rule for Obese Class III males on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 109,
+    "rule_name": "Severe Thinness + Female + Normal (Seafood Allergy)",
+    "description": "Diet rule for Severe Thinness females on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken, Eggs\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4146 kcal/day\", \"set_macros: protein=144g, carbs=293g, fat=292g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3, 19], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 110,
+    "rule_name": "Moderate Thinness + Female + Normal (Seafood Allergy)",
+    "description": "Diet rule for Moderate Thinness females on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken, Eggs\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3864 kcal/day\", \"set_macros: protein=141g, carbs=273g, fat=268g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3, 19], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 111,
+    "rule_name": "Mild Thinness + Female + Normal (Seafood Allergy)",
+    "description": "Diet rule for Mild Thinness females on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken, Eggs\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2437 kcal/day\", \"set_macros: protein=113g, carbs=236g, fat=129g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3, 19], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 112,
+    "rule_name": "Normal + Female + Normal (Seafood Allergy)",
+    "description": "Diet rule for Normal females on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken, Eggs\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1388 kcal/day\", \"set_macros: protein=75g, carbs=204g, fat=35g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3, 19], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 113,
+    "rule_name": "Overweight + Female + Normal (Seafood Allergy)",
+    "description": "Diet rule for Overweight females on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 114,
+    "rule_name": "Obese Class I + Female + Normal (Seafood Allergy)",
+    "description": "Diet rule for Obese Class I females on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 115,
+    "rule_name": "Obese Class II + Female + Normal (Seafood Allergy)",
+    "description": "Diet rule for Obese Class II females on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 116,
+    "rule_name": "Obese Class III + Female + Normal (Seafood Allergy)",
+    "description": "Diet rule for Obese Class III females on a normal diet with seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:27:16",
+    "updated_at": "2026-02-02T04:27:16"
+  },
+  {
+    "id": 117,
+    "rule_name": "Severe Thinness + Male + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Severe Thinness males on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken, Salmon\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4284 kcal/day\", \"set_macros: protein=158g, carbs=292g, fat=300g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3, 2], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 118,
+    "rule_name": "Moderate Thinness + Male + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Moderate Thinness males on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken, Salmon\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=4002 kcal/day\", \"set_macros: protein=155g, carbs=272g, fat=276g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3, 2], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 119,
+    "rule_name": "Mild Thinness + Male + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Mild Thinness males on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken, Salmon\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2575 kcal/day\", \"set_macros: protein=127g, carbs=235g, fat=137g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3, 2], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 120,
+    "rule_name": "Normal + Male + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Normal males on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken, Fish\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1414 kcal/day\", \"set_macros: protein=89g, carbs=203g, fat=32g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3, 7], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 121,
+    "rule_name": "Overweight + Male + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Overweight males on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Blueberries, Raspberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1263 kcal/day\", \"set_macros: protein=107g, carbs=178g, fat=18g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 64, 65, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 122,
+    "rule_name": "Obese Class I + Male + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Obese Class I males on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1154 kcal/day\", \"set_macros: protein=105g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 123,
+    "rule_name": "Obese Class II + Male + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Obese Class II males on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1055 kcal/day\", \"set_macros: protein=81g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 124,
+    "rule_name": "Obese Class III + Male + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Obese Class III males on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=989 kcal/day\", \"set_macros: protein=74g, carbs=151g, fat=13g\"], \"recommended_food_ids\": [7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 125,
+    "rule_name": "Severe Thinness + Female + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Severe Thinness females on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken, Salmon\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4284 kcal/day\", \"set_macros: protein=158g, carbs=292g, fat=300g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3, 2], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 126,
+    "rule_name": "Moderate Thinness + Female + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Moderate Thinness females on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken, Salmon\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=4002 kcal/day\", \"set_macros: protein=155g, carbs=272g, fat=276g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3, 2], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 127,
+    "rule_name": "Mild Thinness + Female + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Mild Thinness females on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken, Salmon\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2575 kcal/day\", \"set_macros: protein=127g, carbs=235g, fat=137g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3, 2], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 128,
+    "rule_name": "Normal + Female + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Normal females on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken, Fish\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1414 kcal/day\", \"set_macros: protein=89g, carbs=203g, fat=32g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3, 7], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 129,
+    "rule_name": "Overweight + Female + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Overweight females on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Blueberries, Raspberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1263 kcal/day\", \"set_macros: protein=107g, carbs=178g, fat=18g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 64, 65, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 130,
+    "rule_name": "Obese Class I + Female + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Obese Class I females on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1154 kcal/day\", \"set_macros: protein=105g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 131,
+    "rule_name": "Obese Class II + Female + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Obese Class II females on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Chicken, Fish, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1055 kcal/day\", \"set_macros: protein=81g, carbs=151g, fat=17g\"], \"recommended_food_ids\": [3, 7, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 132,
+    "rule_name": "Obese Class III + Female + Normal (Egg & Soy Allergy)",
+    "description": "Diet rule for Obese Class III females on a normal diet with egg and soy allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains soy\", \"recommend foods: Fish, Shrimp, Broccoli, Cabbage, Bell Pepper, Brown Rice, Quinoa, Apples, Strawberries, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=989 kcal/day\", \"set_macros: protein=74g, carbs=151g, fat=13g\"], \"recommended_food_ids\": [7, 36, 50, 59, 56, 42, 41, 60, 63, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:31:28",
+    "updated_at": "2026-02-02T04:31:28"
+  },
+  {
+    "id": 133,
+    "rule_name": "Severe Thinness + Male + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Severe Thinness males on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4076 kcal/day\", \"set_macros: protein=138g, carbs=292g, fat=287g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 134,
+    "rule_name": "Moderate Thinness + Male + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Moderate Thinness males on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3794 kcal/day\", \"set_macros: protein=135g, carbs=272g, fat=263g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 135,
+    "rule_name": "Mild Thinness + Male + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Mild Thinness males on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2367 kcal/day\", \"set_macros: protein=107g, carbs=235g, fat=124g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 136,
+    "rule_name": "Normal + Male + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Normal males on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1318 kcal/day\", \"set_macros: protein=69g, carbs=203g, fat=30g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 137,
+    "rule_name": "Overweight + Male + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Overweight males on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 138,
+    "rule_name": "Obese Class I + Male + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Obese Class I males on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 139,
+    "rule_name": "Obese Class II + Male + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Obese Class II males on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 140,
+    "rule_name": "Obese Class III + Male + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Obese Class III males on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 141,
+    "rule_name": "Severe Thinness + Female + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Severe Thinness females on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4076 kcal/day\", \"set_macros: protein=138g, carbs=292g, fat=287g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 142,
+    "rule_name": "Moderate Thinness + Female + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Moderate Thinness females on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3794 kcal/day\", \"set_macros: protein=135g, carbs=272g, fat=263g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 143,
+    "rule_name": "Mild Thinness + Female + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Mild Thinness females on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2367 kcal/day\", \"set_macros: protein=107g, carbs=235g, fat=124g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 144,
+    "rule_name": "Normal + Female + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Normal females on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1318 kcal/day\", \"set_macros: protein=69g, carbs=203g, fat=30g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 145,
+    "rule_name": "Overweight + Female + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Overweight females on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 146,
+    "rule_name": "Obese Class I + Female + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Obese Class I females on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 147,
+    "rule_name": "Obese Class II + Female + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Obese Class II females on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 148,
+    "rule_name": "Obese Class III + Female + Normal (Egg & Seafood Allergy)",
+    "description": "Diet rule for Obese Class III females on a normal diet with egg and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains eggs\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:34:25",
+    "updated_at": "2026-02-02T04:34:25"
+  },
+  {
+    "id": 149,
+    "rule_name": "Severe Thinness + Male + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Severe Thinness males on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken, Eggs\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4146 kcal/day\", \"set_macros: protein=144g, carbs=293g, fat=292g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3, 19], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 150,
+    "rule_name": "Moderate Thinness + Male + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Moderate Thinness males on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken, Eggs\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3864 kcal/day\", \"set_macros: protein=141g, carbs=273g, fat=268g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3, 19], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 151,
+    "rule_name": "Mild Thinness + Male + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Mild Thinness males on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken, Eggs\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2437 kcal/day\", \"set_macros: protein=113g, carbs=236g, fat=129g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3, 19], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 152,
+    "rule_name": "Normal + Male + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Normal males on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken, Eggs\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1388 kcal/day\", \"set_macros: protein=75g, carbs=204g, fat=35g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3, 19], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 153,
+    "rule_name": "Overweight + Male + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Overweight males on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 154,
+    "rule_name": "Obese Class I + Male + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Obese Class I males on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 155,
+    "rule_name": "Obese Class II + Male + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Obese Class II males on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 156,
+    "rule_name": "Obese Class III + Male + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Obese Class III males on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals male\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 157,
+    "rule_name": "Severe Thinness + Female + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Severe Thinness females on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 0\", \"bmi less_than 16\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Coconut Milk, Avocado, Quinoa, Brown Rice, Bananas, Apples, Sweet Potato, Chicken, Eggs\", \"avoid foods: Broccoli, Cabbage\"], \"actions\": [\"set_calories: calories=4146 kcal/day\", \"set_macros: protein=144g, carbs=293g, fat=292g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 49, 55, 41, 42, 61, 60, 51, 3, 19], \"excluded_food_ids\": [50, 59]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 158,
+    "rule_name": "Moderate Thinness + Female + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Moderate Thinness females on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 16\", \"bmi less_than 17\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Walnuts, Flaxseeds, Coconut, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Chicken, Eggs\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=3864 kcal/day\", \"set_macros: protein=141g, carbs=273g, fat=268g\"], \"recommended_food_ids\": [43, 44, 45, 46, 47, 79, 55, 41, 42, 61, 51, 3, 19], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 159,
+    "rule_name": "Mild Thinness + Female + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Mild Thinness females on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 17\", \"bmi less_than 18.5\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Oats, Almonds, Cashews, Avocado, Quinoa, Brown Rice, Bananas, Sweet Potato, Peas, Broccoli, Chicken, Eggs\", \"avoid foods: Bell Pepper, Cabbage\"], \"actions\": [\"set_calories: calories=2437 kcal/day\", \"set_macros: protein=113g, carbs=236g, fat=129g\"], \"recommended_food_ids\": [43, 44, 45, 55, 41, 42, 61, 51, 52, 50, 3, 19], \"excluded_food_ids\": [56, 59]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 160,
+    "rule_name": "Normal + Female + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Normal females on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 18.5\", \"bmi less_than 25\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Oats, Quinoa, Brown Rice, Broccoli, Bell Pepper, Apples, Bananas, Avocado, Peas, Sweet Potato, Chicken, Eggs\", \"avoid foods: Coconut, Walnuts\"], \"actions\": [\"set_calories: calories=1388 kcal/day\", \"set_macros: protein=75g, carbs=204g, fat=35g\"], \"recommended_food_ids\": [43, 41, 42, 50, 56, 60, 61, 55, 52, 51, 3, 19], \"excluded_food_ids\": [79, 46]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 161,
+    "rule_name": "Overweight + Female + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Overweight females on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 25\", \"bmi less_than 30\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 162,
+    "rule_name": "Obese Class I + Female + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Obese Class I females on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 30\", \"bmi less_than 35\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 79]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 163,
+    "rule_name": "Obese Class II + Female + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Obese Class II females on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 35\", \"bmi less_than 40\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Coconut Milk\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 49]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  },
+  {
+    "id": 164,
+    "rule_name": "Obese Class III + Female + Normal (Soy & Seafood Allergy)",
+    "description": "Diet rule for Obese Class III females on a normal diet with soy and seafood allergy.",
+    "is_active": 1,
+    "conditions": "{\"category\": \"health\", \"priority\": \"medium\", \"active\": true, \"conditions\": [\"bmi greater_than 40\", \"bmi less_than 100\", \"gender equals female\", \"diet_type equals normal\", \"allergy contains soy\", \"allergy contains seafood\", \"recommend foods: Chicken, Broccoli, Cabbage, Bell Pepper, Apples, Strawberries, Blueberries, Raspberries, Brown Rice, Quinoa, Oats\", \"avoid foods: Pork, Beef, Walnuts\"], \"actions\": [\"set_calories: calories=1068 kcal/day\", \"set_macros: protein=63g, carbs=178g, fat=16g\"], \"recommended_food_ids\": [3, 50, 59, 56, 60, 63, 64, 65, 42, 41, 43], \"excluded_food_ids\": [1, 5, 46]}",
+    "created_at": "2026-02-02T04:36:08",
+    "updated_at": "2026-02-02T04:36:08"
+  }
+]

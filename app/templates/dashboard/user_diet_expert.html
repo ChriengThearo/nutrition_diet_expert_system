@@ -1,0 +1,1164 @@
+{% extends "layouts/base_enhanced.html" %}
+
+{% block title %}Diet Expert System{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
+<style>
+    .diet-expert-shell {
+        padding-bottom: 2.5rem;
+    }
+
+    .diet-expert-shell.is-hidden {
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .diet-expert-header {
+        text-align: center;
+        margin-bottom: 2.2rem;
+    }
+
+    .diet-expert-title {
+        font-size: clamp(2rem, 3.4vw, 2.8rem);
+        font-weight: 800;
+        margin-bottom: 0.6rem;
+        color: var(--dash-ink);
+    }
+
+    .diet-expert-title i {
+        color: var(--dash-primary);
+    }
+
+    .progress-bar {
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
+    }
+
+    .section-card {
+        border: 1px solid var(--dash-line);
+        border-radius: 20px;
+        box-shadow: var(--dash-shadow);
+        margin-bottom: 20px;
+        transition: transform 0.3s;
+        background: var(--dash-card);
+    }
+
+    .section-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .section-header {
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
+        color: white;
+        border-radius: 20px 20px 0 0;
+        padding: 16px 18px;
+    }
+
+    .required::after {
+        content: " *";
+        color: #dc3545;
+    }
+
+    .btn-custom {
+        background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-custom:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .question-icon {
+        background-color: var(--dash-accent);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+    }
+
+    .food-preference-tag {
+        display: inline-block;
+        padding: 5px 15px;
+        margin: 5px;
+        border-radius: 20px;
+        background-color: #e9ecef;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .food-preference-tag.selected {
+        background-color: var(--dash-primary);
+        color: white;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--dash-primary);
+        border-color: var(--dash-primary);
+    }
+
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    .step {
+        text-align: center;
+        flex: 1;
+        position: relative;
+    }
+
+    .step-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #dee2e6;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-weight: bold;
+    }
+
+    .step.active .step-circle {
+        background-color: var(--dash-primary);
+        color: white;
+    }
+
+    .step.completed .step-circle {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .step-line {
+        position: absolute;
+        top: 20px;
+        left: 60%;
+        width: 80%;
+        height: 2px;
+        background-color: #dee2e6;
+        z-index: -1;
+    }
+
+    .step:last-child .step-line {
+        display: none;
+    }
+
+    footer {
+        display: none;
+    }
+
+    .analyst-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        padding: 24px;
+    }
+
+    .analyst-modal {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 28px 32px;
+        max-width: 520px;
+        width: 100%;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+        text-align: center;
+    }
+
+    .analyst-modal h2 {
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--dash-ink);
+    }
+
+    .analyst-modal p {
+        color: #5f6b7a;
+        margin-bottom: 20px;
+    }
+
+    .analyst-actions {
+        display: grid;
+        gap: 12px;
+    }
+
+    .analyst-actions .btn {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 600;
+    }
+
+    .analyst-actions .btn:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+    .analyst-loading {
+        margin-top: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: var(--dash-primary);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{{ url_for('dashboard.user_dashboard') }}">Dashboard</a></li>
+<li class="breadcrumb-item active" aria-current="page">Diet Expert System</li>
+{% endblock %}
+
+{% block content %}
+<div id="analystGate" class="analyst-overlay">
+    <div class="analyst-modal">
+        <h2>Choose Analyst</h2>
+        <p>Select the analysis mode before continuing to the Diet Expert System.</p>
+        <div class="analyst-actions">
+            <button type="button" class="btn btn-outline-primary" id="analystExternal">
+                External Analyst (Test Blood)
+            </button>
+            <button type="button" class="btn btn-primary" id="analystNormal">
+                Normal Analyst
+            </button>
+        </div>
+        <div class="analyst-loading d-none" id="analystLoading">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Loading...</span>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-shell user-shell diet-expert-shell is-hidden">
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="diet-expert-header">
+            <span class="hero-chip"><i class="fas fa-utensils"></i>Diet Expert</span>
+            <h1 class="diet-expert-title"><i class="fas fa-utensils me-2"></i>Diet Expert System</h1>
+            <p class="text-muted mb-0">Personalized meal recommendations based on your profile</p>
+        </div>
+
+        <div class="alert alert-success d-none" id="bloodTestedAlert" role="alert">
+            <i class="fas fa-check-circle me-2"></i>Blood Tested
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="progress" style="height: 10px; border-radius: 999px;">
+                    <div class="progress-bar" role="progressbar" style="width: 25%;" id="progressBar"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                    <small class="text-muted">Basic Info</small>
+                    <small class="text-muted">Health Details</small>
+                    <small class="text-muted">Preferences</small>
+                    <small class="text-muted">Review</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" id="step1">
+                <div class="step-circle">1</div>
+                <span>Profile</span>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-circle">2</div>
+                <span>Health</span>
+                <div class="step-line"></div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-circle">3</div>
+                <span>Preferences</span>
+                <div class="step-line"></div>
+            </div>
+            <div class="step" id="step4">
+                <div class="step-circle">4</div>
+                <span>Review</span>
+                <div class="step-line"></div>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <form id="dietForm" method="post" action="{{ url_for('dashboard.user_dashboard_submit') }}" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <!-- SECTION 1: BASIC PROFILE -->
+            <div class="section-card" id="section1">
+                <div class="section-header">
+                    <h4 class="mb-0"><i class="fas fa-user me-2"></i>Basic Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required">Age</label>
+                            <input type="number" class="form-control" id="age" min="1" max="120" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required">Gender</label>
+                            <select class="form-select" id="gender" required>
+                                <option value="" selected disabled>Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other / Prefer not to say</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required">Weight (kg)</label>
+                            <input type="number" class="form-control" id="weight" min="30" max="300" step="0.1"
+                                required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label required">Height (cm)</label>
+                            <input type="number" class="form-control" id="height" min="100" max="250" required>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: HEALTH INFORMATION -->
+            <div class="section-card d-none" id="section2">
+                <div class="section-header">
+                    <h4 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Health Information</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <label class="form-label">Food Allergies (select all that apply)</label>
+                        <div class="row">
+                            <div class="col-md-3 col-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="allergy_seafood"
+                                        value="seafood">
+                                    <label class="form-check-label" for="allergy_seafood">Seafood</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="allergy_eggs" value="eggs">
+                                    <label class="form-check-label" for="allergy_eggs">Eggs</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="allergy_soy" value="soy">
+                                    <label class="form-check-label" for="allergy_soy">Soy</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: FOOD PREFERENCES -->
+            <div class="section-card d-none" id="section3">
+                <div class="section-header">
+                    <h4 class="mb-0"><i class="fas fa-utensils me-2"></i>Food Preferences</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <label class="form-label required">Diet Type</label>
+                        <div class="row">
+                            <div class="col-md-3 col-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="dietType" id="normal"
+                                        value="normal" required>
+                                    <label class="form-check-label" for="normal">Normal</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="dietType" id="vegan"
+                                        value="vegan">
+                                    <label class="form-check-label" for="vegan">Vegan</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label required">Preferred Meals Per Day</label>
+                        <div class="row">
+                            <div class="col-md-2 col-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="mealsPerDay" id="meals2"
+                                        value="2" required>
+                                    <label class="form-check-label" for="meals2">2 Meals</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="mealsPerDay" id="meals3"
+                                        value="3" required>
+                                    <label class="form-check-label" for="meals3">3 Meals</label>
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="mealsPerDay" id="meals4"
+                                        value="4">
+                                    <label class="form-check-label" for="meals4">4 Meals</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: REVIEW -->
+            <div class="section-card d-none" id="section4">
+                <div class="section-header">
+                    <h4 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Review & Submit</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Please review your information before submitting. Your personalized diet plan will be generated
+                        based on these details.
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Personal Details</h5>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Age:</strong></td>
+                                    <td id="reviewAge"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Gender:</strong></td>
+                                    <td id="reviewGender"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Weight:</strong></td>
+                                    <td id="reviewWeight"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Height:</strong></td>
+                                    <td id="reviewHeight"></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Health & Preferences</h5>
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Diet Type:</strong></td>
+                                    <td id="reviewDietType"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Allergies:</strong></td>
+                                    <td id="reviewAllergies"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Meals/Day:</strong></td>
+                                    <td id="reviewMeals"></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="form-check mt-4">
+                        <input class="form-check-input" type="checkbox" id="consent" required>
+                        <label class="form-check-label" for="consent">
+                            Confirm to generate a diet plan
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-danger d-none mt-4" id="dietFormError" role="alert"></div>
+
+            <!-- Navigation Buttons -->
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary" id="prevBtn" style="display: none;">
+                    <i class="fas fa-arrow-left me-2"></i>Previous
+                </button>
+                <div class="ms-auto">
+                    <button type="button" class="btn btn-custom" id="nextBtn">
+                        Next<i class="fas fa-arrow-right ms-2"></i>
+                    </button>
+                    <button type="submit" class="btn btn-success d-none" id="submitBtn"
+                        data-permission="user.dashboard.create" data-action="generate diet plans">
+                        <i class="fas fa-paper-plane me-2"></i>Generate Diet Plan
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Results Modal -->
+        <div class="modal fade" id="resultsModal" tabindex="-1">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title"><i class="fas fa-chart-pie me-2"></i>Your Diet Plan</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="resultsContent">
+                        <!-- Results will be loaded here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Print Plan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block extra_js %}
+    <script>
+        let currentSection = 1;
+        const totalSections = 4;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            updateProgressBar();
+            setupAnalystGate();
+        });
+
+        function setupAnalystGate() {
+            const gate = document.getElementById('analystGate');
+            const shell = document.querySelector('.diet-expert-shell');
+            const normalBtn = document.getElementById('analystNormal');
+            const externalBtn = document.getElementById('analystExternal');
+            const loading = document.getElementById('analystLoading');
+            const bloodAlert = document.getElementById('bloodTestedAlert');
+
+            if (!gate || !shell || !normalBtn || !externalBtn || !loading) {
+                return;
+            }
+
+            const revealContent = (showBloodTested) => {
+                gate.classList.add('d-none');
+                shell.classList.remove('is-hidden');
+                if (showBloodTested && bloodAlert) {
+                    bloodAlert.classList.remove('d-none');
+                    bloodAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            };
+
+            const lockButtons = () => {
+                normalBtn.disabled = true;
+                externalBtn.disabled = true;
+            };
+
+            normalBtn.addEventListener('click', () => {
+                revealContent(false);
+            });
+
+            externalBtn.addEventListener('click', () => {
+                lockButtons();
+                loading.classList.remove('d-none');
+                window.setTimeout(() => {
+                    revealContent(true);
+                }, 3000);
+            });
+        }
+
+        function updateProgressBar() {
+            const progress = (currentSection / totalSections) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+
+            for (let i = 1; i <= totalSections; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.classList.remove('active', 'completed');
+                if (i < currentSection) {
+                    step.classList.add('completed');
+                } else if (i === currentSection) {
+                    step.classList.add('active');
+                }
+            }
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', function () {
+            if (validateSection(currentSection)) {
+                if (currentSection < totalSections) {
+                    document.getElementById(`section${currentSection}`).classList.add('d-none');
+                    currentSection++;
+                    document.getElementById(`section${currentSection}`).classList.remove('d-none');
+                    updateNavigationButtons();
+                    updateProgressBar();
+
+                    if (currentSection === totalSections) {
+                        updateReviewSection();
+                    }
+                }
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', function () {
+            if (currentSection > 1) {
+                document.getElementById(`section${currentSection}`).classList.add('d-none');
+                currentSection--;
+                document.getElementById(`section${currentSection}`).classList.remove('d-none');
+                updateNavigationButtons();
+                updateProgressBar();
+            }
+        });
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (currentSection === 1) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+            }
+
+            if (currentSection === totalSections) {
+                nextBtn.classList.add('d-none');
+                submitBtn.classList.remove('d-none');
+            } else {
+                nextBtn.classList.remove('d-none');
+                submitBtn.classList.add('d-none');
+            }
+        }
+
+        function validateSection(section) {
+            let isValid = true;
+            const sectionEl = document.getElementById(`section${section}`);
+            const requiredInputs = Array.from(sectionEl.querySelectorAll('[required]'));
+            const processedRadioNames = new Set();
+
+            requiredInputs.forEach(input => {
+                if (input.type === 'radio') {
+                    if (processedRadioNames.has(input.name)) {
+                        return;
+                    }
+                    processedRadioNames.add(input.name);
+                    const checked = sectionEl.querySelector(`input[name="${input.name}"]:checked`);
+                    if (!checked) {
+                        isValid = false;
+                        const radioGroup = sectionEl.querySelectorAll(`input[name="${input.name}"]`);
+                        radioGroup.forEach(radio => radio.classList.add('is-invalid'));
+                    } else {
+                        const radioGroup = sectionEl.querySelectorAll(`input[name="${input.name}"]`);
+                        radioGroup.forEach(radio => radio.classList.remove('is-invalid'));
+                    }
+                    return;
+                }
+
+                if (input.type === 'checkbox') {
+                    if (!input.checked) {
+                        isValid = false;
+                        input.classList.add('is-invalid');
+                    } else {
+                        input.classList.remove('is-invalid');
+                    }
+                    return;
+                }
+
+                if (!input.value) {
+                    isValid = false;
+                    input.classList.add('is-invalid');
+                    if (!input.nextElementSibling || !input.nextElementSibling.classList.contains('invalid-feedback')) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback';
+                        errorDiv.textContent = 'This field is required';
+                        input.parentNode.appendChild(errorDiv);
+                    }
+                } else {
+                    input.classList.remove('is-invalid');
+                }
+            });
+
+            return isValid;
+        }
+
+        function updateReviewSection() {
+            document.getElementById('reviewAge').textContent = document.getElementById('age').value;
+            document.getElementById('reviewGender').textContent = document.getElementById('gender').value || 'Not specified';
+            document.getElementById('reviewWeight').textContent = document.getElementById('weight').value + ' kg';
+            document.getElementById('reviewHeight').textContent = document.getElementById('height').value + ' cm';
+            const dietType = document.querySelector('input[name="dietType"]:checked');
+            document.getElementById('reviewDietType').textContent = dietType ? dietType.nextElementSibling.textContent : 'Not specified';
+
+            const allergyCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="allergy_"]:checked');
+            const allergies = Array.from(allergyCheckboxes).map(cb => cb.nextElementSibling.textContent);
+            document.getElementById('reviewAllergies').textContent = allergies.length > 0 ? allergies.join(', ') : 'None';
+            const meals = document.querySelector('input[name="mealsPerDay"]:checked');
+            document.getElementById('reviewMeals').textContent = meals ? meals.value + ' meals' : 'Not specified';
+        }
+
+        const dietForm = document.getElementById('dietForm');
+        if (!dietForm) {
+            console.error('Diet form not found on page.');
+        }
+
+        const dietFormSubmitUrl = dietForm?.getAttribute('action') || '/dashboard/user/submit';
+        const submitBtn = document.getElementById('submitBtn');
+        const submitBtnLabel = submitBtn ? submitBtn.innerHTML : '';
+        const dietFormError = document.getElementById('dietFormError');
+
+        function setSubmitting(isSubmitting) {
+            if (!submitBtn) {
+                return;
+            }
+            submitBtn.disabled = isSubmitting;
+            if (isSubmitting) {
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Generating...';
+            } else {
+                submitBtn.innerHTML = submitBtnLabel;
+            }
+        }
+
+        function showFormError(message) {
+            if (!dietFormError) {
+                return;
+            }
+            dietFormError.textContent = message;
+            dietFormError.classList.remove('d-none');
+            dietFormError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function clearFormError() {
+            if (!dietFormError) {
+                return;
+            }
+            dietFormError.textContent = '';
+            dietFormError.classList.add('d-none');
+        }
+
+        dietForm?.addEventListener('submit', function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            clearFormError();
+
+            if (typeof hideLoading === 'function') {
+                hideLoading();
+            }
+            setSubmitting(false);
+
+            if (typeof dietForm.reportValidity === 'function') {
+                if (!dietForm.reportValidity()) {
+                    return;
+                }
+            } else if (typeof dietForm.checkValidity === 'function') {
+                if (!dietForm.checkValidity()) {
+                    return;
+                }
+            }
+
+            if (!validateSection(totalSections)) {
+                return;
+            }
+
+            const dietTypeInput = document.querySelector('input[name="dietType"]:checked');
+            const mealsInput = document.querySelector('input[name="mealsPerDay"]:checked');
+
+            if (!dietTypeInput || !mealsInput) {
+                showFormError('Please complete the required selections before generating your plan.');
+                return;
+            }
+
+            if (typeof showLoading === 'function') {
+                showLoading();
+            }
+            setSubmitting(true);
+
+            const formData = {
+                personal: {
+                    age: document.getElementById('age').value,
+                    gender: document.getElementById('gender').value,
+                    weight: document.getElementById('weight').value,
+                    height: document.getElementById('height').value
+                },
+                health: {
+                    dietType: dietTypeInput.value,
+                    allergies: Array.from(document.querySelectorAll('input[type="checkbox"][id^="allergy_"]:checked'))
+                        .map(cb => cb.value)
+                },
+                preferences: {
+                    mealsPerDay: mealsInput.value
+                }
+            };
+
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            const csrfToken = dietForm.querySelector('input[name="csrf_token"]')?.value;
+            if (csrfToken) {
+                headers['X-CSRFToken'] = csrfToken;
+            }
+
+            const controller = new AbortController();
+            const timeoutId = window.setTimeout(() => controller.abort(), 20000);
+
+            fetch(dietFormSubmitUrl, {
+                method: 'POST',
+                headers,
+                credentials: 'same-origin',
+                body: JSON.stringify(formData),
+                signal: controller.signal
+            })
+                .then(async response => {
+                    const contentType = response.headers.get('content-type') || '';
+                    let data = {};
+                    if (contentType.includes('application/json')) {
+                        data = await response.json();
+                    } else {
+                        const text = await response.text();
+                        data = { message: text };
+                    }
+
+                    if (!response.ok || data.success === false) {
+                        throw new Error(data.message || 'Failed to save data');
+                    }
+
+                    return data;
+                })
+                .then(data => {
+                    showResults(data);
+                })
+                .catch(error => {
+                    console.error('Error saving data:', error);
+                    if (error.name === 'AbortError') {
+                        showFormError('Request timed out. Please try again.');
+                    } else {
+                        showFormError(error.message || 'Failed to save your data. Please try again.');
+                    }
+                })
+                .finally(() => {
+                    window.clearTimeout(timeoutId);
+                    if (typeof hideLoading === 'function') {
+                        hideLoading();
+                    }
+                    setSubmitting(false);
+                });
+
+        });
+
+        function formatNumber(value, decimals) {
+            if (value === null || value === undefined || value === '') {
+                return null;
+            }
+            const num = Number(value);
+            if (Number.isNaN(num)) {
+                return null;
+            }
+            return num.toFixed(decimals);
+        }
+
+        function titleCase(value) {
+            return String(value || '')
+                .replace(/_/g, ' ')
+                .split(' ')
+                .filter(Boolean)
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+        }
+
+        function splitIntoParts(items, parts) {
+            const groups = [];
+            const safeParts = Math.max(1, parts);
+            const base = Math.floor(items.length / safeParts);
+            const remainder = items.length % safeParts;
+            let index = 0;
+
+            for (let i = 0; i < safeParts; i++) {
+                const size = base + (i < remainder ? 1 : 0);
+                groups.push(items.slice(index, index + size));
+                index += size;
+            }
+
+            return groups;
+        }
+
+        function splitMeals(items, mealsPerDay) {
+            if (!items || items.length === 0) {
+                return {
+                    breakfast: [],
+                    lunch: [],
+                    dinner: [],
+                    late_dinner: []
+                };
+            }
+
+            const mealsCount = Number(mealsPerDay) || 3;
+            const groups = splitIntoParts(items, 3);
+            const breakfast = groups[0] || [];
+            const lunch = groups[1] || [];
+            const dinner = groups[2] || [];
+
+            if (mealsCount === 2) {
+                const dinnerSplit = splitIntoParts(dinner, 2);
+                return {
+                    breakfast: breakfast.concat(dinnerSplit[0] || []),
+                    lunch: lunch.concat(dinnerSplit[1] || []),
+                    dinner: [],
+                    late_dinner: []
+                };
+            }
+
+            if (mealsCount === 4) {
+                const dinnerSplit = splitIntoParts(dinner, 2);
+                return {
+                    breakfast,
+                    lunch,
+                    dinner: dinnerSplit[0] || [],
+                    late_dinner: dinnerSplit[1] || []
+                };
+            }
+
+            return {
+                breakfast,
+                lunch,
+                dinner,
+                late_dinner: []
+            };
+        }
+
+        function renderMealItems(items) {
+            if (!items || items.length === 0) {
+                return '<li class="text-muted">No items assigned</li>';
+            }
+            return items.map(item => `<li>${item}</li>`).join('');
+        }
+
+        function renderMealPlan(meals, mealsPerDay) {
+            const mealsCount = Number(mealsPerDay) || 3;
+            if (mealsCount === 2) {
+                return `
+                <div class="col-md-6">
+                    <h6><i class="fas fa-sun text-warning me-2"></i>Breakfast</h6>
+                    <ul>
+                        ${renderMealItems(meals.breakfast)}
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6><i class="fas fa-cloud-sun text-warning me-2"></i>Lunch</h6>
+                    <ul>
+                        ${renderMealItems(meals.lunch)}
+                    </ul>
+                </div>
+            `;
+            }
+
+            if (mealsCount === 4) {
+                return `
+                <div class="col-md-3">
+                    <h6><i class="fas fa-sun text-warning me-2"></i>Breakfast</h6>
+                    <ul>
+                        ${renderMealItems(meals.breakfast)}
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6><i class="fas fa-cloud-sun text-warning me-2"></i>Lunch</h6>
+                    <ul>
+                        ${renderMealItems(meals.lunch)}
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6><i class="fas fa-moon text-warning me-2"></i>Dinner</h6>
+                    <ul>
+                        ${renderMealItems(meals.dinner)}
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6><i class="fas fa-moon text-warning me-2"></i>Late Dinner</h6>
+                    <ul>
+                        ${renderMealItems(meals.late_dinner)}
+                    </ul>
+                </div>
+            `;
+            }
+
+            return `
+            <div class="col-md-4">
+                <h6><i class="fas fa-sun text-warning me-2"></i>Breakfast</h6>
+                <ul>
+                    ${renderMealItems(meals.breakfast)}
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-cloud-sun text-warning me-2"></i>Lunch</h6>
+                <ul>
+                    ${renderMealItems(meals.lunch)}
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-moon text-warning me-2"></i>Dinner</h6>
+                <ul>
+                    ${renderMealItems(meals.dinner)}
+                </ul>
+            </div>
+        `;
+        }
+
+        function showResults(data) {
+            const resultsContent = document.getElementById('resultsContent');
+            const profile = data.profile || {};
+            const metrics = data.metrics || {};
+            const foods = Array.isArray(data.foods) ? data.foods : [];
+            const avoidFoods = Array.isArray(data.avoid_foods) ? data.avoid_foods : [];
+
+            const foodNames = foods.map(item => item.name || item).filter(Boolean);
+            const avoidFoodNames = avoidFoods.map(item => item.name || item).filter(Boolean);
+            const mealsCount = Number(profile.meals_per_day)
+                || Number(document.querySelector('input[name="mealsPerDay"]:checked')?.value)
+                || 3;
+            const meals = splitMeals(foodNames, mealsCount);
+
+            const age = profile.age ?? document.getElementById('age').value;
+            const gender = profile.gender ? titleCase(profile.gender) : 'Not specified';
+            const weight = profile.weight ? `${profile.weight} kg` : 'Not specified';
+            const height = profile.height ? `${profile.height} cm` : 'Not specified';
+            const dietType = profile.diet_type ? titleCase(profile.diet_type) : 'Not specified';
+            const allergies = profile.allergies && profile.allergies.length
+                ? profile.allergies.map(titleCase).join(', ')
+                : 'None';
+            const mealsPerDay = profile.meals_per_day ? `${profile.meals_per_day} meals` : `${mealsCount} meals`;
+
+            const bmiValue = formatNumber(metrics.bmi, 1);
+            const caloriesValue = formatNumber(metrics.calories, 0);
+            const proteinValue = formatNumber(metrics.protein, 0);
+            const carbsValue = formatNumber(metrics.carbs, 0);
+            const fatValue = formatNumber(metrics.fat, 0);
+
+            let html = `
+            <div class="alert alert-success">
+                <h4><i class="fas fa-check-circle me-2"></i>Your Personalized Diet Plan</h4>
+                <p>Based on your profile and matching rules, here are your recommendations:</p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Your Metrics</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <tr><td><strong>Age:</strong></td><td>${age || 'Not specified'}</td></tr>
+                                <tr><td><strong>Gender:</strong></td><td>${gender}</td></tr>
+                                <tr><td><strong>Weight:</strong></td><td>${weight}</td></tr>
+                                <tr><td><strong>Height:</strong></td><td>${height}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header bg-warning text-white">
+                            <h5 class="mb-0"><i class="fas fa-apple-alt me-2"></i>Macronutrients</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <tr><td><strong>BMI:</strong></td><td>${bmiValue ? bmiValue : 'Not specified'}</td></tr>
+                                <tr><td><strong>Calories:</strong></td><td>${caloriesValue ? `${caloriesValue} kcal/day` : 'Not specified'}</td></tr>
+                                <tr><td><strong>Protein:</strong></td><td>${proteinValue ? `${proteinValue} g` : 'Not specified'}</td></tr>
+                                <tr><td><strong>Carbs:</strong></td><td>${carbsValue ? `${carbsValue} g` : 'Not specified'}</td></tr>
+                                <tr><td><strong>Fat:</strong></td><td>${fatValue ? `${fatValue} g` : 'Not specified'}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card mb-3">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0"><i class="fas fa-heart me-2"></i>Health & Preferences</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <tr><td><strong>Diet Type:</strong></td><td>${dietType}</td></tr>
+                                <tr><td><strong>Allergies:</strong></td><td>${allergies}</td></tr>
+                                <tr><td><strong>Meals/Day:</strong></td><td>${mealsPerDay}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Sample Daily Meal Plan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        ${renderMealPlan(meals, mealsCount)}
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-ban me-2 text-danger"></i>Avoid Foods</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        ${avoidFoodNames.length
+                    ? avoidFoodNames.map(item => `<li>${item}</li>`).join('')
+                    : '<li class="text-muted">None</li>'}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Important Notes</h5>
+                <ul class="mb-0">
+                    <li>This plan is a general recommendation</li>
+                    <li>Adjust portions based on your hunger levels</li>
+                    <li>Consult with a healthcare provider before making significant changes</li>
+                    <li>Monitor your progress and adjust as needed</li>
+                </ul>
+            </div>
+        `;
+
+            resultsContent.innerHTML = html;
+
+            const resultsModalEl = document.getElementById('resultsModal');
+            if (!resultsModalEl) {
+                return;
+            }
+
+            if (resultsModalEl.parentElement !== document.body) {
+                document.body.appendChild(resultsModalEl);
+            }
+
+            const resultsModal = bootstrap.Modal.getOrCreateInstance(resultsModalEl, {
+                backdrop: true,
+                keyboard: true,
+                focus: true
+            });
+
+            resultsModalEl.addEventListener('hidden.bs.modal', () => {
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('padding-right');
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+            }, { once: true });
+
+            resultsModal.show();
+        }
+
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+    {% endblock %}

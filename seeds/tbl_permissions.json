@@ -1,0 +1,226 @@
+[
+  {
+    "id": 6,
+    "code": "doctor.create",
+    "name": "create doctor",
+    "description": "doctor can create",
+    "module": "Doctor",
+    "aliases": "[\"doctor_create\"]"
+  },
+  {
+    "id": 7,
+    "code": "doctor.update",
+    "name": "update doctor",
+    "description": "doctor can update",
+    "module": "Doctor",
+    "aliases": "[\"doctor_update\"]"
+  },
+  {
+    "id": 8,
+    "code": "doctor.delete",
+    "name": "delete doctor",
+    "description": "doctor can delete",
+    "module": "Doctor",
+    "aliases": "[\"doctor_delete\"]"
+  },
+  {
+    "id": 9,
+    "code": "dashboard.user",
+    "name": "Access User Dashboard",
+    "description": "Permission to access user dashboard",
+    "module": "Dashboard",
+    "aliases": "[\"dashboard_user\"]"
+  },
+  {
+    "id": 10,
+    "code": "dashboard.admin",
+    "name": "Access Admin Dashboard",
+    "description": "Permission to access admin dashboard",
+    "module": "Dashboard",
+    "aliases": "[\"dashboard_admin\"]"
+  },
+  {
+    "id": 11,
+    "code": "dashboard.doctor",
+    "name": "Access Doctor Dashboard",
+    "description": "Permission to access doctor dashboard",
+    "module": "Dashboard",
+    "aliases": "[\"dashboard_doctor\"]"
+  },
+  {
+    "id": 16,
+    "code": "role.read",
+    "name": "View Roles",
+    "description": "Permission to view roles",
+    "module": "Roles",
+    "aliases": "[\"role.view\", \"role_read\"]"
+  },
+  {
+    "id": 17,
+    "code": "role.create",
+    "name": "Create Roles",
+    "description": "Permission to create roles",
+    "module": "Roles",
+    "aliases": "[\"role_create\"]"
+  },
+  {
+    "id": 18,
+    "code": "role.edit",
+    "name": "Edit Roles",
+    "description": "Permission to edit roles",
+    "module": "Roles",
+    "aliases": "[\"role_edit\"]"
+  },
+  {
+    "id": 19,
+    "code": "role.delete",
+    "name": "Delete Roles",
+    "description": "Permission to delete roles",
+    "module": "Roles",
+    "aliases": "[\"role_delete\"]"
+  },
+  {
+    "id": 20,
+    "code": "permission.read",
+    "name": "Read Permissions",
+    "description": "Permission to Read permissions",
+    "module": "Permissions",
+    "aliases": "[\"permission.view\", \"permission_read\"]"
+  },
+  {
+    "id": 21,
+    "code": "permission.create",
+    "name": "Create Permissions",
+    "description": "Permission to create permissions",
+    "module": "Permissions",
+    "aliases": "[\"permission_create\"]"
+  },
+  {
+    "id": 22,
+    "code": "permission.edit",
+    "name": "Edit Permissions",
+    "description": "Permission to edit permissions",
+    "module": "Permissions",
+    "aliases": "[\"permission_edit\"]"
+  },
+  {
+    "id": 23,
+    "code": "permission.delete",
+    "name": "Delete Permissions",
+    "description": "Permission to delete permissions",
+    "module": "Permissions",
+    "aliases": "[\"permission_delete\"]"
+  },
+  {
+    "id": 26,
+    "code": "food.read",
+    "name": "Read Foods",
+    "description": "Permission to view foods",
+    "module": "Foods",
+    "aliases": "[\"food.view\", \"food_read\"]"
+  },
+  {
+    "id": 27,
+    "code": "food.create",
+    "name": "Create Foods",
+    "description": "Permission to create foods",
+    "module": "Foods",
+    "aliases": "[\"food_create\"]"
+  },
+  {
+    "id": 28,
+    "code": "food.edit",
+    "name": "Edit Foods",
+    "description": "Permission to edit foods",
+    "module": "Foods",
+    "aliases": "[\"food_edit\"]"
+  },
+  {
+    "id": 29,
+    "code": "food.delete",
+    "name": "Delete Foods",
+    "description": "Permission to delete foods",
+    "module": "Foods",
+    "aliases": "[\"food_delete\"]"
+  },
+  {
+    "id": 31,
+    "code": "rule.create",
+    "name": "Create Rules",
+    "description": "Permission to create rules",
+    "module": "Rules",
+    "aliases": "[\"rule_create\"]"
+  },
+  {
+    "id": 32,
+    "code": "rule.edit",
+    "name": "Edit Rules",
+    "description": "Permission to edit rules",
+    "module": "Rules",
+    "aliases": "[\"rule_edit\"]"
+  },
+  {
+    "id": 33,
+    "code": "rule.delete",
+    "name": "Delete Rules",
+    "description": "Permission to delete rules",
+    "module": "Rules",
+    "aliases": "[\"rule_delete\"]"
+  },
+  {
+    "id": 34,
+    "code": "rule.test",
+    "name": "Test Rules",
+    "description": "Permission to test rules",
+    "module": "Rules",
+    "aliases": "[\"rule_test\"]"
+  },
+  {
+    "id": 47,
+    "code": "user.read",
+    "name": "User Read",
+    "description": "Permission to user read",
+    "module": "Users",
+    "aliases": "[\"user.dashboard.read\", \"user.view\", \"user_dashboard_read\", \"user_read\"]"
+  },
+  {
+    "id": 48,
+    "code": "user.create",
+    "name": "User Create",
+    "description": "Permission to user create",
+    "module": "Users",
+    "aliases": "[\"user.dashboard.create\", \"user_create\", \"user_dashboard_create\"]"
+  },
+  {
+    "id": 50,
+    "code": "user.delete",
+    "name": "User Delete",
+    "description": "Permission to user delete",
+    "module": "Users",
+    "aliases": "[\"user.dashboard.delete\", \"user_dashboard_delete\", \"user_delete\"]"
+  },
+  {
+    "id": 54,
+    "code": "user.update",
+    "name": "user update",
+    "description": "user can update their info",
+    "module": "Users",
+    "aliases": "[\"user.dashboard.update\", \"user_dashboard_update\", \"user_update\"]"
+  },
+  {
+    "id": 55,
+    "code": "doctor.read",
+    "name": "doctor read",
+    "description": "doctor can read",
+    "module": "Doctor",
+    "aliases": "[\"doctor.view\", \"doctor_read\"]"
+  },
+  {
+    "id": 56,
+    "code": "rule.read",
+    "name": "view rules",
+    "description": "Can view rules",
+    "module": "Rules",
+    "aliases": "[\"rule.view\", \"rule_read\"]"
+  }
+]

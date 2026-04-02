@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expert Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+        }
+
+        body {
+            background: #f8f9fa;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(135deg, var(--primary-color), #3f37c9);
+        }
+
+        .profile-card {
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .profile-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #6c757d;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #e7f1ff;
+            color: #1d4ed8;
+            font-size: 0.85rem;
+        }
+
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard.doctor_dashboard') }}">
+                <i class="fas fa-brain me-2"></i>Diet Expert Rule Manager
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}">
+                            <i class="fas fa-home me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('dashboard.doctor_profile') }}">
+                            <i class="fas fa-user me-1"></i> Expert Profile
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card profile-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-1">{{ user.full_name }}</h4>
+                                <div class="text-muted">{{ user.email }}</div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase text-muted">Account</h6>
+                                <p class="mb-2"><strong>Username:</strong> {{ user.username }}</p>
+                                <p class="mb-2"><strong>Status:</strong> {{ 'Active' if user.is_active else 'Inactive'
+                                    }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase text-muted">Roles</h6>
+                                <div>
+                                    {% if user.roles %}
+                                    {% for role in user.roles %}
+                                    <span class="pill me-2 mb-2">{{ role.name }}</span>
+                                    {% endfor %}
+                                    {% else %}
+                                    <span class="text-muted">No roles assigned</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase text-muted">Created</h6>
+                                <p class="mb-0">{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else
+                                    'N/A' }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-uppercase text-muted">Last Updated</h6>
+                                <p class="mb-0">{{ user.updated_at.strftime('%Y-%m-%d %H:%M') if user.updated_at else
+                                    'N/A' }}</p>
+                            </div>
+                        </div>
+
+                        <div class="action-row">
+                            <a class="btn btn-primary" href="{{ url_for('dashboard.doctor_profile_edit') }}"
+                                data-permission="dashboard.doctor" data-action="edit profile info">
+                                <i class="fas fa-pen me-2"></i>Edit Info
+                            </a>
+                            <a class="btn btn-outline-secondary" href="{{ url_for('dashboard.doctor_dashboard') }}"
+                                data-permission="dashboard.doctor" data-action="access the doctor dashboard">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </a>
+                            <a class="btn btn-outline-danger" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.APP_PERMISSIONS = {{ current_user.get_permission_codes()|list|tojson if current_user.is_authenticated else [] }};
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

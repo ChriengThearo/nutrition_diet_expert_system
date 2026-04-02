@@ -1,0 +1,291 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Diet Rules{% endblock %}
+
+{% block extra_css %}
+<style>
+.rules-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+}
+
+.rule-card {
+    border: none;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+}
+
+.rule-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.rule-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 10px 10px 0 0;
+}
+
+.rule-content {
+    padding: 1.5rem;
+}
+
+.rule-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.filter-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.search-box {
+    position: relative;
+}
+
+.search-box input {
+    padding-left: 3rem;
+}
+
+.search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="rules-container">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold">Diet Rules Library</h1>
+            <p class="lead text-muted">Comprehensive collection of medical diet rules and treatment plans</p>
+        </div>
+
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" 
+                               class="form-control form-control-lg" 
+                               placeholder="Search diet rules..." 
+                               id="searchInput">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-lg" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-lg" id="sortFilter">
+                        <option value="name">Sort by Name</option>
+                        <option value="created">Sort by Created</option>
+                        <option value="updated">Sort by Updated</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5>All Diet Rules ({{ rules|length }})</h5>
+                <div>
+                    <button class="btn btn-outline-primary btn-sm" onclick="exportRules()">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                    {% if current_user.has_role('doctor') or current_user.has_role('admin') %}
+                    <a href="{{ url_for('main.create_rule') }}" class="btn btn-primary btn-sm ms-2">
+                        <i class="fas fa-plus me-1"></i>Create Rule
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div id="rulesList">
+                {% for rule in rules %}
+                <div class="card rule-card" data-status="{{ 'active' if rule.active else 'inactive' }}">
+                    <div class="rule-header">
+                        <h5 class="mb-0">{{ rule.name }}</h5>
+                        <small>Rule ID: #{{ rule.id }}</small>
+                    </div>
+                    <div class="rule-content">
+                        <div class="rule-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Created: {{ rule.created_at.strftime('%b %d, %Y') }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                <span>Updated: {{ rule.updated_at.strftime('%b %d, %Y') }}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="status-badge status-active">
+                                    Active
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <p class="text-muted">{{ rule.description }}</p>
+                        
+                        {% if rule.conditions %}
+                        <div class="mb-3">
+                            <h6>Conditions:</h6>
+                            <p class="text-muted small">{{ rule.conditions }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('main.foods', rule_id=rule.id) }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-utensils me-1"></i>View Foods
+                            </a>
+                            <button class="btn btn-outline-primary btn-sm" onclick="viewDetails('{{ rule.id }}')">
+                                <i class="fas fa-info-circle me-1"></i>Details
+                            </button>
+                            {% if current_user.has_role('doctor') or current_user.has_role('admin') %}
+                            <button class="btn btn-outline-secondary btn-sm" onclick="editRule('{{ rule.id }}')">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </button>
+                            {% endif %}
+                            <button class="btn btn-outline-secondary btn-sm" onclick="shareRule('{{ rule.id }}')">
+                                <i class="fas fa-share me-1"></i>Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const ruleCards = document.querySelectorAll('.rule-card');
+    
+    ruleCards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+
+// Status filter
+document.getElementById('statusFilter').addEventListener('change', function(e) {
+    const status = e.target.value;
+    const ruleCards = document.querySelectorAll('.rule-card');
+    
+    ruleCards.forEach(card => {
+        if (status === '' || card.dataset.status === status) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+
+// Sort functionality
+document.getElementById('sortFilter').addEventListener('change', function(e) {
+    const sortBy = e.target.value;
+    const rulesList = document.getElementById('rulesList');
+    const ruleCards = Array.from(rulesList.querySelectorAll('.rule-card'));
+    
+    ruleCards.sort((a, b) => {
+        if (sortBy === 'name') {
+            const nameA = a.querySelector('h5').textContent.trim();
+            const nameB = b.querySelector('h5').textContent.trim();
+            return nameA.localeCompare(nameB);
+        }
+        // Add other sorting logic as needed
+        return 0;
+    });
+    
+    // Re-append sorted cards
+    ruleCards.forEach(card => rulesList.appendChild(card));
+});
+
+function viewDetails(ruleId) {
+    // In a real implementation, this would show a modal with detailed information
+    console.log('Viewing details for rule:', ruleId);
+    alert('Detailed view would open here');
+}
+
+function editRule(ruleId) {
+    // In a real implementation, this would navigate to edit page
+    console.log('Editing rule:', ruleId);
+    window.location.href = '/dashboard/doctor/rules/edit/' + ruleId;
+}
+
+function shareRule(ruleId) {
+    // In a real implementation, this would open a share dialog
+    console.log('Sharing rule:', ruleId);
+    
+    if (navigator.share) {
+        navigator.share({
+            title: 'Diet Rule',
+            text: 'Check out this diet rule!',
+            url: window.location.href + '#rule-' + ruleId
+        });
+    } else {
+        const dummy = document.createElement('input');
+        document.body.appendChild(dummy);
+        dummy.value = window.location.href + '#rule-' + ruleId;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        alert('Link copied to clipboard!');
+    }
+}
+
+function exportRules() {
+    // In a real implementation, this would export the rules data
+    console.log('Exporting rules');
+    alert('Rules export would be downloaded here');
+}
+</script>
+{% endblock %}

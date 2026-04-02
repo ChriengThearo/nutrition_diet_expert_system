@@ -1,0 +1,591 @@
+{% extends "layouts/base_enhanced.html" %}
+
+{% block title %}Diet Expert System Poster{% endblock %}
+
+{% block breadcrumb %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
+<style>
+    :root {
+        --poster-ink: #0f172a;
+        --poster-muted: #5a6b7f;
+        --poster-accent: #0f766e;
+        --poster-accent-2: #2d64c3;
+        --poster-accent-3: #f59e0b;
+        --poster-card: #ffffff;
+        --poster-line: rgba(15, 23, 42, 0.08);
+        --poster-shadow: 0 22px 45px rgba(15, 23, 42, 0.12);
+    }
+
+    body {
+        background: #eaf2f6;
+    }
+
+    nav.navbar,
+    footer {
+        display: none;
+    }
+
+    main.container-fluid {
+        padding: 0;
+    }
+
+    .poster-shell {
+        padding: 3.5rem 1.5rem 4.5rem;
+        background: radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 60%),
+            radial-gradient(circle at 10% 80%, rgba(45, 100, 195, 0.16), transparent 55%),
+            linear-gradient(135deg, #f8fbff 0%, #e9f2f7 48%, #eef6f4 100%);
+    }
+
+    .poster-page {
+        max-width: 1180px;
+        margin: 0 auto;
+        background: #fdfefe;
+        border-radius: 32px;
+        padding: 3rem 2.5rem 3.5rem;
+        box-shadow: var(--poster-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .poster-page::before {
+        content: '';
+        position: absolute;
+        top: -120px;
+        right: -80px;
+        width: 320px;
+        height: 320px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.22), transparent 70%);
+    }
+
+    .poster-page::after {
+        content: '';
+        position: absolute;
+        bottom: -140px;
+        left: -120px;
+        width: 360px;
+        height: 360px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(45, 100, 195, 0.2), transparent 70%);
+    }
+
+    .poster-hero {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2rem;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+        margin-bottom: 2.5rem;
+    }
+
+    .poster-hero h1 {
+        font-family: 'Sora', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+        font-weight: 800;
+        font-size: clamp(2.4rem, 3vw, 3.2rem);
+        color: var(--poster-ink);
+        margin-bottom: 0.6rem;
+    }
+
+    .poster-hero h1 span {
+        color: var(--poster-accent);
+    }
+
+    .poster-subtitle {
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--poster-accent-2);
+        font-size: 0.9rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .poster-meta {
+        color: var(--poster-muted);
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    .poster-logos {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: flex-end;
+    }
+
+    .poster-badge {
+        background: #ffffff;
+        border: 1px solid var(--poster-line);
+        border-radius: 999px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        color: var(--poster-ink);
+        box-shadow: 0 12px 25px rgba(15, 23, 42, 0.08);
+        text-align: center;
+    }
+
+    .poster-illustration {
+        width: 140px;
+        height: 140px;
+        border-radius: 32px;
+        background: linear-gradient(135deg, rgba(15, 118, 110, 0.15), rgba(45, 100, 195, 0.15));
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+    }
+
+    .poster-illustration img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: drop-shadow(0 8px 12px rgba(15, 23, 42, 0.2));
+        animation: floatIcon 6s ease-in-out infinite;
+    }
+
+    @keyframes floatIcon {
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    .poster-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 1.6rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .poster-section {
+        background: var(--poster-card);
+        border-radius: 20px;
+        border: 1px solid var(--poster-line);
+        padding: 1.4rem 1.5rem 1.6rem;
+        box-shadow: 0 15px 30px rgba(15, 23, 42, 0.06);
+        animation: posterFade 0.7s ease both;
+    }
+
+    .poster-section[data-delay="1"] {
+        animation-delay: 0.1s;
+    }
+
+    .poster-section[data-delay="2"] {
+        animation-delay: 0.2s;
+    }
+
+    .poster-section[data-delay="3"] {
+        animation-delay: 0.3s;
+    }
+
+    .poster-section[data-delay="4"] {
+        animation-delay: 0.4s;
+    }
+
+    .poster-section[data-delay="5"] {
+        animation-delay: 0.5s;
+    }
+
+    @keyframes posterFade {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .poster-section.intro {
+        background: linear-gradient(135deg, rgba(15, 118, 110, 0.12), rgba(255, 255, 255, 0.9));
+        border-color: rgba(15, 118, 110, 0.2);
+    }
+
+    .poster-section.problem {
+        background: linear-gradient(135deg, rgba(45, 100, 195, 0.12), rgba(255, 255, 255, 0.95));
+        border-color: rgba(45, 100, 195, 0.2);
+    }
+
+    .poster-section.goal {
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(255, 255, 255, 0.95));
+        border-color: rgba(245, 158, 11, 0.2);
+    }
+
+    .poster-section .section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+
+    .section-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--poster-accent);
+        color: #ffffff;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        box-shadow: 0 10px 20px rgba(15, 118, 110, 0.2);
+    }
+
+    .section-title h2 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--poster-ink);
+        margin: 0;
+    }
+
+    .poster-section p {
+        color: var(--poster-muted);
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .poster-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 0.45rem;
+    }
+
+    .poster-list li {
+        position: relative;
+        padding-left: 1.4rem;
+        color: var(--poster-muted);
+    }
+
+    .poster-list li::before {
+        content: '\f058';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        color: var(--poster-accent);
+        position: absolute;
+        left: 0;
+        top: 0.1rem;
+    }
+
+    .poster-feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+
+    .poster-feature {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 1rem 1rem 1.2rem;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    .poster-feature h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--poster-ink);
+    }
+
+    .poster-feature .icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(15, 118, 110, 0.1);
+        display: grid;
+        place-items: center;
+        color: var(--poster-accent);
+        margin-bottom: 0.6rem;
+        font-size: 1.1rem;
+    }
+
+    .poster-users {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .poster-user {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 1rem 1.1rem;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        text-align: center;
+        box-shadow: 0 10px 18px rgba(15, 23, 42, 0.05);
+    }
+
+    .poster-user i {
+        font-size: 1.6rem;
+        color: var(--poster-accent-2);
+        margin-bottom: 0.4rem;
+    }
+
+    .poster-user h4 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 0.2rem;
+        color: var(--poster-ink);
+    }
+
+    .poster-user p {
+        font-size: 0.85rem;
+        color: var(--poster-muted);
+        margin: 0;
+    }
+
+    .poster-footer {
+        grid-column: span 12;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 1rem;
+        background: linear-gradient(135deg, rgba(15, 118, 110, 0.15), rgba(45, 100, 195, 0.2));
+        color: var(--poster-ink);
+        padding: 1rem 1.2rem;
+        border-radius: 18px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .poster-footer span {
+        font-weight: 600;
+        color: var(--poster-ink);
+    }
+
+    .span-12 {
+        grid-column: span 12;
+    }
+
+    .span-6 {
+        grid-column: span 6;
+    }
+
+    @media (max-width: 992px) {
+        .poster-hero {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .poster-logos {
+            align-items: center;
+            flex-direction: row;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .span-6 {
+            grid-column: span 12;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .poster-page {
+            padding: 2rem 1.5rem 2.5rem;
+        }
+
+        .poster-footer {
+            justify-content: center;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="poster-shell">
+    <div class="poster-page">
+        <header class="poster-hero">
+            <div>
+                <div class="poster-subtitle">Learn, personalize, transform</div>
+                <h1>Diet <span>Expert</span> System</h1>
+                <p class="poster-meta">Prepared by the Expert System Project Team</p>
+                <p class="poster-meta">Department of Computer Studies, College of Science, Norton University</p>
+            </div>
+            <div class="poster-logos">
+                <div class="poster-badge">Knowledge-Driven Nutrition</div>
+                <div class="poster-illustration">
+                    <img src="{{ url_for('static', filename='img/img_bg/better-health.png') }}"
+                        alt="Healthy lifestyle illustration">
+                </div>
+            </div>
+        </header>
+
+        <div class="poster-grid">
+            <section class="poster-section intro span-12" data-delay="1">
+                <div class="section-title">
+                    <span class="section-number">1</span>
+                    <h2>Introduction</h2>
+                </div>
+                <p>
+                    Nutrition choices shape long-term health, yet most guidance is generic and hard to apply. The Diet
+                    Expert System transforms clinical diet knowledge into a personalized, rule-based engine that turns
+                    a user profile into clear meal guidance, macro targets, and food selections that feel achievable.
+                </p>
+            </section>
+
+            <section class="poster-section problem span-6" data-delay="2">
+                <div class="section-title">
+                    <span class="section-number">2</span>
+                    <h2>Problem Statement</h2>
+                </div>
+                <ul class="poster-list">
+                    <li>One-size-fits-all plans ignore age, BMI, allergies, and dietary restrictions.</li>
+                    <li>Clinicians and students spend significant time translating nutrition rules into meals.</li>
+                    <li>Users lack a clear list of foods to choose, limit, or avoid each day.</li>
+                    <li>Progress tracking and consistency remain fragmented and manual.</li>
+                </ul>
+            </section>
+
+            <section class="poster-section goal span-6" data-delay="3">
+                <div class="section-title">
+                    <span class="section-number">3</span>
+                    <h2>Project Goal</h2>
+                </div>
+                <p>
+                    Deliver a powerful, trustworthy diet planning platform that aligns personal health data, diet type,
+                    allergies, and goals into a single, personalized plan with actionable meals and measurable targets.
+                </p>
+            </section>
+
+            <section class="poster-section span-12" data-delay="3">
+                <div class="section-title">
+                    <span class="section-number">4</span>
+                    <h2>Key Features</h2>
+                </div>
+                <div class="poster-feature-grid">
+                    <div class="poster-feature">
+                        <div class="icon"><i class="fas fa-user-check"></i></div>
+                        <h3>Smart Profile Intake</h3>
+                        <ul class="poster-list">
+                            <li>Capture age, gender, weight, height, and goals.</li>
+                            <li>Record allergies and diet preferences.</li>
+                            <li>Choose meal frequency for daily planning.</li>
+                        </ul>
+                    </div>
+                    <div class="poster-feature">
+                        <div class="icon"><i class="fas fa-brain"></i></div>
+                        <h3>Rule-Based Matching Engine</h3>
+                        <ul class="poster-list">
+                            <li>Expert rules map conditions to diet strategies.</li>
+                            <li>Automatic inference selects best-fit plans.</li>
+                            <li>Transparent logic supports explainable guidance.</li>
+                        </ul>
+                    </div>
+                    <div class="poster-feature">
+                        <div class="icon"><i class="fas fa-apple-alt"></i></div>
+                        <h3>Food Mapping & Avoid List</h3>
+                        <ul class="poster-list">
+                            <li>Curated foods aligned to each diet rule.</li>
+                            <li>Highlights foods to limit or avoid.</li>
+                            <li>Adapts selections based on restrictions.</li>
+                        </ul>
+                    </div>
+                    <div class="poster-feature">
+                        <div class="icon"><i class="fas fa-chart-line"></i></div>
+                        <h3>Metrics & Meal Planning</h3>
+                        <ul class="poster-list">
+                            <li>Calculates BMI, calories, and macros.</li>
+                            <li>Generates sample daily meal layouts.</li>
+                            <li>Supports progress monitoring and updates.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section class="poster-section span-12" data-delay="4">
+                <div class="section-title">
+                    <span class="section-number">5</span>
+                    <h2>Target Users</h2>
+                </div>
+                <div class="poster-users">
+                    <div class="poster-user">
+                        <i class="fas fa-heartbeat"></i>
+                        <h4>Health-Conscious Individuals</h4>
+                        <p>People managing weight, wellness, or conditions.</p>
+                    </div>
+                    <div class="poster-user">
+                        <i class="fas fa-user-md"></i>
+                        <h4>Clinics & Dietitians</h4>
+                        <p>Consistent guidance with faster plan creation.</p>
+                    </div>
+                    <div class="poster-user">
+                        <i class="fas fa-dumbbell"></i>
+                        <h4>Fitness Coaches</h4>
+                        <p>Structured meal guidance aligned to goals.</p>
+                    </div>
+                    <div class="poster-user">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h4>Students & Researchers</h4>
+                        <p>A living lab for expert system learning.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="poster-section span-6" data-delay="4">
+                <div class="section-title">
+                    <span class="section-number">6</span>
+                    <h2>Technical Approach</h2>
+                </div>
+                <ul class="poster-list">
+                    <li>Curated knowledge base of diet rules and health goals.</li>
+                    <li>Inference engine matches user profiles to rules.</li>
+                    <li>Food mapping table with nutrition metadata and tags.</li>
+                    <li>Safety filters for allergies and diet type constraints.</li>
+                    <li>Modular Flask architecture with admin, doctor, and user dashboards.</li>
+                </ul>
+            </section>
+
+            <section class="poster-section span-6" data-delay="4">
+                <div class="section-title">
+                    <span class="section-number">7</span>
+                    <h2>Expected Impact</h2>
+                </div>
+                <ul class="poster-list">
+                    <li>Faster, more consistent diet planning for professionals.</li>
+                    <li>Higher adherence through clear daily meal guidance.</li>
+                    <li>Greater nutrition awareness and healthier food choices.</li>
+                    <li>Scalable foundation for new conditions and diet programs.</li>
+                </ul>
+            </section>
+
+            <section class="poster-section span-6" data-delay="5">
+                <div class="section-title">
+                    <span class="section-number">8</span>
+                    <h2>Conclusion</h2>
+                </div>
+                <p>
+                    The Diet Expert System bridges clinical knowledge and daily meals. By combining expert rules with
+                    user-specific data, it delivers practical, evidence-informed guidance that is easy to follow and
+                    ready to scale.
+                </p>
+            </section>
+
+            <section class="poster-section span-6" data-delay="5">
+                <div class="section-title">
+                    <span class="section-number">9</span>
+                    <h2>Acknowledgement</h2>
+                </div>
+                <p>
+                    We thank the Department of Computer Studies, faculty advisors, and clinical collaborators for their
+                    guidance, domain knowledge, and validation support throughout this project.
+                </p>
+            </section>
+
+            <div class="poster-footer">
+                <span><i class="fas fa-university me-2"></i>Norton University | Expert System 2026</span>
+                <span><i class="fas fa-envelope me-2"></i>nutrition.expert@norton.edu</span>
+                <span><i class="fas fa-map-marker-alt me-2"></i>Phnom Penh, Cambodia</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

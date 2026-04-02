@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "name": "doctor",
+    "description": "Doctor"
+  },
+  {
+    "id": 2,
+    "name": "admin",
+    "description": "Administrator"
+  },
+  {
+    "id": 3,
+    "name": "User",
+    "description": "Role for user"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-02-02T06:11:20.311395+00:00",
+  "database": "expert_system",
+  "tables": [
+    "tbl_diet_rules",
+    "tbl_foods",
+    "tbl_permissions",
+    "tbl_roles",
+    "tbl_users",
+    "tbl_goals",
+    "tbl_role_permissions",
+    "tbl_rule_food_map",
+    "tbl_user_results",
+    "tbl_user_roles",
+    "tbl_goal_diet_rules",
+    "tbl_user_goals"
+  ],
+  "row_counts": {
+    "tbl_diet_rules": 144,
+    "tbl_foods": 83,
+    "tbl_permissions": 28,
+    "tbl_roles": 3,
+    "tbl_users": 11,
+    "tbl_goals": 3,
+    "tbl_role_permissions": 44,
+    "tbl_rule_food_map": 2020,
+    "tbl_user_results": 26,
+    "tbl_user_roles": 11,
+    "tbl_goal_diet_rules": 144,
+    "tbl_user_goals": 3
+  }
+}

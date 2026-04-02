@@ -1,0 +1,196 @@
+{% extends "layouts/base_enhanced.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% set dashboard_url = dashboard_url or url_for('dashboard.user_dashboard') %}
+{% set profile_url = profile_url or url_for('dashboard.user_profile') %}
+{% set cancel_url = cancel_url or profile_url %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
+<style>
+    .profile-edit-shell {
+        padding-bottom: 2.5rem;
+    }
+
+    .profile-edit-wrapper {
+        max-width: 980px;
+        margin: 0 auto;
+    }
+
+    .profile-edit-card {
+        background: var(--dash-glass);
+        border-radius: 24px;
+        border: 1px solid var(--dash-line);
+        box-shadow: var(--dash-shadow);
+        overflow: hidden;
+    }
+
+    .profile-edit-head {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.6rem 1.9rem;
+        background: linear-gradient(135deg, rgba(15, 118, 110, 0.16), rgba(59, 130, 246, 0.12));
+        border-bottom: 1px solid var(--dash-line);
+    }
+
+    .profile-edit-avatar {
+        width: 78px;
+        height: 78px;
+        border-radius: 50%;
+        background: rgba(15, 118, 110, 0.18);
+        border: 2px solid rgba(255, 255, 255, 0.7);
+        box-shadow: 0 12px 20px rgba(15, 118, 110, 0.18);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #0f5132;
+        font-size: 1.6rem;
+        overflow: hidden;
+    }
+
+    .profile-edit-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-edit-body {
+        padding: 2rem 2.2rem 2.3rem;
+        background: rgba(255, 255, 255, 0.78);
+    }
+
+    .profile-edit-title {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .profile-edit-title h4 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .profile-edit-card .form-label {
+        font-weight: 700;
+        color: var(--dash-ink);
+    }
+
+    .profile-edit-card .form-control {
+        border-radius: 14px;
+        border: 1px solid rgba(15, 118, 110, 0.18);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 0.7rem 0.9rem;
+    }
+
+    .profile-edit-card .form-control:focus {
+        border-color: rgba(59, 130, 246, 0.6);
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.18);
+    }
+
+    .profile-edit-actions .btn {
+        border-radius: 999px;
+        font-weight: 700;
+    }
+
+    .profile-edit-actions .btn-success {
+        background: linear-gradient(135deg, #0f766e, #2d64c3);
+        border: none;
+        box-shadow: 0 12px 24px rgba(15, 118, 110, 0.2);
+    }
+
+    .profile-edit-actions .btn-outline-secondary {
+        border-color: rgba(15, 118, 110, 0.3);
+        color: #0f5132;
+    }
+
+    .profile-edit-actions .btn-outline-secondary:hover {
+        background: rgba(15, 118, 110, 0.12);
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{{ dashboard_url }}">Dashboard</a></li>
+<li class="breadcrumb-item"><a href="{{ profile_url }}">Profile</a></li>
+<li class="breadcrumb-item active" aria-current="page">Edit</li>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-shell user-shell profile-edit-shell">
+    <div class="dashboard-container">
+        <div class="profile-edit-wrapper">
+            <div class="panel-card profile-edit-card">
+                <div class="profile-edit-head">
+                    <div class="profile-edit-avatar">
+                        {% if user.photo %}
+                        <img src="{{ url_for('main.images', filename=user.photo.replace('images/', '')) }}"
+                            alt="Profile photo">
+                        {% else %}
+                        <i class="fas fa-user"></i>
+                        {% endif %}
+                    </div>
+                    <div class="profile-edit-title">
+                        <span class="hero-chip"><i class="fas fa-user-pen me-1"></i>Profile Settings</span>
+                        <h4>Edit Profile</h4>
+                        <p class="text-muted mb-0">Update your name, username, and profile photo.</p>
+                    </div>
+                </div>
+
+                <div class="profile-edit-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.full_name.label(class="form-label") }}
+                            {{ form.full_name(class="form-control") }}
+                            {% if form.full_name.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.full_name.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.username.label(class="form-label") }}
+                            {{ form.username(class="form-control") }}
+                            {% if form.username.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.username.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.photo.label(class="form-label") }}
+                            {{ form.photo(class="form-control") }}
+                            {% if form.photo.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.photo.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Allowed: JPG, PNG, GIF.</div>
+                        </div>
+
+                        <div class="d-flex gap-2 profile-edit-actions">
+                            <button type="submit" class="btn btn-success" name="{{ form.submit.name }}"
+                                id="{{ form.submit.id }}" data-permission="user.dashboard.update"
+                                data-action="update your profile">
+                                {{ form.submit.label.text }}
+                            </button>
+                            <a class="btn btn-outline-secondary" href="{{ cancel_url }}">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

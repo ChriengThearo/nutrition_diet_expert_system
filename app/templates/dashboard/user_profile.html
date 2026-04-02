@@ -1,0 +1,253 @@
+{% extends "layouts/base_enhanced.html" %}
+
+{% block title %}User Profile{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
+<style>
+    .profile-shell {
+        padding-bottom: 2.5rem;
+    }
+
+    .profile-wrapper {
+        max-width: 980px;
+        margin: 0 auto;
+    }
+
+    .profile-card {
+        background: var(--dash-glass);
+        border-radius: 24px;
+        border: 1px solid var(--dash-line);
+        box-shadow: var(--dash-shadow);
+        overflow: hidden;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1.6rem 1.9rem;
+        background: linear-gradient(135deg, rgba(15, 118, 110, 0.16), rgba(59, 130, 246, 0.12));
+        border-bottom: 1px solid var(--dash-line);
+        flex-wrap: wrap;
+    }
+
+    .profile-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--dash-ink);
+        margin-bottom: 0.25rem;
+    }
+
+    .profile-subtitle {
+        color: var(--dash-muted);
+        margin: 0;
+    }
+
+    .profile-meta {
+        color: var(--dash-muted);
+        font-size: 0.85rem;
+        margin-top: 0.35rem;
+    }
+
+    .profile-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: rgba(15, 118, 110, 0.18);
+        border: 2px solid rgba(255, 255, 255, 0.7);
+        box-shadow: 0 12px 20px rgba(15, 118, 110, 0.18);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #0f5132;
+        font-size: 1.4rem;
+        overflow: hidden;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin: 2rem 2.2rem 1.6rem;
+    }
+
+    .profile-info-item {
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid var(--dash-line);
+        border-radius: 18px;
+        padding: 1rem 1.25rem;
+        box-shadow: 0 16px 28px rgba(12, 35, 52, 0.08);
+    }
+
+    .profile-info-item span {
+        display: block;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dash-muted);
+        margin-bottom: 0.35rem;
+    }
+
+    .profile-info-item strong {
+        color: var(--dash-ink);
+        font-size: 1rem;
+    }
+
+    .profile-content {
+        padding: 0 2.2rem 2rem;
+    }
+
+    .profile-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .profile-list li {
+        padding: 0.55rem 0;
+        border-bottom: 1px solid var(--dash-line);
+        color: #3f6f5d;
+    }
+
+    .profile-list li:last-child {
+        border-bottom: none;
+    }
+
+    .action-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+
+    .profile-actions .btn {
+        border-radius: 999px;
+        font-weight: 700;
+    }
+
+    .profile-actions .btn-success {
+        background: linear-gradient(135deg, #0f766e, #2d64c3);
+        border: none;
+        box-shadow: 0 12px 24px rgba(15, 118, 110, 0.2);
+    }
+
+    .profile-actions .btn-outline-success {
+        border-color: rgba(15, 118, 110, 0.3);
+        color: #0f5132;
+    }
+
+    .profile-actions .btn-outline-success:hover {
+        background: rgba(15, 118, 110, 0.12);
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{{ url_for('dashboard.user_dashboard') }}">Dashboard</a></li>
+<li class="breadcrumb-item active" aria-current="page">Profile</li>
+{% endblock %}
+
+{% block content %}
+{% set is_guest_mode = guest_mode if guest_mode is defined else session.get('user_guest_mode', False) %}
+<div class="dashboard-shell user-shell profile-shell">
+    <div class="dashboard-container">
+        <div class="profile-wrapper">
+            {% set login_role = 'Guest' if is_guest_mode else ('Admin' if current_user.has_role('admin') else 'Doctor' if
+            current_user.has_role('doctor') else
+            'User') %}
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="d-flex align-items-center gap-3">
+                        {% set default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
+                        {% set photo_path = (user.photo or '')|trim %}
+                        {% set avatar_url = default_avatar_url if is_guest_mode else (url_for('main.images', filename=photo_path|replace('images/', '')) if photo_path else default_avatar_url) %}
+                        <div class="profile-avatar">
+                            <img src="{{ avatar_url }}" alt="Profile photo"
+                                onerror="this.onerror=null;this.src='{{ default_avatar_url }}';">
+                        </div>
+                        <div>
+                            <span class="hero-chip"><i class="fas fa-user-check me-1"></i>Profile Overview</span>
+                            <div class="profile-title">{{ 'Guest' if is_guest_mode else (user.full_name or user.username) }}</div>
+                            <p class="profile-subtitle">{{ 'Guest session' if is_guest_mode else ('Member since ' ~ user.created_at.strftime('%b %d, %Y')) }}</p>
+                            <div class="profile-meta">
+                                <i class="fas fa-user-check me-1"></i>Logged in as {{ login_role }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-info">
+                    <div class="profile-info-item">
+                        <span>Full Name</span>
+                        <strong>{{ 'Hidden in guest mode' if is_guest_mode else (user.full_name or 'Not provided') }}</strong>
+                    </div>
+                    <div class="profile-info-item">
+                        <span>Email</span>
+                        <strong>{{ 'Hidden in guest mode' if is_guest_mode else (user.email or 'Not provided') }}</strong>
+                    </div>
+                    <div class="profile-info-item">
+                        <span>Username</span>
+                        <strong>{{ 'Guest' if is_guest_mode else user.username }}</strong>
+                    </div>
+                    <div class="profile-info-item">
+                        <span>Status</span>
+                        <strong>{{ 'Guest Session' if is_guest_mode else ('Active' if user.is_active else 'Inactive') }}</strong>
+                    </div>
+                </div>
+
+                <div class="profile-content">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <h6 class="text-uppercase text-muted">Goals</h6>
+                            <ul class="profile-list">
+                                {% if is_guest_mode %}
+                                <li>No goals available in guest mode.</li>
+                                {% elif user.goals %}
+                                {% for goal in user.goals %}
+                                <li>{{ goal.name }}</li>
+                                {% endfor %}
+                                {% elif rule_goals %}
+                                {% for goal in rule_goals %}
+                                <li>{{ goal.name }}</li>
+                                {% endfor %}
+                                {% elif derived_goal %}
+                                <li>{{ derived_goal }}</li>
+                                {% else %}
+                                <li>No goals selected.</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="action-row profile-actions">
+                        {% if not is_guest_mode %}
+                        <a class="btn btn-success" href="{{ url_for('dashboard.user_profile_edit') }}"
+                            data-permission="user.dashboard.update" data-action="update your profile">
+                            <i class="fas fa-pen me-2"></i>Edit Info
+                        </a>
+                        {% else %}
+                        <button class="btn btn-secondary" type="button" disabled>
+                            <i class="fas fa-eye-slash me-2"></i>Hidden in Guest Mode
+                        </button>
+                        {% endif %}
+                        <a class="btn btn-outline-success" href="{{ url_for('dashboard.user_dashboard') }}">
+                            <i class="fas fa-arrow-left me-2"></i>Back
+                        </a>
+                        <a class="btn btn-danger" href="{{ url_for('auth.logout') }}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}

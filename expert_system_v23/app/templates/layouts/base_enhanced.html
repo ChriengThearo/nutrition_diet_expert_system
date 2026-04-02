@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- SEO and Social Media Meta Tags -->
+    <meta name="description"
+        content="{% block meta_description %}Expert System for Nutrition and Diet Management{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}nutrition, diet, health, expert system{% endblock %}">
+    <meta name="author" content="Expert System Team">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.meta_description() }}{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+
+    <title>{% block title %}Nutrition Expert System{% endblock %}</title>
+
+    <!-- Preconnect to external domains for performance -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <!-- Bootstrap 5 CSS with integrity -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <!-- Font Awesome 6 with specific subsets for performance -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- Animate.css for smooth animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+
+    <!-- Page-specific CSS -->
+    {% block extra_css %}{% endblock %}
+
+    <!-- Custom styles for dark mode support -->
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+
+        [data-theme="dark"] {
+            --bs-body-bg: #1a1a1a;
+            --bs-body-color: #e9ecef;
+            --bs-border-color: #495057;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: translateY(-1px);
+        }
+
+        .nav-link {
+            transition: all 0.2s ease;
+            border-radius: 0.375rem;
+            margin: 0 0.125rem;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+    </style>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+    <!-- Loading Spinner -->
+    <div class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Enhanced Navigation -->
+    {% set is_user_dashboard = request.endpoint and (request.endpoint.startswith('dashboard.user') or request.endpoint
+    == 'main.home') %}
+    <nav
+        class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top {% if is_user_dashboard %}navbar-user-dashboard{% else %}bg-primary{% endif %}">
+        <div class="container-fluid">
+            <!-- Brand with icon -->
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.home') }}">
+                <i class="fas fa-heartbeat me-2"></i>
+                <span>Nutrition Expert</span>
+            </a>
+
+            <!-- Mobile toggle button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Collapsible content -->
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <!-- Main navigation -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm me-2 {% if request.endpoint and 'dashboard' in request.endpoint %}active{% endif %}"
+                            href="{{ url_for('dashboard.dashboard_home') }}" data-permission="user.dashboard.read"
+                            data-action="access your dashboard">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Main App Navigation -->
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm me-2 {% if request.endpoint == 'main.home' %}active{% endif %}"
+                            href="{{ url_for('main.home') }}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn btn-light btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}"
+                            data-permission="user.dashboard.create" data-action="generate diet plans">
+                            <i class="fas fa-utensils me-1"></i>Generate Plan
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <!-- Admin Navigation -->
+                    {% if current_user.is_authenticated and current_user.has_role('admin') %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-cog me-1"></i>Admin
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('tbl_users.index') }}">
+                                    <i class="fas fa-users me-2"></i>Users
+                                </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('tbl_roles.index') }}">
+                                    <i class="fas fa-user-tag me-2"></i>Roles
+                                </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('tbl_permissions.index') }}">
+                                    <i class="fas fa-key me-2"></i>Permissions
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#">
+                                    <i class="fas fa-chart-bar me-2"></i>Analytics
+                                </a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <!-- Right side navigation -->
+                <ul class="navbar-nav align-items-center">
+                    <!-- User Authentication -->
+                    {% if current_user.is_authenticated %}
+                    {% set dashboard_permissions = current_user.get_permission_codes() if current_user.is_authenticated
+                    else [] %}
+                    {% set dashboard_option_count =
+                    (1 if 'dashboard.admin' in dashboard_permissions else 0) +
+                    (1 if 'dashboard.doctor' in dashboard_permissions else 0) +
+                    (1 if 'dashboard.user' in dashboard_permissions else 0)
+                    %}
+                    {% set show_dashboard_switcher = dashboard_option_count > 1 %}
+                    {% if show_dashboard_switcher %}
+                    <li class="nav-item dropdown me-2">
+                        {% include "dashboard/_dashboard_switcher.html" %}
+                    </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ url_for('static', filename='img/default-avatar.png') }}" alt="Avatar"
+                                class="user-avatar me-2">
+                            <span>{{ current_user.username }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li>
+                                <h6 class="dropdown-header">{{ current_user.username }}</h6>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ url_for('dashboard.user_profile') }}"
+                                    data-permission="user.dashboard.read" data-action="view your profile">
+                                    <i class="fas fa-user me-2"></i>Profile
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">
+                            <i class="fas fa-sign-in-alt me-1"></i>Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('auth.register') }}">
+                            <i class="fas fa-user-plus me-1"></i>Register
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb Navigation -->
+    {% block breadcrumb %}
+    {% if request.endpoint != 'main.home' %}
+    <nav aria-label="breadcrumb" class="bg-light py-2">
+        <div class="container">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('main.home') }}">
+                        <i class="fas fa-home"></i>
+                    </a>
+                </li>
+                {% block breadcrumb_items %}{% endblock %}
+            </ol>
+        </div>
+    </nav>
+    {% endif %}
+    {% endblock %}
+
+    <!-- Main Content -->
+    <main class="container-fluid py-4 flex-grow-1">
+        <!-- Flash Messages with better styling -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="toast-container">
+            {% for category, message in messages %}
+            <div class="toast align-items-center text-white bg-{{ 'success' if category == 'success' else 'danger' if category == 'error' else category }} border-0 animate__animated animate__fadeInRight"
+                role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i
+                            class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-circle' if category == 'error' else 'info-circle' }} me-2"></i>
+                        {{ message }}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                        aria-label="Close"></button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Enhanced Footer -->
+    <footer class="bg-dark text-light py-4 mt-auto">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="fas fa-heartbeat me-2"></i>Nutrition Expert System</h5>
+                    <p class="text-muted">Your personalized nutrition and diet management platform.</p>
+                    <div class="d-flex gap-2">
+                        <a href="#" class="text-light"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-light"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('main.home') }}" class="text-light text-decoration-none">Home</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">About Us</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">Contact</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact Info</h5>
+                    <p class="text-muted">
+                        <i class="fas fa-envelope me-2"></i>support@nutritionexpert.com<br>
+                        <i class="fas fa-phone me-2"></i>+1 (555) 123-4567<br>
+                        <i class="fas fa-map-marker-alt me-2"></i>123 Health St, Medical City
+                    </p>
+                </div>
+            </div>
+            <hr class="border-secondary">
+            <div class="text-center">
+                <small>&copy; 2024 Nutrition Expert System. All rights reserved.</small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <!-- Bootstrap JS Bundle with integrity -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <!-- Custom JavaScript -->
+    <script id="app-permissions-data" type="application/json">
+        {{ current_user.get_permission_codes() | list | tojson if current_user.is_authenticated else [] }}
+    </script>
+    <script>
+        const appPermissionsData = document.getElementById('app-permissions-data')?.textContent?.trim();
+        window.APP_PERMISSIONS = appPermissionsData ? JSON.parse(appPermissionsData) : [];
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components.js') }}"></script>
+
+    <!-- Page-specific JavaScript -->
+    {% block extra_js %}{% endblock %}
+
+    <!-- Global JavaScript for theme and interactions -->
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
+
+        if (themeToggle && themeIcon) {
+            // Check for saved theme preference
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            if (currentTheme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+
+            themeToggle.addEventListener('click', () => {
+                const theme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                html.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+
+                if (theme === 'dark') {
+                    themeIcon.classList.remove('fa-moon');
+                    themeIcon.classList.add('fa-sun');
+                } else {
+                    themeIcon.classList.remove('fa-sun');
+                    themeIcon.classList.add('fa-moon');
+                }
+            });
+        }
+
+        // Initialize Toasts
+        document.addEventListener('DOMContentLoaded', function () {
+            const toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            const toastList = toastElList.map(function (toastEl) {
+                return new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 5000
+                });
+            });
+
+            // Show all toasts
+            toastList.forEach(toast => toast.show());
+        });
+
+        // Loading spinner management
+        function showLoading() {
+            document.querySelector('.loading-spinner').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.querySelector('.loading-spinner').style.display = 'none';
+        }
+
+        // Show loading on form submissions
+        document.addEventListener('DOMContentLoaded', function () {
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', showLoading);
+            });
+        });
+
+        // Hide loading when page is fully loaded
+        window.addEventListener('load', hideLoading);
+    </script>
+</body>
+
+</html>

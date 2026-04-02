@@ -1,0 +1,54 @@
+from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from extensions import db
+from flask_login import UserMixin
+from app.models.associations import tbl_user_roles, tbl_user_goals
+
+
+class UserTable(UserMixin, db.Model):
+    __tablename__ = "tbl_users"
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    full_name = db.Column(db.String(120), nullable=False)
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    photo = db.Column(db.String(255))
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
+
+    roles = db.relationship(
+        "RoleTable", secondary=tbl_user_roles, back_populates="users"
+    )
+    goals = db.relationship(
+        "GoalsTable", secondary=tbl_user_goals, back_populates="users"
+    )
+
+    # convenience helpers
+    def set_password(self, password: str) -> None:
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password: str) -> bool:
+        return check_password_hash(self.password_hash, password)
+
+    def has_role(self, role_name: str) -> bool:
+        target = (role_name or "").strip().lower()
+        return any((role.name or "").strip().lower() == target for role in self.roles)
+
+    def get_permission_codes(self) -> set[str]:
+        codes: set[str] = set()
+        for role in self.roles:
+            for perm in role.permissions:
+                codes.add(perm.code)
+                codes.update(perm.get_aliases())
+        return codes
+
+    def has_permission(self, permission_code: str) -> bool:
+        return permission_code in self.get_permission_codes()
+
+    def __repr__(self) -> str:
+        return f"<User {self.username}>"

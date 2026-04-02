@@ -1,0 +1,302 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Meal Plan - {{ rule.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.meal-plan-container {
+    max-width: 900px;
+    margin: 2rem auto;
+}
+
+.rule-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+}
+
+.meal-section {
+    margin-bottom: 2rem;
+}
+
+.meal-card {
+    border: none;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.meal-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.meal-header {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.meal-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+}
+
+.food-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.food-item:last-child {
+    border-bottom: none;
+}
+
+.food-name {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.food-details {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.notes {
+    color: #6c757d;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.nutrition-summary {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-top: 2rem;
+}
+
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.nutrition-item {
+    text-align: center;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.nutrition-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.nutrition-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.action-buttons {
+    position: sticky;
+    bottom: 2rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 15px;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+    text-align: center;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="meal-plan-container">
+        <!-- Rule Header -->
+        <div class="rule-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-6 fw-bold mb-2">{{ rule.name }}</h1>
+                    <p class="lead mb-0">{{ rule.description }}</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="mt-3 mt-md-0">
+                        <span class="badge bg-light text-dark me-2">Diet Plan</span>
+                        <span class="badge bg-success">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ url_for('main.rules') }}" class="text-decoration-none">Diet Rules</a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ rule.name }}</li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- Meal Plan Sections -->
+        {% if foods %}
+        <div class="meal-sections">
+            <div class="meal-section">
+                <div class="meal-card">
+                    <div class="meal-header">
+                        <h3 class="meal-title">
+                            <i class="fas fa-utensils me-2"></i>{{ rule.name }} - Meal Plan
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        {% for food, notes in foods %}
+                        <div class="food-item">
+                            <div class="food-info">
+                                <div class="food-name">{{ food.name }}</div>
+                                {% if food.description %}
+                                <div class="text-muted small">{{ food.description }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="food-details">
+                                {% if notes %}
+                                <span class="notes">{{ notes }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nutrition Summary -->
+        <div class="nutrition-summary">
+            <h5 class="mb-3">Daily Nutrition Summary</h5>
+            <div class="nutrition-grid">
+                <div class="nutrition-item">
+                    <div class="nutrition-value">2,200</div>
+                    <div class="nutrition-label">Calories</div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-value">85g</div>
+                    <div class="nutrition-label">Protein</div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-value">275g</div>
+                    <div class="nutrition-label">Carbs</div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-value">75g</div>
+                    <div class="nutrition-label">Fat</div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-value">30g</div>
+                    <div class="nutrition-label">Fiber</div>
+                </div>
+                <div class="nutrition-item">
+                    <div class="nutrition-value">2,300mg</div>
+                    <div class="nutrition-label">Sodium</div>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+            <h5>No Meal Plan Available</h5>
+            <p class="text-muted">
+                This diet rule doesn't have specific food items assigned yet. 
+                Consult with your healthcare provider for personalized meal recommendations.
+            </p>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-primary btn-lg me-2" onclick="printMealPlan()">
+                <i class="fas fa-print me-2"></i>Print Plan
+            </button>
+            <button class="btn btn-outline-primary btn-lg me-2" onclick="saveMealPlan()">
+                <i class="fas fa-bookmark me-2"></i>Save Plan
+            </button>
+            <button class="btn btn-outline-secondary btn-lg" onclick="shareMealPlan()">
+                <i class="fas fa-share me-2"></i>Share
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function printMealPlan() {
+    window.print();
+}
+
+function saveMealPlan() {
+    // In a real implementation, this would save the meal plan to user's profile
+    console.log('Saving meal plan for rule:', '{{ rule.id }}');
+    alert('Meal plan saved to your profile!');
+}
+
+function shareMealPlan() {
+    // In a real implementation, this would open a share dialog
+    console.log('Sharing meal plan for rule:', '{{ rule.id }}');
+    
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ rule.name }} - Meal Plan',
+            text: 'Check out this personalized meal plan!',
+            url: window.location.href
+        });
+    } else {
+        // Fallback for browsers that don't support Web Share API
+        const dummy = document.createElement('input');
+        document.body.appendChild(dummy);
+        dummy.value = window.location.href;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        alert('Meal plan link copied to clipboard!');
+    }
+}
+
+// Add smooth scrolling for better UX
+document.addEventListener('DOMContentLoaded', function() {
+    // Add print styles
+    const printStyles = document.createElement('style');
+    printStyles.textContent = `
+        @media print {
+            .action-buttons, .breadcrumb {
+                display: none !important;
+            }
+            .meal-plan-container {
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .rule-header {
+                page-break-after: avoid;
+            }
+            .meal-card {
+                page-break-inside: avoid;
+            }
+        }
+    `;
+    document.head.appendChild(printStyles);
+});
+</script>
+{% endblock %}
