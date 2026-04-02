@@ -3,411 +3,953 @@
 {% block title %}Nutrition & Diet Expert System{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
 <style>
     .home-shell {
-        padding-bottom: 2.5rem;
+        padding-bottom: 2.8rem;
     }
 
-    .hero-section {
-        background: linear-gradient(135deg, #0e6557, #177f6c 52%, #2d64c3);
-        color: white;
-        padding: 4.5rem 0;
-        border-radius: 0 0 80px 80px;
+    .home-v2 {
+        --home-primary: #0f766e;
+        --home-secondary: #2d6ad7;
+        --home-accent: #f59e0b;
+        --home-ink: #10283a;
+        --home-muted: #4f6778;
+        --home-line: rgba(16, 40, 58, 0.14);
+        --home-surface: rgba(255, 255, 255, 0.88);
+        --home-shadow: 0 22px 50px rgba(6, 24, 38, 0.14);
+        --home-radius-lg: 32px;
+        --home-radius-md: 20px;
+        color: var(--home-ink);
+    }
+
+    .home-v2 section {
+        margin-bottom: clamp(1.4rem, 3vw, 2.4rem);
+    }
+
+    .home-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin: 0 0 0.95rem;
+        padding: 0.36rem 0.78rem;
+        border-radius: 999px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #ecfeff;
+        background: rgba(255, 255, 255, 0.17);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .home-hero {
+        border-radius: var(--home-radius-lg);
         position: relative;
         overflow: hidden;
-        box-shadow: 0 26px 60px rgba(12, 45, 66, 0.24);
+        box-shadow: 0 28px 65px rgba(7, 23, 36, 0.2);
+        background:
+            radial-gradient(circle at 8% 12%, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 45%),
+            radial-gradient(circle at 90% 84%, rgba(45, 106, 215, 0.36), rgba(45, 106, 215, 0) 50%),
+            linear-gradient(132deg, #0b4f52 0%, #0f766e 46%, #2d6ad7 100%);
     }
 
-    .hero-section::before {
+    .home-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.18;
+        background-image:
+            linear-gradient(120deg, transparent 32%, rgba(255, 255, 255, 0.75) 48%, transparent 64%);
+        animation: heroSweep 8s ease-in-out infinite;
+    }
+
+    .home-hero::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 78% 20%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 34%),
+            radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 30%);
+    }
+
+    .home-hero-grid {
+        position: relative;
+        z-index: 1;
+        padding: clamp(1.35rem, 3vw, 2.4rem);
+        display: grid;
+        gap: 1.35rem;
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+        align-items: stretch;
+    }
+
+    .home-hero-copy {
+        color: #f4fbff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 100%;
+    }
+
+    .home-hero-copy h1 {
+        margin: 0;
+        color: #ffffff;
+        font-size: clamp(2rem, 4.4vw, 3.4rem);
+        line-height: 1.1;
+    }
+
+    .home-hero-copy p {
+        color: rgba(244, 251, 255, 0.9);
+        margin: 1.1rem 0 1.2rem;
+        font-size: clamp(1rem, 1.8vw, 1.17rem);
+        max-width: 47ch;
+    }
+
+    .home-tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.62rem;
+        margin-bottom: 1.15rem;
+    }
+
+    .home-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.42rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: #ecfeff;
+        padding: 0.42rem 0.74rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .home-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.72rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .home-hero-actions .btn {
+        border-radius: 999px;
+        padding: 0.72rem 1.2rem;
+        font-weight: 700;
+        box-shadow: 0 8px 18px rgba(5, 24, 38, 0.2);
+    }
+
+    .home-hero-actions .btn-outline-light {
+        border-width: 2px;
+    }
+
+    .home-proof-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.1rem;
+    }
+
+    .home-proof-list li {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        color: rgba(241, 250, 255, 0.92);
+        font-size: 0.89rem;
+        font-weight: 600;
+    }
+
+    .home-proof-list i {
+        color: #fbbf24;
+    }
+
+    .home-hero-panel {
+        position: relative;
+        background: rgba(8, 31, 46, 0.34);
+        border: 1px solid rgba(255, 255, 255, 0.32);
+        border-radius: 24px;
+        padding: 1rem;
+        backdrop-filter: blur(7px);
+        -webkit-backdrop-filter: blur(7px);
+        transition: transform 0.35s ease;
+        transform: perspective(860px) rotateX(0deg) rotateY(0deg);
+    }
+
+    .home-hero-panel::before {
+        content: '';
+        position: absolute;
+        width: 110px;
+        height: 110px;
+        border-radius: 999px;
+        top: -28px;
+        right: -30px;
+        background: radial-gradient(circle, rgba(251, 191, 36, 0.78), rgba(251, 191, 36, 0));
+        pointer-events: none;
+    }
+
+    .home-hero-panel::after {
+        content: '';
+        position: absolute;
+        width: 90px;
+        height: 90px;
+        border-radius: 999px;
+        left: -20px;
+        bottom: -20px;
+        background: radial-gradient(circle, rgba(45, 106, 215, 0.85), rgba(45, 106, 215, 0));
+        pointer-events: none;
+    }
+
+    .plan-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        color: #f8fdff;
+        gap: 0.8rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .plan-head strong {
+        display: block;
+        font-size: 1.03rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .plan-head small {
+        color: rgba(234, 247, 255, 0.82);
+        letter-spacing: 0.04em;
+    }
+
+    .plan-readiness {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.38rem;
+        border-radius: 999px;
+        padding: 0.22rem 0.65rem;
+        background: rgba(34, 197, 94, 0.2);
+        border: 1px solid rgba(134, 239, 172, 0.42);
+        color: #d1fae5;
+        font-size: 0.77rem;
+        font-weight: 700;
+    }
+
+    .plan-progress {
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.18);
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .plan-progress span {
+        display: block;
+        height: 100%;
+        width: 76%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2dd4bf, #bfdbfe);
+        animation: pulseWidth 5s ease-in-out infinite;
+    }
+
+    .plan-grid {
+        display: grid;
+        gap: 0.62rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .plan-cell {
+        border-radius: 14px;
+        padding: 0.72rem;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #effbff;
+    }
+
+    .plan-cell .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 700;
+        font-size: 0.82rem;
+        margin-bottom: 0.26rem;
+    }
+
+    .plan-cell .meta {
+        margin: 0;
+        font-size: 0.78rem;
+        color: rgba(240, 250, 255, 0.86);
+    }
+
+    .plan-chip-row {
+        margin-top: 0.85rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.42rem;
+    }
+
+    .plan-chip {
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        padding: 0.22rem 0.58rem;
+        color: #f0fbff;
+        background: rgba(255, 255, 255, 0.11);
+        font-size: 0.73rem;
+        font-weight: 700;
+    }
+
+    .home-metrics {
+        padding: 0.35rem 0;
+    }
+
+    .metric-card {
+        background: var(--home-surface);
+        border: 1px solid var(--home-line);
+        border-radius: 18px;
+        padding: 1rem 1.05rem;
+        box-shadow: var(--home-shadow);
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .metric-card::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="70" cy="80" r="4" fill="rgba(255,255,255,0.1)"/></svg>');
-        animation: float 20s ease-in-out infinite;
+        height: 3px;
+        background: linear-gradient(90deg, var(--home-primary), var(--home-secondary));
     }
 
-    @keyframes float {
-
-        0%,
-        100% {
-            transform: translateY(0px);
-        }
-
-        50% {
-            transform: translateY(-20px);
-        }
+    .metric-label {
+        color: var(--home-muted);
+        font-size: 0.8rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 0.48rem;
     }
 
-    .feature-card {
-        transition: all 0.3s ease;
-        border: 1px solid var(--dash-line);
-        box-shadow: var(--dash-shadow);
-        height: 100%;
-        border-radius: 18px;
-        overflow: hidden;
-        background: var(--dash-card);
+    .metric-number {
+        margin: 0;
+        font-family: 'Sora', 'Segoe UI', sans-serif;
+        font-size: clamp(1.65rem, 2.7vw, 2.2rem);
+        color: var(--home-ink);
     }
 
-    .feature-card:hover {
-        transform: translateY(-8px);
-        box-shadow: var(--dash-glow);
+    .metric-copy {
+        margin: 0.46rem 0 0;
+        color: var(--home-muted);
+        font-size: 0.9rem;
+    }
+    .home-block {
+        background: var(--home-surface);
+        border: 1px solid var(--home-line);
+        border-radius: 24px;
+        box-shadow: var(--home-shadow);
+        padding: clamp(1.1rem, 2.2vw, 2rem);
     }
 
-    .feature-icon {
-        font-size: 3.5rem;
-        margin-bottom: 1.5rem;
-        background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+    .block-head {
+        margin-bottom: 1rem;
     }
 
-    .nutrition-icon {
-        font-size: 10rem;
-        opacity: 0.2;
-        position: absolute;
-        right: 50px;
-        top: 50%;
-        transform: translateY(-50%);
+    .block-head h2 {
+        margin: 0;
+        font-size: clamp(1.6rem, 3vw, 2.15rem);
+        color: var(--home-ink);
     }
 
-    .workflow-step {
-        text-align: center;
-        padding: 2rem;
+    .block-head p {
+        margin: 0.5rem 0 0;
+        color: var(--home-muted);
+        max-width: 66ch;
+    }
+
+    .journey-grid {
+        display: grid;
+        gap: 0.95rem;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .journey-step {
         position: relative;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid var(--home-line);
+        padding: 1.1rem 1rem 1rem;
+        box-shadow: 0 12px 26px rgba(15, 36, 56, 0.08);
     }
 
-    .workflow-step::after {
-        content: '\f054';
+    .journey-step .step-number {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        display: inline-grid;
+        place-items: center;
+        font-weight: 800;
+        color: #fff;
+        background: linear-gradient(135deg, var(--home-primary), var(--home-secondary));
+        margin-bottom: 0.64rem;
+    }
+
+    .journey-step h5 {
+        margin-bottom: 0.48rem;
+        color: var(--home-ink);
+    }
+
+    .journey-step p {
+        margin: 0;
+        color: var(--home-muted);
+        font-size: 0.92rem;
+    }
+
+    .journey-step::after {
+        content: '\f061';
         font-family: 'Font Awesome 6 Free';
         font-weight: 900;
         position: absolute;
-        right: -20px;
+        right: -14px;
         top: 50%;
         transform: translateY(-50%);
-        color: #28a745;
-        font-size: 2rem;
+        color: rgba(15, 118, 110, 0.48);
     }
 
-    .workflow-step:last-child::after {
+    .journey-step:last-child::after {
         display: none;
     }
 
-    .workflow-step .list-unstyled {
-        text-align: left;
+    .bento-grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 0.9rem;
     }
 
-    .workflow-step .list-unstyled li {
-        display: flex;
-        justify-content: flex-start;
-        gap: 0.5rem;
-    }
-
-    .stats-section {
-        background: transparent;
-        padding: 4rem 0;
-    }
-
-    .stat-item {
-        text-align: center;
-        padding: 2rem;
-        background: var(--dash-card);
+    .bento-card {
+        background: #fff;
+        border: 1px solid var(--home-line);
         border-radius: 18px;
-        border: 1px solid var(--dash-line);
-        box-shadow: var(--dash-shadow);
-        transition: transform 0.3s ease;
-    }
-
-    .stat-item:hover {
-        transform: translateY(-5px);
-    }
-
-    .stat-number {
-        font-size: 3.5rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .food-category {
-        padding: 1.5rem;
-        border-radius: 14px;
-        text-align: center;
-        transition: all 0.3s ease;
-        border: 1px solid var(--dash-line);
-        background: var(--dash-card);
-        box-shadow: var(--dash-shadow);
-    }
-
-    .food-category:hover {
-        border-color: rgba(15, 118, 110, 0.35);
-        background: rgba(15, 118, 110, 0.06);
-    }
-
-    .cta-section {
-        background: linear-gradient(135deg, #0e6557, #177f6c 52%, #2d64c3);
-        color: white;
-        padding: 4rem 0;
-        margin-top: 3rem;
-        border-radius: 80px 80px 0 0;
-    }
-
-    .benefit-card {
-        background: var(--dash-card);
-        border-radius: 18px;
-        padding: 2rem;
-        text-align: center;
-        box-shadow: var(--dash-shadow);
-        border: 1px solid var(--dash-line);
-        transition: all 0.3s ease;
+        padding: 1rem;
+        box-shadow: 0 12px 26px rgba(15, 36, 56, 0.07);
         height: 100%;
+        position: relative;
+        overflow: hidden;
     }
 
-    .benefit-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    .bento-card::before {
+        content: '';
+        position: absolute;
+        inset: auto -28px -28px auto;
+        width: 94px;
+        height: 94px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(15, 118, 110, 0.14), rgba(15, 118, 110, 0));
     }
 
-    .benefit-icon {
-        font-size: 2.5rem;
+    .bento-card h5 {
+        margin: 0.62rem 0 0.42rem;
+        color: var(--home-ink);
+    }
+
+    .bento-card p {
+        margin: 0;
+        color: var(--home-muted);
+        font-size: 0.9rem;
+    }
+
+    .bento-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: inline-grid;
+        place-items: center;
+        color: #fff;
+        font-size: 1.05rem;
+        background: linear-gradient(135deg, var(--home-primary), var(--home-secondary));
+        box-shadow: 0 10px 18px rgba(8, 37, 58, 0.2);
+    }
+
+    .span-7 {
+        grid-column: span 7;
+    }
+
+    .span-5 {
+        grid-column: span 5;
+    }
+
+    .span-4 {
+        grid-column: span 4;
+    }
+
+    .goal-switch {
+        display: inline-flex;
+        gap: 0.46rem;
+        flex-wrap: wrap;
+        padding: 0.4rem;
+        border-radius: 14px;
+        border: 1px solid var(--home-line);
+        background: rgba(15, 23, 42, 0.02);
+        margin-bottom: 0.95rem;
+    }
+
+    .goal-btn {
+        border: none;
+        background: transparent;
+        color: var(--home-muted);
+        border-radius: 10px;
+        padding: 0.42rem 0.78rem;
+        font-weight: 700;
+        font-size: 0.88rem;
+        transition: background 0.24s ease, color 0.24s ease;
+    }
+
+    .goal-btn.is-active {
+        background: linear-gradient(135deg, var(--home-primary), var(--home-secondary));
+        color: #fff;
+        box-shadow: 0 8px 20px rgba(10, 38, 58, 0.18);
+    }
+
+    .goal-panels {
+        position: relative;
+    }
+
+    .goal-panel {
+        display: none;
+        border-radius: 16px;
+        border: 1px solid var(--home-line);
+        padding: 1rem;
+        background: #fff;
+    }
+
+    .goal-panel.is-active {
+        display: block;
+        animation: fadeUp 0.28s ease;
+    }
+
+    .goal-panel h5 {
+        margin-bottom: 0.45rem;
+    }
+
+    .goal-panel ul {
+        margin: 0.75rem 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.44rem;
+    }
+
+    .goal-panel li {
+        border-radius: 10px;
+        border: 1px solid var(--home-line);
+        padding: 0.45rem 0.6rem;
+        color: var(--home-muted);
+        font-size: 0.88rem;
+        background: rgba(15, 118, 110, 0.03);
+    }
+
+    .home-cta {
+        border-radius: var(--home-radius-lg);
+        position: relative;
+        overflow: hidden;
+        padding: clamp(1.3rem, 3vw, 2.2rem);
+        background: linear-gradient(126deg, #0c5f58 0%, #0f766e 52%, #2d6ad7 100%);
+        color: #f0fcff;
+        box-shadow: 0 24px 54px rgba(7, 25, 40, 0.22);
+    }
+
+    .home-cta::before {
+        content: '';
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 180px;
+        height: 180px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(251, 191, 36, 0.5), rgba(251, 191, 36, 0));
+    }
+
+    .home-cta h2 {
+        color: #fff;
+        margin-bottom: 0.55rem;
+    }
+
+    .home-cta p {
+        color: rgba(240, 252, 255, 0.9);
         margin-bottom: 1rem;
-        color: var(--dash-primary);
     }
 
-    .diet-plan-preview {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(255, 255, 255, 0.9));
-        border-radius: 18px;
-        padding: 2rem;
-        border-left: 5px solid var(--dash-accent);
-        border: 1px solid rgba(245, 158, 11, 0.2);
+    .home-cta-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.72rem;
     }
 
-    .home-section {
-        padding: 3.5rem 0;
+    .home-cta .btn {
+        border-radius: 999px;
+        padding: 0.68rem 1.15rem;
+        font-weight: 700;
     }
 
-    .home-section.bg-soft {
-        background: rgba(255, 255, 255, 0.6);
-        border-radius: 24px;
-        box-shadow: var(--dash-shadow);
-        border: 1px solid var(--dash-line);
+    .reveal-up {
+        opacity: 0;
+        transform: translateY(22px);
+        transition: opacity 0.55s ease, transform 0.55s ease;
+        transition-delay: var(--delay, 0s);
+    }
+
+    .reveal-up.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    @keyframes pulseWidth {
+
+        0%,
+        100% {
+            width: 76%;
+        }
+
+        50% {
+            width: 92%;
+        }
+    }
+
+    @keyframes heroSweep {
+
+        0%,
+        100% {
+            transform: translateX(-100%);
+        }
+
+        50% {
+            transform: translateX(100%);
+        }
+    }
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 1199.98px) {
+        .home-hero-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .journey-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .journey-step::after {
+            display: none;
+        }
+
+        .span-7,
+        .span-5,
+        .span-4 {
+            grid-column: span 6;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .home-hero-copy h1 {
+            font-size: clamp(1.8rem, 8vw, 2.3rem);
+        }
+
+        .goal-panel ul {
+            grid-template-columns: 1fr;
+        }
+
+        .span-7,
+        .span-5,
+        .span-4 {
+            grid-column: span 12;
+        }
+
+        .plan-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .home-hero::before {
+            animation: none;
+        }
+
+        .plan-progress span {
+            animation: none;
+        }
+
+        .reveal-up {
+            opacity: 1;
+            transform: none;
+            transition: none;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="dashboard-shell user-shell home-shell">
-    <div class="dashboard-container">
-        <!-- Hero Section -->
-        <section class="hero-section">
-            <div class="container position-relative">
-                <div class="row align-items-center">
-                    <div class="col-lg-7">
-                        <h1 class="display-3 fw-bold mb-4">Nutrition & Diet Expert System</h1>
-                        <p class="lead mb-4">
-                            Personalized nutrition recommendations powered by Expert System technology. Get expert
-                            dietary advice tailored to your health conditions, goals, and lifestyle.
-                        </p>
-                        <div class="mb-4">
-                            <span class="badge bg-light text-dark me-2 p-2"><i class="fas fa-apple-alt me-1"></i>Smart
-                                Food Analysis</span>
-                            <span class="badge bg-light text-dark me-2 p-2"><i
-                                    class="fas fa-heartbeat me-1"></i>Health-Based</span>
-                            <span class="badge bg-light text-dark p-2"><i class="fas fa-chart-line me-1"></i>Progress
-                                Tracking</span>
-                        </div>
+    <div class="dashboard-container home-v2">
+        <section class="home-hero reveal-up">
+            <div class="home-hero-grid">
+                <div class="home-hero-copy reveal-up" style="--delay:0.08s;">
+                    <p class="home-kicker">
+                        <i class="fas fa-flask-vial"></i>
+                        Precision Nutrition Platform
+                    </p>
+                    <h1>Nutrition & Diet Expert System</h1>
+                    <p>
+                        Build practical meal strategies using health-aware expert rules, adaptive food choices, and
+                        progress tracking designed for real daily routines.
+                    </p>
+                    <div class="home-tag-row">
+                        <span class="home-tag"><i class="fas fa-apple-whole"></i> Smart Food Analysis</span>
+                        <span class="home-tag"><i class="fas fa-heart-pulse"></i> Condition-Aware Rules</span>
+                        <span class="home-tag"><i class="fas fa-chart-line"></i> Progress Tracking</span>
+                    </div>
+                    <div class="home-hero-actions">
                         {% if current_user.is_authenticated %}
-                        <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-light btn-lg me-3">
-                            <i class="fas fa-utensils me-2"></i>Go to Dashboard
+                        <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-light">
+                            <i class="fas fa-gauge-high me-2"></i>Go to Dashboard
+                        </a>
+                        <a href="{{ url_for('dashboard.user_diet_expert') }}" class="btn btn-outline-light">
+                            <i class="fas fa-utensils me-2"></i>Generate Plan
                         </a>
                         {% else %}
-                        <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg me-3">
-                            <i class="fas fa-sign-in-alt me-2"></i>Get Started
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-light">
+                            <i class="fas fa-right-to-bracket me-2"></i>Get Started
                         </a>
-                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light">
                             <i class="fas fa-user-plus me-2"></i>Sign Up Free
                         </a>
                         {% endif %}
                     </div>
-                    <div class="col-lg-5">
-                        <div class="text-center position-relative">
-                            <i class="fas fa-carrot nutrition-icon"></i>
-                            <i class="fas fa-lemon"
-                                style="font-size: 3rem; opacity: 0.3; position: absolute; top: 20px; left: 20px;"></i>
-                            <i class="fas fa-apple-alt"
-                                style="font-size: 2rem; opacity: 0.3; position: absolute; bottom: 30px; right: 30px;"></i>
+                    <ul class="home-proof-list">
+                        <li><i class="fas fa-shield-heart"></i>Evidence-based recommendations</li>
+                        <li><i class="fas fa-bolt"></i>Fast expert inference</li>
+                        <li><i class="fas fa-mobile-screen"></i>Works smoothly on mobile</li>
+                    </ul>
+                </div>
+                <div class="home-hero-panel reveal-up" style="--delay:0.2s;" id="heroDietPanel">
+                    <div class="plan-head">
+                        <div>
+                            <strong>Today&apos;s Adaptive Plan</strong>
+                            <small>Balanced routine for steady energy</small>
                         </div>
+                        <span class="plan-readiness"><i class="fas fa-circle-check"></i> Ready</span>
+                    </div>
+                    <div class="plan-progress"><span></span></div>
+                    <div class="plan-grid">
+                        <div class="plan-cell">
+                            <div class="top"><span><i class="fas fa-sun me-1"></i>Breakfast</span><span>420 kcal</span>
+                            </div>
+                            <p class="meta">Oats, berries, eggs, and fiber-rich greens</p>
+                        </div>
+                        <div class="plan-cell">
+                            <div class="top"><span><i class="fas fa-plate-wheat me-1"></i>Lunch</span><span>640
+                                    kcal</span></div>
+                            <p class="meta">Brown rice bowl, lean protein, mixed vegetables</p>
+                        </div>
+                        <div class="plan-cell">
+                            <div class="top"><span><i class="fas fa-seedling me-1"></i>Snack</span><span>180 kcal</span>
+                            </div>
+                            <p class="meta">Greek yogurt, nuts, and fruit hydration mix</p>
+                        </div>
+                        <div class="plan-cell">
+                            <div class="top"><span><i class="fas fa-moon me-1"></i>Dinner</span><span>530 kcal</span>
+                            </div>
+                            <p class="meta">Salmon, quinoa, broccoli, and herbal tea</p>
+                        </div>
+                    </div>
+                    <div class="plan-chip-row">
+                        <span class="plan-chip">Low Sodium</span>
+                        <span class="plan-chip">High Protein</span>
+                        <span class="plan-chip">Diabetes Safe</span>
+                        <span class="plan-chip">Fiber Focus</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- How It Works Section -->
-        <section class="home-section">
-            <div class="container">
-                <div class="text-center mb-5">
-                    <h2 class="display-5 fw-bold">How It Works</h2>
-                    <p class="lead text-muted">Your personalized nutrition journey in 3 simple steps</p>
+        <section class="home-metrics reveal-up">
+            <div class="row g-3">
+                <div class="col-md-6 col-xl-3">
+                    <article class="metric-card">
+                        <p class="metric-label">Expert Rules</p>
+                        <h3 class="metric-number" data-count="1200" data-suffix="+">0</h3>
+                        <p class="metric-copy">Clinical nutrition and condition-aware rule checks.</p>
+                    </article>
                 </div>
-
-                <div class="row">
-                    <div class="col-md-4 workflow-step">
-                        <div class="feature-card card h-100">
-                            <div class="card-body">
-                                <div class="feature-icon">
-                                    <i class="fas fa-user-check"></i>
-                                </div>
-                                <h4>1. Profile Assessment</h4>
-                                <p class="text-muted">
-                                    Tell us about your health conditions, dietary preferences, and wellness goals.
-                                </p>
-                                <ul class="list-unstyled">
-                                    <li><i class="fas fa-check text-success me-2"></i>Health conditions</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Dietary restrictions</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Personal goals</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 workflow-step">
-                        <div class="feature-card card h-100">
-                            <div class="card-body">
-                                <div class="feature-icon">
-                                    <i class="fas fa-brain"></i>
-                                </div>
-                                <h4>2. Expert System Analysis</h4>
-                                <p class="text-muted">
-                                    Our expert system analyzes your profile against medical knowledge and nutrition
-                                    science.
-                                </p>
-                                <ul class="list-unstyled">
-                                    <li><i class="fas fa-check text-success me-2"></i>Medical rules engine</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Nutrition database</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Personalized algorithms</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 workflow-step">
-                        <div class="feature-card card h-100">
-                            <div class="card-body">
-                                <div class="feature-icon">
-                                    <i class="fas fa-clipboard-list"></i>
-                                </div>
-                                <h4>3. Custom Diet Plan</h4>
-                                <p class="text-muted">
-                                    Receive your personalized nutrition plan with meal recommendations and food
-                                    guidelines.
-                                </p>
-                                <ul class="list-unstyled">
-                                    <li><i class="fas fa-check text-success me-2"></i>Meal plans</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Food recommendations</li>
-                                    <li><i class="fas fa-check text-success me-2"></i>Progress tracking</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-md-6 col-xl-3">
+                    <article class="metric-card">
+                        <p class="metric-label">Plan Adherence</p>
+                        <h3 class="metric-number" data-count="98" data-suffix="%">0</h3>
+                        <p class="metric-copy">Guidance tuned for practical daily consistency.</p>
+                    </article>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <article class="metric-card">
+                        <p class="metric-label">Avg Analysis Time</p>
+                        <h3 class="metric-number" data-count="2" data-suffix=" min">0</h3>
+                        <p class="metric-copy">Generate recommendations in a fast feedback loop.</p>
+                    </article>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <article class="metric-card">
+                        <p class="metric-label">Food Items Tagged</p>
+                        <h3 class="metric-number" data-count="4500" data-suffix="+">0</h3>
+                        <p class="metric-copy">Rich ingredient mapping for smarter substitutions.</p>
+                    </article>
                 </div>
             </div>
         </section>
-
-        <!-- Benefits Section -->
-        <section class="home-section">
-            <div class="container">
-                <div class="text-center mb-5">
-                    <h2 class="display-5 fw-bold">Why Choose Our System</h2>
-                    <p class="lead text-muted">Evidence-based nutrition guidance for better health</p>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="benefit-card">
-                            <div class="benefit-icon">
-                                <i class="fas fa-user-md"></i>
-                            </div>
-                            <h5>Medical Expertise</h5>
-                            <p class="text-muted">Developed with healthcare professionals and nutritionists</p>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="benefit-card">
-                            <div class="benefit-icon">
-                                <i class="fas fa-cogs"></i>
-                            </div>
-                            <h5>Expert System Algorithms</h5>
-                            <p class="text-muted">Expert system-powered analysis for personalized recommendations</p>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="benefit-card">
-                            <div class="benefit-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <h5>Progress Tracking</h5>
-                            <p class="text-muted">Monitor your health improvements over time</p>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="benefit-card">
-                            <div class="benefit-icon">
-                                <i class="fas fa-shield-alt"></i>
-                            </div>
-                            <h5>Safe & Secure</h5>
-                            <p class="text-muted">Your health data is protected with enterprise security</p>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="benefit-card">
-                            <div class="benefit-icon">
-                                <i class="fas fa-mobile-alt"></i>
-                            </div>
-                            <h5>Mobile Friendly</h5>
-                            <p class="text-muted">Access your nutrition plan anywhere, anytime</p>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="benefit-card">
-                            <div class="benefit-icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <h5>Community Support</h5>
-                            <p class="text-muted">Join thousands achieving their health goals</p>
-                        </div>
-                    </div>
-                </div>
+        <section class="home-block reveal-up" id="how-it-works">
+            <div class="block-head">
+                <h2>How It Works</h2>
+                <p>Your personalized nutrition workflow from profile intake to adaptive daily recommendations.</p>
+            </div>
+            <div class="journey-grid">
+                <article class="journey-step">
+                    <span class="step-number">1</span>
+                    <h5>Profile and Constraints</h5>
+                    <p>Capture health conditions, dietary restrictions, and targets so recommendations are relevant from
+                        day one.</p>
+                </article>
+                <article class="journey-step">
+                    <span class="step-number">2</span>
+                    <h5>Expert Rule Evaluation</h5>
+                    <p>Inference rules analyze nutrition tradeoffs and safety constraints against your personal profile.
+                    </p>
+                </article>
+                <article class="journey-step">
+                    <span class="step-number">3</span>
+                    <h5>Adaptive Diet Plan</h5>
+                    <p>Receive meal guidance and swaps that update with your progress and adherence trends.</p>
+                </article>
             </div>
         </section>
 
-        <!-- CTA Section -->
-        <section class="cta-section">
-            <div class="container text-center">
-                <h2 class="display-5 fw-bold mb-4">Start Your Nutrition Journey Today</h2>
-                <p class="lead mb-4">
-                    Join thousands who have transformed their health with personalized nutrition guidance
-                </p>
+        <section class="home-block reveal-up">
+            <div class="block-head">
+                <h2>Why This Design Works Better</h2>
+                <p>Built as a clear, decision-first interface: less visual noise, stronger hierarchy, and faster action
+                    paths.</p>
+            </div>
+            <div class="bento-grid">
+                <article class="bento-card span-7">
+                    <span class="bento-icon"><i class="fas fa-user-doctor"></i></span>
+                    <h5>Clinical Logic Meets Usability</h5>
+                    <p>Medical guidance and nutrition science are presented in simple, action-oriented blocks users can
+                        follow immediately.</p>
+                </article>
+                <article class="bento-card span-5">
+                    <span class="bento-icon"><i class="fas fa-shield-halved"></i></span>
+                    <h5>Safer Recommendations</h5>
+                    <p>Constraint checks reduce conflict between condition needs and food choices before plans are shown.
+                    </p>
+                </article>
+                <article class="bento-card span-4">
+                    <span class="bento-icon"><i class="fas fa-sliders"></i></span>
+                    <h5>Adaptive Parameters</h5>
+                    <p>Plans adjust by goals, adherence, and personal context instead of fixed one-size templates.</p>
+                </article>
+                <article class="bento-card span-4">
+                    <span class="bento-icon"><i class="fas fa-mobile-screen-button"></i></span>
+                    <h5>Responsive by Default</h5>
+                    <p>Layout and controls stay readable and fast on desktop, tablet, and smaller screens.</p>
+                </article>
+                <article class="bento-card span-4">
+                    <span class="bento-icon"><i class="fas fa-chart-column"></i></span>
+                    <h5>Progress Visibility</h5>
+                    <p>Simple metrics and trend feedback help users stay accountable and refine their routine.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="home-block reveal-up">
+            <div class="block-head">
+                <h2>Goal Presets</h2>
+                <p>Preview how your recommendations can pivot instantly for different health objectives.</p>
+            </div>
+            <div class="goal-switch" role="tablist" aria-label="Goal presets">
+                <button class="goal-btn is-active" type="button" data-goal-target="balanced"
+                    aria-pressed="true">Balanced Health</button>
+                <button class="goal-btn" type="button" data-goal-target="weight" aria-pressed="false">Weight
+                    Control</button>
+                <button class="goal-btn" type="button" data-goal-target="performance"
+                    aria-pressed="false">Performance</button>
+            </div>
+            <div class="goal-panels">
+                <article class="goal-panel is-active" data-goal-content="balanced">
+                    <h5>Balanced Health Blueprint</h5>
+                    <p class="mb-0 text-muted">A stable intake profile with strong micronutrients and moderate calorie
+                        distribution.</p>
+                    <ul>
+                        <li>Whole grains + lean protein</li>
+                        <li>Daily low-sugar fruit blocks</li>
+                        <li>Hydration pacing reminders</li>
+                        <li>Sodium and saturated fat caps</li>
+                    </ul>
+                </article>
+                <article class="goal-panel" data-goal-content="weight">
+                    <h5>Weight Control Blueprint</h5>
+                    <p class="mb-0 text-muted">Calorie awareness with high satiety foods and straightforward habit loops.
+                    </p>
+                    <ul>
+                        <li>Portion-aware plate structure</li>
+                        <li>High-fiber meal sequencing</li>
+                        <li>Evening snack substitution rules</li>
+                        <li>Weekly progress recalibration</li>
+                    </ul>
+                </article>
+                <article class="goal-panel" data-goal-content="performance">
+                    <h5>Performance Blueprint</h5>
+                    <p class="mb-0 text-muted">Fuel timing and protein targets optimized for training consistency and
+                        recovery.</p>
+                    <ul>
+                        <li>Pre- and post-workout fueling</li>
+                        <li>Higher protein distribution</li>
+                        <li>Recovery micronutrient boosters</li>
+                        <li>Training-day carb modulation</li>
+                    </ul>
+                </article>
+            </div>
+        </section>
+
+        <section class="home-cta reveal-up">
+            <h2>Start Your Nutrition Journey Today</h2>
+            <p>
+                Move from generic diet advice to expert-driven recommendations built for your profile, goals, and daily
+                routine.
+            </p>
+            <div class="home-cta-actions">
                 {% if current_user.is_authenticated %}
-                <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-light btn-lg me-3">
-                    <i class="fas fa-utensils me-2"></i>Access Your Dashboard
+                <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-light">
+                    <i class="fas fa-gauge me-2"></i>Open Dashboard
+                </a>
+                <a href="{{ url_for('dashboard.user_diet_expert') }}" class="btn btn-outline-light">
+                    <i class="fas fa-clipboard-list me-2"></i>Create Diet Plan
                 </a>
                 {% else %}
-                <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg me-3">
-                    <i class="fas fa-rocket me-2"></i>Start Free Trial
+                <a href="{{ url_for('auth.register') }}" class="btn btn-light">
+                    <i class="fas fa-rocket me-2"></i>Start Free
                 </a>
-                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">
-                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light">
+                    <i class="fas fa-right-to-bracket me-2"></i>Login
                 </a>
                 {% endif %}
             </div>
@@ -418,42 +960,127 @@
 
 {% block extra_js %}
 <script>
-    // Animated counter for stats
-    function animateCounter() {
-        const counters = document.querySelectorAll('.stat-number');
-        const speed = 200;
+    (() => {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const revealNodes = document.querySelectorAll('.reveal-up');
 
-        counters.forEach(counter => {
-            const animate = () => {
-                const target = +counter.getAttribute('data-count');
-                const count = +counter.innerText;
-                const increment = target / speed;
+        if (revealNodes.length) {
+            if (reduceMotion || !('IntersectionObserver' in window)) {
+                revealNodes.forEach((node) => node.classList.add('is-visible'));
+            } else {
+                const revealObserver = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            revealObserver.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.2
+                });
 
-                if (count < target) {
-                    counter.innerText = Math.ceil(count + increment);
-                    setTimeout(animate, 1);
-                } else {
-                    counter.innerText = target;
-                }
+                revealNodes.forEach((node) => revealObserver.observe(node));
+            }
+        }
+
+        const metricNodes = document.querySelectorAll('.metric-number[data-count]');
+
+        const formatMetric = (value, suffix) => {
+            const rounded = value >= 1000 ? Math.round(value).toLocaleString() : Math.round(value).toString();
+            return `${rounded}${suffix || ''}`;
+        };
+
+        const animateMetric = (node) => {
+            if (node.dataset.animated === 'true') {
+                return;
             }
 
-            // Start animation when element is in viewport
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        animate();
-                        observer.unobserve(entry.target);
-                    }
+            const target = Number(node.dataset.count || 0);
+            const suffix = node.dataset.suffix || '';
+            const duration = 1200;
+            const start = performance.now();
+
+            const tick = (now) => {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = target * eased;
+                node.textContent = formatMetric(current, suffix);
+
+                if (progress < 1) {
+                    requestAnimationFrame(tick);
+                    return;
+                }
+
+                node.textContent = formatMetric(target, suffix);
+                node.dataset.animated = 'true';
+            };
+
+            requestAnimationFrame(tick);
+        };
+
+        if (metricNodes.length) {
+            if (reduceMotion) {
+                metricNodes.forEach((node) => {
+                    const target = Number(node.dataset.count || 0);
+                    const suffix = node.dataset.suffix || '';
+                    node.textContent = formatMetric(target, suffix);
+                    node.dataset.animated = 'true';
                 });
+            } else if (!('IntersectionObserver' in window)) {
+                metricNodes.forEach((node) => animateMetric(node));
+            } else {
+                const metricObserver = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            animateMetric(entry.target);
+                            metricObserver.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.55
+                });
+
+                metricNodes.forEach((node) => metricObserver.observe(node));
+            }
+        }
+
+        const goalButtons = document.querySelectorAll('.goal-btn[data-goal-target]');
+        const goalPanels = document.querySelectorAll('.goal-panel[data-goal-content]');
+
+        const setGoal = (target) => {
+            goalButtons.forEach((button) => {
+                const active = button.dataset.goalTarget === target;
+                button.classList.toggle('is-active', active);
+                button.setAttribute('aria-pressed', active ? 'true' : 'false');
             });
 
-            observer.observe(counter);
-        });
-    }
+            goalPanels.forEach((panel) => {
+                panel.classList.toggle('is-active', panel.dataset.goalContent === target);
+            });
+        };
 
-    // Initialize animations
-    document.addEventListener('DOMContentLoaded', function () {
-        animateCounter();
-    });
+        goalButtons.forEach((button) => {
+            button.addEventListener('click', () => setGoal(button.dataset.goalTarget));
+        });
+
+        const heroPanel = document.getElementById('heroDietPanel');
+
+        if (heroPanel && !reduceMotion) {
+            const maxTilt = 5.5;
+            heroPanel.addEventListener('mousemove', (event) => {
+                const rect = heroPanel.getBoundingClientRect();
+                const offsetX = (event.clientX - rect.left) / rect.width - 0.5;
+                const offsetY = (event.clientY - rect.top) / rect.height - 0.5;
+                const rotateX = (-offsetY * maxTilt).toFixed(2);
+                const rotateY = (offsetX * maxTilt).toFixed(2);
+                heroPanel.style.transform = `perspective(860px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            heroPanel.addEventListener('mouseleave', () => {
+                heroPanel.style.transform = 'perspective(860px) rotateX(0deg) rotateY(0deg)';
+            });
+        }
+    })();
 </script>
 {% endblock %}
