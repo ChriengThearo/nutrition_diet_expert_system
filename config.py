@@ -11,6 +11,7 @@ class Config:
     SKIP_DB_CREATE_ALL = os.getenv("SKIP_DB_CREATE_ALL", "0") == "1"
 
     # Database configuration from .env
+    DATABASE_URL = os.getenv("DATABASE_URL")
     DB_HOST = os.getenv("DB_HOST", "localhost")
     DB_USER = os.getenv("DB_USER", "root")
     DB_PASSWORD = os.getenv("DB_PASSWORD", "mysql")
@@ -18,10 +19,13 @@ class Config:
     DB_PORT = os.getenv("DB_PORT", "3306")
 
     # SQLAlchemy configuration
-    SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{DB_USER}:{quote(DB_PASSWORD)}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        f"?ssl=true&ssl_verify_cert=false"
-    )
+    if DATABASE_URL:
+        SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    else:
+        SQLALCHEMY_DATABASE_URI = (
+            f"mysql+pymysql://{DB_USER}:{quote(DB_PASSWORD)}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+            f"?ssl=true&ssl_verify_cert=false"
+        )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False  # Set to True for debugging SQL queries
 
