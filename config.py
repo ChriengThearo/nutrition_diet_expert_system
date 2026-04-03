@@ -20,6 +20,7 @@ class Config:
     # SQLAlchemy configuration
     SQLALCHEMY_DATABASE_URI = (
         f"mysql+pymysql://{DB_USER}:{quote(DB_PASSWORD)}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+        f"?ssl=true&ssl_verify_cert=false"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False  # Set to True for debugging SQL queries
