@@ -1,4 +1,5 @@
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, render_template
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from config import Config
 from extensions import db, csrf, login_manager, migrate
 from app.models.user import UserTable
@@ -37,21 +38,36 @@ def create_app(config_class: type[Config] = Config):
     app.register_blueprint(main_bp)
     app.register_blueprint(dashboard_bp)
 
+    @app.errorhandler(OperationalError)
+    def handle_db_error(e):
+        return render_template("errors/503.html"), 503
+
+    @app.errorhandler(SQLAlchemyError)
+    def handle_sqlalchemy_error(e):
+        return render_template("errors/503.html"), 503
+
+    @app.errorhandler(500)
+    def handle_500(e):
+        return render_template("errors/503.html"), 503
+
     # Home route now handled by main blueprint
 
     # Create tables only when explicitly enabled (avoid conflicting with migrations)
     with app.app_context():
-        if not app.config.get("SKIP_DB_CREATE_ALL", False):
-            from app.models.user import UserTable
-            from app.models.role import RoleTable
-            from app.models.permission import PermissionTable
-
-            db.create_all()
         try:
-            from app.services.rbac_service import migrate_permission_codes
+            if not app.config.get("SKIP_DB_CREATE_ALL", False):
+                from app.models.user import UserTable
+                from app.models.role import RoleTable
+                from app.models.permission import PermissionTable
 
-            migrate_permission_codes()
+                db.create_all()
+            try:
+                from app.services.rbac_service import migrate_permission_codes
+
+                migrate_permission_codes()
+            except Exception:
+                pass
         except Exception:
-            pass
+            pass  # DB unavailable at startup — error handlers will catch per-request failures
 
     return app
