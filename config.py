@@ -24,6 +24,13 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False  # Set to True for debugging SQL queries
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_size": 2,
+        "max_overflow": 1,
+        "pool_timeout": 30,
+        "pool_recycle": 1800,
+        "pool_pre_ping": True,
+    }
 
     # Security
     SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS

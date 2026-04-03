@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set "VIRTUAL_ENV=D:\Norton\Year3\Expert_System\Assignments\src\completed\expert_system_v13\.venv"
+set "VIRTUAL_ENV=D:\individual\expert_system_v24\.venv"
 
 if not defined PROMPT set PROMPT=$P$G
 
