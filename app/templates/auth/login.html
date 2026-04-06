@@ -10,20 +10,23 @@
 />
 <style>
   :root {
-    --login-primary: #0f766e;
-    --login-primary-soft: #ccfbf1;
+    --login-primary: #2f9e7a;
+    --login-primary-deep: #247b60;
+    --login-primary-soft: #dbf7ef;
+    --login-accent: #ef6f51;
+    --login-accent-strong: #d95435;
     --login-ink: #132630;
     --login-muted: #5f7281;
     --login-border: #d7e2e8;
-    --login-bg-a: #fff9f2;
-    --login-bg-b: #e9f8f6;
+    --login-bg-a: #fff9f3;
+    --login-bg-b: #edf9f2;
   }
 
   body {
     font-family: "DM Sans", sans-serif;
     background:
-      radial-gradient(circle at 10% 20%, #fcdac7 0%, transparent 38%),
-      radial-gradient(circle at 95% 90%, #c6f7eb 0%, transparent 35%),
+      radial-gradient(circle at 8% 16%, #ffd7c8 0%, transparent 36%),
+      radial-gradient(circle at 96% 88%, #c9f5e8 0%, transparent 34%),
       linear-gradient(140deg, var(--login-bg-a), var(--login-bg-b));
   }
 
@@ -49,7 +52,7 @@
     width: 320px;
     height: 320px;
     border-radius: 50%;
-    background: rgba(15, 118, 110, 0.08);
+    background: rgba(239, 111, 81, 0.1);
     top: -120px;
     right: -80px;
     pointer-events: none;
@@ -59,7 +62,7 @@
     position: relative;
     padding: 2.6rem 2.4rem;
     color: #ffffff;
-    background: linear-gradient(165deg, #0f766e 0%, #115e59 56%, #0b4844 100%);
+    background: linear-gradient(165deg, var(--login-primary) 0%, var(--login-primary-deep) 58%, #195845 100%);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -110,7 +113,7 @@
   .login-highlights i {
     width: 22px;
     text-align: center;
-    color: #b4f8ee;
+    color: #ffd9ca;
   }
 
   .login-story small {
@@ -166,8 +169,8 @@
   }
 
   .login-input-group .form-control:focus {
-    border-color: #8fd2ca;
-    box-shadow: 0 0 0 0.22rem rgba(15, 118, 110, 0.15);
+    border-color: #89cfbd;
+    box-shadow: 0 0 0 0.22rem rgba(47, 158, 122, 0.15);
   }
 
   .password-toggle {
@@ -188,7 +191,7 @@
     min-height: 48px;
     border: 0;
     border-radius: 12px;
-    background: linear-gradient(120deg, #0f766e, #148a81);
+    background: linear-gradient(120deg, var(--login-accent), var(--login-accent-strong));
     color: #ffffff;
     font-weight: 700;
     letter-spacing: 0.01em;
@@ -197,7 +200,7 @@
 
   .login-submit:hover {
     transform: translateY(-1px);
-    box-shadow: 0 12px 22px rgba(15, 118, 110, 0.24);
+    box-shadow: 0 12px 22px rgba(239, 111, 81, 0.28);
     color: #ffffff;
   }
 
@@ -207,7 +210,7 @@
   }
 
   .login-links a {
-    color: #0e6b64;
+    color: var(--login-primary-deep);
     font-weight: 600;
     text-decoration: none;
   }
