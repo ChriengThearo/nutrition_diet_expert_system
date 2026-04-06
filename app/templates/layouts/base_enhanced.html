@@ -129,9 +129,9 @@
         class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top {% if is_user_dashboard %}navbar-user-dashboard{% else %}bg-primary{% endif %}">
         <div class="container-fluid">
             <!-- Brand with icon -->
-            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.home') }}">
-                <i class="fas fa-heartbeat me-2"></i>
-                <span>Nutrition Expert</span>
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('main.home') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert logo" style="height:38px;width:auto;">
+                <span style="font-weight:700;letter-spacing:0.04em;">NDES</span>
             </a>
 
             <!-- Mobile toggle button -->
