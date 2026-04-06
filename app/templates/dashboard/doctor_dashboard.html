@@ -304,7 +304,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <i class="fas fa-brain me-2"></i>Diet Expert Rule Manager
+                <i class="fas fa-brain me-2"></i>Diet Expert Rule Studio
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -337,33 +337,48 @@
             <div class="doctor-hero-panel">
                 <div class="row align-items-center">
                     <div class="col-lg-8">
-                        <span class="hero-chip"><i class="fas fa-stethoscope"></i> Doctor Intelligence Workspace</span>
-                        <h1 class="hero-title">Clinical Rule Engine Console</h1>
-                        <p class="hero-copy">Design and test nutrition rules, validate food mappings, and simulate
-                            patient diet plans with an interactive expert workflow.</p>
+                        <span class="hero-chip"><i class="fas fa-stethoscope"></i> Rule Command Center</span>
+                        <h1 class="hero-title">Clinical Nutrition Decision Studio</h1>
+                        <p class="hero-copy">Create treatment-ready diet rules, manage your food knowledge base, and
+                            simulate patient plans from one clean workflow.</p>
+                        <div class="hero-actions">
+                            <button type="button" class="btn btn-light btn-sm" id="jump-builder">
+                                <i class="fas fa-tools me-2"></i>Build Rule
+                            </button>
+                            <button type="button" class="btn btn-outline-light btn-sm" id="jump-rules">
+                                <i class="fas fa-layer-group me-2"></i>Manage Rules
+                            </button>
+                            <button type="button" class="btn btn-outline-light btn-sm" id="jump-test">
+                                <i class="fas fa-vial me-2"></i>Run Simulation
+                            </button>
+                        </div>
                     </div>
                     <div class="col-lg-4 mt-4 mt-lg-0">
                         <div class="hero-meta-card">
-                            <p class="hero-meta-label">Current Expert</p>
+                            <p class="hero-meta-label">Current Doctor</p>
                             <p class="hero-meta-value">{{ current_user.full_name or current_user.username }}</p>
-                            <span class="badge bg-light text-dark mt-2">Doctor Dashboard</span>
+                            <span class="badge bg-light text-dark mt-2">Decision Dashboard</span>
                         </div>
                     </div>
                 </div>
                 <div class="doctor-kpi-grid">
                     <div class="doctor-kpi-card">
+                        <div class="doctor-kpi-icon"><i class="fas fa-user-injured"></i></div>
                         <p class="doctor-kpi-label">Patients</p>
                         <p class="doctor-kpi-value" id="total_patients">{{ total_patients }}</p>
                     </div>
                     <div class="doctor-kpi-card">
+                        <div class="doctor-kpi-icon"><i class="fas fa-stethoscope"></i></div>
                         <p class="doctor-kpi-label">Consultations Today</p>
                         <p class="doctor-kpi-value" id="consultations_today">{{ consultations_today }}</p>
                     </div>
                     <div class="doctor-kpi-card">
+                        <div class="doctor-kpi-icon"><i class="fas fa-notes-medical"></i></div>
                         <p class="doctor-kpi-label">Pending Diagnoses</p>
                         <p class="doctor-kpi-value" id="pending_diagnoses">{{ pending_diagnoses }}</p>
                     </div>
                     <div class="doctor-kpi-card">
+                        <div class="doctor-kpi-icon"><i class="fas fa-scroll"></i></div>
                         <p class="doctor-kpi-label">Rules Authored</p>
                         <p class="doctor-kpi-value" id="rules_authored">{{ rules_authored }}</p>
                     </div>
@@ -376,18 +391,28 @@
         <div class="row">
             <!-- Sidebar -->
             <div class="col-lg-3 mb-4">
-                <div class="sidebar">
-                    <h5 class="mb-4"><i class="fas fa-filter me-2"></i>Filter Rules</h5>
+                <div class="sidebar control-sidebar">
+                    <h5 class="control-panel-title mb-2"><i class="fas fa-sliders-h me-2"></i>Rule Control Panel</h5>
+                    <p class="control-panel-copy">Search, filter, and jump into rule operations quickly.</p>
+
+                    <div class="search-rules-wrap mb-3">
+                        <label for="search-rules" class="form-label mb-1">Find rule</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="search" class="form-control" id="search-rules"
+                                placeholder="Search by name or description">
+                        </div>
+                    </div>
 
                     <div class="mb-4">
-                        <label class="form-label">Rule Status</label>
-                        <div class="form-check">
+                        <label class="form-label mb-2">Status Filters</label>
+                        <div class="form-check rule-filter-pill">
                             <input class="form-check-input" type="checkbox" id="filter-active" checked>
                             <label class="form-check-label" for="filter-active">
                                 Active Rules
                             </label>
                         </div>
-                        <div class="form-check">
+                        <div class="form-check rule-filter-pill">
                             <input class="form-check-input" type="checkbox" id="filter-inactive">
                             <label class="form-check-label" for="filter-inactive">
                                 Inactive Rules
@@ -397,54 +422,54 @@
 
                     <hr>
 
-                    <div class="d-grid gap-2">
+                    <div class="d-grid gap-2 quick-action-grid">
                         <button class="btn btn-custom" id="new-rule-btn" data-permission="rule.create"
                             data-action="create rules">
-                            <i class="fas fa-plus-circle me-2"></i>Create New Rule
+                            <i class="fas fa-plus-circle me-2"></i>Create Rule
                         </button>
                         <button class="btn btn-outline-custom" id="add-food-btn" data-permission="food.create"
                             data-action="add foods">
-                            <i class="fas fa-apple-alt me-2"></i>Add Food
+                            <i class="fas fa-apple-alt me-2"></i>Add Food Item
                         </button>
                     </div>
                 </div>
 
                 <!-- Stats -->
-                <div class="sidebar mt-4">
-                    <h5 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Rule Statistics</h5>
+                <div class="sidebar mt-4 stats-sidebar">
+                    <h5 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Rule Snapshot</h5>
 
                     <div class="stat-card">
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0">Total Rules</h6>
-                                <h3 class="mb-0" id="total-rules">{{ rules_authored or 0 }}</h3>
+                                <h6 class="mb-1">Total Rules</h6>
+                                <h3 class="mb-0 stat-value" id="total-rules">{{ rules_authored or 0 }}</h3>
                             </div>
                             <div class="align-self-center">
-                                <i class="fas fa-list-alt fa-2x opacity-75"></i>
+                                <i class="fas fa-list-alt fa-lg"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div class="stat-card" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
-                        <div class="d-flex justify-content-between">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0">Active Rules</h6>
-                                <h3 class="mb-0" id="active-rules">0</h3>
+                                <h6 class="mb-1">Active Rules</h6>
+                                <h3 class="mb-0 stat-value" id="active-rules">0</h3>
                             </div>
                             <div class="align-self-center">
-                                <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                                <i class="fas fa-check-circle fa-lg"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div class="stat-card" style="background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);">
-                        <div class="d-flex justify-content-between">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-0">Inactive Rules</h6>
-                                <h3 class="mb-0" id="inactive-rules">0</h3>
+                                <h6 class="mb-1">Inactive Rules</h6>
+                                <h3 class="mb-0 stat-value" id="inactive-rules">0</h3>
                             </div>
                             <div class="align-self-center">
-                                <i class="fas fa-tags fa-2x opacity-75"></i>
+                                <i class="fas fa-tags fa-lg"></i>
                             </div>
                         </div>
                     </div>
@@ -454,29 +479,33 @@
             <!-- Main Content -->
             <div class="col-lg-9">
                 <!-- Tabs -->
-                <ul class="nav nav-tabs" id="expertTabs" role="tablist">
+                <ul class="nav nav-tabs workspace-tabs" id="expertTabs" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="rules-tab" data-bs-toggle="tab" data-bs-target="#rules"
                             data-permission="rule.read" data-action="view rules" type="button">
-                            <i class="fas fa-list me-2"></i>All Rules
+                            <span class="tab-step">1</span>
+                            <i class="fas fa-list me-2"></i>Rule Library
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="foods-tab" data-bs-toggle="tab" data-bs-target="#foods"
                             data-permission="food.read" data-action="view foods" type="button">
-                            <i class="fas fa-apple-alt me-2"></i>All Food
+                            <span class="tab-step">2</span>
+                            <i class="fas fa-apple-alt me-2"></i>Food Catalog
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="builder-tab" data-bs-toggle="tab" data-bs-target="#builder"
                             data-permission="rule.create" data-action="build rules" type="button">
-                            <i class="fas fa-tools me-2"></i>Rule Builder
+                            <span class="tab-step">3</span>
+                            <i class="fas fa-tools me-2"></i>Builder Studio
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="test-tab" data-bs-toggle="tab" data-bs-target="#test"
                             data-permission="rule.test" data-action="test rules" type="button">
-                            <i class="fas fa-vial me-2"></i>Test Rules
+                            <span class="tab-step">4</span>
+                            <i class="fas fa-vial me-2"></i>Simulation Lab
                         </button>
                     </li>
                 </ul>
@@ -485,8 +514,12 @@
                 <div class="tab-content" id="expertTabsContent">
                     <!-- Rules Tab -->
                     <div class="tab-pane fade show active" id="rules" role="tabpanel">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="mb-0"><i class="fas fa-list-ul me-2"></i>Rule Management</h4>
+                        <div class="rule-toolbar d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h4 class="mb-1"><i class="fas fa-list-ul me-2"></i>Rule Management</h4>
+                                <p class="rule-selection-note mb-0">Select cards to activate, deactivate, or delete in
+                                    bulk.</p>
+                            </div>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-outline-primary btn-sm" id="activate-selected"
                                     data-permission="rule.edit" data-action="activate rules">
@@ -554,10 +587,10 @@
 
                     <!-- Rule Builder Tab -->
                     <div class="tab-pane fade" id="builder" role="tabpanel">
-                        <h4 class="mb-4"><i class="fas fa-tools me-2"></i>Rule Builder</h4>
+                        <h4 class="mb-4"><i class="fas fa-tools me-2"></i>Rule Builder Studio</h4>
 
                         <div class="rule-builder">
-                            <div class="alert alert-info mb-4">
+                            <div class="alert alert-info mb-4 builder-intro">
                                 <strong>Rule Inputs from User Form:</strong>
                                 <span class="small">age, gender, weight, height, diet_type (normal/vegan), allergies,
                                     meals_per_day</span>
@@ -580,7 +613,7 @@
                                 </div>
                             </div>
 
-                            <div class="border rounded p-3 mb-4">
+                            <div class="border rounded p-3 mb-4 builder-section">
                                 <h6 class="mb-3"><i class="fas fa-bullseye me-2"></i>Weight Goal Rule Inputs</h6>
                                 <div class="row mb-3">
                                     <div class="col-md-4">
@@ -672,7 +705,7 @@
                                 </div>
                             </div>
 
-                            <div class="border rounded p-3 mb-4" id="rule-foods-section">
+                            <div class="border rounded p-3 mb-4 builder-section" id="rule-foods-section">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h6 class="mb-0"><i class="fas fa-apple-alt me-2"></i>Foods for This Rule</h6>
                                     <button type="button" class="btn btn-sm btn-outline-secondary" id="refresh-foods">
@@ -784,7 +817,7 @@
 
                     <!-- Test Rules Tab -->
                     <div class="tab-pane fade" id="test" role="tabpanel">
-                        <h4 class="mb-4"><i class="fas fa-vial me-2"></i>Test Rules</h4>
+                        <h4 class="mb-4"><i class="fas fa-vial me-2"></i>Rule Simulation Lab</h4>
 
                         <div class="card mb-4">
                             <div class="card-header">
@@ -1621,47 +1654,64 @@
             const statusLabel = rule.active ? 'Active' : 'Inactive';
             const conditions = Array.isArray(rule.conditions) ? rule.conditions : [];
             const actions = Array.isArray(rule.actions) ? rule.actions : [];
+            const conditionChips = conditions.length
+                ? conditions.map(cond => `<span class="condition-tag">${cond}</span>`).join('')
+                : '<span class="rule-empty">No conditions</span>';
+            const actionChips = actions.length
+                ? actions.map(action => `<span class="action-tag">${action}</span>`).join('')
+                : '<span class="rule-empty">No actions</span>';
 
             card.innerHTML = `
                 <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <div class="d-flex align-items-start">
+                    <div class="rule-card-head">
+                        <div class="rule-card-title-group">
                             <div class="form-check me-3">
                                 <input class="form-check-input rule-checkbox" type="checkbox" value="${rule.id}">
                             </div>
                             <div>
-                                <h5 class="card-title mb-1">${rule.name}</h5>
-                                <p class="card-text text-muted small mb-2">${rule.description}</p>
-                                <div class="mb-2">
-                                    ${conditions.map(cond => `<span class="condition-tag">${cond}</span>`).join('')}
-                                </div>
-                                <div>
-                                    ${actions.map(action => `<span class="action-tag">${action}</span>`).join('')}
-                                </div>
+                                <p class="rule-card-overline mb-1">Rule #${rule.id}</p>
+                                <h5 class="card-title mb-1">${rule.name || 'Untitled Rule'}</h5>
+                                <p class="card-text text-muted small mb-0">${rule.description || 'No description provided.'}</p>
                             </div>
                         </div>
-                        <div class="text-end">
-                            <div class="mb-2">
-                                <span class="badge ${statusBadgeClass}">${statusLabel}</span>
+                        <div class="rule-card-status">
+                            <span class="badge ${statusBadgeClass}">${statusLabel}</span>
+                            <span class="rule-chip subtle"><i class="fas fa-code-branch me-1"></i>${conditions.length} conditions</span>
+                            <span class="rule-chip subtle"><i class="fas fa-play-circle me-1"></i>${actions.length} actions</span>
+                        </div>
+                    </div>
+                    <div class="rule-card-grid mt-3">
+                        <div class="rule-card-column">
+                            <p class="rule-card-label">When</p>
+                            <div class="rule-chip-wrap">
+                                ${conditionChips}
                             </div>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-secondary view-rule" data-id="${rule.id}"
-                                    data-permission="rule.read" data-action="view rules">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-outline-primary edit-rule" data-id="${rule.id}"
-                                    data-permission="rule.edit" data-action="edit rules">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn ${rule.active ? 'btn-outline-warning' : 'btn-outline-success'} toggle-rule" data-id="${rule.id}"
-                                    data-permission="rule.edit" data-action="toggle rules">
-                                    <i class="fas ${rule.active ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>
-                                </button>
-                                <button class="btn btn-outline-danger delete-rule" data-id="${rule.id}"
-                                    data-permission="rule.delete" data-action="delete rules">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                        </div>
+                        <div class="rule-card-column">
+                            <p class="rule-card-label">Then</p>
+                            <div class="rule-chip-wrap">
+                                ${actionChips}
                             </div>
+                        </div>
+                    </div>
+                    <div class="rule-card-actions mt-3">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary view-rule" data-id="${rule.id}"
+                                data-permission="rule.read" data-action="view rules">
+                                <i class="fas fa-eye me-1"></i>View
+                            </button>
+                            <button class="btn btn-outline-primary edit-rule" data-id="${rule.id}"
+                                data-permission="rule.edit" data-action="edit rules">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </button>
+                            <button class="btn ${rule.active ? 'btn-outline-warning' : 'btn-outline-success'} toggle-rule" data-id="${rule.id}"
+                                data-permission="rule.edit" data-action="toggle rules">
+                                <i class="fas ${rule.active ? 'fa-toggle-on' : 'fa-toggle-off'} me-1"></i>${rule.active ? 'Pause' : 'Activate'}
+                            </button>
+                            <button class="btn btn-outline-danger delete-rule" data-id="${rule.id}"
+                                data-permission="rule.delete" data-action="delete rules">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -1890,8 +1940,9 @@
                 return;
             }
 
-            pageRules.forEach(rule => {
+            pageRules.forEach((rule, index) => {
                 const ruleCard = createRuleCard(rule);
+                ruleCard.style.setProperty('--card-enter-delay', `${index * 70}ms`);
                 rulesList.appendChild(ruleCard);
             });
 
@@ -1906,6 +1957,31 @@
                 bootstrap.Tab.getOrCreateInstance(builderTab).show();
                 resetBuilder();
             });
+
+            const jumpBuilder = document.getElementById('jump-builder');
+            if (jumpBuilder) {
+                jumpBuilder.addEventListener('click', function () {
+                    const builderTab = document.getElementById('builder-tab');
+                    bootstrap.Tab.getOrCreateInstance(builderTab).show();
+                    resetBuilder();
+                });
+            }
+
+            const jumpRules = document.getElementById('jump-rules');
+            if (jumpRules) {
+                jumpRules.addEventListener('click', function () {
+                    const rulesTab = document.getElementById('rules-tab');
+                    bootstrap.Tab.getOrCreateInstance(rulesTab).show();
+                });
+            }
+
+            const jumpTest = document.getElementById('jump-test');
+            if (jumpTest) {
+                jumpTest.addEventListener('click', function () {
+                    const testTab = document.getElementById('test-tab');
+                    bootstrap.Tab.getOrCreateInstance(testTab).show();
+                });
+            }
 
             // Add food button
             document.getElementById('add-food-btn').addEventListener('click', function () {
