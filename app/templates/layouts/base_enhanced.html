@@ -126,11 +126,12 @@
     {% set is_user_dashboard = request.endpoint and (request.endpoint.startswith('dashboard.user') or request.endpoint
     == 'main.home') %}
     <nav
-        class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top {% if is_user_dashboard %}navbar-user-dashboard{% else %}bg-primary{% endif %}">
+        class="navbar navbar-expand-lg shadow-sm sticky-top {% if is_user_dashboard %}navbar-light navbar-user-dashboard{% else %}navbar-dark bg-primary{% endif %}">
         <div class="container-fluid">
             <!-- Brand with icon -->
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('main.home') }}">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert logo" style="height:38px;width:auto;">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert logo"
+                    style="width:95px;height:auto;">
                 <span style="font-weight:700;letter-spacing:0.04em;">NDES</span>
             </a>
 
@@ -219,7 +220,9 @@
                     {% set nav_display_name = 'Guest' if session.get('user_guest_mode') else current_user.username %}
                     {% set nav_default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
                     {% set nav_photo_path = (current_user.photo or '')|trim %}
-                    {% set nav_avatar_url = nav_default_avatar_url if session.get('user_guest_mode') else (url_for('main.images', filename=nav_photo_path|replace('images/', '')) if nav_photo_path else nav_default_avatar_url) %}
+                    {% set nav_avatar_url = nav_default_avatar_url if session.get('user_guest_mode') else
+                    (url_for('main.images', filename=nav_photo_path|replace('images/', '')) if nav_photo_path else
+                    nav_default_avatar_url) %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown"
                             role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -244,7 +247,8 @@
                                 <button class="dropdown-item d-flex align-items-center gap-2" type="button"
                                     id="guestModeToggle" data-endpoint="{{ url_for('dashboard.user_guest_mode') }}"
                                     data-guest-mode="{{ 'true' if user_guest_mode else 'false' }}">
-                                    <i class="fas {{ 'fa-user' if user_guest_mode else 'fa-user-secret' }}" data-guest-icon></i>
+                                    <i class="fas {{ 'fa-user' if user_guest_mode else 'fa-user-secret' }}"
+                                        data-guest-icon></i>
                                     <span data-guest-label>{{ 'User mode' if user_guest_mode else 'Guest mode' }}</span>
                                 </button>
                             </li>
@@ -374,7 +378,8 @@
                     <p class="mb-0" id="guestModeNoticeMessage">Data from generated plans will not be saved.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-warning fw-semibold" data-bs-dismiss="modal" id="guestModeNoticeButton">I Understand</button>
+                    <button type="button" class="btn btn-warning fw-semibold" data-bs-dismiss="modal"
+                        id="guestModeNoticeButton">I Understand</button>
                 </div>
             </div>
         </div>
