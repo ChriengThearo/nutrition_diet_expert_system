@@ -77,10 +77,6 @@
       width: 56px;
       height: 56px;
       object-fit: contain;
-      border-radius: 10px;
-      background: #2f9e7a;
-      padding: 0.35rem;
-      box-shadow: 0 8px 16px rgba(27, 37, 49, 0.12);
     }
 
     .site-menu {
@@ -166,11 +162,11 @@
     }
 
     .hero-copy {
-      padding: clamp(1.45rem, 3.8vw, 2.4rem);
+      padding: clamp(1.6rem, 4vw, 2.6rem);
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 1rem;
+      gap: 1.2rem;
       animation: rise-in 0.72s ease-out;
     }
 
@@ -190,8 +186,8 @@
       margin: 0;
       font-family: "Sora", sans-serif;
       font-size: clamp(2rem, 5.5vw, 3.25rem);
-      line-height: 1.07;
-      max-width: 14ch;
+      line-height: 1.1;
+      max-width: 16ch;
       color: #162028;
     }
 
@@ -207,7 +203,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.7rem;
-      margin-top: 0.3rem;
+      margin-top: auto;
     }
 
     .btn-main,
@@ -246,7 +242,7 @@
     }
 
     .trust-grid {
-      margin-top: 1rem;
+      margin-top: 0;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 0.75rem;
@@ -624,22 +620,7 @@
     <main>
       <section class="hero">
         <div class="hero-copy">
-<h1>Build smarter diet decisions with practical daily tools.</h1>
-
-<div class="hero-actions">
-            {% if current_user.is_authenticated %}
-            <a class="btn-main" href="{{ url_for('dashboard.dashboard_home') }}">
-              <i class="fas fa-chart-line"></i>Go to Dashboard
-            </a>
-            {% else %}
-            <a class="btn-main" href="{{ url_for('auth.register') }}">
-              <i class="fas fa-user-plus"></i>Create Account
-            </a>
-            <a class="btn-subtle" href="{{ url_for('auth.login') }}">
-              <i class="fas fa-right-to-bracket"></i>Sign In
-            </a>
-            {% endif %}
-          </div>
+          <h1>Build smarter diet decisions with practical daily tools.</h1>
 
           <div class="trust-grid">
             <div class="trust-item">
@@ -654,6 +635,21 @@
               <strong>Goal Focused</strong>
               <span>Plans aligned to your intent</span>
             </div>
+          </div>
+
+          <div class="hero-actions">
+            {% if current_user.is_authenticated %}
+            <a class="btn-main" href="{{ url_for('dashboard.dashboard_home') }}">
+              <i class="fas fa-chart-line"></i>Go to Dashboard
+            </a>
+            {% else %}
+            <a class="btn-main" href="{{ url_for('auth.register') }}">
+              <i class="fas fa-user-plus"></i>Create Account
+            </a>
+            <a class="btn-subtle" href="{{ url_for('auth.login') }}">
+              <i class="fas fa-right-to-bracket"></i>Sign In
+            </a>
+            {% endif %}
           </div>
         </div>
 
