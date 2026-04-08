@@ -951,17 +951,8 @@
     box-shadow: 0 10px 20px rgba(47, 158, 122, 0.28);
 }
 
-.doctor-dashboard-app .tab-step {
-    width: 1.3rem;
-    height: 1.3rem;
-    margin-right: 0.55rem;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.72rem;
-    font-weight: 800;
-    background: rgba(47, 158, 122, 0.16);
+.doctor-dashboard-app .workspace-tabs .tab-step {
+    display: none !important;
 }
 
 .doctor-dashboard-app .workspace-tabs .nav-link.active .tab-step {
