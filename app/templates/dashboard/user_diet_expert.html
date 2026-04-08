@@ -355,16 +355,19 @@
         <p>Select the analysis mode before continuing to the Diet Expert System.</p>
         <div class="analyst-actions">
             <button type="button" class="btn btn-outline-primary" id="analystExternal">
-                External Analyst (Test Blood)
+                <i class="fas fa-file-import me-2"></i>Import Documents
             </button>
+            <input type="file" id="ocrFileInput" class="d-none"
+                   accept=".png,.jpg,.jpeg,.bmp,.tiff,.tif,.pdf">
             <button type="button" class="btn btn-primary" id="analystNormal">
-                Normal Analyst
+                <i class="fas fa-edit me-2"></i>Manual Generate
             </button>
         </div>
         <div class="analyst-loading d-none" id="analystLoading">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            <span>Loading...</span>
+            <span id="analystLoadingText">Processing document...</span>
         </div>
+        <div class="alert alert-danger d-none mt-3 mb-0" id="analystError" role="alert"></div>
     </div>
 </div>
 
@@ -378,7 +381,7 @@
         </div>
 
         <div class="alert alert-success d-none" id="bloodTestedAlert" role="alert">
-            <i class="fas fa-check-circle me-2"></i>Blood Tested
+            <i class="fas fa-check-circle me-2"></i>Document imported successfully — fields auto-filled from your report.
         </div>
 
         <!-- Progress Bar -->
@@ -703,17 +706,19 @@
             const shell = document.querySelector('.diet-expert-shell');
             const normalBtn = document.getElementById('analystNormal');
             const externalBtn = document.getElementById('analystExternal');
+            const fileInput = document.getElementById('ocrFileInput');
             const loading = document.getElementById('analystLoading');
             const bloodAlert = document.getElementById('bloodTestedAlert');
+            const analystError = document.getElementById('analystError');
 
-            if (!gate || !shell || !normalBtn || !externalBtn || !loading) {
+            if (!gate || !shell || !normalBtn || !externalBtn || !fileInput || !loading) {
                 return;
             }
 
-            const revealContent = (showBloodTested) => {
+            const revealContent = (showAlert) => {
                 gate.classList.add('d-none');
                 shell.classList.remove('is-hidden');
-                if (showBloodTested && bloodAlert) {
+                if (showAlert && bloodAlert) {
                     bloodAlert.classList.remove('d-none');
                     bloodAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
@@ -724,16 +729,98 @@
                 externalBtn.disabled = true;
             };
 
+            const unlockButtons = () => {
+                normalBtn.disabled = false;
+                externalBtn.disabled = false;
+            };
+
+            const showError = (msg) => {
+                if (analystError) {
+                    analystError.textContent = msg;
+                    analystError.classList.remove('d-none');
+                }
+            };
+
+            const clearError = () => {
+                if (analystError) {
+                    analystError.textContent = '';
+                    analystError.classList.add('d-none');
+                }
+            };
+
+            /* Fill form fields from OCR response */
+            const fillFromOcr = (data) => {
+                if (data.age) document.getElementById('age').value = data.age;
+                if (data.gender) document.getElementById('gender').value = data.gender;
+                if (data.weight) document.getElementById('weight').value = data.weight;
+                if (data.height) document.getElementById('height').value = data.height;
+
+                if (Array.isArray(data.allergies)) {
+                    data.allergies.forEach(a => {
+                        const cb = document.getElementById('allergy_' + a);
+                        if (cb) cb.checked = true;
+                    });
+                }
+
+                if (data.diet_type) {
+                    const r = document.querySelector('input[name="dietType"][value="' + data.diet_type + '"]');
+                    if (r) r.checked = true;
+                }
+            };
+
+            /* Manual Generate — same existing flow */
             normalBtn.addEventListener('click', () => {
                 revealContent(false);
             });
 
+            /* Import Documents — open file picker */
             externalBtn.addEventListener('click', () => {
+                clearError();
+                fileInput.click();
+            });
+
+            /* When user picks a file, upload it for OCR */
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+
                 lockButtons();
+                clearError();
                 loading.classList.remove('d-none');
-                window.setTimeout(() => {
+
+                const formData = new FormData();
+                formData.append('document', file);
+
+                const csrfToken = document.querySelector('input[name="csrf_token"]');
+                const headers = {};
+                if (csrfToken) headers['X-CSRFToken'] = csrfToken.value;
+
+                fetch("{{ url_for('dashboard.user_ocr_upload') }}", {
+                    method: 'POST',
+                    headers: headers,
+                    credentials: 'same-origin',
+                    body: formData
+                })
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok || !data.success) {
+                        throw new Error(data.message || 'OCR processing failed.');
+                    }
+                    return data;
+                })
+                .then(data => {
+                    fillFromOcr(data);
                     revealContent(true);
-                }, 3000);
+                })
+                .catch(err => {
+                    console.error('OCR error:', err);
+                    loading.classList.add('d-none');
+                    unlockButtons();
+                    showError(err.message || 'Failed to process document. Please try again.');
+                })
+                .finally(() => {
+                    fileInput.value = '';
+                });
             });
         }
 

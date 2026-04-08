@@ -8,3 +8,4 @@ Flask-Login == 0.6.3
 Flask-Migrate == 4.0.5
 python-dotenv
 pymysql
+easyocr

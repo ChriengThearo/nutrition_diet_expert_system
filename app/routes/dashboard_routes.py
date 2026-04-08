@@ -1313,6 +1313,192 @@ def user_diet_expert():
     return render_template("dashboard/user_diet_expert.html", last_form_data=last_form_data)
 
 
+@dashboard_bp.route("/user/ocr-upload", methods=["POST"])
+@login_required
+@user_required
+@csrf.exempt
+@permission_required(
+    "user.dashboard.create",
+    "You have no permission to upload documents.",
+    json_response=True,
+)
+def user_ocr_upload():
+    """Extract health data from an uploaded document using EasyOCR."""
+    import tempfile
+
+    uploaded = request.files.get("document")
+    if not uploaded or not uploaded.filename:
+        return jsonify({"success": False, "message": "No file uploaded."}), 400
+
+    allowed_ext = {"png", "jpg", "jpeg", "bmp", "tiff", "tif", "pdf"}
+    ext = (
+        uploaded.filename.rsplit(".", 1)[-1].lower()
+        if "." in uploaded.filename
+        else ""
+    )
+    if ext not in allowed_ext:
+        return jsonify({"success": False, "message": "Unsupported file type."}), 400
+
+    tmp_path = None
+    pdf_img_path = None
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}") as tmp:
+            uploaded.save(tmp)
+            tmp_path = tmp.name
+
+        # Convert PDF first page to image if needed
+        image_path = tmp_path
+        if ext == "pdf":
+            try:
+                from pdf2image import convert_from_path
+
+                images = convert_from_path(tmp_path, first_page=1, last_page=1)
+                if images:
+                    pdf_img_path = tmp_path + ".png"
+                    images[0].save(pdf_img_path, "PNG")
+                    image_path = pdf_img_path
+            except ImportError:
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "message": "PDF support requires pdf2image. Please upload an image file instead.",
+                        }
+                    ),
+                    400,
+                )
+
+        import easyocr
+
+        reader = easyocr.Reader(["en"], gpu=False, verbose=False)
+        results = reader.readtext(image_path)
+
+        lines = [text for _, text, conf in results if conf > 0.2]
+
+        full_text = "\n".join(lines)
+        current_app.logger.info(
+            "OCR extracted %d lines from uploaded document", len(lines)
+        )
+
+        extracted = _parse_health_document(full_text)
+        extracted["raw_text"] = full_text
+
+        return jsonify({"success": True, **extracted})
+    except Exception as e:
+        current_app.logger.exception("OCR processing failed")
+        return (
+            jsonify(
+                {"success": False, "message": f"OCR processing failed: {str(e)}"}
+            ),
+            500,
+        )
+    finally:
+        if tmp_path:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+        if pdf_img_path:
+            try:
+                os.unlink(pdf_img_path)
+            except OSError:
+                pass
+
+
+def _parse_health_document(text):
+    """Parse OCR text from a health/medical document to extract form fields."""
+    import re
+
+    result = {
+        "age": None,
+        "gender": None,
+        "weight": None,
+        "height": None,
+        "allergies": [],
+        "diet_type": None,
+    }
+
+    lower = text.lower()
+
+    # --- Age ---
+    for pattern in [
+        r"age\s*[:\-]?\s*(\d{1,3})\s*(?:years|yrs|y\.?o\.?)?",
+        r"(\d{1,3})\s*(?:years?\s*old|yrs?\s*old|y\.?o\.?)",
+    ]:
+        m = re.search(pattern, lower)
+        if m:
+            val = int(m.group(1))
+            if 1 <= val <= 120:
+                result["age"] = val
+                break
+
+    # --- Gender ---
+    for pattern in [
+        r"(?:sex|gender)\s*[:\-]?\s*(male|female|m|f)\b",
+        r"\b(male|female)\b",
+    ]:
+        m = re.search(pattern, lower)
+        if m:
+            g = m.group(1).strip()
+            if g in ("m", "male"):
+                result["gender"] = "male"
+            elif g in ("f", "female"):
+                result["gender"] = "female"
+            break
+
+    # --- Weight ---
+    for pattern in [
+        r"(?:weight|body\s*weight|bw)\s*[:\-]?\s*(\d+\.?\d*)\s*(?:kg|kgs|kilogram)",
+        r"(\d+\.?\d*)\s*(?:kg|kgs)\b",
+    ]:
+        m = re.search(pattern, lower)
+        if m:
+            val = float(m.group(1))
+            if 20 <= val <= 400:
+                result["weight"] = val
+                break
+
+    # --- Height ---
+    for pattern in [
+        r"(?:height|stature)\s*[:\-]?\s*(\d+\.?\d*)\s*(?:cm|centimeter)",
+        r"(\d+\.?\d*)\s*cm\b",
+    ]:
+        m = re.search(pattern, lower)
+        if m:
+            val = float(m.group(1))
+            if 50 <= val <= 300:
+                result["height"] = val
+                break
+
+    # --- Allergies ---
+    allergy_map = {
+        "seafood": [
+            "seafood",
+            "shellfish",
+            "shrimp",
+            "crab",
+            "lobster",
+            "fish allergy",
+        ],
+        "eggs": ["egg", "eggs"],
+        "soy": ["soy", "soybean", "soya"],
+    }
+    for key, keywords in allergy_map.items():
+        for kw in keywords:
+            if kw in lower:
+                if key not in result["allergies"]:
+                    result["allergies"].append(key)
+                break
+
+    # --- Diet type ---
+    if "vegan" in lower:
+        result["diet_type"] = "vegan"
+    elif "vegetarian" in lower:
+        result["diet_type"] = "vegan"
+
+    return result
+
+
 @dashboard_bp.route("/user/data")
 @login_required
 @user_required
