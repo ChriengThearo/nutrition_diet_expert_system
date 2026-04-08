@@ -4,7 +4,34 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
 <style>
+    :root {
+        --hp-brand: #2f9e7a;
+        --hp-brand-strong: #247b60;
+        --hp-brand-soft: #dbf7ef;
+        --hp-accent: #ef6f51;
+        --hp-accent-strong: #d95435;
+        --hp-ink: #1b2531;
+        --hp-ink-soft: #576473;
+        --hp-line: #dfe7ec;
+        --hp-card: #ffffff;
+        --hp-bg-a: #fff9f3;
+        --hp-bg-b: #edf9f2;
+        --hp-bg-c: #fff2e8;
+    }
+
+    body, .dashboard-shell {
+        font-family: "Manrope", sans-serif !important;
+        background:
+            radial-gradient(circle at 5% 14%, #ffd8c8 0%, transparent 34%),
+            radial-gradient(circle at 95% 8%, #d9f4ea 0%, transparent 30%),
+            linear-gradient(130deg, var(--hp-bg-a) 0%, var(--hp-bg-b) 44%, var(--hp-bg-c) 100%) !important;
+        min-height: 100vh;
+    }
+
     .diet-expert-shell {
         padding-bottom: 2.5rem;
     }
@@ -23,60 +50,87 @@
         font-size: clamp(2rem, 3.4vw, 2.8rem);
         font-weight: 800;
         margin-bottom: 0.6rem;
-        color: var(--dash-ink);
+        color: var(--hp-ink);
+        font-family: "Sora", sans-serif;
     }
 
     .diet-expert-title i {
-        color: var(--dash-primary);
+        color: var(--hp-brand);
+    }
+
+    .hero-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--hp-brand-soft);
+        color: var(--hp-brand-strong);
+        border-radius: 999px;
+        padding: 0.38rem 0.9rem;
+        font-size: 0.83rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        margin-bottom: 0.85rem;
     }
 
     .progress-bar {
-        background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
+        background: linear-gradient(90deg, var(--hp-brand), var(--hp-accent));
+    }
+
+    .progress {
+        background-color: var(--hp-line);
     }
 
     .section-card {
-        border: 1px solid var(--dash-line);
+        border: 1px solid var(--hp-line);
         border-radius: 20px;
-        box-shadow: var(--dash-shadow);
+        box-shadow: 0 8px 28px rgba(27, 37, 49, 0.08);
         margin-bottom: 20px;
-        transition: transform 0.3s;
-        background: var(--dash-card);
+        transition: transform 0.3s, box-shadow 0.3s;
+        background: var(--hp-card);
     }
 
     .section-card:hover {
         transform: translateY(-4px);
+        box-shadow: 0 16px 40px rgba(27, 37, 49, 0.13);
     }
 
     .section-header {
-        background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
+        background: linear-gradient(120deg, var(--hp-brand), var(--hp-brand-strong));
         color: white;
         border-radius: 20px 20px 0 0;
-        padding: 16px 18px;
+        padding: 16px 20px;
+    }
+
+    .section-header h4 {
+        font-family: "Sora", sans-serif;
+        font-weight: 700;
     }
 
     .required::after {
         content: " *";
-        color: #dc3545;
+        color: var(--hp-accent-strong);
     }
 
     .btn-custom {
-        background: linear-gradient(135deg, var(--dash-primary), var(--dash-secondary));
+        background: linear-gradient(120deg, var(--hp-accent), var(--hp-accent-strong));
         color: white;
         border: none;
         padding: 12px 30px;
         border-radius: 50px;
-        font-weight: 600;
+        font-weight: 700;
         transition: all 0.3s;
+        letter-spacing: 0.01em;
     }
 
     .btn-custom:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(239, 111, 81, 0.3);
+        color: white;
     }
 
     .question-icon {
-        background-color: var(--dash-accent);
-        color: white;
+        background-color: var(--hp-brand-soft);
+        color: var(--hp-brand-strong);
         width: 40px;
         height: 40px;
         border-radius: 50%;
@@ -91,19 +145,26 @@
         padding: 5px 15px;
         margin: 5px;
         border-radius: 20px;
-        background-color: #e9ecef;
+        background-color: var(--hp-brand-soft);
+        color: var(--hp-brand-strong);
         cursor: pointer;
         transition: all 0.2s;
+        font-weight: 600;
     }
 
     .food-preference-tag.selected {
-        background-color: var(--dash-primary);
+        background-color: var(--hp-brand);
         color: white;
     }
 
     .form-check-input:checked {
-        background-color: var(--dash-primary);
-        border-color: var(--dash-primary);
+        background-color: var(--hp-brand);
+        border-color: var(--hp-brand);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--hp-brand);
+        box-shadow: 0 0 0 0.22rem rgba(47, 158, 122, 0.18);
     }
 
     .step-indicator {
@@ -122,22 +183,24 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: #dee2e6;
-        color: #6c757d;
+        background-color: var(--hp-line);
+        color: var(--hp-ink-soft);
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 10px;
-        font-weight: bold;
+        font-weight: 700;
+        transition: background 0.3s, color 0.3s;
     }
 
     .step.active .step-circle {
-        background-color: var(--dash-primary);
+        background-color: var(--hp-brand);
         color: white;
+        box-shadow: 0 4px 14px rgba(47, 158, 122, 0.35);
     }
 
     .step.completed .step-circle {
-        background-color: #28a745;
+        background-color: var(--hp-accent);
         color: white;
     }
 
@@ -147,7 +210,7 @@
         left: 60%;
         width: 80%;
         height: 2px;
-        background-color: #dee2e6;
+        background-color: var(--hp-line);
         z-index: -1;
     }
 
@@ -162,8 +225,8 @@
     .analyst-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(4px);
+        background: rgba(27, 37, 49, 0.55);
+        backdrop-filter: blur(6px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -172,23 +235,25 @@
     }
 
     .analyst-modal {
-        background: #ffffff;
-        border-radius: 20px;
-        padding: 28px 32px;
+        background: var(--hp-card);
+        border-radius: 24px;
+        padding: 32px 36px;
         max-width: 520px;
         width: 100%;
-        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+        box-shadow: 0 24px 56px rgba(27, 37, 49, 0.22);
         text-align: center;
+        border-top: 4px solid var(--hp-brand);
     }
 
     .analyst-modal h2 {
+        font-family: "Sora", sans-serif;
         font-weight: 700;
         margin-bottom: 8px;
-        color: var(--dash-ink);
+        color: var(--hp-ink);
     }
 
     .analyst-modal p {
-        color: #5f6b7a;
+        color: var(--hp-ink-soft);
         margin-bottom: 20px;
     }
 
@@ -201,7 +266,28 @@
         width: 100%;
         padding: 12px 16px;
         border-radius: 12px;
-        font-weight: 600;
+        font-weight: 700;
+    }
+
+    .analyst-actions .btn-outline-primary {
+        border-color: var(--hp-brand);
+        color: var(--hp-brand);
+    }
+
+    .analyst-actions .btn-outline-primary:hover {
+        background: var(--hp-brand-soft);
+        border-color: var(--hp-brand);
+        color: var(--hp-brand-strong);
+    }
+
+    .analyst-actions .btn-primary {
+        background: linear-gradient(120deg, var(--hp-brand), var(--hp-brand-strong));
+        border: none;
+        color: white;
+    }
+
+    .analyst-actions .btn-primary:hover {
+        box-shadow: 0 8px 20px rgba(47, 158, 122, 0.3);
     }
 
     .analyst-actions .btn:disabled {
@@ -215,8 +301,44 @@
         align-items: center;
         justify-content: center;
         gap: 10px;
-        color: var(--dash-primary);
+        color: var(--hp-brand);
         font-weight: 600;
+    }
+
+    .alert-info {
+        background: var(--hp-brand-soft);
+        border-color: #a8e6d4;
+        color: var(--hp-brand-strong);
+    }
+
+    .alert-success {
+        background: #d6f5ec;
+        border-color: #a0dfc7;
+        color: var(--hp-brand-strong);
+    }
+
+    .modal-header.bg-primary {
+        background: linear-gradient(120deg, var(--hp-brand), var(--hp-brand-strong)) !important;
+    }
+
+    .btn-success {
+        background: linear-gradient(120deg, var(--hp-brand), var(--hp-brand-strong));
+        border: none;
+        font-weight: 700;
+        border-radius: 50px;
+        padding: 12px 28px;
+    }
+
+    .btn-success:hover {
+        box-shadow: 0 8px 20px rgba(47, 158, 122, 0.3);
+    }
+
+    .table td {
+        color: var(--hp-ink-soft);
+    }
+
+    .table td strong {
+        color: var(--hp-ink);
     }
 </style>
 {% endblock %}
