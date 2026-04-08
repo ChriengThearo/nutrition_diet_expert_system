@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Doctor Profile | Diet Expert Rule Studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
+    <style>
+        .doctor-edit-app {
+            min-height: 100vh;
+        }
+
+        .doctor-edit-wrap {
+            max-width: 1220px;
+            margin: 0 auto;
+            padding: 1.2rem 1rem 2.2rem;
+        }
+
+        .doctor-edit-hero {
+            position: relative;
+            overflow: hidden;
+            border-radius: 22px;
+            background: linear-gradient(135deg, var(--doc-brand-strong), var(--doc-brand) 52%, var(--doc-secondary));
+            color: #f6fffb;
+            padding: clamp(1.2rem, 2.2vw, 1.8rem);
+            box-shadow: 0 26px 60px rgba(12, 45, 66, 0.24);
+        }
+
+        .doctor-edit-hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 12% 15%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 45%),
+                radial-gradient(circle at 88% 25%, rgba(59, 130, 246, 0.28), rgba(59, 130, 246, 0) 50%);
+        }
+
+        .doctor-edit-hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .doctor-edit-avatar {
+            width: 86px;
+            height: 86px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.66);
+            background: rgba(255, 255, 255, 0.24);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #f8fcff;
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+
+        .doctor-edit-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .doctor-edit-label {
+            font-size: 0.74rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(245, 251, 255, 0.84);
+            margin-bottom: 0.24rem;
+        }
+
+        .doctor-edit-title {
+            margin: 0;
+            font-size: clamp(1.45rem, 3vw, 2.05rem);
+            line-height: 1.15;
+        }
+
+        .doctor-edit-subtitle {
+            margin: 0.34rem 0 0;
+            color: rgba(245, 251, 255, 0.9);
+        }
+
+        .doctor-edit-meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            border-radius: 999px;
+            padding: 0.32rem 0.72rem;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.34);
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #f7fcff;
+        }
+
+        .doctor-edit-layout {
+            margin-top: 1rem;
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 0.95rem;
+        }
+
+        .doctor-edit-card {
+            border-radius: 18px;
+            border: 1px solid rgba(16, 40, 58, 0.14);
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 12px 24px rgba(27, 37, 49, 0.08);
+            overflow: hidden;
+        }
+
+        .doctor-edit-card-head {
+            padding: 1rem 1.1rem 0.5rem;
+            border-bottom: 1px solid rgba(16, 40, 58, 0.08);
+        }
+
+        .doctor-edit-card-title {
+            margin: 0;
+            font-size: 1.02rem;
+            font-weight: 800;
+            color: #1d3547;
+        }
+
+        .doctor-edit-card-subtitle {
+            margin: 0.24rem 0 0;
+            color: #5f7b8e;
+            font-size: 0.86rem;
+        }
+
+        .doctor-edit-card-body {
+            padding: 1rem 1.1rem 1.1rem;
+        }
+
+        .doctor-edit-card .form-label {
+            font-size: 0.81rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #567286;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        .doctor-edit-card .form-control {
+            border-radius: 12px;
+            border: 1px solid rgba(16, 40, 58, 0.15);
+            background: #ffffff;
+            padding: 0.62rem 0.8rem;
+        }
+
+        .doctor-edit-card .form-control:focus {
+            border-color: rgba(45, 100, 195, 0.56);
+            box-shadow: 0 0 0 0.2rem rgba(45, 100, 195, 0.16);
+        }
+
+        .doctor-edit-actions {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .doctor-edit-actions .btn {
+            border-radius: 999px;
+            font-weight: 700;
+            padding-inline: 0.95rem;
+        }
+
+        .doctor-edit-actions .btn-primary {
+            border: 0;
+            background: linear-gradient(135deg, var(--doc-brand-strong), var(--doc-brand) 52%, var(--doc-secondary));
+            box-shadow: 0 14px 28px rgba(12, 45, 66, 0.18);
+        }
+
+        .doctor-edit-actions .btn-primary:hover {
+            background: linear-gradient(135deg, #0b5a4b, #146f5f 52%, #2656a8);
+        }
+
+        .doctor-edit-actions .btn-outline-secondary {
+            border-color: rgba(16, 40, 58, 0.2);
+            color: #2c4a5f;
+        }
+
+        .doctor-edit-actions .btn-outline-secondary:hover {
+            background: rgba(15, 118, 110, 0.08);
+            border-color: rgba(15, 118, 110, 0.3);
+            color: #0f625a;
+        }
+
+        .doctor-edit-preview {
+            width: 116px;
+            height: 116px;
+            border-radius: 18px;
+            border: 1px solid rgba(16, 40, 58, 0.14);
+            background: rgba(236, 247, 243, 0.7);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #2f4f66;
+            font-size: 2rem;
+        }
+
+        .doctor-edit-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .doctor-edit-info-list {
+            margin: 0.9rem 0 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 0.52rem;
+        }
+
+        .doctor-edit-info-item {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 0.45rem;
+            padding-bottom: 0.45rem;
+            border-bottom: 1px dashed rgba(16, 40, 58, 0.1);
+        }
+
+        .doctor-edit-info-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .doctor-edit-info-key {
+            color: #6a8497;
+            font-weight: 700;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .doctor-edit-info-value {
+            color: #1d3547;
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .doctor-edit-note {
+            margin-top: 0.95rem;
+            border-radius: 12px;
+            padding: 0.72rem 0.82rem;
+            font-size: 0.84rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: #1d4d83;
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        .doctor-edit-anim {
+            animation: doctorEditRise 0.5s ease both;
+            animation-delay: var(--anim-delay, 0ms);
+        }
+
+        @keyframes doctorEditRise {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .doctor-edit-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .doctor-edit-wrap {
+                padding: 1rem 0.85rem 1.6rem;
+            }
+
+            .doctor-edit-info-item {
+                grid-template-columns: 1fr;
+                gap: 0.2rem;
+            }
+
+            .doctor-edit-actions .btn {
+                width: 100%;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .doctor-edit-anim {
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="doctor-dashboard-app doctor-profile-app doctor-edit-app">
+    {% set dashboard_permissions = current_user.get_permission_codes() if current_user.is_authenticated else [] %}
+    {% set dashboard_option_count =
+    (1 if 'dashboard.admin' in dashboard_permissions else 0) +
+    (1 if 'dashboard.doctor' in dashboard_permissions else 0) +
+    (1 if 'dashboard.user' in dashboard_permissions else 0)
+    %}
+    {% set show_dashboard_switcher = dashboard_option_count > 1 %}
+    {% set display_name = user.full_name or user.username %}
+    {% set doctor_default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
+    {% set doctor_photo_path = (current_user.photo or '')|trim %}
+    {% set doctor_avatar_url = doctor_default_avatar_url if session.get('user_guest_mode') else
+    (url_for('main.images', filename=doctor_photo_path|replace('images/', '')) if doctor_photo_path else
+    doctor_default_avatar_url) %}
+
+    <nav
+        class="navbar navbar-expand-lg shadow-sm sticky-top navbar-light navbar-user-dashboard navbar-custom doctor-profile-navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('main.home') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert logo" class="doctor-brand-logo">
+                <span class="doctor-brand-text">NDES</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('dashboard.doctor_dashboard') }}">
+                            <i class="fas fa-gauge-high me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('main.home') }}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('dashboard.doctor_dashboard') }}">
+                            <i class="fas fa-list-check me-1"></i>Rule Studio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm doctor-nav-pill active" href="{{ url_for('dashboard.doctor_profile_edit') }}">
+                            <i class="fas fa-user-pen me-1"></i>Edit Profile
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav align-items-center ms-lg-2">
+                    {% if show_dashboard_switcher %}
+                    <li class="nav-item dropdown d-flex align-items-center me-2">
+                        {% include "dashboard/_dashboard_switcher.html" %}
+                    </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle doctor-nav-user d-flex align-items-center" href="#"
+                            id="doctorProfileEditNavDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ doctor_avatar_url }}" alt="Avatar" class="doctor-nav-avatar me-2"
+                                onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
+                            <span>{{ display_name }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="doctorProfileEditNavDropdown">
+                            <li>
+                                <h6 class="dropdown-header">{{ display_name }}</h6>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('dashboard.doctor_profile') }}">
+                                    <i class="fas fa-user-doctor me-2"></i>Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('dashboard.doctor_dashboard') }}">
+                                    <i class="fas fa-gauge-high me-2"></i>Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="doctor-edit-wrap">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="mb-3">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }} mb-2" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <section class="doctor-edit-hero doctor-edit-anim" style="--anim-delay: 0ms;">
+            <div class="doctor-edit-hero-content">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <div class="doctor-edit-avatar">
+                        {% if user.photo %}
+                        <img src="{{ url_for('main.images', filename=user.photo|replace('images/', '')) }}" alt="Doctor avatar"
+                            onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
+                        {% else %}
+                        {{ display_name[0]|upper if display_name else 'D' }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <p class="doctor-edit-label mb-0">Doctor Workspace Profile</p>
+                        <h1 class="doctor-edit-title">Edit Account Identity</h1>
+                        <p class="doctor-edit-subtitle">Update your profile details used across rule management and simulation tools.</p>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    <span class="doctor-edit-meta-chip">
+                        <i class="fas fa-user-circle"></i>
+                        {{ user.username }}
+                    </span>
+                    <span class="doctor-edit-meta-chip">
+                        <i class="fas fa-circle-check"></i>
+                        {{ 'Active account' if user.is_active else 'Inactive account' }}
+                    </span>
+                    <span class="doctor-edit-meta-chip">
+                        <i class="fas fa-shield-halved"></i>
+                        {{ user.roles|length if user.roles else 0 }} role{{ '' if (user.roles|length == 1) else 's' }}
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <section class="doctor-edit-layout">
+            <article class="doctor-edit-card doctor-edit-anim" style="--anim-delay: 80ms;">
+                <header class="doctor-edit-card-head">
+                    <h2 class="doctor-edit-card-title"><i class="fas fa-pen-to-square me-2"></i>Profile Form</h2>
+                    <p class="doctor-edit-card-subtitle">Edit full name, username, and profile photo.</p>
+                </header>
+                <div class="doctor-edit-card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            {{ form.full_name.label(class="form-label") }}
+                            {{ form.full_name(class="form-control", placeholder="Enter full name") }}
+                            {% if form.full_name.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.full_name.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.username.label(class="form-label") }}
+                            {{ form.username(class="form-control", placeholder="Enter username") }}
+                            {% if form.username.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.username.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.photo.label(class="form-label") }}
+                            {{ form.photo(class="form-control") }}
+                            {% if form.photo.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.photo.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Allowed: JPG, JPEG, PNG, GIF.</div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h6 class="doctor-edit-card-title mb-2"><i class="fas fa-lock me-2"></i>Change Login Password</h6>
+                        <p class="doctor-edit-card-subtitle mb-3">Fill these fields only if you want to change your password.</p>
+
+                        <div class="mb-3">
+                            {{ form.current_password.label(class="form-label") }}
+                            {{ form.current_password(class="form-control", placeholder="Enter current password") }}
+                            {% if form.current_password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.current_password.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.new_password.label(class="form-label") }}
+                            {{ form.new_password(class="form-control", placeholder="Enter new password (min 6 characters)") }}
+                            {% if form.new_password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.new_password.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.confirm_password.label(class="form-label") }}
+                            {{ form.confirm_password(class="form-control", placeholder="Confirm new password") }}
+                            {% if form.confirm_password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.confirm_password.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="doctor-edit-actions">
+                            <button type="submit" class="btn btn-primary" name="{{ form.submit.name }}" id="{{ form.submit.id }}"
+                                data-permission="dashboard.doctor" data-action="update doctor profile">
+                                <i class="fas fa-floppy-disk me-2"></i>{{ form.submit.label.text }}
+                            </button>
+                            <a class="btn btn-outline-secondary" href="{{ url_for('dashboard.doctor_profile') }}">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </article>
+
+            <aside class="doctor-edit-card doctor-edit-anim" style="--anim-delay: 140ms;">
+                <header class="doctor-edit-card-head">
+                    <h2 class="doctor-edit-card-title"><i class="fas fa-id-card me-2"></i>Current Preview</h2>
+                    <p class="doctor-edit-card-subtitle">How your profile appears in doctor workspace.</p>
+                </header>
+                <div class="doctor-edit-card-body">
+                    <div class="doctor-edit-preview">
+                        {% if user.photo %}
+                        <img src="{{ url_for('main.images', filename=user.photo|replace('images/', '')) }}" alt="Profile photo"
+                            onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
+                        {% else %}
+                        <i class="fas fa-user-doctor"></i>
+                        {% endif %}
+                    </div>
+                    <ul class="doctor-edit-info-list">
+                        <li class="doctor-edit-info-item">
+                            <span class="doctor-edit-info-key">Full Name</span>
+                            <span class="doctor-edit-info-value">{{ user.full_name or 'Not set' }}</span>
+                        </li>
+                        <li class="doctor-edit-info-item">
+                            <span class="doctor-edit-info-key">Username</span>
+                            <span class="doctor-edit-info-value">{{ user.username }}</span>
+                        </li>
+                        <li class="doctor-edit-info-item">
+                            <span class="doctor-edit-info-key">Email</span>
+                            <span class="doctor-edit-info-value">{{ user.email or 'N/A' }}</span>
+                        </li>
+                    </ul>
+                    <div class="doctor-edit-note">
+                        <i class="fas fa-circle-info me-2"></i>
+                        Keep your identity details current so clinical rule logs and team workflow attribution remain clear.
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        window.APP_PERMISSIONS = {{ current_user.get_permission_codes()|list|tojson if current_user.is_authenticated else [] }};
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

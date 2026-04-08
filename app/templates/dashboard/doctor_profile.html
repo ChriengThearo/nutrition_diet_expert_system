@@ -55,6 +55,7 @@
             border-radius: 50%;
             border: 2px solid rgba(255, 255, 255, 0.6);
             background: rgba(255, 255, 255, 0.2);
+            overflow: hidden;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -62,6 +63,12 @@
             font-size: 1.6rem;
             font-weight: 800;
             letter-spacing: 0.04em;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .profile-label {
@@ -388,7 +395,8 @@
                     <div class="col-lg-8">
                         <div class="d-flex align-items-center gap-3">
                             <div class="profile-avatar">
-                                {{ display_name[0]|upper if display_name else 'D' }}
+                                <img src="{{ doctor_avatar_url }}" alt="Doctor avatar"
+                                    onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
                             </div>
                             <div>
                                 <p class="profile-label mb-0">Doctor Workspace Identity</p>

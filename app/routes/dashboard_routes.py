@@ -616,6 +616,9 @@ def doctor_profile_edit():
             photo_file.save(os.path.join(upload_dir, unique_name))
             current_user.photo = f"images/profiles/{unique_name}"
 
+        if form.new_password.data:
+            current_user.set_password(form.new_password.data)
+
         try:
             db.session.commit()
             flash("Profile updated successfully.", "success")
@@ -626,12 +629,9 @@ def doctor_profile_edit():
             flash("Failed to update profile. Please try again.", "danger")
 
     return render_template(
-        "dashboard/user_profile_edit.html",
+        "dashboard/doctor_profile_edit.html",
         user=current_user,
         form=form,
-        dashboard_url=url_for("dashboard.doctor_dashboard"),
-        profile_url=url_for("dashboard.doctor_profile"),
-        cancel_url=url_for("dashboard.doctor_profile"),
     )
 
 

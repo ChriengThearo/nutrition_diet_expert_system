@@ -279,6 +279,11 @@
             justify-content: center;
             border: 1px dashed #dee2e6;
         }
+
+        .food-table-placeholder-row td {
+            color: #8b96a3;
+            opacity: 0.78;
+        }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
@@ -383,7 +388,7 @@
     </nav>
 
     <section class="doctor-hero">
-        <div class="container">
+        <div class="container doctor-layout-container">
             <div class="doctor-hero-panel">
                 <div class="row align-items-center">
                     <div class="col-lg-8">
@@ -393,13 +398,16 @@
                             simulate patient plans from one clean workflow.</p>
                         <div class="hero-actions">
                             <button type="button" class="btn btn-light btn-sm" id="jump-builder">
-                                <i class="fas fa-tools me-2"></i>Build Rule
+                                <span class="action-icon"><i class="fas fa-tools"></i></span>
+                                <span>Build Rule</span>
                             </button>
                             <button type="button" class="btn btn-outline-light btn-sm" id="jump-rules">
-                                <i class="fas fa-layer-group me-2"></i>Manage Rules
+                                <span class="action-icon"><i class="fas fa-layer-group"></i></span>
+                                <span>Manage Rules</span>
                             </button>
                             <button type="button" class="btn btn-outline-light btn-sm" id="jump-test">
-                                <i class="fas fa-vial me-2"></i>Run Simulation
+                                <span class="action-icon"><i class="fas fa-vial"></i></span>
+                                <span>Run Simulation</span>
                             </button>
                         </div>
                     </div>
@@ -437,12 +445,12 @@
         </div>
     </section>
 
-    <div class="container-fluid py-4 doctor-workspace">
+    <div class="container py-4 doctor-workspace doctor-layout-container">
         <div class="row">
             <!-- Sidebar -->
             <div class="col-lg-3 mb-4">
                 <div class="sidebar control-sidebar">
-                    <h5 class="control-panel-title mb-2"><i class="fas fa-sliders-h me-2"></i>Rule Control Panel</h5>
+                    <h5 class="control-panel-title mb-2">Rule Control Panel</h5>
                     <p class="control-panel-copy">Search, filter, and jump into rule operations quickly.</p>
 
                     <div class="search-rules-wrap mb-3">
@@ -475,11 +483,13 @@
                     <div class="d-grid gap-2 quick-action-grid">
                         <button class="btn btn-custom" id="new-rule-btn" data-permission="rule.create"
                             data-action="create rules">
-                            <i class="fas fa-plus-circle me-2"></i>Create Rule
+                            <span class="action-icon"><i class="fas fa-plus-circle"></i></span>
+                            <span>Create Rule</span>
                         </button>
                         <button class="btn btn-outline-custom" id="add-food-btn" data-permission="food.create"
                             data-action="add foods">
-                            <i class="fas fa-apple-alt me-2"></i>Add Food Item
+                            <span class="action-icon"><i class="fas fa-apple-alt"></i></span>
+                            <span>Add Food Item</span>
                         </button>
                     </div>
                 </div>
@@ -533,29 +543,29 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="rules-tab" data-bs-toggle="tab" data-bs-target="#rules"
                             data-permission="rule.read" data-action="view rules" type="button">
-                            <span class="tab-step">1</span>
-                            <i class="fas fa-list me-2"></i>Rule Library
+                            <span class="tab-icon-wrap"><i class="fas fa-list"></i></span>
+                            <span>Rule Library</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="foods-tab" data-bs-toggle="tab" data-bs-target="#foods"
                             data-permission="food.read" data-action="view foods" type="button">
-                            <span class="tab-step">2</span>
-                            <i class="fas fa-apple-alt me-2"></i>Food Catalog
+                            <span class="tab-icon-wrap"><i class="fas fa-apple-alt"></i></span>
+                            <span>Food Catalog</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="builder-tab" data-bs-toggle="tab" data-bs-target="#builder"
                             data-permission="rule.create" data-action="build rules" type="button">
-                            <span class="tab-step">3</span>
-                            <i class="fas fa-tools me-2"></i>Builder Studio
+                            <span class="tab-icon-wrap"><i class="fas fa-tools"></i></span>
+                            <span>Builder Studio</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="test-tab" data-bs-toggle="tab" data-bs-target="#test"
                             data-permission="rule.test" data-action="test rules" type="button">
-                            <span class="tab-step">4</span>
-                            <i class="fas fa-vial me-2"></i>Simulation Lab
+                            <span class="tab-icon-wrap"><i class="fas fa-vial"></i></span>
+                            <span>Simulation Lab</span>
                         </button>
                     </li>
                 </ul>
@@ -633,6 +643,9 @@
                         <div class="alert alert-info d-none" id="foods-table-empty">
                             <i class="fas fa-info-circle me-2"></i>No foods found yet. Use "Add Food" to get started.
                         </div>
+                        <nav aria-label="Food pagination" class="mt-4">
+                            <ul class="pagination justify-content-center" id="foods-pagination"></ul>
+                        </nav>
                     </div>
 
                     <!-- Rule Builder Tab -->
@@ -1143,6 +1156,9 @@
         let sampleRules = [];
         let currentRulePage = 1;
         const rulesPerPage = 4;
+        const maxRulePageButtons = 20;
+        let currentFoodPage = 1;
+        const foodsPerPage = 12;
         let foodsCache = [];
 
         // Initialize the page
@@ -1490,11 +1506,16 @@
             }
 
             const items = Array.isArray(foods) ? foods : [];
+            const totalPages = Math.max(1, Math.ceil(items.length / foodsPerPage));
+            currentFoodPage = Math.min(Math.max(1, currentFoodPage), totalPages);
+            const start = (currentFoodPage - 1) * foodsPerPage;
+            const pageFoods = items.slice(start, start + foodsPerPage);
             if (items.length === 0) {
                 tableBody.innerHTML = '';
                 if (emptyState) {
                     emptyState.classList.remove('d-none');
                 }
+                renderFoodPagination(1);
                 return;
             }
 
@@ -1502,7 +1523,7 @@
                 emptyState.classList.add('d-none');
             }
 
-            tableBody.innerHTML = items.map(food => {
+            const foodRows = pageFoods.map(food => {
                 const photoPath = food.photo
                     ? (String(food.photo).startsWith('http') || String(food.photo).startsWith('/')
                         ? food.photo
@@ -1539,6 +1560,60 @@
                     </tr>
                 `;
             }).join('');
+
+            const placeholdersNeeded = Math.max(0, foodsPerPage - pageFoods.length);
+            const placeholderRows = Array.from({ length: placeholdersNeeded }, () => `
+                <tr class="food-table-placeholder-row" aria-hidden="true">
+                    <td><div class="food-thumb-placeholder">-</div></td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td class="text-end">-</td>
+                </tr>
+            `).join('');
+
+            tableBody.innerHTML = foodRows + placeholderRows;
+
+            renderFoodPagination(totalPages);
+        }
+
+        function renderFoodPagination(totalPages) {
+            const pagination = document.getElementById('foods-pagination');
+            if (!pagination) {
+                return;
+            }
+            pagination.innerHTML = '';
+            if (totalPages <= 1) {
+                return;
+            }
+
+            const makeItem = (label, page, disabled = false, active = false) => {
+                const li = document.createElement('li');
+                li.className = `page-item${disabled ? ' disabled' : ''}${active ? ' active' : ''}`;
+                const link = document.createElement('a');
+                link.className = 'page-link';
+                link.href = '#';
+                link.dataset.page = String(page);
+                link.textContent = label;
+                li.appendChild(link);
+                return li;
+            };
+
+            pagination.appendChild(
+                makeItem('Previous', Math.max(1, currentFoodPage - 1), currentFoodPage === 1)
+            );
+
+            for (let i = 1; i <= totalPages; i++) {
+                pagination.appendChild(makeItem(String(i), i, false, i === currentFoodPage));
+            }
+
+            pagination.appendChild(
+                makeItem('Next', Math.min(totalPages, currentFoodPage + 1), currentFoodPage === totalPages)
+            );
         }
 
         function loadFoods() {
@@ -1547,11 +1622,13 @@
                 .then(data => {
                     foodsCache = Array.isArray(data.foods) ? data.foods : [];
                     populateFoodSelects(foodsCache, 'No foods found yet. Use "Add Food" to add items to the list.');
+                    currentFoodPage = 1;
                     renderFoodTable(foodsCache);
                 })
                 .catch(error => {
                     console.error('Error loading foods:', error);
                     populateFoodSelects([], 'Failed to load foods. Please refresh or try again.');
+                    currentFoodPage = 1;
                     renderFoodTable([]);
                 });
         }
@@ -1962,7 +2039,10 @@
                 makeItem('Previous', Math.max(1, currentRulePage - 1), currentRulePage === 1)
             );
 
-            for (let i = 1; i <= totalPages; i++) {
+            const startPage = Math.floor((currentRulePage - 1) / maxRulePageButtons) * maxRulePageButtons + 1;
+            const endPage = Math.min(totalPages, startPage + maxRulePageButtons - 1);
+
+            for (let i = startPage; i <= endPage; i++) {
                 pagination.appendChild(makeItem(String(i), i, false, i === currentRulePage));
             }
 
@@ -2284,6 +2364,23 @@
                         return;
                     }
                     renderRulesPage(targetPage);
+                });
+            }
+
+            const foodsPagination = document.getElementById('foods-pagination');
+            if (foodsPagination) {
+                foodsPagination.addEventListener('click', function (event) {
+                    const link = event.target.closest('a.page-link');
+                    if (!link) {
+                        return;
+                    }
+                    event.preventDefault();
+                    const targetPage = parseInt(link.dataset.page, 10);
+                    if (!Number.isFinite(targetPage)) {
+                        return;
+                    }
+                    currentFoodPage = targetPage;
+                    renderFoodTable(foodsCache);
                 });
             }
         }
