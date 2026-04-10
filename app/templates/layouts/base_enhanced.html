@@ -123,10 +123,8 @@
     </div>
 
     <!-- Enhanced Navigation -->
-    {% set is_user_dashboard = request.endpoint and (request.endpoint.startswith('dashboard.user') or request.endpoint
-    == 'main.home') %}
     <nav
-        class="navbar navbar-expand-lg shadow-sm sticky-top {% if is_user_dashboard %}navbar-light navbar-user-dashboard{% else %}navbar-dark bg-primary{% endif %}">
+        class="navbar navbar-expand-lg shadow-sm sticky-top navbar-light navbar-user-dashboard">
         <div class="container-fluid">
             <!-- Brand with icon -->
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('main.home') }}">
