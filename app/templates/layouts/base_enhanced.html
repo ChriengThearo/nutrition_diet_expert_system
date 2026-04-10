@@ -172,6 +172,13 @@
                     </li>
                     {% endif %}
 
+                    <li class="nav-item ms-lg-2">
+                        <a class="btn btn-light btn-sm {% if request.endpoint == 'main.bmi' %}active{% endif %}"
+                            href="{{ url_for('main.bmi') }}">
+                            <i class="fas fa-calculator me-1"></i>Calculate BMI
+                        </a>
+                    </li>
+
                     <!-- Admin Navigation -->
                     {% if current_user.is_authenticated and current_user.has_role('admin') %}
                     <li class="nav-item dropdown">

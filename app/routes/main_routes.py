@@ -58,7 +58,15 @@ def bmi():
             weight = float(request.form["weight"])
             bmi_value = round(weight / (height**2), 2)
             category = get_bmi_category(bmi_value)
-            return render_template("main/bmi.html", bmi=bmi_value, category=category)
+            return render_template(
+                "main/bmi.html",
+                bmi=bmi_value,
+                category=category,
+                age=request.form.get("age", ""),
+                gender=request.form.get("gender", "male"),
+                height_val=request.form.get("height", ""),
+                weight_val=request.form.get("weight", ""),
+            )
         except ValueError:
             flash("Please enter valid numbers for height and weight.", "error")
     return render_template("main/bmi.html")
