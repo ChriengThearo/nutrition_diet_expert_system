@@ -2,6 +2,9 @@
 
 {% block title %}BMI Calculator{% endblock %}
 
+{% block footer %}{% endblock %}
+{% block breadcrumb %}{% endblock %}
+
 {% block extra_css %}
 <style>
     .bmi-page { padding: 2rem 0; }
@@ -13,42 +16,10 @@
         margin-bottom: 1.5rem;
     }
 
-    .bmi-info-bar {
-        background: linear-gradient(135deg, #2980b9, #3498db);
-        color: white;
-        padding: 0.75rem 1.25rem;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1.5rem;
-        font-size: 0.95rem;
-    }
-
-    .bmi-info-bar .arrow-icon {
-        background: rgba(255,255,255,0.2);
-        border-radius: 50%;
-        width: 28px; height: 28px;
-        display: flex; align-items: center; justify-content: center;
-    }
-
-    .unit-tabs { display: flex; border-bottom: 2px solid #dee2e6; margin-bottom: 0; }
-
-    .unit-tab {
-        padding: 0.6rem 1.2rem;
-        font-weight: 600; font-size: 0.9rem;
-        cursor: pointer;
-        border: 2px solid #dee2e6; border-bottom: none;
-        background: #f8f9fa; color: #555;
-        margin-right: -1px; transition: all 0.2s;
-    }
-    .unit-tab:first-child { border-radius: 6px 0 0 0; }
-    .unit-tab:last-child { border-radius: 0 6px 0 0; }
-    .unit-tab.active { background: white; color: #1a1a2e; border-bottom-color: white; position: relative; z-index: 1; }
 
     .bmi-form-card {
-        border: 2px solid #dee2e6; border-top: none;
-        border-radius: 0 8px 8px 8px;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
         padding: 1.5rem; background: white;
     }
 
@@ -140,12 +111,6 @@
 
     .bmi-big-number { font-size: 3rem; font-weight: 800; color: #1a1a2e; margin: 0.5rem 0; }
 
-    .btn-save {
-        background: none; border: 1px solid rgba(255,255,255,0.5);
-        border-radius: 4px; padding: 0.3rem 0.5rem;
-        cursor: pointer; color: white; font-size: 0.8rem;
-    }
-    .btn-save:hover { background: rgba(255,255,255,0.15); }
 
     .bmi-categories-table {
         margin-top: 1.5rem; border-radius: 8px;
@@ -170,7 +135,6 @@
     .about-bmi h6 { color: #2980b9; font-weight: 700; margin-bottom: 0.5rem; }
     .about-bmi p { color: #444; font-size: 0.9rem; margin-bottom: 0; }
 
-    .print-link { color: #2980b9; text-decoration: underline; cursor: pointer; font-size: 0.9rem; }
 
     .empty-result { padding: 3rem 1rem; color: #999; }
 
@@ -183,25 +147,11 @@
 
 {% block content %}
 <div class="container bmi-page">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h1><i class="fas fa-calculator me-2" style="color: #0f766e;"></i>BMI Calculator</h1>
-        <a class="print-link" onclick="window.print()"><i class="fas fa-print me-1"></i>Print</a>
-    </div>
-
-    <div class="bmi-info-bar">
-        <div class="arrow-icon"><i class="fas fa-chevron-down"></i></div>
-        <span>Modify the values and click the Calculate button to use</span>
-    </div>
+    <h1><i class="fas fa-calculator me-2" style="color: #0f766e;"></i>BMI Calculator</h1>
 
     <div class="row g-4">
         <!-- Left: Input Form -->
         <div class="col-lg-6">
-            <div class="unit-tabs">
-                <div class="unit-tab" data-unit="us">US Units</div>
-                <div class="unit-tab active" data-unit="metric">Metric Units</div>
-                <div class="unit-tab" data-unit="other">Other Units</div>
-            </div>
-
             <div class="bmi-form-card">
                 <div class="form-row">
                     <label for="age">Age</label>
@@ -243,9 +193,6 @@
             <div class="result-card">
                 <div class="result-header">
                     <span>Result</span>
-                    <button class="btn-save" id="btnSave" style="display:none;" title="Save result" onclick="window.print()">
-                        <i class="fas fa-save me-1"></i>save
-                    </button>
                 </div>
                 <div class="result-body" id="resultBody">
                     <div class="empty-result">
@@ -291,11 +238,6 @@
                 </p>
             </div>
 
-            <div class="mt-3 text-center" id="actionButtons" style="display:none;">
-                <a href="{{ url_for('main.match') }}" class="btn btn-outline-success btn-sm">
-                    <i class="fas fa-search me-1"></i>Find Diet Plans
-                </a>
-            </div>
         </div>
     </div>
 </div>
@@ -304,14 +246,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Tab switching
-    document.querySelectorAll('.unit-tab').forEach(function(tab) {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.unit-tab').forEach(function(t) { t.classList.remove('active'); });
-            this.classList.add('active');
-        });
-    });
-
     document.getElementById('age').focus();
 
     document.getElementById('btnCalculate').addEventListener('click', calculateBMI);
@@ -374,8 +308,6 @@ function calculateBMI() {
         '</div>';
 
     document.getElementById('resultBody').innerHTML = html;
-    document.getElementById('btnSave').style.display = '';
-    document.getElementById('actionButtons').style.display = '';
 
     // Animate pointer
     setTimeout(function() {
@@ -402,9 +334,6 @@ function clearForm() {
             '<i class="fas fa-calculator fa-3x mb-3" style="opacity: 0.3;"></i>' +
             '<p>Enter your details and click <strong>Calculate</strong> to see your BMI result here.</p>' +
         '</div>';
-
-    document.getElementById('btnSave').style.display = 'none';
-    document.getElementById('actionButtons').style.display = 'none';
 
     document.querySelectorAll('.cat-row').forEach(function(row) { row.classList.remove('active-cat'); });
     document.getElementById('age').focus();

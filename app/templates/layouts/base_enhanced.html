@@ -147,7 +147,7 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="btn btn-light btn-sm me-2 {% if request.endpoint and 'dashboard' in request.endpoint %}active{% endif %}"
+                        <a class="btn btn-light btn-sm {% if request.endpoint and 'dashboard' in request.endpoint and 'diet_expert' not in request.endpoint %}active{% endif %}"
                             href="{{ url_for('dashboard.dashboard_home') }}" data-permission="user.dashboard.read"
                             data-action="access your dashboard">
                             <i class="fas fa-tachometer-alt me-1"></i>Dashboard
@@ -155,24 +155,24 @@
                     </li>
                     {% endif %}
 
-                    <!-- Main App Navigation -->
                     <li class="nav-item">
-                        <a class="btn btn-light btn-sm me-2 {% if request.endpoint == 'main.home' %}active{% endif %}"
+                        <a class="btn btn-light btn-sm {% if request.endpoint == 'main.home' %}active{% endif %}"
                             href="{{ url_for('main.home') }}">
                             <i class="fas fa-home me-1"></i>Home
                         </a>
                     </li>
 
                     {% if current_user.is_authenticated %}
-                    <li class="nav-item ms-lg-2">
-                        <a class="btn btn-light btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}"
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm {% if request.endpoint and 'diet_expert' in request.endpoint %}active{% endif %}"
+                            href="{{ url_for('dashboard.user_diet_expert') }}"
                             data-permission="user.dashboard.create" data-action="generate diet plans">
                             <i class="fas fa-utensils me-1"></i>Generate Plan
                         </a>
                     </li>
                     {% endif %}
 
-                    <li class="nav-item ms-lg-2">
+                    <li class="nav-item">
                         <a class="btn btn-light btn-sm {% if request.endpoint == 'main.bmi' %}active{% endif %}"
                             href="{{ url_for('main.bmi') }}">
                             <i class="fas fa-calculator me-1"></i>Calculate BMI
@@ -332,6 +332,7 @@
     </main>
 
     <!-- Enhanced Footer -->
+    {% block footer %}
     <footer class="bg-dark text-light py-4 mt-auto">
         <div class="container-fluid">
             <div class="row">
@@ -369,6 +370,7 @@
             </div>
         </div>
     </footer>
+    {% endblock %}
 
     <div class="modal fade" id="guestModeNoticeModal" tabindex="-1" aria-labelledby="guestModeNoticeTitle"
         aria-hidden="true">
