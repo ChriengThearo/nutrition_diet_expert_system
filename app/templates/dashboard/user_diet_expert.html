@@ -491,6 +491,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="mb-4">
+                        <label class="form-label" for="blood_sugar">Blood Sugar (Optional)</label>
+                        <div class="input-group" style="max-width: 300px;">
+                            <input type="number" class="form-control" id="blood_sugar" name="blood_sugar"
+                                placeholder="e.g. 100" step="0.1" min="0" max="500">
+                            <span class="input-group-text">mg/dL</span>
+                        </div>
+                        <small class="form-text text-muted">Enter your fasting blood sugar level if available.</small>
+                    </div>
                 </div>
             </div>
 
@@ -592,6 +601,10 @@
                                 <tr>
                                     <td><strong>Allergies:</strong></td>
                                     <td id="reviewAllergies"></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Blood Sugar:</strong></td>
+                                    <td id="reviewBloodSugar"></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Meals/Day:</strong></td>
@@ -946,6 +959,8 @@
             const allergyCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="allergy_"]:checked');
             const allergies = Array.from(allergyCheckboxes).map(cb => cb.nextElementSibling.textContent);
             document.getElementById('reviewAllergies').textContent = allergies.length > 0 ? allergies.join(', ') : 'None';
+            const bloodSugar = document.getElementById('blood_sugar').value;
+            document.getElementById('reviewBloodSugar').textContent = bloodSugar ? bloodSugar + ' mg/dL' : 'Not provided';
             const meals = document.querySelector('input[name="mealsPerDay"]:checked');
             document.getElementById('reviewMeals').textContent = meals ? meals.value + ' meals' : 'Not specified';
         }
@@ -1037,7 +1052,8 @@
                 health: {
                     dietType: dietTypeInput.value,
                     allergies: Array.from(document.querySelectorAll('input[type="checkbox"][id^="allergy_"]:checked'))
-                        .map(cb => cb.value)
+                        .map(cb => cb.value),
+                    bloodSugar: document.getElementById('blood_sugar').value || null
                 },
                 preferences: {
                     mealsPerDay: mealsInput.value
