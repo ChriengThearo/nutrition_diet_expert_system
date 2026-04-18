@@ -22,7 +22,6 @@ class FoodsTable(db.Model):
     )
 
     rule_food_maps = db.relationship("RuleFoodMapTable", back_populates="food")
-    cooked_foods = db.relationship("CookedFoodsTable", back_populates="base_food")
 
     def __repr__(self) -> str:
         return f"<Food {self.name}>"

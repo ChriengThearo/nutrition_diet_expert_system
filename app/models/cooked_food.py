@@ -6,9 +6,6 @@ class CookedFoodsTable(db.Model):
     __tablename__ = "tbl_cooked_foods"
 
     id = db.Column(db.Integer, primary_key=True)
-    base_food_id = db.Column(
-        db.Integer, db.ForeignKey("tbl_foods.id"), nullable=False, index=True
-    )
     name = db.Column(db.String(120), nullable=False)
     photo = db.Column(db.String(255))
     is_gevan = db.Column(db.Boolean, default=False, nullable=False)
@@ -24,8 +21,6 @@ class CookedFoodsTable(db.Model):
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
     )
-
-    base_food = db.relationship("FoodsTable", back_populates="cooked_foods")
 
     def __repr__(self) -> str:
         return f"<CookedFood {self.name}>"

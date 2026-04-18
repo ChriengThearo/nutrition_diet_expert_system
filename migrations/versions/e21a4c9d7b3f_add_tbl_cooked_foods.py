@@ -24,7 +24,6 @@ def upgrade():
         op.create_table(
             "tbl_cooked_foods",
             sa.Column("id", sa.Integer(), nullable=False),
-            sa.Column("base_food_id", sa.Integer(), nullable=False),
             sa.Column("name", sa.String(length=120), nullable=False),
             sa.Column("photo", sa.String(length=255), nullable=True),
             sa.Column(
@@ -44,21 +43,33 @@ def upgrade():
             sa.Column("fat", sa.Float(), nullable=True),
             sa.Column("created_at", sa.DateTime(), nullable=False),
             sa.Column("updated_at", sa.DateTime(), nullable=False),
-            sa.ForeignKeyConstraint(["base_food_id"], ["tbl_foods.id"]),
             sa.PrimaryKeyConstraint("id"),
         )
+        return
 
     inspector = sa.inspect(bind)
+    existing_columns = {
+        column["name"] for column in inspector.get_columns("tbl_cooked_foods")
+    }
+    if "base_food_id" not in existing_columns:
+        return
+
+    for foreign_key in inspector.get_foreign_keys("tbl_cooked_foods"):
+        fk_name = foreign_key.get("name")
+        constrained = set(foreign_key.get("constrained_columns") or [])
+        if fk_name and "base_food_id" in constrained:
+            op.drop_constraint(fk_name, "tbl_cooked_foods", type_="foreignkey")
+
     existing_indexes = {
         index["name"] for index in inspector.get_indexes("tbl_cooked_foods")
     }
-    if "ix_tbl_cooked_foods_base_food_id" not in existing_indexes:
-        op.create_index(
-            "ix_tbl_cooked_foods_base_food_id",
-            "tbl_cooked_foods",
-            ["base_food_id"],
-            unique=False,
+    if "ix_tbl_cooked_foods_base_food_id" in existing_indexes:
+        op.drop_index(
+            "ix_tbl_cooked_foods_base_food_id", table_name="tbl_cooked_foods"
         )
+
+    with op.batch_alter_table("tbl_cooked_foods", schema=None) as batch_op:
+        batch_op.drop_column("base_food_id")
 
 
 def downgrade():
