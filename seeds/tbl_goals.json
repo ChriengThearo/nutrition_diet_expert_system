@@ -12,15 +12,15 @@
     "name": "Maintain Weight",
     "description": "Keep current weight stable and healthy.",
     "target_value": null,
-    "diet_rule_id": 24,
-    "updated_at": "2026-02-02T03:20:32"
+    "diet_rule_id": null,
+    "updated_at": "2026-04-21T13:43:06"
   },
   {
     "id": 4,
     "name": "Gain Weight",
     "description": "Increase body weight in a healthy way.",
     "target_value": null,
-    "diet_rule_id": 23,
-    "updated_at": "2026-02-02T03:20:32"
+    "diet_rule_id": null,
+    "updated_at": "2026-04-21T09:03:08"
   }
 ]

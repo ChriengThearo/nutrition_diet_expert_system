@@ -12,6 +12,7 @@ from sqlalchemy.sql.sqltypes import Boolean, Date, DateTime, LargeBinary, Numeri
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 SEEDS_DIR = Path(__file__).resolve().parent
+IGNORED_TABLES = {"alembic_version"}
 
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
@@ -68,7 +69,9 @@ def _reflect_metadata():
 
 def dump_all():
     metadata = _reflect_metadata()
-    tables = list(metadata.sorted_tables)
+    tables = [
+        table for table in metadata.sorted_tables if table.name not in IGNORED_TABLES
+    ]
     if not tables:
         print("No tables found to dump.")
         return
@@ -115,12 +118,14 @@ def _load_table_order():
                 meta_payload = json.load(handle)
                 tables = meta_payload.get("tables") or []
                 if tables:
-                    return tables
+                    return [name for name in tables if name not in IGNORED_TABLES]
         except Exception:
             pass
 
     table_files = sorted(
-        path.stem for path in SEEDS_DIR.glob("*.json") if path.name != "_meta.json"
+        path.stem
+        for path in SEEDS_DIR.glob("*.json")
+        if path.name != "_meta.json" and path.stem not in IGNORED_TABLES
     )
     return table_files
 
@@ -134,8 +139,11 @@ def restore_all():
 
     missing = [name for name in table_order if name not in metadata.tables]
     if missing:
-        print(f"Missing tables in database: {', '.join(missing)}")
-        return
+        print(f"Skipping missing tables in database: {', '.join(missing)}")
+        table_order = [name for name in table_order if name in metadata.tables]
+        if not table_order:
+            print("No matching seed tables found in current database schema.")
+            return
 
     with db.engine.begin() as conn:
         try:
