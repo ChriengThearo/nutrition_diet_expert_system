@@ -770,12 +770,21 @@
                                             <option value="vegan">Vegan</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Blood Sugar</label>
+                                        <select class="form-select" id="goal-blood-sugar-mode">
+                                            <option value="not_specified" selected>Not specified</option>
+                                            <option value="specify">Specify</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mb-3 d-none" id="goal-blood-sugar-range-row">
+                                    <div class="col-md-6">
                                         <label class="form-label">Blood Sugar Min</label>
                                         <input type="number" step="0.1" class="form-control" id="goal-blood-sugar-min"
                                             placeholder="mg/dL">
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-6">
                                         <label class="form-label">Blood Sugar Max</label>
                                         <input type="number" step="0.1" class="form-control" id="goal-blood-sugar-max"
                                             placeholder="mg/dL">
@@ -1402,6 +1411,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             setupEventListeners();
             updateFoodGroupBuilderVisibility();
+            updateBloodSugarFieldsVisibility(false);
             loadRules();
             loadFoods();
             loadCookedFoods();
@@ -2563,6 +2573,28 @@
             });
         }
 
+        function updateBloodSugarFieldsVisibility(clearWhenHidden = false) {
+            const modeEl = document.getElementById('goal-blood-sugar-mode');
+            const rangeRow = document.getElementById('goal-blood-sugar-range-row');
+            const minEl = document.getElementById('goal-blood-sugar-min');
+            const maxEl = document.getElementById('goal-blood-sugar-max');
+            if (!modeEl || !rangeRow || !minEl || !maxEl) {
+                return;
+            }
+
+            const shouldShow = String(modeEl.value || 'not_specified') === 'specify';
+            if (shouldShow) {
+                rangeRow.classList.remove('d-none');
+                return;
+            }
+
+            rangeRow.classList.add('d-none');
+            if (clearWhenHidden) {
+                minEl.value = '';
+                maxEl.value = '';
+            }
+        }
+
         function captureActiveFoodGroupSelections() {
             const group = getFoodGroupByKey(activeFoodGroupKey);
             if (!group) {
@@ -2758,6 +2790,7 @@
 
             const conditions = Array.isArray(rule.conditions) ? rule.conditions : [];
             let inferredGoalType = '';
+            let hasBloodSugarCondition = false;
             conditions.forEach(condition => {
                 const text = String(condition || '').trim().toLowerCase();
                 if (text.startsWith('goal =')) {
@@ -2779,15 +2812,26 @@
                 } else if (text.startsWith('diet_type equals')) {
                     document.getElementById('goal-diet-type').value = text.split('diet_type equals').pop().trim();
                 } else if (text.startsWith('blood_sugar greater_than')) {
+                    hasBloodSugarCondition = true;
                     document.getElementById('goal-blood-sugar-min').value = text.split('blood_sugar greater_than').pop().trim();
                 } else if (text.startsWith('blood_sugar greater_than_or_equals')) {
+                    hasBloodSugarCondition = true;
                     document.getElementById('goal-blood-sugar-min').value = text.split('blood_sugar greater_than_or_equals').pop().trim();
                 } else if (text.startsWith('blood_sugar less_than')) {
+                    hasBloodSugarCondition = true;
                     document.getElementById('goal-blood-sugar-max').value = text.split('blood_sugar less_than').pop().trim();
                 } else if (text.startsWith('blood_sugar less_than_or_equals')) {
+                    hasBloodSugarCondition = true;
                     document.getElementById('goal-blood-sugar-max').value = text.split('blood_sugar less_than_or_equals').pop().trim();
+                } else if (text.startsWith('blood_sugar equals')) {
+                    hasBloodSugarCondition = true;
+                    const value = text.split('blood_sugar equals').pop().trim();
+                    document.getElementById('goal-blood-sugar-min').value = value;
+                    document.getElementById('goal-blood-sugar-max').value = value;
                 }
             });
+            document.getElementById('goal-blood-sugar-mode').value = hasBloodSugarCondition ? 'specify' : 'not_specified';
+            updateBloodSugarFieldsVisibility(false);
             if (!inferredGoalType) {
                 const ruleText = `${rule.name || ''} ${conditions.join(' ')}`.toLowerCase();
                 if (ruleText.includes('lose') || ruleText.includes('overweight') || ruleText.includes('obese')) {
@@ -3210,6 +3254,12 @@
                     applyDietTypeFoodFilter();
                 });
             }
+            const bloodSugarModeSelect = document.getElementById('goal-blood-sugar-mode');
+            if (bloodSugarModeSelect) {
+                bloodSugarModeSelect.addEventListener('change', function () {
+                    updateBloodSugarFieldsVisibility(true);
+                });
+            }
             document.querySelectorAll('.goal-allergy').forEach(input => {
                 input.addEventListener('change', function () {
                     applyAllergyFoodFilter();
@@ -3437,6 +3487,7 @@
             document.getElementById('goal-bmi-max').value = '';
             document.getElementById('goal-gender').value = 'any';
             document.getElementById('goal-diet-type').value = 'any';
+            document.getElementById('goal-blood-sugar-mode').value = 'not_specified';
             document.getElementById('goal-blood-sugar-min').value = '';
             document.getElementById('goal-blood-sugar-max').value = '';
             document.getElementById('goal-calories').value = '';
@@ -3473,6 +3524,7 @@
             }
 
             applyDietTypeFoodFilter();
+            updateBloodSugarFieldsVisibility(false);
             updateFoodTables();
             updateCookedFoodTables();
             setLimitWarning('', 'foods-limit-warning');
@@ -3489,6 +3541,7 @@
             const bmiMax = document.getElementById('goal-bmi-max').value;
             const gender = document.getElementById('goal-gender').value;
             const dietType = document.getElementById('goal-diet-type').value;
+            const bloodSugarMode = document.getElementById('goal-blood-sugar-mode').value;
             const bloodSugarMin = document.getElementById('goal-blood-sugar-min').value;
             const bloodSugarMax = document.getElementById('goal-blood-sugar-max').value;
             const allergies = getSelectedAllergies();
@@ -3515,7 +3568,7 @@
             if (dietType !== 'any') {
                 parts.push(`Diet ${dietType}`);
             }
-            if (bloodSugarMin || bloodSugarMax) {
+            if (bloodSugarMode === 'specify' && (bloodSugarMin || bloodSugarMax)) {
                 parts.push(`Blood Sugar ${bloodSugarMin || '...'}-${bloodSugarMax || '...'} mg/dL`);
             }
             if (calories) {
@@ -3547,6 +3600,7 @@
             const bmiMax = document.getElementById('goal-bmi-max').value;
             const gender = document.getElementById('goal-gender').value;
             const dietType = document.getElementById('goal-diet-type').value;
+            const bloodSugarMode = document.getElementById('goal-blood-sugar-mode').value;
             const bloodSugarMin = document.getElementById('goal-blood-sugar-min').value;
             const bloodSugarMax = document.getElementById('goal-blood-sugar-max').value;
             const allergies = getSelectedAllergies();
@@ -3564,11 +3618,13 @@
             if (dietType !== 'any') {
                 conditions.push(`diet_type equals ${dietType}`);
             }
-            if (bloodSugarMin) {
-                conditions.push(`blood_sugar greater_than ${bloodSugarMin}`);
-            }
-            if (bloodSugarMax) {
-                conditions.push(`blood_sugar less_than ${bloodSugarMax}`);
+            if (bloodSugarMode === 'specify') {
+                if (bloodSugarMin) {
+                    conditions.push(`blood_sugar greater_than ${bloodSugarMin}`);
+                }
+                if (bloodSugarMax) {
+                    conditions.push(`blood_sugar less_than ${bloodSugarMax}`);
+                }
             }
             if (Array.isArray(allergies)) {
                 allergies.forEach(allergy => {
