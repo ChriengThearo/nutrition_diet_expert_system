@@ -131,6 +131,102 @@ class DashboardService:
             return {}
 
     @staticmethod
+    def _normalize_submission_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize dashboard submission payload so near-identical requests compare equal."""
+        if not isinstance(payload, dict):
+            payload = {}
+
+        personal = payload.get("personal", {}) or {}
+        health = payload.get("health", {}) or {}
+        preferences = payload.get("preferences", {}) or {}
+        goals = payload.get("goals", {}) or {}
+
+        def to_number(value, precision=2):
+            try:
+                if value in (None, ""):
+                    return None
+                return round(float(value), precision)
+            except Exception:
+                return None
+
+        def to_int(value):
+            try:
+                if value in (None, ""):
+                    return None
+                return int(float(value))
+            except Exception:
+                return None
+
+        def to_text(value):
+            return str(value or "").strip().lower()
+
+        raw_allergies = health.get("allergies") or []
+        if not isinstance(raw_allergies, list):
+            raw_allergies = [raw_allergies]
+        allergies = sorted(
+            {
+                to_text(item).replace(" ", "_")
+                for item in raw_allergies
+                if to_text(item)
+            }
+        )
+
+        return {
+            "personal": {
+                "age": to_int(personal.get("age")),
+                "gender": to_text(personal.get("gender")),
+                "weight": to_number(personal.get("weight"), precision=2),
+                "height": to_number(personal.get("height"), precision=2),
+            },
+            "health": {
+                "dietType": to_text(health.get("dietType")),
+                "blood_sugar": to_number(health.get("blood_sugar"), precision=2),
+                "allergies": allergies,
+            },
+            "preferences": {
+                "mealsPerDay": to_int(preferences.get("mealsPerDay")),
+                "foodPreference": to_text(preferences.get("foodPreference")),
+            },
+            "goals": {
+                "goal": to_text(goals.get("goal")),
+            },
+        }
+
+    @staticmethod
+    def _find_recent_duplicate_submission(
+        user_id: int, payload: Dict[str, Any], window_seconds: int = 25
+    ) -> Optional[UserResultsTable]:
+        """Return latest matching completed submission in a small time window."""
+        latest = (
+            UserResultsTable.query.filter_by(user_id=user_id, status="completed")
+            .filter(UserResultsTable.result_data.isnot(None))
+            .order_by(UserResultsTable.generated_at.desc(), UserResultsTable.id.desc())
+            .first()
+        )
+        if not latest or not latest.generated_at:
+            return None
+
+        if datetime.utcnow() - latest.generated_at > timedelta(seconds=window_seconds):
+            return None
+
+        try:
+            latest_payload = json.loads(latest.result_data or "{}")
+        except Exception:
+            return None
+        if not isinstance(latest_payload, dict):
+            return None
+
+        latest_form_data = latest_payload.get("form_data")
+        if not isinstance(latest_form_data, dict):
+            return None
+
+        if DashboardService._normalize_submission_payload(
+            latest_form_data
+        ) == DashboardService._normalize_submission_payload(payload):
+            return latest
+        return None
+
+    @staticmethod
     def save_user_dashboard_submission(
         user_id: int, payload: Dict[str, Any], persist: bool = True
     ) -> Dict[str, Any]:
@@ -183,6 +279,17 @@ class DashboardService:
 
         result_id = None
         if persist:
+            duplicate_result = DashboardService._find_recent_duplicate_submission(
+                user.id, payload
+            )
+            if duplicate_result:
+                db.session.rollback()
+                result_id = duplicate_result.id
+                return {
+                    "result_id": result_id,
+                    **safe_plan,
+                }
+
             user_result = UserResultsTable(
                 user_id=user.id,
                 bmi=metrics.get("bmi"),

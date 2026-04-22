@@ -1023,6 +1023,7 @@
         const submitBtn = document.getElementById('submitBtn');
         const submitBtnLabel = submitBtn ? submitBtn.innerHTML : '';
         const dietFormError = document.getElementById('dietFormError');
+        let submitInFlight = false;
 
         function setSubmitting(isSubmitting) {
             if (!submitBtn) {
@@ -1057,6 +1058,10 @@
             e.preventDefault();
             e.stopImmediatePropagation();
 
+            if (submitInFlight) {
+                return;
+            }
+
             clearFormError();
 
             if (typeof hideLoading === 'function') {
@@ -1090,6 +1095,7 @@
             if (typeof showLoading === 'function') {
                 showLoading();
             }
+            submitInFlight = true;
             setSubmitting(true);
 
             const formData = {
@@ -1161,6 +1167,7 @@
                     if (typeof hideLoading === 'function') {
                         hideLoading();
                     }
+                    submitInFlight = false;
                     setSubmitting(false);
                 });
 

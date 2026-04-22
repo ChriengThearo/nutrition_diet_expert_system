@@ -134,10 +134,16 @@
                 </div>
                 <p class="metric-meta">Active goals tied to your account.</p>
             </article>
-            {% set bmi_ns = namespace(points=[]) %}
+            {% set bmi_ns = namespace(points=[], keys=[]) %}
             {% for plan in plan_history %}
                 {% if plan.bmi and bmi_ns.points|length < 7 %}
-                    {% set _ = bmi_ns.points.append(plan) %}
+                    {% set point_day = plan.generated_at.strftime('%Y-%m-%d') if plan.generated_at else 'unknown-day' %}
+                    {% set point_value = '%.1f'|format(plan.bmi|float) %}
+                    {% set point_key = point_day ~ '|' ~ point_value %}
+                    {% if point_key not in bmi_ns.keys %}
+                        {% set _ = bmi_ns.keys.append(point_key) %}
+                        {% set _ = bmi_ns.points.append(plan) %}
+                    {% endif %}
                 {% endif %}
             {% endfor %}
             <article class="metric-card metric-chart-card">
