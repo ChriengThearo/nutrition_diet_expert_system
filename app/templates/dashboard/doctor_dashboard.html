@@ -2793,8 +2793,9 @@
             let hasBloodSugarCondition = false;
             conditions.forEach(condition => {
                 const text = String(condition || '').trim().toLowerCase();
-                if (text.startsWith('goal =')) {
-                    const goalText = text.replace('goal =', '').trim();
+                const normalizedText = text.replace(/\s+/g, ' ');
+                if (normalizedText.startsWith('goal =')) {
+                    const goalText = normalizedText.replace('goal =', '').trim();
                     if (goalText.includes('lose')) {
                         inferredGoalType = 'lose';
                     } else if (goalText.includes('gain')) {
@@ -2803,33 +2804,79 @@
                         inferredGoalType = 'maintain';
                     }
                 }
-                if (text.startsWith('bmi greater_than')) {
-                    document.getElementById('goal-bmi-min').value = text.split('bmi greater_than').pop().trim();
-                } else if (text.startsWith('bmi less_than')) {
-                    document.getElementById('goal-bmi-max').value = text.split('bmi less_than').pop().trim();
-                } else if (text.startsWith('gender equals')) {
-                    document.getElementById('goal-gender').value = text.split('gender equals').pop().trim();
-                } else if (text.startsWith('diet_type equals')) {
-                    document.getElementById('goal-diet-type').value = text.split('diet_type equals').pop().trim();
-                } else if (text.startsWith('blood_sugar greater_than')) {
-                    hasBloodSugarCondition = true;
-                    document.getElementById('goal-blood-sugar-min').value = text.split('blood_sugar greater_than').pop().trim();
-                } else if (text.startsWith('blood_sugar greater_than_or_equals')) {
-                    hasBloodSugarCondition = true;
-                    document.getElementById('goal-blood-sugar-min').value = text.split('blood_sugar greater_than_or_equals').pop().trim();
-                } else if (text.startsWith('blood_sugar less_than')) {
-                    hasBloodSugarCondition = true;
-                    document.getElementById('goal-blood-sugar-max').value = text.split('blood_sugar less_than').pop().trim();
-                } else if (text.startsWith('blood_sugar less_than_or_equals')) {
-                    hasBloodSugarCondition = true;
-                    document.getElementById('goal-blood-sugar-max').value = text.split('blood_sugar less_than_or_equals').pop().trim();
-                } else if (text.startsWith('blood_sugar equals')) {
-                    hasBloodSugarCondition = true;
-                    const value = text.split('blood_sugar equals').pop().trim();
-                    document.getElementById('goal-blood-sugar-min').value = value;
-                    document.getElementById('goal-blood-sugar-max').value = value;
+
+                const numericConditionMatch = normalizedText.match(
+                    /^([a-z_]+)\s+(greater_than_or_equals|less_than_or_equals|greater_than|less_than|equals|>=|<=|>|<|=)\s+(-?\d+(?:\.\d+)?)$/
+                );
+                if (numericConditionMatch) {
+                    let param = String(numericConditionMatch[1] || '').trim().toLowerCase();
+                    let operator = String(numericConditionMatch[2] || '').trim().toLowerCase();
+                    const value = String(numericConditionMatch[3] || '').trim();
+
+                    if (param === 'bloodsugar') {
+                        param = 'blood_sugar';
+                    }
+                    if (operator === '>') operator = 'greater_than';
+                    if (operator === '>=') operator = 'greater_than_or_equals';
+                    if (operator === '<') operator = 'less_than';
+                    if (operator === '<=') operator = 'less_than_or_equals';
+                    if (operator === '=') operator = 'equals';
+
+                    if (param === 'bmi') {
+                        if (operator === 'greater_than' || operator === 'greater_than_or_equals') {
+                            document.getElementById('goal-bmi-min').value = value;
+                        } else if (operator === 'less_than' || operator === 'less_than_or_equals') {
+                            document.getElementById('goal-bmi-max').value = value;
+                        }
+                    }
+
+                    if (param === 'blood_sugar') {
+                        hasBloodSugarCondition = true;
+                        if (operator === 'greater_than' || operator === 'greater_than_or_equals') {
+                            document.getElementById('goal-blood-sugar-min').value = value;
+                        } else if (operator === 'less_than' || operator === 'less_than_or_equals') {
+                            document.getElementById('goal-blood-sugar-max').value = value;
+                        } else if (operator === 'equals') {
+                            document.getElementById('goal-blood-sugar-min').value = value;
+                            document.getElementById('goal-blood-sugar-max').value = value;
+                        }
+                    }
+                }
+
+                const genderMatch = normalizedText.match(/^gender\s+equals\s+(.+)$/);
+                if (genderMatch && genderMatch[1]) {
+                    document.getElementById('goal-gender').value = String(genderMatch[1]).trim();
+                }
+                const dietTypeMatch = normalizedText.match(/^diet_type\s+equals\s+(.+)$/);
+                if (dietTypeMatch && dietTypeMatch[1]) {
+                    document.getElementById('goal-diet-type').value = String(dietTypeMatch[1]).trim();
                 }
             });
+
+            const bmiMinInput = document.getElementById('goal-bmi-min');
+            const bmiMaxInput = document.getElementById('goal-bmi-max');
+            if (bmiMinInput && bmiMaxInput) {
+                const bmiMinValue = String(bmiMinInput.value || '').trim();
+                const bmiMaxValue = String(bmiMaxInput.value || '').trim();
+                if (!bmiMinValue && bmiMaxValue) {
+                    bmiMinInput.value = '0';
+                } else if (bmiMinValue && !bmiMaxValue) {
+                    bmiMaxInput.value = '100';
+                }
+            }
+
+            const bloodSugarMinInput = document.getElementById('goal-blood-sugar-min');
+            const bloodSugarMaxInput = document.getElementById('goal-blood-sugar-max');
+            if (hasBloodSugarCondition && bloodSugarMinInput && bloodSugarMaxInput) {
+                const bloodSugarMinValue = String(bloodSugarMinInput.value || '').trim();
+                const bloodSugarMaxValue = String(bloodSugarMaxInput.value || '').trim();
+                if (!bloodSugarMinValue && bloodSugarMaxValue) {
+                    bloodSugarMinInput.value = '0';
+                } else if (bloodSugarMinValue && !bloodSugarMaxValue) {
+                    bloodSugarMaxInput.value = '1000';
+                }
+            }
+
             document.getElementById('goal-blood-sugar-mode').value = hasBloodSugarCondition ? 'specify' : 'not_specified';
             updateBloodSugarFieldsVisibility(false);
             if (!inferredGoalType) {
@@ -3619,12 +3666,24 @@
                 conditions.push(`diet_type equals ${dietType}`);
             }
             if (bloodSugarMode === 'specify') {
-                if (bloodSugarMin) {
-                    conditions.push(`blood_sugar greater_than ${bloodSugarMin}`);
+                const minText = String(bloodSugarMin || '').trim();
+                const maxText = String(bloodSugarMax || '').trim();
+                if (!minText || !maxText) {
+                    alert('Blood Sugar "Specify" requires both Min and Max values.');
+                    return;
                 }
-                if (bloodSugarMax) {
-                    conditions.push(`blood_sugar less_than ${bloodSugarMax}`);
+                const minValue = Number(minText);
+                const maxValue = Number(maxText);
+                if (!Number.isFinite(minValue) || !Number.isFinite(maxValue)) {
+                    alert('Blood Sugar Min and Max must be valid numbers.');
+                    return;
                 }
+                if (minValue >= maxValue) {
+                    alert('Blood Sugar Min must be smaller than Blood Sugar Max.');
+                    return;
+                }
+                conditions.push(`blood_sugar greater_than_or_equals ${minText}`);
+                conditions.push(`blood_sugar less_than_or_equals ${maxText}`);
             }
             if (Array.isArray(allergies)) {
                 allergies.forEach(allergy => {

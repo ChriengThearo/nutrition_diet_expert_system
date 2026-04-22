@@ -1,8 +1,7 @@
 {
-  "generated_at": "2026-04-21T13:48:47.553929+00:00",
-  "database": "expert_system",
+  "generated_at": "2026-04-21T15:05:33.463179+00:00",
+  "database": "expert_system_v3",
   "tables": [
-    "alembic_version",
     "tbl_cooked_foods",
     "tbl_diet_rules",
     "tbl_foods",
@@ -19,19 +18,18 @@
     "tbl_user_goals"
   ],
   "row_counts": {
-    "alembic_version": 1,
     "tbl_cooked_foods": 50,
-    "tbl_diet_rules": 144,
+    "tbl_diet_rules": 720,
     "tbl_foods": 83,
     "tbl_permissions": 28,
     "tbl_roles": 3,
     "tbl_users": 11,
     "tbl_goals": 3,
     "tbl_role_permissions": 44,
-    "tbl_rule_food_map": 2020,
-    "tbl_user_results": 35,
+    "tbl_rule_food_map": 29668,
+    "tbl_user_results": 37,
     "tbl_user_roles": 11,
-    "tbl_food_groups": 2020,
+    "tbl_food_groups": 29668,
     "tbl_goal_diet_rules": 144,
     "tbl_user_goals": 3
   }
