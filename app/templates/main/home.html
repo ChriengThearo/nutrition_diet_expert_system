@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+{% set ui_lang = session.get('ui_lang', 'km') %}
+<html lang="{{ 'km' if ui_lang == 'km' else 'en' }}">
 <head>
   <meta charset="utf-8" />
   <title>Diet Expert System</title>
@@ -550,28 +551,28 @@
           {% if current_user.is_authenticated %}
           <li class="nav-item">
             <a class="btn btn-light btn-sm me-2" href="{{ url_for('dashboard.dashboard_home') }}">
-              <i class="fas fa-gauge-high me-1"></i>Dashboard
+              <i class="fas fa-gauge-high me-1"></i>{{ 'ផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Dashboard' }}
             </a>
           </li>
           {% endif %}
 
           <li class="nav-item">
             <a class="btn btn-light btn-sm me-2 active" href="{{ url_for('main.home') }}">
-              <i class="fas fa-house me-1"></i>Home
+              <i class="fas fa-house me-1"></i>{{ 'ទំព័រដើម' if ui_lang == 'km' else 'Home' }}
             </a>
           </li>
 
           {% if current_user.is_authenticated %}
           <li class="nav-item">
             <a class="btn btn-light btn-sm me-2" href="{{ url_for('dashboard.user_diet_expert') }}">
-              <i class="fas fa-utensils me-1"></i>Generate Plan
+              <i class="fas fa-utensils me-1"></i>{{ 'បង្កើតផែនការ' if ui_lang == 'km' else 'Generate Plan' }}
             </a>
           </li>
           {% endif %}
 
           <li class="nav-item">
             <a class="btn btn-light btn-sm" href="{{ url_for('main.bmi') }}">
-              <i class="fas fa-calculator me-1"></i>Calculate BMI
+              <i class="fas fa-calculator me-1"></i>{{ 'គណនា BMI' if ui_lang == 'km' else 'Calculate BMI' }}
             </a>
           </li>
 
@@ -616,8 +617,38 @@
             {% include "dashboard/_dashboard_switcher.html" %}
           </li>
           {% endif %}
+          {% set language_display_label = 'ភាសា' if ui_lang == 'km' else 'Language' %}
+          <li class="nav-item dropdown me-2">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="homeLanguageModeDropdown"
+              role="button" data-bs-toggle="dropdown" aria-expanded="false" title="{{ language_display_label }}">
+              <i class="fas fa-language me-1"></i>
+              <span class="fw-semibold">{{ 'KH' if ui_lang == 'km' else 'EN' }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="homeLanguageModeDropdown">
+              <li>
+                <button
+                  class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'km' %}active{% endif %}"
+                  type="button" data-language-option="km">
+                  <span>ខ្មែរ</span>
+                  {% if ui_lang == 'km' %}
+                  <i class="fas fa-check text-success"></i>
+                  {% endif %}
+                </button>
+              </li>
+              <li>
+                <button
+                  class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'en' %}active{% endif %}"
+                  type="button" data-language-option="en">
+                  <span>English</span>
+                  {% if ui_lang == 'en' %}
+                  <i class="fas fa-check text-success"></i>
+                  {% endif %}
+                </button>
+              </li>
+            </ul>
+          </li>
 
-          {% set nav_display_name = 'Guest' if session.get('user_guest_mode') else current_user.username %}
+          {% set nav_display_name = 'ភ្ញៀវ' if session.get('user_guest_mode') else current_user.username %}
           {% set nav_default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
           {% set nav_photo_path = (current_user.photo or '')|trim %}
           {% set nav_avatar_url = nav_default_avatar_url if session.get('user_guest_mode') else
@@ -634,13 +665,13 @@
               <li><hr class="dropdown-divider"></li>
               <li>
                 <a class="dropdown-item" href="{{ url_for('dashboard.user_profile') }}">
-                  <i class="fas fa-user me-2"></i>Profile
+                  <i class="fas fa-user me-2"></i>{{ 'ប្រវត្តិរូប' if ui_lang == 'km' else 'Profile' }}
                 </a>
               </li>
               <li><hr class="dropdown-divider"></li>
               <li>
                 <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
-                  <i class="fas fa-sign-out-alt me-2"></i>Logout
+                  <i class="fas fa-sign-out-alt me-2"></i>{{ 'ចាកចេញ' if ui_lang == 'km' else 'Logout' }}
                 </a>
               </li>
             </ul>
@@ -648,12 +679,12 @@
           {% else %}
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('auth.login') }}">
-              <i class="fas fa-sign-in-alt me-1"></i>Login
+              <i class="fas fa-sign-in-alt me-1"></i>{{ 'ចូលប្រើ' if ui_lang == 'km' else 'Login' }}
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('auth.register') }}">
-              <i class="fas fa-user-plus me-1"></i>Register
+              <i class="fas fa-user-plus me-1"></i>{{ 'ចុះឈ្មោះ' if ui_lang == 'km' else 'Register' }}
             </a>
           </li>
           {% endif %}
@@ -764,6 +795,54 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    (function () {
+      const languageOptions = document.querySelectorAll("[data-language-option]");
+      if (!languageOptions.length) {
+        return;
+      }
+
+      const endpoint = "{{ url_for('dashboard.set_language_mode') }}";
+      const currentLanguage = "{{ ui_lang }}";
+      const fallbackErrorMessage = currentLanguage === "km"
+        ? "មិនអាចប្តូរភាសាបានទេ។"
+        : "Unable to switch language mode.";
+
+      languageOptions.forEach((option) => {
+        option.addEventListener("click", async function (event) {
+          event.preventDefault();
+          const selectedLanguage = option.getAttribute("data-language-option");
+
+          if (!selectedLanguage || selectedLanguage === currentLanguage) {
+            return;
+          }
+
+          option.disabled = true;
+          try {
+            const response = await fetch(endpoint, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              credentials: "same-origin",
+              body: JSON.stringify({ language: selectedLanguage })
+            });
+
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || data.success === false) {
+              throw new Error(data.message || fallbackErrorMessage);
+            }
+
+            window.location.reload();
+          } catch (error) {
+            console.error("Failed to update language mode:", error);
+            alert(error.message || fallbackErrorMessage);
+          } finally {
+            option.disabled = false;
+          }
+        });
+      });
+    })();
+
     (function () {
       const track = document.getElementById("homeSlider");
       if (track) {
