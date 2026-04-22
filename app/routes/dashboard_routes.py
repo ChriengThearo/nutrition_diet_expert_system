@@ -1912,7 +1912,8 @@ def user_ocr_upload():
         reader = easyocr.Reader(["en"], gpu=False, verbose=False)
         results = reader.readtext(image_path)
 
-        lines = [text for _, text, conf in results if conf > 0.2]
+        # Keep low-confidence tokens as well; small values like "F" can be weak.
+        lines = [text for _, text, conf in results if conf > 0.05]
 
         full_text = "\n".join(lines)
         current_app.logger.info(
@@ -1920,6 +1921,12 @@ def user_ocr_upload():
         )
 
         extracted = _parse_health_document(full_text)
+        if not extracted.get("gender"):
+            extracted["gender"] = _extract_gender_from_ocr_layout(
+                ocr_results=results,
+                image_path=image_path,
+                reader=reader,
+            )
         extracted["raw_text"] = full_text
 
         return jsonify({"success": True, **extracted})
@@ -1944,9 +1951,278 @@ def user_ocr_upload():
                 pass
 
 
+def _extract_gender_from_ocr_layout(ocr_results, image_path, reader):
+    """Try to extract gender from layout-aware OCR when text-only parsing misses it."""
+    import re
+
+    try:
+        from PIL import Image
+        import numpy as np
+    except Exception:
+        return None
+
+    if not ocr_results or not image_path or reader is None:
+        return None
+
+    def _normalize_gender_token(raw_value):
+        if raw_value is None:
+            return None
+
+        cleaned = str(raw_value).strip().lower()
+        if not cleaned:
+            return None
+
+        cleaned = cleaned.translate(
+            str.maketrans(
+                {
+                    "0": "o",
+                    "1": "l",
+                    "|": "l",
+                }
+            )
+        )
+        cleaned = re.sub(r"[^a-z]", "", cleaned)
+
+        if not cleaned:
+            return None
+        if cleaned in {"m", "male", "man", "boy"}:
+            return "male"
+        if cleaned in {"f", "female", "woman", "girl"}:
+            return "female"
+        if cleaned.startswith("mal"):
+            return "male"
+        if cleaned.startswith("fem"):
+            return "female"
+        if set(cleaned) == {"m"}:
+            return "male"
+        if set(cleaned) == {"f"}:
+            return "female"
+        return None
+
+    def _bbox_stats(bbox):
+        xs = [point[0] for point in bbox]
+        ys = [point[1] for point in bbox]
+        x_min = min(xs)
+        x_max = max(xs)
+        y_min = min(ys)
+        y_max = max(ys)
+        return {
+            "x_min": x_min,
+            "x_max": x_max,
+            "y_min": y_min,
+            "y_max": y_max,
+            "cx": (x_min + x_max) / 2,
+            "cy": (y_min + y_max) / 2,
+            "h": max(1.0, y_max - y_min),
+        }
+
+    entries = []
+    for item in ocr_results:
+        if not isinstance(item, (list, tuple)) or len(item) < 3:
+            continue
+        bbox, text, conf = item[0], item[1], item[2]
+        token = str(text).strip()
+        if not token:
+            continue
+        stats = _bbox_stats(bbox)
+        entries.append(
+            {
+                "text": token,
+                "conf": float(conf) if conf is not None else 0.0,
+                **stats,
+            }
+        )
+
+    if not entries:
+        return None
+
+    label_candidates = []
+    for entry in entries:
+        normalized = re.sub(r"[^a-z]", "", entry["text"].lower())
+        if "gender" in normalized or normalized == "sex":
+            label_candidates.append(entry)
+
+    if not label_candidates:
+        return None
+
+    label = sorted(label_candidates, key=lambda item: item["conf"], reverse=True)[0]
+
+    # Pass 1: same-row token from initial OCR.
+    row_candidates = [
+        entry
+        for entry in entries
+        if entry["cx"] > (label["x_max"] + 8)
+        and abs(entry["cy"] - label["cy"]) <= max(20.0, label["h"] * 0.95)
+    ]
+    row_candidates.sort(key=lambda item: item["x_min"])
+    row_genders = []
+    for entry in row_candidates:
+        for piece in re.split(r"[/|,\s:;\-]+", entry["text"]):
+            normalized = _normalize_gender_token(piece)
+            if normalized and normalized not in row_genders:
+                row_genders.append(normalized)
+    if len(row_genders) == 1:
+        return row_genders[0]
+
+    # Pass 2: targeted crop OCR around value cell.
+    try:
+        image = Image.open(image_path).convert("RGB")
+    except Exception:
+        return None
+
+    width, height = image.size
+    row_half_height = max(int(round(label["h"] * 1.8)), 48)
+    y1 = max(0, int(round(label["cy"] - row_half_height)))
+    y2 = min(height, int(round(label["cy"] + row_half_height)))
+
+    value_column_candidates = [
+        entry["x_min"]
+        for entry in entries
+        if entry["x_min"] > (label["x_max"] + 18)
+        and abs(entry["cy"] - label["cy"]) <= 220
+    ]
+    if value_column_candidates:
+        value_column_x = min(value_column_candidates)
+    else:
+        value_column_x = max(label["x_max"] + 26, width * 0.30)
+
+    x1 = max(0, int(round(value_column_x - 75)))
+    x2 = min(width, int(round(max(x1 + 220, value_column_x + max(165, width * 0.18)))))
+
+    crop_windows = []
+    if x2 > x1 and y2 > y1:
+        crop_windows.append((x1, y1, x2, y2))
+        crop_windows.append(
+            (
+                max(0, x1 - 45),
+                max(0, y1 - 20),
+                min(width, x2 + 70),
+                min(height, y2 + 28),
+            )
+        )
+    if not crop_windows:
+        return None
+
+    crop_passes = [
+        {
+            "min_size": 1,
+            "text_threshold": 0.3,
+            "low_text": 0.1,
+            "contrast_ths": 0.05,
+            "adjust_contrast": 0.8,
+        },
+        {
+            "min_size": 1,
+            "allowlist": "FfMmMalefemale",
+            "text_threshold": 0.2,
+            "low_text": 0.1,
+        },
+    ]
+
+    for crop_box in crop_windows:
+        crop_arr = np.array(image.crop(crop_box))
+        for kwargs in crop_passes:
+            try:
+                crop_results = reader.readtext(crop_arr, **kwargs)
+            except Exception:
+                continue
+
+            candidates = []
+            for _, token, _ in crop_results:
+                token = str(token).strip()
+                if not token:
+                    continue
+                for piece in re.split(r"[/|,\s:;\-]+", token):
+                    normalized = _normalize_gender_token(piece)
+                    if normalized and normalized not in candidates:
+                        candidates.append(normalized)
+
+            if len(candidates) == 1:
+                return candidates[0]
+
+    return None
+
+
 def _parse_health_document(text):
     """Parse OCR text from a health/medical document to extract form fields."""
     import re
+
+    def _parse_ocr_number(raw_value):
+        """Parse numeric tokens with common OCR mistakes (e.g. 2l0 -> 210)."""
+        if raw_value is None:
+            return None
+
+        cleaned = str(raw_value).strip()
+        if not cleaned:
+            return None
+
+        cleaned = cleaned.translate(
+            str.maketrans(
+                {
+                    "o": "0",
+                    "O": "0",
+                    "l": "1",
+                    "I": "1",
+                    "|": "1",
+                }
+            )
+        )
+        cleaned = cleaned.replace(",", ".")
+        cleaned = re.sub(r"[^0-9.]", "", cleaned)
+
+        if cleaned.count(".") > 1:
+            first_dot = cleaned.find(".")
+            cleaned = cleaned[: first_dot + 1] + cleaned[first_dot + 1 :].replace(
+                ".", ""
+            )
+
+        if not cleaned:
+            return None
+
+        try:
+            value = float(cleaned)
+        except (TypeError, ValueError):
+            return None
+
+        if value.is_integer():
+            return int(value)
+        return round(value, 2)
+
+    def _normalize_gender_token(raw_value):
+        """Normalize OCR gender tokens into 'male'/'female'."""
+        if raw_value is None:
+            return None
+
+        cleaned = str(raw_value).strip().lower()
+        if not cleaned:
+            return None
+
+        cleaned = cleaned.translate(
+            str.maketrans(
+                {
+                    "0": "o",
+                    "1": "l",
+                    "|": "l",
+                }
+            )
+        )
+        cleaned = re.sub(r"[^a-z]", "", cleaned)
+
+        if not cleaned:
+            return None
+        if cleaned in {"m", "male", "man", "boy"}:
+            return "male"
+        if cleaned in {"f", "female", "woman", "girl"}:
+            return "female"
+        if cleaned.startswith("mal"):
+            return "male"
+        if cleaned.startswith("fem"):
+            return "female"
+        if set(cleaned) == {"m"}:
+            return "male"
+        if set(cleaned) == {"f"}:
+            return "female"
+        return None
 
     result = {
         "age": None,
@@ -1973,18 +2249,59 @@ def _parse_health_document(text):
                 break
 
     # --- Gender ---
-    for pattern in [
-        r"(?:sex|gender)\s*[:\-]?\s*(male|female|m|f)\b",
-        r"\b(male|female)\b",
-    ]:
-        m = re.search(pattern, lower)
-        if m:
-            g = m.group(1).strip()
-            if g in ("m", "male"):
-                result["gender"] = "male"
-            elif g in ("f", "female"):
-                result["gender"] = "female"
+    # Prefer explicit "Sex/Gender" labels first; avoid broad global matches.
+    lines = [line.strip().lower() for line in re.split(r"[\r\n]+", text) if line.strip()]
+    for idx, line in enumerate(lines):
+        if "sex" not in line and "gender" not in line:
+            continue
+
+        contexts = [line]
+        if idx + 1 < len(lines):
+            contexts.append(f"{line} {lines[idx + 1]}")
+
+        for context in contexts:
+            m = re.search(
+                r"\b(?:sex|gender)\b\s*[:\-]?\s*([a-z0-9/|,\s]{1,24})",
+                context,
+                flags=re.IGNORECASE,
+            )
+
+            segment = m.group(1) if m else context
+            candidates = []
+            for token in re.split(r"[/|,\s]+", segment):
+                normalized = _normalize_gender_token(token)
+                if normalized and normalized not in candidates:
+                    candidates.append(normalized)
+
+            if len(candidates) == 1:
+                result["gender"] = candidates[0]
+                break
+
+        if result["gender"] is not None:
             break
+
+    # Secondary fallback: labeled match in full text.
+    if result["gender"] is None:
+        m = re.search(
+            r"\b(?:sex|gender)\b\s*[:\-]?\s*([a-z0-9/|,\s]{1,20})",
+            lower,
+            flags=re.IGNORECASE,
+        )
+        if m:
+            candidates = []
+            for token in re.split(r"[/|,\s]+", m.group(1)):
+                normalized = _normalize_gender_token(token)
+                if normalized and normalized not in candidates:
+                    candidates.append(normalized)
+            if len(candidates) == 1:
+                result["gender"] = candidates[0]
+
+    # Final conservative fallback: only use global word if it is unambiguous.
+    if result["gender"] is None:
+        has_male = bool(re.search(r"\bmale\b", lower))
+        has_female = bool(re.search(r"\bfemale\b", lower))
+        if has_male ^ has_female:
+            result["gender"] = "male" if has_male else "female"
 
     # --- Weight ---
     for pattern in [
@@ -2011,15 +2328,54 @@ def _parse_health_document(text):
                 break
 
     # --- Blood sugar (mg/dL) ---
-    for pattern in [
-        r"(?:fasting\s*)?(?:blood\s*(?:sugar|glucose)|fbs|rbs|glucose)\s*[:\-]?\s*(\d+\.?\d*)\s*(?:mg\s*\/\s*d[l1]|mg\/d[l1])?",
-        r"(?:blood\s*(?:sugar|glucose)\s*(?:level|reading)?\s*[:\-]?\s*)(\d+\.?\d*)",
-    ]:
-        m = re.search(pattern, lower)
-        if m:
-            val = float(m.group(1))
-            if 20 <= val <= 600:
-                result["blood_sugar"] = val
+    blood_sugar_patterns = [
+        # Handles: "Blood Sugar: 210", "FBS 95", "Blood glucose (fasting): 102 mg/dL"
+        r"(?:fasting|random|postprandial|pp|ppbs|fbs|rbs)?\s*(?:blood\s*)?(?:sugar|glucose)\b[^\d]{0,28}?([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)",
+        # Handles: "FBS: 92", "RBS - 180"
+        r"\b(?:fbs|rbs|fpg|ppbs|ppg)\b[^\d]{0,20}?([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)",
+        # Handles: "Glucose level 145 mg/dL"
+        r"(?:glucose|blood\s*glucose)\s*(?:level|reading|value)?\b[^\d]{0,20}?([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)",
+    ]
+
+    for pattern in blood_sugar_patterns:
+        m = re.search(pattern, lower, flags=re.IGNORECASE)
+        if not m:
+            continue
+        val = _parse_ocr_number(m.group(1))
+        if val is not None and 20 <= val <= 600:
+            result["blood_sugar"] = val
+            break
+
+    # Fallback: OCR often splits label/value across lines.
+    if result["blood_sugar"] is None:
+        lines = [line.strip() for line in re.split(r"[\r\n]+", lower) if line.strip()]
+        sugar_keywords = (
+            "blood sugar",
+            "blood glucose",
+            "glucose",
+            "fbs",
+            "rbs",
+            "fpg",
+            "ppbs",
+            "ppg",
+        )
+        number_pattern = r"(?<!\d)([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)(?!\d)"
+
+        for idx, line in enumerate(lines):
+            if not any(keyword in line for keyword in sugar_keywords):
+                continue
+
+            context = line
+            if idx + 1 < len(lines):
+                context = f"{context} {lines[idx + 1]}"
+
+            for match in re.finditer(number_pattern, context, flags=re.IGNORECASE):
+                val = _parse_ocr_number(match.group(1))
+                if val is not None and 20 <= val <= 600:
+                    result["blood_sugar"] = val
+                    break
+
+            if result["blood_sugar"] is not None:
                 break
 
     # --- Allergies ---
