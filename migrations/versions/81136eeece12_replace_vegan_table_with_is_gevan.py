@@ -7,7 +7,6 @@ Create Date: 2026-01-28 16:59:23.970778
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
 revision = '81136eeece12'
@@ -30,20 +29,18 @@ def downgrade():
     with op.batch_alter_table('tbl_foods', schema=None) as batch_op:
         batch_op.drop_column('is_gevan')
 
-    op.create_table('tbl_vegan_foods',
-    sa.Column('id', mysql.INTEGER(), autoincrement=True, nullable=False),
-    sa.Column('name', mysql.VARCHAR(collation='utf8mb4_general_ci', length=120), nullable=False),
-    sa.Column('photo', mysql.VARCHAR(collation='utf8mb4_general_ci', length=255), nullable=True),
-    sa.Column('description', mysql.VARCHAR(collation='utf8mb4_general_ci', length=255), nullable=True),
-    sa.Column('calories', mysql.FLOAT(), nullable=True),
-    sa.Column('protein', mysql.FLOAT(), nullable=True),
-    sa.Column('carbs', mysql.FLOAT(), nullable=True),
-    sa.Column('fat', mysql.FLOAT(), nullable=True),
-    sa.Column('created_at', mysql.DATETIME(), nullable=False),
-    sa.Column('updated_at', mysql.DATETIME(), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    mysql_collate='utf8mb4_general_ci',
-    mysql_default_charset='utf8mb4',
-    mysql_engine='InnoDB'
+    op.create_table(
+        'tbl_vegan_foods',
+        sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+        sa.Column('name', sa.String(length=120), nullable=False),
+        sa.Column('photo', sa.String(length=255), nullable=True),
+        sa.Column('description', sa.String(length=255), nullable=True),
+        sa.Column('calories', sa.Float(), nullable=True),
+        sa.Column('protein', sa.Float(), nullable=True),
+        sa.Column('carbs', sa.Float(), nullable=True),
+        sa.Column('fat', sa.Float(), nullable=True),
+        sa.Column('created_at', sa.DateTime(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(), nullable=False),
+        sa.PrimaryKeyConstraint('id'),
     )
     # ### end Alembic commands ###

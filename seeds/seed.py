@@ -145,11 +145,11 @@ def restore_all():
             print("No matching seed tables found in current database schema.")
             return
 
+    dialect_name = db.engine.dialect.name
+
     with db.engine.begin() as conn:
-        try:
+        if dialect_name == "mysql":
             conn.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
-        except Exception:
-            pass
 
         for table_name in reversed(table_order):
             table = metadata.tables[table_name]
@@ -175,10 +175,8 @@ def restore_all():
                 payload.append(converted)
             conn.execute(table.insert(), payload)
 
-        try:
+        if dialect_name == "mysql":
             conn.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
-        except Exception:
-            pass
 
     print(f"Restored data for {len(table_order)} tables from {SEEDS_DIR}")
 
@@ -209,6 +207,6 @@ if __name__ == "__main__":
         except SQLAlchemyError as exc:
             print("Database connection failed while running seeds.")
             print(
-                "Check DATABASE_URL or DB_HOST/DB_USER/DB_PASSWORD/DB_NAME in .env."
+                "Check DATABASE_URL (or SUPABASE_DB_URL) or DB_HOST/DB_USER/DB_PASSWORD/DB_NAME in .env."
             )
             raise SystemExit(1) from exc

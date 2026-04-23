@@ -56,9 +56,8 @@ def create_app(config_class: type[Config] = Config):
     with app.app_context():
         try:
             if not app.config.get("SKIP_DB_CREATE_ALL", False):
-                from app.models.user import UserTable
-                from app.models.role import RoleTable
-                from app.models.permission import PermissionTable
+                # Ensure model metadata is loaded without shadowing UserTable in this scope.
+                from app import models as _models  # noqa: F401
 
                 db.create_all()
             try:
