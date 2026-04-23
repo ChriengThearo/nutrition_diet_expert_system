@@ -2076,7 +2076,18 @@ def user_ocr_upload():
                     400,
                 )
 
-        import easyocr
+        try:
+            import easyocr
+        except ImportError:
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "message": "OCR service is unavailable in this deployment.",
+                    }
+                ),
+                503,
+            )
 
         reader = easyocr.Reader(["en"], gpu=False, verbose=False)
         results = reader.readtext(image_path)

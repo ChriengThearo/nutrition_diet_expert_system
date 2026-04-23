@@ -9,4 +9,5 @@ Flask-Migrate == 4.0.5
 python-dotenv
 pymysql
 psycopg[binary]
-easyocr
+# OCR stack is optional and heavy for serverless deploys.
+# Install separately if you run OCR on a dedicated worker/server.
