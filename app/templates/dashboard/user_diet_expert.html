@@ -1171,21 +1171,18 @@
             const externalBtn = document.getElementById('analystExternal');
             const fileInput = document.getElementById('ocrFileInput');
             const loading = document.getElementById('analystLoading');
+            const loadingText = document.getElementById('analystLoadingText');
             const bloodAlert = document.getElementById('bloodTestedAlert');
             const analystError = document.getElementById('analystError');
+            const ocrUploadUrl = "{{ url_for('dashboard.user_ocr_upload') }}";
+            const ocrParseTextUrl = "{{ url_for('dashboard.user_ocr_parse_text') }}";
 
             if (!gate || !shell || !normalBtn || !externalBtn || !fileInput || !loading) {
                 return;
             }
 
-            const revealContent = (showAlert) => {
-                gate.classList.add('d-none');
-                shell.classList.remove('is-hidden');
-                if (showAlert && bloodAlert) {
-                    bloodAlert.classList.remove('d-none');
-                    bloodAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            };
+            const defaultLoadingText = loadingText ? loadingText.textContent : '';
+            let tesseractLoaderPromise = null;
 
             const lockButtons = () => {
                 normalBtn.disabled = true;
@@ -1195,6 +1192,23 @@
             const unlockButtons = () => {
                 normalBtn.disabled = false;
                 externalBtn.disabled = false;
+            };
+
+            const setLoadingText = (message) => {
+                if (loadingText) {
+                    loadingText.textContent = message || defaultLoadingText;
+                }
+            };
+
+            const revealContent = (showAlert) => {
+                loading.classList.add('d-none');
+                unlockButtons();
+                gate.classList.add('d-none');
+                shell.classList.remove('is-hidden');
+                if (showAlert && bloodAlert) {
+                    bloodAlert.classList.remove('d-none');
+                    bloodAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             };
 
             const showError = (msg) => {
@@ -1211,7 +1225,88 @@
                 }
             };
 
-            /* Fill form fields from OCR response */
+            const loadTesseractJs = () => {
+                if (window.Tesseract) {
+                    return Promise.resolve(window.Tesseract);
+                }
+                if (tesseractLoaderPromise) {
+                    return tesseractLoaderPromise;
+                }
+
+                tesseractLoaderPromise = new Promise((resolve, reject) => {
+                    const existing = document.querySelector('script[data-tesseract="1"]');
+                    if (existing) {
+                        existing.addEventListener('load', () => resolve(window.Tesseract), { once: true });
+                        existing.addEventListener('error', () => reject(new Error('Failed to load OCR engine.')), { once: true });
+                        return;
+                    }
+
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+                    script.async = true;
+                    script.dataset.tesseract = '1';
+                    script.onload = () => {
+                        if (window.Tesseract) {
+                            resolve(window.Tesseract);
+                        } else {
+                            reject(new Error('OCR engine is unavailable.'));
+                        }
+                    };
+                    script.onerror = () => reject(new Error('Failed to load OCR engine.'));
+                    document.head.appendChild(script);
+                });
+
+                return tesseractLoaderPromise;
+            };
+
+            const isImageFile = (file) => {
+                if (!file) return false;
+                if (file.type && file.type.startsWith('image/')) return true;
+                const name = String(file.name || '').toLowerCase();
+                return /\.(png|jpe?g|bmp|tiff?|webp)$/i.test(name);
+            };
+
+            const runBrowserOcrFallback = async (file, headers) => {
+                if (!isImageFile(file)) {
+                    throw new Error('Browser OCR fallback supports image files only.');
+                }
+
+                setLoadingText('Preparing in-browser OCR...');
+                const Tesseract = await loadTesseractJs();
+                setLoadingText('Reading text from image...');
+
+                const ocrResult = await Tesseract.recognize(file, 'eng', {
+                    logger: (m) => {
+                        if (m && m.status === 'recognizing text' && typeof m.progress === 'number') {
+                            const percent = Math.round(m.progress * 100);
+                            setLoadingText(`Recognizing text... ${percent}%`);
+                        }
+                    }
+                });
+
+                const rawText = String(ocrResult?.data?.text || '').trim();
+                if (!rawText) {
+                    throw new Error('No readable text found in this image.');
+                }
+
+                setLoadingText('Parsing extracted text...');
+                const parseResponse = await fetch(ocrParseTextUrl, {
+                    method: 'POST',
+                    headers: {
+                        ...headers,
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ raw_text: rawText })
+                });
+
+                const parseData = await parseResponse.json().catch(() => ({}));
+                if (!parseResponse.ok || !parseData.success) {
+                    throw new Error(parseData.message || 'Unable to parse OCR text into health fields.');
+                }
+                return parseData;
+            };
+
             const fillFromOcr = (data) => {
                 if (data.age) document.getElementById('age').value = data.age;
                 if (data.gender) document.getElementById('gender').value = data.gender;
@@ -1235,25 +1330,23 @@
                 }
             };
 
-            /* Manual Generate â€” same existing flow */
             normalBtn.addEventListener('click', () => {
                 revealContent(false);
             });
 
-            /* Import Documents â€” open file picker */
             externalBtn.addEventListener('click', () => {
                 clearError();
                 fileInput.click();
             });
 
-            /* When user picks a file, upload it for OCR */
-            fileInput.addEventListener('change', () => {
+            fileInput.addEventListener('change', async () => {
                 const file = fileInput.files[0];
                 if (!file) return;
 
                 lockButtons();
                 clearError();
                 loading.classList.remove('d-none');
+                setLoadingText(defaultLoadingText);
 
                 const formData = new FormData();
                 formData.append('document', file);
@@ -1262,32 +1355,38 @@
                 const headers = {};
                 if (csrfToken) headers['X-CSRFToken'] = csrfToken.value;
 
-                fetch("{{ url_for('dashboard.user_ocr_upload') }}", {
-                    method: 'POST',
-                    headers: headers,
-                    credentials: 'same-origin',
-                    body: formData
-                })
-                .then(async res => {
+                try {
+                    const res = await fetch(ocrUploadUrl, {
+                        method: 'POST',
+                        headers: headers,
+                        credentials: 'same-origin',
+                        body: formData
+                    });
+
                     const data = await res.json();
                     if (!res.ok || !data.success) {
-                        throw new Error(data.message || uiCopy('ការដំណើរការ OCR បរាជ័យ។', 'OCR processing failed.'));
+                        throw new Error(data.message || 'OCR processing failed.');
                     }
-                    return data;
-                })
-                .then(data => {
+
                     fillFromOcr(data);
                     revealContent(true);
-                })
-                .catch(err => {
+                } catch (err) {
                     console.error('OCR error:', err);
-                    loading.classList.add('d-none');
-                    unlockButtons();
-                    showError(err.message || uiCopy('មិនអាចដំណើរការឯកសារបានទេ។ សូមព្យាយាមម្តងទៀត។', 'Unable to process the selected document. Please try again.'));
-                })
-                .finally(() => {
+                    try {
+                        const fallbackData = await runBrowserOcrFallback(file, headers);
+                        fillFromOcr(fallbackData);
+                        revealContent(true);
+                        return;
+                    } catch (fallbackErr) {
+                        console.error('Browser OCR fallback error:', fallbackErr);
+                        loading.classList.add('d-none');
+                        unlockButtons();
+                        showError(fallbackErr.message || err.message || 'Unable to process the selected document. Please try again.');
+                    }
+                } finally {
+                    setLoadingText(defaultLoadingText);
                     fileInput.value = '';
-                });
+                }
             });
         }
 

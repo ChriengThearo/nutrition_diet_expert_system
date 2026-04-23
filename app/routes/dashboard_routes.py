@@ -2208,6 +2208,27 @@ def user_ocr_upload():
                 pass
 
 
+@dashboard_bp.route("/user/ocr-parse-text", methods=["POST"])
+@login_required
+@user_required
+@csrf.exempt
+@permission_required(
+    "user.dashboard.create",
+    "អ្នកមិនមានសិទ្ធិនាំចូលឯកសារទេ។",
+    json_response=True,
+)
+def user_ocr_parse_text():
+    """Parse OCR plain text into health fields."""
+    payload = request.get_json(silent=True) or {}
+    raw_text = str(payload.get("raw_text") or "").strip()
+    if not raw_text:
+        return jsonify({"success": False, "message": "OCR text is empty."}), 400
+
+    extracted = _parse_health_document(raw_text)
+    extracted["raw_text"] = raw_text
+    return jsonify({"success": True, **extracted})
+
+
 def _extract_gender_from_ocr_layout(ocr_results, image_path, reader):
     """Try to extract gender from layout-aware OCR when text-only parsing misses it."""
     import re
