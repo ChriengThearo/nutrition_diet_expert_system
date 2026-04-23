@@ -211,16 +211,16 @@
                             <ul class="profile-list">
                                 {% if is_guest_mode %}
                                 <li>មិនមានគោលដៅនៅក្នុងរបៀបភ្ញៀវទេ។</li>
-                                {% elif user.goals %}
-                                {% for goal in user.goals %}
-                                <li>{{ goal.name }}</li>
+                                {% elif localized_user_goals %}
+                                {% for goal_name in localized_user_goals %}
+                                <li>{{ goal_name }}</li>
                                 {% endfor %}
-                                {% elif rule_goals %}
-                                {% for goal in rule_goals %}
-                                <li>{{ goal.name }}</li>
+                                {% elif localized_rule_goals %}
+                                {% for goal_name in localized_rule_goals %}
+                                <li>{{ goal_name }}</li>
                                 {% endfor %}
-                                {% elif derived_goal %}
-                                <li>{{ derived_goal }}</li>
+                                {% elif localized_derived_goal %}
+                                <li>{{ localized_derived_goal }}</li>
                                 {% else %}
                                 <li>មិនទាន់ជ្រើសរើសគោលដៅ។</li>
                                 {% endif %}

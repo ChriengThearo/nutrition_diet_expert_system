@@ -97,6 +97,39 @@
             object-fit: cover;
         }
 
+        .language-mode-trigger {
+            border: 1px solid rgba(15, 118, 110, 0.24);
+            border-radius: 999px;
+            padding: 0.36rem 0.72rem;
+            background: rgba(15, 118, 110, 0.08);
+            color: #0f5c52;
+            font-weight: 700;
+            gap: 0.35rem;
+        }
+
+        .language-mode-trigger:hover,
+        .language-mode-trigger:focus {
+            background: rgba(15, 118, 110, 0.16);
+            color: #0b4a43;
+        }
+
+        .language-mode-label {
+            font-size: 0.84rem;
+        }
+
+        .language-mode-code {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            border-radius: 999px;
+            padding: 0.08rem 0.45rem;
+            background: #ffffff;
+            border: 1px solid rgba(15, 118, 110, 0.28);
+            font-size: 0.76rem;
+            line-height: 1.1;
+        }
+
         .loading-spinner {
             display: none;
             position: fixed;
@@ -136,7 +169,8 @@
 
             <!-- Mobile toggle button -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
-                aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                aria-controls="navbarMain" aria-expanded="false"
+                aria-label="{{ 'ប្ដូរម៉ឺនុយរុករក' if ui_lang == 'km' else 'Toggle navigation' }}">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -183,23 +217,23 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-cog me-1"></i>Admin
+                            <i class="fas fa-cog me-1"></i>{{ 'គ្រប់គ្រង' if ui_lang == 'km' else 'Admin' }}
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                             <li><a class="dropdown-item" href="{{ url_for('tbl_users.index') }}">
-                                    <i class="fas fa-users me-2"></i>Users
+                                    <i class="fas fa-users me-2"></i>{{ 'អ្នកប្រើប្រាស់' if ui_lang == 'km' else 'Users' }}
                                 </a></li>
                             <li><a class="dropdown-item" href="{{ url_for('tbl_roles.index') }}">
-                                    <i class="fas fa-user-tag me-2"></i>Roles
+                                    <i class="fas fa-user-tag me-2"></i>{{ 'តួនាទី' if ui_lang == 'km' else 'Roles' }}
                                 </a></li>
                             <li><a class="dropdown-item" href="{{ url_for('tbl_permissions.index') }}">
-                                    <i class="fas fa-key me-2"></i>Permissions
+                                    <i class="fas fa-key me-2"></i>{{ 'សិទ្ធិ' if ui_lang == 'km' else 'Permissions' }}
                                 </a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
                             <li><a class="dropdown-item" href="#">
-                                    <i class="fas fa-chart-bar me-2"></i>Analytics
+                                    <i class="fas fa-chart-bar me-2"></i>{{ 'វិភាគទិន្នន័យ' if ui_lang == 'km' else 'Analytics' }}
                                 </a></li>
                         </ul>
                     </li>
@@ -225,17 +259,18 @@
                     {% endif %}
                     {% set language_display_label = 'ភាសា' if ui_lang == 'km' else 'Language' %}
                     <li class="nav-item dropdown me-2">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
+                        <a class="nav-link dropdown-toggle d-flex align-items-center language-mode-trigger" href="#"
                             id="languageModeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                             title="{{ language_display_label }}">
                             <i class="fas fa-language me-1"></i>
-                            <span class="fw-semibold">{{ 'KH' if ui_lang == 'km' else 'EN' }}</span>
+                            <span class="language-mode-label">{{ language_display_label }}</span>
+                            <span class="language-mode-code">{{ 'KH' if ui_lang == 'km' else 'EN' }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageModeDropdown">
                             <li>
                                 <button class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'km' %}active{% endif %}"
                                     type="button" data-language-option="km">
-                                    <span>ខ្មែរ</span>
+                                    <span>{{ 'ខ្មែរ' if ui_lang == 'km' else 'Khmer' }}</span>
                                     {% if ui_lang == 'km' %}
                                     <i class="fas fa-check text-success"></i>
                                     {% endif %}
@@ -244,7 +279,7 @@
                             <li>
                                 <button class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'en' %}active{% endif %}"
                                     type="button" data-language-option="en">
-                                    <span>English</span>
+                                    <span>{{ 'អង់គ្លេស' if ui_lang == 'km' else 'English' }}</span>
                                     {% if ui_lang == 'en' %}
                                     <i class="fas fa-check text-success"></i>
                                     {% endif %}
@@ -261,7 +296,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown"
                             role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ nav_avatar_url }}" alt="Avatar" class="user-avatar me-2"
+                            <img src="{{ nav_avatar_url }}" alt="{{ 'រូបប្រវត្តិរូប' if ui_lang == 'km' else 'Avatar' }}" class="user-avatar me-2"
                                 onerror="this.onerror=null;this.src='{{ nav_default_avatar_url }}';">
                             <span>{{ nav_display_name }}</span>
                         </a>
@@ -388,7 +423,7 @@
                     <p class="text-muted">
                         <i class="fas fa-envelope me-2"></i>support@nutritionexpert.com<br>
                         <i class="fas fa-phone me-2"></i>+1 (555) 123-4567<br>
-                        <i class="fas fa-map-marker-alt me-2"></i>123 Health St, Medical City
+                        <i class="fas fa-map-marker-alt me-2"></i>{{ '១២៣ ផ្លូវសុខភាព, ទីក្រុងវេជ្ជសាស្ត្រ' if ui_lang == 'km' else '123 Health St, Medical City' }}
                     </p>
                 </div>
             </div>

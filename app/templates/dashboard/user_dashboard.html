@@ -61,7 +61,7 @@
                     <div>
                         <p class="metric-label">ប្រភេទរបបអាហារចុងក្រោយ</p>
                         <p class="metric-value">
-                            {{ 'ធម្មតា' if last_plan and last_plan.diet_type and last_plan.diet_type|lower == 'normal' else 'វីហ្គាន់' if last_plan and last_plan.diet_type and last_plan.diet_type|lower == 'vegan' else (last_plan.diet_type|replace('_', ' ')|title if last_plan and last_plan.diet_type else 'មិនទាន់កំណត់') }}
+                            {{ last_plan.diet_type_label if last_plan and last_plan.diet_type_label else ('មិនទាន់កំណត់' if not last_plan else (last_plan.diet_type|replace('_', ' ')|title if last_plan.diet_type else 'មិនទាន់កំណត់')) }}
                         </p>
                     </div>
                     <span class="metric-icon"><i class="fas fa-utensils"></i></span>
@@ -123,8 +123,8 @@
                         <p class="metric-value">
                             {% if is_guest_mode %}
                             មិនទាន់ជ្រើសរើស
-                            {% elif user.goals %}
-                            {{ user.goals | map(attribute='name') | join(', ') }}
+                            {% elif localized_user_goals %}
+                            {{ localized_user_goals | join(', ') }}
                             {% else %}
                             មិនទាន់ជ្រើសរើស
                             {% endif %}
@@ -206,8 +206,7 @@
                             <li><strong>ឈ្មោះ:</strong> {{ 'បានលាក់នៅក្នុងរបៀបភ្ញៀវ' if is_guest_mode else (user.full_name or 'មិនទាន់កំណត់') }}</li>
                             <li><strong>អ៊ីមែល:</strong> {{ 'បានលាក់នៅក្នុងរបៀបភ្ញៀវ' if is_guest_mode else user.email }}</li>
                             <li><strong>ឈ្មោះអ្នកប្រើប្រាស់:</strong> {{ 'ភ្ញៀវ' if is_guest_mode else user.username }}</li>
-                            <li><strong>គោលដៅ:</strong> {% if is_guest_mode %}មិនទាន់ជ្រើសរើស{% elif user.goals %}{{ user.goals | map(attribute='name') |
-                                join(', ') }}{% else %}មិនទាន់ជ្រើសរើស{% endif %}</li>
+                            <li><strong>គោលដៅ:</strong> {% if is_guest_mode %}មិនទាន់ជ្រើសរើស{% elif localized_user_goals %}{{ localized_user_goals | join(', ') }}{% else %}មិនទាន់ជ្រើសរើស{% endif %}</li>
                             <li><strong>តួនាទី:</strong> {% if is_guest_mode %}<span class="inline-pill">សម័យភ្ញៀវ</span>{% else %}
                                 {% for role in user.roles %}
                                 <span class="inline-pill">{{ 'អ្នកគ្រប់គ្រង' if role.name|lower == 'admin' else 'វេជ្ជបណ្ឌិត' if role.name|lower == 'doctor' else 'អ្នកប្រើប្រាស់' if role.name|lower == 'user' else role.name|title }}</span>
@@ -255,7 +254,7 @@
                                             }}</td>
                                         <td>
                                             <span class="inline-pill">
-                                                {{ 'ធម្មតា' if plan.diet_type and plan.diet_type|lower == 'normal' else 'វីហ្គាន់' if plan.diet_type and plan.diet_type|lower == 'vegan' else (plan.diet_type|replace('_', ' ')|title if plan.diet_type else 'មិនទាន់កំណត់') }}
+                                                {{ plan.diet_type_label if plan.diet_type_label else (plan.diet_type|replace('_', ' ')|title if plan.diet_type else 'មិនទាន់កំណត់') }}
                                             </span>
                                         </td>
                                         <td>{{ plan.meals_per_day if plan.meals_per_day else 'មិនមានទិន្នន័យ' }}</td>

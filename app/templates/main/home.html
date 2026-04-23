@@ -3,11 +3,11 @@
 <html lang="{{ 'km' if ui_lang == 'km' else 'en' }}">
 <head>
   <meta charset="utf-8" />
-  <title>Diet Expert System</title>
+  <title>{{ 'ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Diet Expert System' }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="A nutrition expert system for BMI checks, goal matching, diet rules, and guided healthy planning."
+    content="{{ 'ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភសម្រាប់គណនា BMI ផ្គូផ្គងគោលដៅ របបអាហារ និងការរៀបចំផែនការសុខភាពប្រចាំថ្ងៃ។' if ui_lang == 'km' else 'A nutrition expert system for BMI checks, goal matching, diet rules, and guided healthy planning.' }}"
   />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -106,6 +106,39 @@
 
     .home-dashboard-nav .dashboard-switcher-icon::after {
       top: 7px;
+    }
+
+    .home-dashboard-nav .language-mode-trigger {
+      border: 1px solid rgba(15, 118, 110, 0.24);
+      border-radius: 999px;
+      padding: 0.34rem 0.72rem;
+      background: rgba(15, 118, 110, 0.08);
+      color: #0f5c52;
+      font-weight: 700;
+      gap: 0.35rem;
+    }
+
+    .home-dashboard-nav .language-mode-trigger:hover,
+    .home-dashboard-nav .language-mode-trigger:focus {
+      background: rgba(15, 118, 110, 0.16);
+      color: #0b4a43;
+    }
+
+    .home-dashboard-nav .language-mode-label {
+      font-size: 0.84rem;
+    }
+
+    .home-dashboard-nav .language-mode-code {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      border-radius: 999px;
+      padding: 0.08rem 0.45rem;
+      background: #ffffff;
+      border: 1px solid rgba(15, 118, 110, 0.28);
+      font-size: 0.76rem;
+      line-height: 1.1;
     }
 
     .hero {
@@ -542,7 +575,8 @@
       </a>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#homeNavbarNav"
-        aria-controls="homeNavbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        aria-controls="homeNavbarNav" aria-expanded="false"
+        aria-label="{{ 'ប្ដូរម៉ឺនុយរុករក' if ui_lang == 'km' else 'Toggle navigation' }}">
         <span class="navbar-toggler-icon"></span>
       </button>
 
@@ -580,22 +614,22 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="homeAdminDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false">
-              <i class="fas fa-cog me-1"></i>Admin
+              <i class="fas fa-cog me-1"></i>{{ 'គ្រប់គ្រង' if ui_lang == 'km' else 'Admin' }}
             </a>
             <ul class="dropdown-menu" aria-labelledby="homeAdminDropdown">
               <li>
                 <a class="dropdown-item" href="{{ url_for('tbl_users.index') }}">
-                  <i class="fas fa-users me-2"></i>Users
+                  <i class="fas fa-users me-2"></i>{{ 'អ្នកប្រើប្រាស់' if ui_lang == 'km' else 'Users' }}
                 </a>
               </li>
               <li>
                 <a class="dropdown-item" href="{{ url_for('tbl_roles.index') }}">
-                  <i class="fas fa-user-tag me-2"></i>Roles
+                  <i class="fas fa-user-tag me-2"></i>{{ 'តួនាទី' if ui_lang == 'km' else 'Roles' }}
                 </a>
               </li>
               <li>
                 <a class="dropdown-item" href="{{ url_for('tbl_permissions.index') }}">
-                  <i class="fas fa-key me-2"></i>Permissions
+                  <i class="fas fa-key me-2"></i>{{ 'សិទ្ធិ' if ui_lang == 'km' else 'Permissions' }}
                 </a>
               </li>
             </ul>
@@ -619,17 +653,18 @@
           {% endif %}
           {% set language_display_label = 'ភាសា' if ui_lang == 'km' else 'Language' %}
           <li class="nav-item dropdown me-2">
-            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="homeLanguageModeDropdown"
+            <a class="nav-link dropdown-toggle d-flex align-items-center language-mode-trigger" href="#" id="homeLanguageModeDropdown"
               role="button" data-bs-toggle="dropdown" aria-expanded="false" title="{{ language_display_label }}">
               <i class="fas fa-language me-1"></i>
-              <span class="fw-semibold">{{ 'KH' if ui_lang == 'km' else 'EN' }}</span>
+              <span class="language-mode-label">{{ language_display_label }}</span>
+              <span class="language-mode-code">{{ 'KH' if ui_lang == 'km' else 'EN' }}</span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="homeLanguageModeDropdown">
               <li>
                 <button
                   class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'km' %}active{% endif %}"
                   type="button" data-language-option="km">
-                  <span>ខ្មែរ</span>
+                  <span>{{ 'ខ្មែរ' if ui_lang == 'km' else 'Khmer' }}</span>
                   {% if ui_lang == 'km' %}
                   <i class="fas fa-check text-success"></i>
                   {% endif %}
@@ -639,7 +674,7 @@
                 <button
                   class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'en' %}active{% endif %}"
                   type="button" data-language-option="en">
-                  <span>English</span>
+                  <span>{{ 'អង់គ្លេស' if ui_lang == 'km' else 'English' }}</span>
                   {% if ui_lang == 'en' %}
                   <i class="fas fa-check text-success"></i>
                   {% endif %}
@@ -656,7 +691,7 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="homeUserDropdown" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="{{ nav_avatar_url }}" alt="Avatar" class="user-avatar me-2"
+              <img src="{{ nav_avatar_url }}" alt="{{ 'រូបប្រវត្តិរូប' if ui_lang == 'km' else 'Avatar' }}" class="user-avatar me-2"
                 onerror="this.onerror=null;this.src='{{ nav_default_avatar_url }}';">
               <span>{{ nav_display_name }}</span>
             </a>
@@ -698,34 +733,34 @@
     <main>
       <section class="hero">
         <div class="hero-copy">
-          <h1>Build smarter diet decisions with practical daily tools.</h1>
+          <h1>{{ 'រៀបចំការសម្រេចចិត្តអាហារឱ្យឆ្លាតជាងមុន ជាមួយឧបករណ៍ប្រចាំថ្ងៃដែលអនុវត្តបានពិត។' if ui_lang == 'km' else 'Build smarter diet decisions with practical daily tools.' }}</h1>
 
           <div class="trust-grid">
             <div class="trust-item">
-              <strong>BMI Check</strong>
-              <span>Quick health status input</span>
+              <strong>{{ 'ពិនិត្យ BMI' if ui_lang == 'km' else 'BMI Check' }}</strong>
+              <span>{{ 'បញ្ចូលស្ថានភាពសុខភាពបានរហ័ស' if ui_lang == 'km' else 'Quick health status input' }}</span>
             </div>
             <div class="trust-item">
-              <strong>Diet Rules</strong>
-              <span>Structured recommendations</span>
+              <strong>{{ 'ច្បាប់អាហារ' if ui_lang == 'km' else 'Diet Rules' }}</strong>
+              <span>{{ 'អនុសាសន៍មានរចនាសម្ព័ន្ធ' if ui_lang == 'km' else 'Structured recommendations' }}</span>
             </div>
             <div class="trust-item">
-              <strong>Goal Focused</strong>
-              <span>Plans aligned to your intent</span>
+              <strong>{{ 'ផ្តោតលើគោលដៅ' if ui_lang == 'km' else 'Goal Focused' }}</strong>
+              <span>{{ 'ផែនការសមស្របតាមគោលបំណងរបស់អ្នក' if ui_lang == 'km' else 'Plans aligned to your intent' }}</span>
             </div>
           </div>
 
           <div class="hero-actions">
             {% if current_user.is_authenticated %}
             <a class="btn-main" href="{{ url_for('dashboard.dashboard_home') }}">
-              <i class="fas fa-chart-line"></i>Go to Dashboard
+              <i class="fas fa-chart-line"></i>{{ 'ទៅកាន់ផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Go to Dashboard' }}
             </a>
             {% else %}
             <a class="btn-main" href="{{ url_for('auth.register') }}">
-              <i class="fas fa-user-plus"></i>Create Account
+              <i class="fas fa-user-plus"></i>{{ 'បង្កើតគណនី' if ui_lang == 'km' else 'Create Account' }}
             </a>
             <a class="btn-subtle" href="{{ url_for('auth.login') }}">
-              <i class="fas fa-right-to-bracket"></i>Sign In
+              <i class="fas fa-right-to-bracket"></i>{{ 'ចូលគណនី' if ui_lang == 'km' else 'Sign In' }}
             </a>
             {% endif %}
           </div>
@@ -734,17 +769,17 @@
         <div class="hero-panel">
           <div class="img-slider">
             <div class="img-slider-track" id="homeSlider">
-              <img src="{{ url_for('static', filename='images/woman.png') }}" alt="Healthy food lifestyle" />
-              <img src="{{ url_for('static', filename='images/a_dish_of_food.png') }}" alt="Healthy dish" />
-              <img src="{{ url_for('static', filename='images/recommendation.jpg') }}" alt="Nutrition recommendation" />
-              <img src="{{ url_for('static', filename='images/woman.png') }}" alt="Healthy food lifestyle" />
+              <img src="{{ url_for('static', filename='images/woman.png') }}" alt="{{ 'របៀបរស់នៅអាហារសុខភាពល្អ' if ui_lang == 'km' else 'Healthy food lifestyle' }}" />
+              <img src="{{ url_for('static', filename='images/a_dish_of_food.png') }}" alt="{{ 'មុខម្ហូបសុខភាពល្អ' if ui_lang == 'km' else 'Healthy dish' }}" />
+              <img src="{{ url_for('static', filename='images/recommendation.jpg') }}" alt="{{ 'អនុសាសន៍អាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Nutrition recommendation' }}" />
+              <img src="{{ url_for('static', filename='images/woman.png') }}" alt="{{ 'របៀបរស់នៅអាហារសុខភាពល្អ' if ui_lang == 'km' else 'Healthy food lifestyle' }}" />
             </div>
           </div>
           <div class="hero-floating float-a">
             <i class="fas fa-apple-whole"></i>
             <div>
-              <strong>Balanced Choices</strong>
-              <span>Nutrition-first recommendations</span>
+              <strong>{{ 'ជម្រើសសមតុល្យ' if ui_lang == 'km' else 'Balanced Choices' }}</strong>
+              <span>{{ 'អនុសាសន៍ផ្តោតលើអាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Nutrition-first recommendations' }}</span>
             </div>
           </div>
         </div>
@@ -752,44 +787,44 @@
 
 
       <section>
-        <h2 class="section-title">How It Works</h2>
+        <h2 class="section-title">{{ 'ដំណើរការប្រើប្រាស់' if ui_lang == 'km' else 'How It Works' }}</h2>
         <p class="section-subtitle">
-          A simple three-step process to make your plan practical and repeatable.
+          {{ 'ត្រឹម ៣ ជំហានសាមញ្ញ ដើម្បីធ្វើឱ្យផែនការអាចអនុវត្តបានជាប្រចាំ។' if ui_lang == 'km' else 'A simple three-step process to make your plan practical and repeatable.' }}
         </p>
         <div class="steps">
           <article class="step">
             <span class="step-index">1</span>
-            <h4>Assess Your Baseline</h4>
-            <p>Start with BMI and your health goals so the system has a clear context.</p>
+            <h4>{{ 'វាយតម្លៃស្ថានភាពដំបូង' if ui_lang == 'km' else 'Assess Your Baseline' }}</h4>
+            <p>{{ 'ចាប់ផ្តើមពី BMI និងគោលដៅសុខភាព ដើម្បីឱ្យប្រព័ន្ធយល់បរិបទបានច្បាស់។' if ui_lang == 'km' else 'Start with BMI and your health goals so the system has a clear context.' }}</p>
           </article>
           <article class="step">
             <span class="step-index">2</span>
-            <h4>Get Rule-Based Suggestions</h4>
-            <p>Review diet recommendations generated from validated rules and goal matching.</p>
+            <h4>{{ 'ទទួលបានអនុសាសន៍ផ្អែកលើច្បាប់' if ui_lang == 'km' else 'Get Rule-Based Suggestions' }}</h4>
+            <p>{{ 'ពិនិត្យអនុសាសន៍អាហារដែលបង្កើតពីច្បាប់ត្រឹមត្រូវ និងការផ្គូផ្គងគោលដៅ។' if ui_lang == 'km' else 'Review diet recommendations generated from validated rules and goal matching.' }}</p>
           </article>
           <article class="step">
             <span class="step-index">3</span>
-            <h4>Track and Adjust</h4>
-            <p>Use your dashboard to monitor outcomes and refine the plan when needed.</p>
+            <h4>{{ 'តាមដាន និងកែសម្រួល' if ui_lang == 'km' else 'Track and Adjust' }}</h4>
+            <p>{{ 'ប្រើផ្ទាំងគ្រប់គ្រងរបស់អ្នក ដើម្បីតាមដានលទ្ធផល និងកែផែនការតាមតម្រូវការ។' if ui_lang == 'km' else 'Use your dashboard to monitor outcomes and refine the plan when needed.' }}</p>
           </article>
         </div>
       </section>
 
       <section class="bottom-cta">
         <div>
-          <h3>Ready to personalize your nutrition plan?</h3>
-          <p>Join now and move from generic advice to role-based, actionable recommendations.</p>
+          <h3>{{ 'រួចរាល់សម្រាប់ផែនការអាហារផ្ទាល់ខ្លួនរបស់អ្នកហើយឬនៅ?' if ui_lang == 'km' else 'Ready to personalize your nutrition plan?' }}</h3>
+          <p>{{ 'ចូលរួមឥឡូវនេះ ដើម្បីផ្លាស់ប្តូរពីដំបូន្មានទូទៅ ទៅជាអនុសាសន៍ជាក់លាក់ដែលអាចអនុវត្តបាន។' if ui_lang == 'km' else 'Join now and move from generic advice to role-based, actionable recommendations.' }}</p>
         </div>
         {% if current_user.is_authenticated %}
-        <a href="{{ url_for('dashboard.dashboard_home') }}">Open Dashboard</a>
+        <a href="{{ url_for('dashboard.dashboard_home') }}">{{ 'បើកផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Open Dashboard' }}</a>
         {% else %}
-        <a href="{{ url_for('auth.register') }}">Start Free</a>
+        <a href="{{ url_for('auth.register') }}">{{ 'ចាប់ផ្តើមឥតគិតថ្លៃ' if ui_lang == 'km' else 'Start Free' }}</a>
         {% endif %}
       </section>
     </main>
 
     <footer class="page-footer">
-      <small>&copy; 2026 Diet Expert System</small>
+      <small>&copy; 2026 {{ 'ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Diet Expert System' }}</small>
     </footer>
   </div>
 

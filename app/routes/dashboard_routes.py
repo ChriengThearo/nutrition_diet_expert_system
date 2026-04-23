@@ -29,10 +29,177 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import selectinload
 import json
 import os
+import re
 import uuid
 from werkzeug.utils import secure_filename
 
 dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
+
+
+def _is_khmer_ui():
+    return str(session.get("ui_lang", "km")).strip().lower() != "en"
+
+
+def _normalize_text(value):
+    return str(value or "").strip()
+
+
+def _localize_goal_name(value):
+    text = _normalize_text(value)
+    if not text:
+        return "មិនទាន់ជ្រើសរើស"
+
+    token = text.lower().replace("-", " ").replace("_", " ")
+    token = " ".join(token.split())
+
+    if any(
+        key in token
+        for key in (
+            "maintain weight",
+            "maintenance weight",
+            "weight maintenance",
+            "maintenance",
+            "maintain",
+            "balance weight",
+        )
+    ):
+        return "រក្សាទម្ងន់"
+
+    if any(
+        key in token
+        for key in (
+            "lose weight",
+            "weight loss",
+            "reduce weight",
+            "fat loss",
+            "slim",
+        )
+    ):
+        return "បញ្ចុះទម្ងន់"
+
+    if any(
+        key in token
+        for key in (
+            "gain muscle",
+            "muscle gain",
+            "build muscle",
+            "muscle",
+        )
+    ):
+        return "បង្កើនសាច់ដុំ"
+
+    if any(key in token for key in ("gain weight", "weight gain")):
+        return "បង្កើនទម្ងន់"
+
+    if any(
+        key in token
+        for key in (
+            "blood sugar",
+            "diabetes control",
+            "diabetes management",
+            "glucose control",
+            "prediabetes",
+            "diabetes",
+        )
+    ):
+        return "គ្រប់គ្រងជាតិស្ករក្នុងឈាម"
+
+    if any(key in token for key in ("improve health", "health improvement")):
+        return "លើកកម្ពស់សុខភាព"
+
+    if any(key in token for key in ("athletic performance", "sport performance")):
+        return "បង្កើនសមត្ថភាពកីឡា"
+
+    if "detox" in token:
+        return "បន្សាបជាតិពុល"
+
+    return text
+
+
+def _localize_diet_type(value):
+    text = _normalize_text(value)
+    if not text:
+        return "មិនទាន់កំណត់"
+
+    token = text.lower().replace("-", "_").replace(" ", "_")
+    mapping = {
+        "normal": "ធម្មតា",
+        "vegan": "វីហ្គាន់",
+        "vegetarian": "បួស",
+        "keto": "គីតូ",
+        "low_carb": "កាបូអ៊ីដ្រាតទាប",
+        "mediterranean": "មេឌីទែរ៉ាណេ",
+        "high_protein": "ប្រូតេអ៊ីនខ្ពស់",
+        "paleo": "ផាលេអូ",
+        "pescatarian": "បួសត្រី",
+    }
+    return mapping.get(token, text)
+
+
+def _localize_allergy_name(value):
+    text = _normalize_text(value)
+    if not text:
+        return ""
+
+    token = text.lower().replace("-", "_").replace(" ", "_")
+    if token in {"none", "no_allergy", "no_allergies", "na", "n_a"}:
+        return ""
+    mapping = {
+        "seafood": "អាហារសមុទ្រ",
+        "shellfish": "សត្វសំបក",
+        "shrimp": "បង្គា",
+        "crab": "ក្តាម",
+        "lobster": "បង្កងសមុទ្រ",
+        "fish": "ត្រី",
+        "egg": "ស៊ុត",
+        "eggs": "ស៊ុត",
+        "soy": "សណ្ដែកសៀង",
+        "soya": "សណ្ដែកសៀង",
+        "soybean": "សណ្ដែកសៀង",
+        "milk": "ទឹកដោះគោ",
+        "dairy": "ផលិតផលទឹកដោះគោ",
+        "lactose": "ឡាក់តូស",
+        "peanut": "សណ្តែកដី",
+        "peanuts": "សណ្តែកដី",
+        "nut": "គ្រាប់ធញ្ញជាតិ",
+        "nuts": "គ្រាប់ធញ្ញជាតិ",
+        "almond": "អាល់ម៉ុន",
+        "cashew": "ស្វាយចន្ទី",
+        "walnut": "គ្រាប់វ៉ាល់ណាត់",
+        "gluten": "ក្លុយតែន",
+        "wheat": "ស្រូវសាលី",
+        "sesame": "ល្ង",
+        "mustard": "មូស្តាដ",
+    }
+    return mapping.get(token, text)
+
+
+def _localize_allergies(values):
+    if not values:
+        return "មិនមាន"
+
+    if isinstance(values, (list, tuple, set)):
+        raw_items = list(values)
+    else:
+        text = _normalize_text(values)
+        if not text:
+            return "មិនមាន"
+        text = re.sub(r"\band\b", ",", text, flags=re.IGNORECASE)
+        raw_items = re.split(r"[;,/|]+", text)
+
+    labels = []
+    seen = set()
+    for item in raw_items:
+        label = _localize_allergy_name(item)
+        if not label:
+            continue
+        key = label.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        labels.append(label)
+
+    return ", ".join(labels) if labels else "មិនមាន"
 
 
 def _to_int_list(values):
@@ -1544,19 +1711,6 @@ def user_dashboard():
     )
     plan_total = 0
 
-    def format_allergies(values):
-        if not values:
-            return "មិនមាន"
-        if not isinstance(values, list):
-            values = [values]
-        cleaned = []
-        for item in values:
-            text = str(item).strip()
-            if not text:
-                continue
-            cleaned.append(text.replace("_", " ").title())
-        return ", ".join(cleaned) if cleaned else "មិនមាន"
-
     def to_rounded_float(value, precision=1):
         try:
             if value in (None, ""):
@@ -1633,6 +1787,7 @@ def user_dashboard():
             health = form_data.get("health") or {}
             preferences = form_data.get("preferences") or {}
             allergies = profile.get("allergies") or health.get("allergies") or []
+            diet_type_raw = profile.get("diet_type") or health.get("dietType")
 
             plan_history.append(
                 {
@@ -1646,10 +1801,11 @@ def user_dashboard():
                     "blood_sugar": profile.get("blood_sugar")
                     if profile.get("blood_sugar") is not None
                     else health.get("blood_sugar"),
-                    "diet_type": profile.get("diet_type") or health.get("dietType"),
+                    "diet_type": diet_type_raw,
+                    "diet_type_label": _localize_diet_type(diet_type_raw),
                     "meals_per_day": profile.get("meals_per_day")
                     or preferences.get("mealsPerDay"),
-                    "allergies": format_allergies(allergies),
+                    "allergies": _localize_allergies(allergies),
                 }
             )
             if len(plan_history) >= 8:
@@ -1667,6 +1823,7 @@ def user_dashboard():
                     generated_at = datetime.fromisoformat(raw_generated_at)
                 except Exception:
                     generated_at = None
+            diet_type_raw = entry.get("diet_type")
             guest_plan_history.append(
                 {
                     "id": entry.get("id") or f"guest-{uuid.uuid4().hex[:8]}",
@@ -1677,9 +1834,10 @@ def user_dashboard():
                     "sugar": entry.get("sugar"),
                     "fat": entry.get("fat"),
                     "blood_sugar": entry.get("blood_sugar"),
-                    "diet_type": entry.get("diet_type"),
+                    "diet_type": diet_type_raw,
+                    "diet_type_label": _localize_diet_type(diet_type_raw),
                     "meals_per_day": entry.get("meals_per_day"),
-                    "allergies": entry.get("allergies") or "មិនមាន",
+                    "allergies": _localize_allergies(entry.get("allergies")),
                 }
             )
 
@@ -1713,6 +1871,7 @@ def user_dashboard():
         user_stats=user_stats,
         plan_history=plan_history,
         plan_total=plan_total,
+        localized_user_goals=[_localize_goal_name(goal.name) for goal in current_user.goals],
         guest_mode=guest_mode_enabled,
     )
 
@@ -1732,6 +1891,9 @@ def user_profile():
             user=current_user,
             derived_goal=None,
             rule_goals=[],
+            localized_user_goals=[],
+            localized_rule_goals=[],
+            localized_derived_goal=None,
             guest_mode=True,
         )
 
@@ -1772,11 +1934,18 @@ def user_profile():
         except Exception:
             current_app.logger.exception("Failed to derive goal from latest plan")
 
+    localized_user_goals = [_localize_goal_name(goal.name) for goal in current_user.goals]
+    localized_rule_goals = [_localize_goal_name(goal.name) for goal in rule_goals]
+    localized_derived_goal = _localize_goal_name(derived_goal) if derived_goal else None
+
     return render_template(
         "dashboard/user_profile.html",
         user=current_user,
         derived_goal=derived_goal,
         rule_goals=rule_goals,
+        localized_user_goals=localized_user_goals,
+        localized_rule_goals=localized_rule_goals,
+        localized_derived_goal=localized_derived_goal,
         guest_mode=False,
     )
 
@@ -2415,7 +2584,7 @@ def set_language_mode():
     language = str(payload.get("language", "")).strip().lower()
 
     if language not in {"km", "en"}:
-        return jsonify({"success": False, "message": "Unsupported language mode."}), 400
+        return jsonify({"success": False, "message": "មុខងារភាសានេះមិនត្រូវបានគាំទ្រទេ។"}), 400
 
     session["ui_lang"] = language
     session.modified = True
@@ -2536,19 +2705,6 @@ def user_dashboard_submit():
     payload = request.get_json(silent=True) or {}
     guest_mode_enabled = bool(session.get("user_guest_mode"))
 
-    def format_allergies(values):
-        if not values:
-            return "មិនមាន"
-        if not isinstance(values, list):
-            values = [values]
-        cleaned = []
-        for item in values:
-            text = str(item).strip()
-            if not text:
-                continue
-            cleaned.append(text.replace("_", " ").title())
-        return ", ".join(cleaned) if cleaned else "មិនមាន"
-
     try:
         result = DashboardService.save_user_dashboard_submission(
             current_user.id, payload, persist=not guest_mode_enabled
@@ -2574,7 +2730,7 @@ def user_dashboard_submit():
                 "diet_type": profile.get("diet_type") or health.get("dietType"),
                 "meals_per_day": profile.get("meals_per_day")
                 or preferences.get("mealsPerDay"),
-                "allergies": format_allergies(allergies),
+                "allergies": _localize_allergies(allergies),
             }
 
             guest_plan_history = session.get("guest_plan_history", [])
@@ -2730,11 +2886,16 @@ def dashboard_home():
 # Error handlers
 @dashboard_bp.errorhandler(403)
 def forbidden(e):
-    flash("You do not have permission to access this page.", "danger")
+    flash(
+        "អ្នកមិនមានសិទ្ធិចូលប្រើទំព័រនេះទេ។"
+        if _is_khmer_ui()
+        else "You do not have permission to access this page.",
+        "danger",
+    )
     return redirect(url_for("auth.login"))
 
 
 @dashboard_bp.errorhandler(404)
 def not_found(e):
-    flash("Page not found.", "warning")
+    flash("រកមិនឃើញទំព័រនេះទេ។" if _is_khmer_ui() else "Page not found.", "warning")
     return redirect(url_for("main.home"))
