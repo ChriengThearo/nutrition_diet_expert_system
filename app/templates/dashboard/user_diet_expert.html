@@ -933,7 +933,7 @@
         let resultFoodGroups = [];
         let activeResultFoodGroupIndex = 0;
         let submitBtnLabel = '';
-        const uiLang = "{{ 'en' if session.get('ui_lang', 'km') == 'en' else 'km' }}";
+        const uiLang = "{{ 'km' if session.get('ui_lang', 'en') == 'km' else 'en' }}";
 
         function isEnglishUI() {
             return uiLang === 'en';

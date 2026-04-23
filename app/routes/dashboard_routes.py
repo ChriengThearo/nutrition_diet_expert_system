@@ -37,7 +37,7 @@ dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
 
 def _is_khmer_ui():
-    return str(session.get("ui_lang", "km")).strip().lower() != "en"
+    return str(session.get("ui_lang", "en")).strip().lower() == "km"
 
 
 def _normalize_text(value):
@@ -2061,11 +2061,21 @@ def user_ocr_upload():
                 response = requests.post(
                     endpoint, data=data, files=files, timeout=timeout_seconds
                 )
-            response.raise_for_status()
+            if not response.ok:
+                body = (response.text or "").strip().replace("\n", " ")
+                if len(body) > 240:
+                    body = body[:240] + "..."
+                current_app.logger.warning(
+                    "Cloud OCR HTTP %s response: %s", response.status_code, body
+                )
+                return (
+                    None,
+                    f"Cloud OCR HTTP {response.status_code}. {body or 'No response details.'}",
+                )
             payload = response.json()
         except Exception as exc:
             current_app.logger.warning("Cloud OCR request failed: %s", exc)
-            return None, "Cloud OCR request failed."
+            return None, f"Cloud OCR request failed: {exc}"
 
         if payload.get("IsErroredOnProcessing"):
             details = payload.get("ErrorMessage") or payload.get("ErrorDetails")
