@@ -2031,12 +2031,64 @@ def user_diet_expert():
     json_response=True,
 )
 def user_ocr_upload():
-    """Extract health data from an uploaded document using EasyOCR."""
+    """Extract health data from an uploaded document using cloud OCR or EasyOCR."""
     import tempfile
+
+    def _extract_text_with_ocr_space(file_path, filename):
+        api_key = (os.getenv("OCR_SPACE_API_KEY") or "").strip()
+        if not api_key:
+            return None, "Cloud OCR is not configured."
+
+        try:
+            import requests
+        except Exception:
+            return None, "Cloud OCR dependency is unavailable."
+
+        endpoint = os.getenv("OCR_SPACE_ENDPOINT", "https://api.ocr.space/parse/image")
+        timeout_seconds = int(os.getenv("OCR_HTTP_TIMEOUT", "45"))
+
+        data = {
+            "apikey": api_key,
+            "language": os.getenv("OCR_SPACE_LANGUAGE", "eng"),
+            "isOverlayRequired": "false",
+            "OCREngine": os.getenv("OCR_SPACE_ENGINE", "2"),
+            "scale": "true",
+        }
+
+        try:
+            with open(file_path, "rb") as f:
+                files = {"file": (filename or os.path.basename(file_path), f)}
+                response = requests.post(
+                    endpoint, data=data, files=files, timeout=timeout_seconds
+                )
+            response.raise_for_status()
+            payload = response.json()
+        except Exception as exc:
+            current_app.logger.warning("Cloud OCR request failed: %s", exc)
+            return None, "Cloud OCR request failed."
+
+        if payload.get("IsErroredOnProcessing"):
+            details = payload.get("ErrorMessage") or payload.get("ErrorDetails")
+            if isinstance(details, list):
+                details = "; ".join(str(item) for item in details if item)
+            return None, str(details or "Cloud OCR failed to parse this file.")
+
+        parsed_results = payload.get("ParsedResults") or []
+        chunks = []
+        for item in parsed_results:
+            parsed_text = str(item.get("ParsedText") or "").strip()
+            if parsed_text:
+                chunks.append(parsed_text)
+
+        full_text = "\n".join(chunks).strip()
+        if not full_text:
+            return None, "Cloud OCR returned no readable text."
+
+        return full_text, None
 
     uploaded = request.files.get("document")
     if not uploaded or not uploaded.filename:
-        return jsonify({"success": False, "message": "មិនមានឯកសារត្រូវបានផ្ទុកឡើងទេ។"}), 400
+        return jsonify({"success": False, "message": "No document was uploaded."}), 400
 
     allowed_ext = {"png", "jpg", "jpeg", "bmp", "tiff", "tif", "pdf"}
     ext = (
@@ -2045,16 +2097,18 @@ def user_ocr_upload():
         else ""
     )
     if ext not in allowed_ext:
-        return jsonify({"success": False, "message": "ប្រភេទឯកសារនេះមិនត្រូវបានគាំទ្រទេ។"}), 400
+        return jsonify({"success": False, "message": "Unsupported file type."}), 400
 
     tmp_path = None
     pdf_img_path = None
+    cloud_ocr_enabled = bool((os.getenv("OCR_SPACE_API_KEY") or "").strip())
+
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}") as tmp:
             uploaded.save(tmp)
             tmp_path = tmp.name
 
-        # Convert PDF first page to image if needed
+        # Convert PDF first page to image if needed for EasyOCR fallback.
         image_path = tmp_path
         if ext == "pdf":
             try:
@@ -2066,42 +2120,60 @@ def user_ocr_upload():
                     images[0].save(pdf_img_path, "PNG")
                     image_path = pdf_img_path
             except ImportError:
-                return (
-                    jsonify(
-                        {
-                            "success": False,
-                            "message": "ការគាំទ្រ PDF ត្រូវការ pdf2image។ សូមផ្ទុកឯកសាររូបភាពជំនួស។",
-                        }
-                    ),
-                    400,
+                if not cloud_ocr_enabled:
+                    return (
+                        jsonify(
+                            {
+                                "success": False,
+                                "message": "PDF OCR requires cloud OCR or pdf2image.",
+                            }
+                        ),
+                        400,
+                    )
+                current_app.logger.info(
+                    "pdf2image unavailable; trying cloud OCR with original PDF."
                 )
 
-        try:
-            import easyocr
-        except ImportError:
-            return (
-                jsonify(
-                    {
-                        "success": False,
-                        "message": "OCR service is unavailable in this deployment.",
-                    }
-                ),
-                503,
+        full_text = None
+        reader = None
+        results = None
+        cloud_error_message = None
+
+        if cloud_ocr_enabled:
+            full_text, cloud_error_message = _extract_text_with_ocr_space(
+                file_path=image_path,
+                filename=uploaded.filename,
             )
+            if full_text:
+                current_app.logger.info(
+                    "Cloud OCR extracted %d characters from uploaded document",
+                    len(full_text),
+                )
 
-        reader = easyocr.Reader(["en"], gpu=False, verbose=False)
-        results = reader.readtext(image_path)
+        can_use_easyocr = not (ext == "pdf" and not pdf_img_path)
+        if not full_text and can_use_easyocr:
+            try:
+                import easyocr
+            except ImportError:
+                easyocr = None
 
-        # Keep low-confidence tokens as well; small values like "F" can be weak.
-        lines = [text for _, text, conf in results if conf > 0.05]
+            if easyocr is not None:
+                reader = easyocr.Reader(["en"], gpu=False, verbose=False)
+                results = reader.readtext(image_path)
 
-        full_text = "\n".join(lines)
-        current_app.logger.info(
-            "OCR extracted %d lines from uploaded document", len(lines)
-        )
+                # Keep low-confidence tokens as well; small values like "F" can be weak.
+                lines = [text for _, text, conf in results if conf > 0.05]
+                full_text = "\n".join(lines)
+                current_app.logger.info(
+                    "EasyOCR extracted %d lines from uploaded document", len(lines)
+                )
+
+        if not full_text:
+            message = cloud_error_message or "OCR service is unavailable in this deployment."
+            return jsonify({"success": False, "message": message}), 503
 
         extracted = _parse_health_document(full_text)
-        if not extracted.get("gender"):
+        if not extracted.get("gender") and results and reader is not None:
             extracted["gender"] = _extract_gender_from_ocr_layout(
                 ocr_results=results,
                 image_path=image_path,
@@ -2112,12 +2184,7 @@ def user_ocr_upload():
         return jsonify({"success": True, **extracted})
     except Exception as e:
         current_app.logger.exception("OCR processing failed")
-        return (
-            jsonify(
-                {"success": False, "message": f"ការដំណើរការ OCR បរាជ័យ៖ {str(e)}"}
-            ),
-            500,
-        )
+        return jsonify({"success": False, "message": f"OCR processing failed: {str(e)}"}), 500
     finally:
         if tmp_path:
             try:
@@ -2910,3 +2977,4 @@ def forbidden(e):
 def not_found(e):
     flash("រកមិនឃើញទំព័រនេះទេ។" if _is_khmer_ui() else "Page not found.", "warning")
     return redirect(url_for("main.home"))
+
