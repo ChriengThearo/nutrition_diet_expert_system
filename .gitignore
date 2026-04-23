@@ -1,5 +1,11 @@
 .venv/
-__pycache__/
 .vscode/
-.venv/
-.env/
+__pycache__/
+*.pyc
+*.pyo
+
+.env
+.env.*
+!.env.example
+
+instance/*.db

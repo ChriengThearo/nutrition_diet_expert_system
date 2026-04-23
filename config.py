@@ -28,8 +28,11 @@ def _normalize_database_url(raw_url: str | None) -> str | None:
 
 
 class Config:
+    IS_VERCEL = os.getenv("VERCEL") == "1"
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-this")
-    SKIP_DB_CREATE_ALL = os.getenv("SKIP_DB_CREATE_ALL", "0") == "1"
+    SKIP_DB_CREATE_ALL = os.getenv(
+        "SKIP_DB_CREATE_ALL", "1" if IS_VERCEL else "0"
+    ) == "1"
 
     # Database configuration from .env
     DATABASE_URL = _normalize_database_url(
@@ -76,7 +79,11 @@ class Config:
             SQLALCHEMY_ENGINE_OPTIONS["connect_args"] = connect_args
 
     # Security
-    SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
-    REMEMBER_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = os.getenv(
+        "SESSION_COOKIE_SECURE", "1" if IS_VERCEL else "0"
+    ) == "1"
+    REMEMBER_COOKIE_SECURE = os.getenv(
+        "REMEMBER_COOKIE_SECURE", "1" if IS_VERCEL else "0"
+    ) == "1"
     SESSION_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_HTTPONLY = True
