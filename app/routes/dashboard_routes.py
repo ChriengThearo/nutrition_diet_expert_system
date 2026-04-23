@@ -2031,8 +2031,120 @@ def user_diet_expert():
     json_response=True,
 )
 def user_ocr_upload():
-    """Extract health data from an uploaded document using cloud OCR or EasyOCR."""
+    """Extract health data from an uploaded document using Azure/OCR.Space/EasyOCR."""
     import tempfile
+
+    def _extract_text_with_azure_vision(file_path, filename):
+        endpoint = (os.getenv("AZURE_VISION_ENDPOINT") or "").strip()
+        api_key = (os.getenv("AZURE_VISION_KEY") or "").strip()
+        if not endpoint or not api_key:
+            return None, "Azure OCR is not configured."
+
+        try:
+            import requests
+        except Exception:
+            return None, "Cloud OCR dependency is unavailable."
+
+        import time
+
+        endpoint = endpoint.rstrip("/")
+        analyze_url = f"{endpoint}/vision/v3.2/read/analyze"
+        timeout_seconds = int(os.getenv("OCR_HTTP_TIMEOUT", "45"))
+        poll_interval = max(
+            0.25, float(os.getenv("AZURE_OCR_POLL_INTERVAL_SECONDS", "1.2"))
+        )
+        max_polls = max(1, int(os.getenv("AZURE_OCR_MAX_POLLS", "20")))
+
+        params = {"model-version": "latest"}
+        language = (os.getenv("AZURE_OCR_LANGUAGE") or "").strip()
+        if language:
+            params["language"] = language
+
+        headers = {
+            "Ocp-Apim-Subscription-Key": api_key,
+            "Content-Type": "application/octet-stream",
+        }
+
+        try:
+            with open(file_path, "rb") as f:
+                response = requests.post(
+                    analyze_url,
+                    params=params,
+                    headers=headers,
+                    data=f,
+                    timeout=timeout_seconds,
+                )
+        except Exception as exc:
+            current_app.logger.warning("Azure OCR request failed: %s", exc)
+            return None, f"Azure OCR request failed: {exc}"
+
+        if response.status_code == 429:
+            return None, "Azure OCR rate limit reached. Please try again later."
+
+        if not response.ok:
+            body = (response.text or "").strip().replace("\n", " ")
+            if len(body) > 240:
+                body = body[:240] + "..."
+            current_app.logger.warning(
+                "Azure OCR HTTP %s response: %s", response.status_code, body
+            )
+            return (
+                None,
+                f"Azure OCR HTTP {response.status_code}. {body or 'No response details.'}",
+            )
+
+        operation_location = (
+            response.headers.get("Operation-Location")
+            or response.headers.get("operation-location")
+        )
+        if not operation_location:
+            return None, "Azure OCR did not return an operation URL."
+
+        poll_headers = {"Ocp-Apim-Subscription-Key": api_key}
+        for _ in range(max_polls):
+            try:
+                poll_response = requests.get(
+                    operation_location, headers=poll_headers, timeout=timeout_seconds
+                )
+            except Exception as exc:
+                current_app.logger.warning("Azure OCR polling failed: %s", exc)
+                return None, f"Azure OCR polling failed: {exc}"
+
+            if poll_response.status_code == 429:
+                time.sleep(poll_interval)
+                continue
+
+            if not poll_response.ok:
+                body = (poll_response.text or "").strip().replace("\n", " ")
+                if len(body) > 240:
+                    body = body[:240] + "..."
+                return (
+                    None,
+                    f"Azure OCR poll HTTP {poll_response.status_code}. {body or 'No response details.'}",
+                )
+
+            payload = poll_response.json()
+            status = str(payload.get("status") or "").strip().lower()
+            if status == "succeeded":
+                read_results = (payload.get("analyzeResult") or {}).get("readResults") or []
+                lines = []
+                for page in read_results:
+                    for line in page.get("lines") or []:
+                        text = str(line.get("text") or "").strip()
+                        if text:
+                            lines.append(text)
+
+                full_text = "\n".join(lines).strip()
+                if not full_text:
+                    return None, "Azure OCR returned no readable text."
+                return full_text, None
+
+            if status == "failed":
+                return None, "Azure OCR failed to parse this file."
+
+            time.sleep(poll_interval)
+
+        return None, "Azure OCR timed out while processing the document."
 
     def _extract_text_with_ocr_space(file_path, filename):
         api_key = (os.getenv("OCR_SPACE_API_KEY") or "").strip()
@@ -2111,7 +2223,12 @@ def user_ocr_upload():
 
     tmp_path = None
     pdf_img_path = None
-    cloud_ocr_enabled = bool((os.getenv("OCR_SPACE_API_KEY") or "").strip())
+    azure_ocr_enabled = bool(
+        (os.getenv("AZURE_VISION_ENDPOINT") or "").strip()
+        and (os.getenv("AZURE_VISION_KEY") or "").strip()
+    )
+    ocr_space_enabled = bool((os.getenv("OCR_SPACE_API_KEY") or "").strip())
+    cloud_ocr_enabled = azure_ocr_enabled or ocr_space_enabled
 
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}") as tmp:
@@ -2149,7 +2266,20 @@ def user_ocr_upload():
         results = None
         cloud_error_message = None
 
-        if cloud_ocr_enabled:
+        if azure_ocr_enabled:
+            full_text, cloud_error_message = _extract_text_with_azure_vision(
+                file_path=image_path,
+                filename=uploaded.filename,
+            )
+            if full_text:
+                current_app.logger.info(
+                    "Azure OCR extracted %d characters from uploaded document",
+                    len(full_text),
+                )
+            elif cloud_error_message:
+                current_app.logger.warning("Azure OCR unavailable: %s", cloud_error_message)
+
+        if not full_text and ocr_space_enabled:
             full_text, cloud_error_message = _extract_text_with_ocr_space(
                 file_path=image_path,
                 filename=uploaded.filename,
