@@ -526,9 +526,7 @@ def audit_log():
 def doctor_dashboard():
     """Doctor dashboard main page"""
     # Get doctor-specific statistics
-    total_patients = (
-        UserTable.query.count()
-    )  # Simplified - would filter by doctor's patients
+    total_users = UserTable.query.count()
     consultations_today = 5  # Simplified - would count today's consultations
     pending_diagnoses = UserResultsTable.query.filter_by(status="pending").count()
     rules_authored = (
@@ -537,7 +535,7 @@ def doctor_dashboard():
 
     return render_template(
         "dashboard/doctor_dashboard.html",
-        total_patients=total_patients,
+        total_users=total_users,
         consultations_today=consultations_today,
         pending_diagnoses=pending_diagnoses,
         rules_authored=rules_authored,
@@ -567,9 +565,11 @@ def doctor_dashboard_data():
         },
     ]
 
+    total_users = UserTable.query.count()
     return jsonify(
         {
-            "total_patients": UserTable.query.count(),
+            "total_users": total_users,
+            "total_patients": total_users,  # Backward compatibility
             "consultations_today": 5,
             "pending_diagnoses": UserResultsTable.query.filter_by(
                 status="pending"
@@ -578,6 +578,37 @@ def doctor_dashboard_data():
             "consultations": consultations,
         }
     )
+
+
+@dashboard_bp.route("/doctor/users")
+@login_required
+@doctor_required
+@permission_required(
+    "dashboard.doctor",
+    "You have no permission to access doctor user details.",
+    json_response=True,
+)
+def doctor_dashboard_users():
+    """Return all users for doctor dashboard users details modal."""
+    users = (
+        UserTable.query.options(selectinload(UserTable.roles))
+        .order_by(UserTable.id.asc())
+        .all()
+    )
+    users_payload = [
+        {
+            "id": user.id,
+            "full_name": user.full_name,
+            "username": user.username,
+            "email": user.email,
+            "is_active": bool(user.is_active),
+            "roles": [role.name for role in user.roles],
+            "created_at": user.created_at.isoformat() if user.created_at else None,
+        }
+        for user in users
+    ]
+
+    return jsonify({"success": True, "count": len(users_payload), "users": users_payload})
 
 
 @dashboard_bp.route("/doctor/rules")

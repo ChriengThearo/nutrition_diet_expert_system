@@ -882,6 +882,22 @@ html[lang="km"] .doctor-dashboard-app h5 {
     padding-right: 4rem;
 }
 
+.doctor-kpi-card-action {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.doctor-kpi-card-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(7, 28, 41, 0.2);
+    background: rgba(17, 67, 53, 0.4);
+}
+
+.doctor-kpi-card-action:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.85);
+    outline-offset: 2px;
+}
+
 .doctor-kpi-icon {
     position: absolute;
     right: 0.74rem;
@@ -923,6 +939,12 @@ html[lang="km"] .doctor-dashboard-app h5 {
     line-height: 1;
     letter-spacing: 0.01em;
     font-weight: 800;
+}
+
+.doctor-kpi-note {
+    margin-top: 0.35rem;
+    font-size: 0.72rem;
+    color: rgba(245, 251, 255, 0.7);
 }
 
 .doctor-workspace {

@@ -64,8 +64,10 @@ class DashboardService:
                 doctor_id = current_user.id
 
             # Simplified statistics - in real implementation would filter by doctor's patients
+            total_users = UserTable.query.count()
             stats = {
-                "total_patients": UserTable.query.count(),
+                "total_users": total_users,
+                "total_patients": total_users,  # Backward compatibility
                 "consultations_today": DashboardService._get_today_consultations(
                     doctor_id
                 ),

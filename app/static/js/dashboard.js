@@ -196,7 +196,9 @@ class DashboardManager {
 
     updateDoctorStats(data) {
         // Update doctor statistics
-        this.updateStatCard('total_patients', data.total_patients);
+        const totalUsers = data.total_users ?? data.total_patients;
+        this.updateStatCard('total_users', totalUsers);
+        this.updateStatCard('total_patients', totalUsers);
         this.updateStatCard('consultations_today', data.consultations_today);
         this.updateStatCard('pending_diagnoses', data.pending_diagnoses);
         this.updateStatCard('rules_authored', data.rules_authored);
