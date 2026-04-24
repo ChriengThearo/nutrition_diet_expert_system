@@ -1029,6 +1029,7 @@ class DashboardService:
         return {
             "id": food.id,
             "name": food.name,
+            "photo": getattr(food, "photo", None),
             "calories": food.calories,
             "protein": food.protein,
             "sugar": food.sugar,
