@@ -446,10 +446,10 @@
     <aside class="register-visual">
       <div class="img-slider">
         <div class="img-slider-track" id="registerSlider">
-          <img src="{{ url_for('main.images', filename='public/woman.png') }}" alt="Healthy woman with nutrition lifestyle" />
-          <img src="{{ url_for('main.images', filename='public/a_dish_of_food.png') }}" alt="Healthy dish" />
-          <img src="{{ url_for('main.images', filename='public/recommendation.jpg') }}" alt="Nutrition recommendation" />
-          <img src="{{ url_for('main.images', filename='public/woman.png') }}" alt="Healthy woman with nutrition lifestyle" />
+          <img src="{{ url_for('static', filename='images/woman.png') }}" alt="Healthy woman with nutrition lifestyle" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/logo.png') }}';" />
+          <img src="{{ url_for('static', filename='images/a_dish_of_food.png') }}" alt="Healthy dish" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/woman.png') }}';" />
+          <img src="{{ url_for('static', filename='images/recommendation.jpg') }}" alt="Nutrition recommendation" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/woman.png') }}';" />
+          <img src="{{ url_for('static', filename='images/woman.png') }}" alt="Healthy woman with nutrition lifestyle" onerror="this.onerror=null;this.src='{{ url_for('static', filename='images/logo.png') }}';" />
         </div>
       </div>
       <div class="register-visual-overlay"></div>
