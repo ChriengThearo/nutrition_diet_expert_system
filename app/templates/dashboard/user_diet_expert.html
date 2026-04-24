@@ -1107,6 +1107,15 @@
             } catch(e) { return null; }
         }());
 
+        function normalizeGenderValue(value) {
+            const token = String(value || '').trim().toLowerCase();
+            if (!token) return '';
+            if (token === 'm' || token.startsWith('mal')) return 'male';
+            if (token === 'f' || token.startsWith('fem')) return 'female';
+            if (token === 'male' || token === 'female') return token;
+            return '';
+        }
+
         function prefillFromLastPlan() {
             if (!lastFormData || typeof lastFormData !== 'object') return;
 
@@ -1115,7 +1124,8 @@
             const preferences = lastFormData.preferences || {};
 
             if (personal.age) document.getElementById('age').value = personal.age;
-            if (personal.gender) document.getElementById('gender').value = personal.gender;
+            const normalizedStoredGender = normalizeGenderValue(personal.gender);
+            if (normalizedStoredGender) document.getElementById('gender').value = normalizedStoredGender;
             if (personal.weight) document.getElementById('weight').value = personal.weight;
             if (personal.height) document.getElementById('height').value = personal.height;
 
@@ -1309,7 +1319,8 @@
 
             const fillFromOcr = (data) => {
                 if (data.age) document.getElementById('age').value = data.age;
-                if (data.gender) document.getElementById('gender').value = data.gender;
+                const normalizedOcrGender = normalizeGenderValue(data.gender);
+                if (normalizedOcrGender) document.getElementById('gender').value = normalizedOcrGender;
                 if (data.weight) document.getElementById('weight').value = data.weight;
                 if (data.height) document.getElementById('height').value = data.height;
 

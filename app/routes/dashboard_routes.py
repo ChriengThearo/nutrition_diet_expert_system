@@ -2956,41 +2956,68 @@ def _parse_health_document(text):
                 break
 
     # --- Gender ---
-    # Prefer explicit "Sex/Gender" labels first; avoid broad global matches.
+    # Prefer explicit short values near "Sex/Gender" labels.
     lines = [line.strip().lower() for line in re.split(r"[\r\n]+", text) if line.strip()]
-    for idx, line in enumerate(lines):
-        if "sex" not in line and "gender" not in line:
-            continue
+    has_gender_label = any(
+        bool(re.search(r"\b(?:sex|gender)\b", line, flags=re.IGNORECASE))
+        for line in lines
+    )
 
-        contexts = [line]
-        if idx + 1 < len(lines):
-            contexts.append(f"{line} {lines[idx + 1]}")
-
-        for context in contexts:
-            m = re.search(
-                r"\b(?:sex|gender)\b\s*[:\-]?\s*([a-z0-9/|,\s]{1,24})",
-                context,
-                flags=re.IGNORECASE,
-            )
-
-            segment = m.group(1) if m else context
-            candidates = []
-            for token in re.split(r"[/|,\s]+", segment):
-                normalized = _normalize_gender_token(token)
-                if normalized and normalized not in candidates:
-                    candidates.append(normalized)
-
-            if len(candidates) == 1:
-                result["gender"] = candidates[0]
+    strict_value_patterns = [
+        r"\b(?:sex|gender)\b[ \t]*[:\-]?[ \t]*(m|male)\b(?!\s*/)",
+        r"\b(?:sex|gender)\b[ \t]*[:\-]?[ \t]*(f|female)\b(?!\s*/)",
+    ]
+    for line in lines:
+        for pattern in strict_value_patterns:
+            m = re.search(pattern, line, flags=re.IGNORECASE)
+            if not m:
+                continue
+            normalized = _normalize_gender_token(m.group(1))
+            if normalized:
+                result["gender"] = normalized
                 break
-
         if result["gender"] is not None:
             break
+
+    if result["gender"] is None:
+        for idx, line in enumerate(lines):
+            if "sex" not in line and "gender" not in line:
+                continue
+
+            contexts = [line]
+            # If line only contains the label, inspect only a short next-line window.
+            if re.search(r"\b(?:sex|gender)\b\s*[:\-]?\s*$", line, flags=re.IGNORECASE):
+                if idx + 1 < len(lines):
+                    contexts.append(f"{line} {lines[idx + 1][:12]}")
+
+            for context in contexts:
+                m = re.search(
+                    r"\b(?:sex|gender)\b\s*[:\-]?\s*([a-z0-9/|,\s]{1,10})",
+                    context,
+                    flags=re.IGNORECASE,
+                )
+
+                segment = m.group(1) if m else ""
+                if not segment:
+                    continue
+
+                candidates = []
+                for token in re.split(r"[/|,\s]+", segment):
+                    normalized = _normalize_gender_token(token)
+                    if normalized and normalized not in candidates:
+                        candidates.append(normalized)
+
+                if len(candidates) == 1:
+                    result["gender"] = candidates[0]
+                    break
+
+            if result["gender"] is not None:
+                break
 
     # Secondary fallback: labeled match in full text.
     if result["gender"] is None:
         m = re.search(
-            r"\b(?:sex|gender)\b\s*[:\-]?\s*([a-z0-9/|,\s]{1,20})",
+            r"\b(?:sex|gender)\b\s*[:\-]?\s*([a-z0-9/|,\s]{1,10})",
             lower,
             flags=re.IGNORECASE,
         )
@@ -3003,8 +3030,9 @@ def _parse_health_document(text):
             if len(candidates) == 1:
                 result["gender"] = candidates[0]
 
-    # Final conservative fallback: only use global word if it is unambiguous.
-    if result["gender"] is None:
+    # Final conservative fallback: only use global word if it is unambiguous
+    # and there is no explicit gender/sex label in the OCR text.
+    if result["gender"] is None and not has_gender_label:
         has_male = bool(re.search(r"\bmale\b", lower))
         has_female = bool(re.search(r"\bfemale\b", lower))
         if has_male ^ has_female:
