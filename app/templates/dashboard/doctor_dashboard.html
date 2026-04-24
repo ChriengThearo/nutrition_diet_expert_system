@@ -422,11 +422,11 @@
                 </div>
                 <div class="doctor-kpi-grid">
                     <div class="doctor-kpi-card doctor-kpi-card-action" id="users-kpi-card" role="button" tabindex="0"
-                        aria-label="View all users details">
+                        aria-label="Open users insights page">
                         <div class="doctor-kpi-icon"><i class="fas fa-users"></i></div>
                         <p class="doctor-kpi-label">Users</p>
                         <p class="doctor-kpi-value" id="total_users">{{ total_users }}</p>
-                        <p class="doctor-kpi-note mb-0">Click to view details</p>
+                        <p class="doctor-kpi-note mb-0">Click to open insights page</p>
                     </div>
                     <div class="doctor-kpi-card">
                         <div class="doctor-kpi-icon"><i class="fas fa-stethoscope"></i></div>
@@ -1371,51 +1371,6 @@
         </div>
     </div>
 
-    <!-- Users Details Modal -->
-    <div class="modal fade" id="doctorUsersModal" tabindex="-1" aria-labelledby="doctorUsersModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title" id="doctorUsersModalLabel">
-                        <i class="fas fa-users me-2"></i>All Users Information
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <p class="mb-0 text-muted">Complete users list from database</p>
-                        <span class="badge bg-primary" id="doctor-users-total-badge">0 Users</span>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col">#</th>
-                                    <th scope="col">Full Name</th>
-                                    <th scope="col">Username</th>
-                                    <th scope="col">Email</th>
-                                    <th scope="col">Roles</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Created At</th>
-                                </tr>
-                            </thead>
-                            <tbody id="doctor-users-table-body">
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted">Click Users card to load data</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Diet Plan Modal -->
     <div class="modal fade" id="doctorDietPlanModal" tabindex="-1" aria-labelledby="doctorDietPlanLabel"
         aria-hidden="true">
@@ -1461,7 +1416,6 @@
         const SIDEBAR_MODE_FOODS = 'foods';
         const SIDEBAR_MODE_COOKED = 'cooked-foods';
         let currentSidebarMode = SIDEBAR_MODE_RULES;
-        let usersDetailsModal = null;
         const sidebarStateByMode = {
             [SIDEBAR_MODE_RULES]: {
                 search: '',
@@ -1504,119 +1458,23 @@
             statusEl.classList.toggle('text-danger', Boolean(isError));
         }
 
-        function escapeHtml(value) {
-            return String(value ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        function formatDateTime(value) {
-            if (!value) {
-                return '-';
-            }
-            const dateValue = new Date(value);
-            if (Number.isNaN(dateValue.getTime())) {
-                return '-';
-            }
-            return dateValue.toLocaleString();
-        }
-
-        function updateUsersModalBadge(count) {
-            const badge = document.getElementById('doctor-users-total-badge');
-            if (!badge) {
-                return;
-            }
-            const total = Number.isFinite(Number(count)) ? Number(count) : 0;
-            badge.textContent = `${total} User${total === 1 ? '' : 's'}`;
-        }
-
-        function setUsersModalLoading(message = 'Loading users...') {
-            const tableBody = document.getElementById('doctor-users-table-body');
-            if (!tableBody) {
-                return;
-            }
-            tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">${escapeHtml(message)}</td></tr>`;
-        }
-
-        function renderUsersModal(users) {
-            const rows = Array.isArray(users) ? users : [];
-            const tableBody = document.getElementById('doctor-users-table-body');
-            if (!tableBody) {
-                return;
-            }
-
-            updateUsersModalBadge(rows.length);
-
-            if (rows.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No users found</td></tr>';
-                return;
-            }
-
-            tableBody.innerHTML = rows.map(user => {
-                const roleNames = Array.isArray(user.roles) && user.roles.length > 0
-                    ? user.roles.map(role => escapeHtml(role)).join(', ')
-                    : '-';
-                const statusBadge = user.is_active
-                    ? '<span class="badge bg-success">Active</span>'
-                    : '<span class="badge bg-secondary">Inactive</span>';
-
-                return `
-                    <tr>
-                        <td>${escapeHtml(user.id)}</td>
-                        <td>${escapeHtml(user.full_name || '-')}</td>
-                        <td>${escapeHtml(user.username || '-')}</td>
-                        <td>${escapeHtml(user.email || '-')}</td>
-                        <td>${roleNames}</td>
-                        <td>${statusBadge}</td>
-                        <td>${escapeHtml(formatDateTime(user.created_at))}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
         function setupUsersKpiCard() {
             const usersKpiCard = document.getElementById('users-kpi-card');
             if (!usersKpiCard) {
                 return;
             }
+            const usersInsightsUrl = "{{ url_for('dashboard.doctor_dashboard_users') }}";
 
-            usersKpiCard.addEventListener('click', openUsersDetailsModal);
+            usersKpiCard.addEventListener('click', function () {
+                window.location.href = usersInsightsUrl;
+            });
             usersKpiCard.addEventListener('keydown', function (event) {
                 if (event.key !== 'Enter' && event.key !== ' ') {
                     return;
                 }
                 event.preventDefault();
-                openUsersDetailsModal();
+                window.location.href = usersInsightsUrl;
             });
-        }
-
-        async function openUsersDetailsModal() {
-            const modalEl = document.getElementById('doctorUsersModal');
-            if (!modalEl) {
-                return;
-            }
-            if (!usersDetailsModal) {
-                usersDetailsModal = new bootstrap.Modal(modalEl);
-            }
-
-            updateUsersModalBadge(0);
-            setUsersModalLoading();
-            usersDetailsModal.show();
-
-            try {
-                const response = await fetch('/dashboard/doctor/users');
-                const data = await response.json();
-                if (!response.ok || !data.success) {
-                    throw new Error(data.message || `Failed to load users (HTTP ${response.status})`);
-                }
-                renderUsersModal(data.users);
-            } catch (error) {
-                console.error('Error loading users details:', error);
-                setUsersModalLoading('Failed to load users data. Please try again.');
-            }
         }
 
         function getSidebarModeFromTarget(targetSelector) {

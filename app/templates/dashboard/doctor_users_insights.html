@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users Insights | Diet Expert</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/doctor_users_insights.css') }}">
+    <script id="app-permissions" type="application/json">
+        {{ current_user.get_permission_codes()|list|tojson if current_user.is_authenticated else [] }}
+    </script>
+    <script>
+        const permissionsEl = document.getElementById("app-permissions");
+        window.APP_PERMISSIONS = permissionsEl
+            ? JSON.parse(permissionsEl.textContent || "[]")
+            : [];
+    </script>
+</head>
+
+<body class="doctor-dashboard-app doctor-users-insights-page">
+    {% set dashboard_permissions = current_user.get_permission_codes() if current_user.is_authenticated else [] %}
+    {% set dashboard_option_count =
+    (1 if 'dashboard.admin' in dashboard_permissions else 0) +
+    (1 if 'dashboard.doctor' in dashboard_permissions else 0) +
+    (1 if 'dashboard.user' in dashboard_permissions else 0)
+    %}
+    {% set show_dashboard_switcher = dashboard_option_count > 1 %}
+    {% set doctor_display_name = current_user.full_name or current_user.username %}
+    {% set doctor_default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
+    {% set doctor_photo_path = (current_user.photo or '')|trim %}
+    {% set doctor_avatar_url = doctor_default_avatar_url if session.get('user_guest_mode') else
+    (url_for('main.images', filename=doctor_photo_path|replace('images/', '')) if doctor_photo_path else
+    doctor_default_avatar_url) %}
+
+    <nav class="navbar navbar-expand-lg shadow-sm sticky-top navbar-light navbar-user-dashboard navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('main.home') }}">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert logo"
+                    class="doctor-brand-logo">
+                <span class="doctor-brand-text">NDES</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('dashboard.doctor_dashboard') }}">
+                            <i class="fas fa-gauge-high me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm me-2 doctor-nav-pill active"
+                            href="{{ url_for('dashboard.doctor_dashboard_users') }}">
+                            <i class="fas fa-users me-1"></i>Users Insights
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('main.home') }}">
+                            <i class="fas fa-home me-1"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm doctor-nav-pill" href="{{ url_for('dashboard.doctor_dashboard') }}#builder"
+                            data-permission="rule.create" data-action="build rules">
+                            <i class="fas fa-plus-circle me-1"></i>Create Rule
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav align-items-center ms-lg-2">
+                    {% if show_dashboard_switcher %}
+                    <li class="nav-item dropdown d-flex align-items-center me-2">
+                        {% include "dashboard/_dashboard_switcher.html" %}
+                    </li>
+                    {% endif %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle doctor-nav-user d-flex align-items-center" href="#"
+                            id="doctorNavDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="{{ doctor_avatar_url }}" alt="Avatar" class="doctor-nav-avatar me-2"
+                                onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
+                            <span>{{ doctor_display_name }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="doctorNavDropdown">
+                            <li>
+                                <h6 class="dropdown-header">{{ doctor_display_name }}</h6>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('dashboard.doctor_profile') }}">
+                                    <i class="fas fa-user-doctor me-2"></i>Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="users-insights-root" class="users-insights-shell" data-users-page-url="{{ url_for('dashboard.doctor_dashboard_users') }}"
+        data-users-data-url="{{ url_for('dashboard.doctor_dashboard_users_data') }}"
+        data-analytics-url="{{ url_for('dashboard.doctor_dashboard_users_analytics') }}">
+        <section class="doctor-hero">
+            <div class="container doctor-layout-container">
+                <div class="doctor-hero-panel">
+                    <div class="row align-items-center">
+                        <div class="col-lg-8">
+                            <span class="hero-chip"><i class="fas fa-users-viewfinder"></i> User Intelligence Center</span>
+                            <h1 class="hero-title">Users Insights Workspace</h1>
+                            <p class="hero-copy">Explore all accounts, track rule usage across all submissions, and inspect
+                                each user's latest plan details in one place.</p>
+                            <div class="hero-actions">
+                                <a class="btn btn-light btn-sm" href="{{ url_for('dashboard.doctor_dashboard') }}">
+                                    <span class="action-icon"><i class="fas fa-arrow-left"></i></span>
+                                    <span>Back To Dashboard</span>
+                                </a>
+                                <button type="button" class="btn btn-outline-light btn-sm" id="refresh-insights-data">
+                                    <span class="action-icon"><i class="fas fa-rotate"></i></span>
+                                    <span>Refresh Data</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mt-4 mt-lg-0">
+                            <div class="hero-meta-card">
+                                <p class="hero-meta-label">Current Doctor</p>
+                                <p class="hero-meta-value">{{ doctor_display_name }}</p>
+                                <span class="badge bg-light text-dark mt-2">Users Insights</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="users-kpi-grid">
+                        <article class="users-kpi-card">
+                            <p class="users-kpi-label">Total Accounts</p>
+                            <p class="users-kpi-value" id="kpi-total-accounts">{{ total_users }}</p>
+                        </article>
+                        <article class="users-kpi-card">
+                            <p class="users-kpi-label">Active Accounts</p>
+                            <p class="users-kpi-value" id="kpi-active-accounts">{{ active_users }}</p>
+                        </article>
+                        <article class="users-kpi-card">
+                            <p class="users-kpi-label">Plan Submissions</p>
+                            <p class="users-kpi-value" id="kpi-total-submissions">0</p>
+                        </article>
+                        <article class="users-kpi-card">
+                            <p class="users-kpi-label">No Matched Rule</p>
+                            <p class="users-kpi-value" id="kpi-no-match">0</p>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="container py-4 doctor-layout-container">
+            <div class="row g-4">
+                <div class="col-xl-8">
+                    <section class="users-insights-card mb-4">
+                        <div class="users-insights-card-head">
+                            <div>
+                                <h4 class="mb-1"><i class="fas fa-chart-bar me-2"></i>Rule Usage Analytics</h4>
+                                <p class="mb-0 text-muted">All-time usage by submission count (including no-match bucket).</p>
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="refresh-analytics">
+                                <i class="fas fa-rotate me-1"></i>Refresh
+                            </button>
+                        </div>
+                        <div id="rule-usage-bars" class="rule-usage-bars">
+                            <p class="text-muted mb-0">Loading analytics...</p>
+                        </div>
+                    </section>
+
+                    <section class="users-insights-card">
+                        <div class="users-insights-card-head">
+                            <div>
+                                <h4 class="mb-1"><i class="fas fa-table me-2"></i>All Accounts</h4>
+                                <p class="mb-0 text-muted">Search, filter, sort, and inspect user-level plan behavior.</p>
+                            </div>
+                        </div>
+
+                        <div class="users-filters-grid">
+                            <div>
+                                <label for="users-search-input" class="form-label mb-1">Search</label>
+                                <input type="search" class="form-control" id="users-search-input"
+                                    placeholder="Full name, username, or email">
+                            </div>
+                            <div>
+                                <label for="users-role-filter" class="form-label mb-1">Role</label>
+                                <select class="form-select" id="users-role-filter">
+                                    <option value="all">All Roles</option>
+                                    {% for role_name in role_options %}
+                                    <option value="{{ role_name }}">{{ role_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label for="users-status-filter" class="form-label mb-1">Status</label>
+                                <select class="form-select" id="users-status-filter">
+                                    <option value="all">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="users-sort-filter" class="form-label mb-1">Sort</label>
+                                <select class="form-select" id="users-sort-filter">
+                                    <option value="created_desc">Newest Created</option>
+                                    <option value="created_asc">Oldest Created</option>
+                                    <option value="full_name_asc">Name A-Z</option>
+                                    <option value="full_name_desc">Name Z-A</option>
+                                    <option value="username_asc">Username A-Z</option>
+                                    <option value="username_desc">Username Z-A</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="users-per-page" class="form-label mb-1">Rows</label>
+                                <select class="form-select" id="users-per-page">
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive mt-3">
+                            <table class="table table-hover align-middle users-insights-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Full Name</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Roles</th>
+                                        <th>Status</th>
+                                        <th>Plan Submissions</th>
+                                        <th>Last Rule</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted py-4">Loading users...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="users-pagination-wrap">
+                            <p class="users-page-info mb-0 text-muted" id="users-page-info">Page 1 of 1</p>
+                            <ul class="pagination mb-0" id="users-pagination"></ul>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="col-xl-4">
+                    <section class="users-insights-card users-side-card">
+                        <h5 class="mb-2"><i class="fas fa-circle-info me-2"></i>How To Use</h5>
+                        <ul class="mb-0">
+                            <li>Filter users by role and status to narrow focus.</li>
+                            <li>Open a user row to inspect latest plan and history.</li>
+                            <li>Use analytics to detect rule adoption and no-match gaps.</li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="offcanvas offcanvas-end users-detail-canvas" tabindex="-1" id="userDetailCanvas"
+        aria-labelledby="userDetailCanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="userDetailCanvasLabel"><i class="fas fa-user me-2"></i>User Detail</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div id="user-detail-loading" class="text-muted">Loading user details...</div>
+            <div id="user-detail-error" class="alert alert-danger d-none mb-3"></div>
+            <div id="user-detail-content" class="d-none">
+                <section class="users-detail-block">
+                    <h6 id="detail-user-title" class="mb-2">-</h6>
+                    <p class="mb-1"><strong>Username:</strong> <span id="detail-user-username">-</span></p>
+                    <p class="mb-1"><strong>Email:</strong> <span id="detail-user-email">-</span></p>
+                    <p class="mb-1"><strong>Roles:</strong> <span id="detail-user-roles">-</span></p>
+                    <p class="mb-1"><strong>Status:</strong> <span id="detail-user-status">-</span></p>
+                    <p class="mb-0"><strong>Created:</strong> <span id="detail-user-created">-</span></p>
+                </section>
+
+                <section class="users-detail-block">
+                    <h6 class="mb-2">Plan Summary</h6>
+                    <div class="users-detail-kpi-grid">
+                        <div class="users-detail-kpi">
+                            <p class="label mb-0">Total</p>
+                            <p class="value mb-0" id="detail-summary-total">0</p>
+                        </div>
+                        <div class="users-detail-kpi">
+                            <p class="label mb-0">Matched</p>
+                            <p class="value mb-0" id="detail-summary-matched">0</p>
+                        </div>
+                        <div class="users-detail-kpi">
+                            <p class="label mb-0">No Match</p>
+                            <p class="value mb-0" id="detail-summary-no-match">0</p>
+                        </div>
+                    </div>
+                    <p class="mb-0 mt-2 text-muted">
+                        Latest Rule: <span id="detail-summary-latest-rule">-</span>
+                    </p>
+                </section>
+
+                <section class="users-detail-block">
+                    <h6 class="mb-2">Latest Plan</h6>
+                    <div id="detail-latest-plan-empty" class="text-muted">No plan submissions yet.</div>
+                    <div id="detail-latest-plan-table-wrap" class="table-responsive d-none">
+                        <table class="table table-sm mb-0">
+                            <tbody id="detail-latest-plan-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="users-detail-block mb-0">
+                    <h6 class="mb-2">Recent Submissions</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm users-history-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>When</th>
+                                    <th>Rule</th>
+                                    <th>BMI</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detail-history-body">
+                                <tr>
+                                    <td colspan="3" class="text-muted">No recent submission history.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/doctor_users_insights.js') }}"></script>
+</body>
+
+</html>

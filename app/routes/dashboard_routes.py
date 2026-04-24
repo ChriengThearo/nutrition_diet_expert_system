@@ -26,6 +26,7 @@ from app.services.diet_rule_service import DietRuleService
 from app.routes.access_control import permission_required
 from extensions import db, csrf
 from datetime import datetime, timedelta
+from sqlalchemy import or_, func
 from sqlalchemy.orm import selectinload
 import json
 import os
@@ -585,30 +586,467 @@ def doctor_dashboard_data():
 @doctor_required
 @permission_required(
     "dashboard.doctor",
-    "You have no permission to access doctor user details.",
-    json_response=True,
+    "You have no permission to access doctor users insights.",
 )
 def doctor_dashboard_users():
-    """Return all users for doctor dashboard users details modal."""
-    users = (
-        UserTable.query.options(selectinload(UserTable.roles))
-        .order_by(UserTable.id.asc())
-        .all()
+    """Doctor users insights page."""
+    role_options = [
+        str(role.name).strip()
+        for role in RoleTable.query.order_by(RoleTable.name.asc()).all()
+        if str(role.name or "").strip()
+    ]
+    return render_template(
+        "dashboard/doctor_users_insights.html",
+        total_users=UserTable.query.count(),
+        active_users=UserTable.query.filter_by(is_active=True).count(),
+        role_options=role_options,
     )
-    users_payload = [
-        {
-            "id": user.id,
-            "full_name": user.full_name,
-            "username": user.username,
-            "email": user.email,
-            "is_active": bool(user.is_active),
-            "roles": [role.name for role in user.roles],
-            "created_at": user.created_at.isoformat() if user.created_at else None,
-        }
-        for user in users
+
+
+def _safe_json_object(raw_value):
+    if not raw_value:
+        return None
+    try:
+        parsed = json.loads(raw_value)
+    except Exception:
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _extract_plan_submission(result_row):
+    payload = _safe_json_object(result_row.result_data)
+    if not payload:
+        return None
+
+    plan = payload.get("plan")
+    if not isinstance(plan, dict):
+        return None
+
+    rule_info = plan.get("rule")
+    rule_id = None
+    rule_name = ""
+    if isinstance(rule_info, dict):
+        raw_rule_id = rule_info.get("id")
+        try:
+            rule_id = int(raw_rule_id) if raw_rule_id is not None else None
+        except Exception:
+            rule_id = None
+        rule_name = str(rule_info.get("name") or "").strip()
+    elif rule_info is not None:
+        rule_name = str(rule_info).strip()
+
+    has_matched_rule = bool(rule_id is not None or rule_name)
+    if rule_id is not None and not rule_name:
+        rule_name = f"Rule {rule_id}"
+
+    profile = plan.get("profile") if isinstance(plan.get("profile"), dict) else {}
+    metrics = plan.get("metrics") if isinstance(plan.get("metrics"), dict) else {}
+    if not metrics and isinstance(payload.get("metrics"), dict):
+        metrics = payload.get("metrics")
+
+    allergies_raw = profile.get("allergies")
+    if isinstance(allergies_raw, list):
+        allergies = [str(item).strip() for item in allergies_raw if str(item).strip()]
+    elif allergies_raw in (None, ""):
+        allergies = []
+    else:
+        allergies = [str(allergies_raw).strip()]
+
+    generated_at = result_row.generated_at or result_row.created_at
+
+    return {
+        "result_id": result_row.id,
+        "user_id": result_row.user_id,
+        "generated_at": generated_at,
+        "generated_at_iso": generated_at.isoformat() if generated_at else None,
+        "rule_id": rule_id,
+        "rule_name": rule_name,
+        "has_matched_rule": has_matched_rule,
+        "diet_type": str(profile.get("diet_type") or "").strip(),
+        "meals_per_day": profile.get("meals_per_day"),
+        "blood_sugar": profile.get("blood_sugar"),
+        "allergies": allergies,
+        "bmi": metrics.get("bmi") if metrics.get("bmi") is not None else result_row.bmi,
+        "calories": metrics.get("calories"),
+        "protein": metrics.get("protein"),
+        "sugar": metrics.get("sugar"),
+        "fat": metrics.get("fat"),
+    }
+
+
+def _fetch_plan_submissions(user_ids=None):
+    query = UserResultsTable.query.filter(UserResultsTable.result_data.isnot(None))
+    if user_ids is not None:
+        normalized_ids = []
+        for value in user_ids:
+            try:
+                normalized_ids.append(int(value))
+            except Exception:
+                continue
+        if not normalized_ids:
+            return []
+        query = query.filter(UserResultsTable.user_id.in_(normalized_ids))
+
+    rows = query.order_by(UserResultsTable.generated_at.desc(), UserResultsTable.id.desc()).all()
+    submissions = []
+    for row in rows:
+        submission = _extract_plan_submission(row)
+        if submission:
+            submissions.append(submission)
+    return submissions
+
+
+def _build_user_submission_stats(plan_submissions):
+    stats_by_user = {}
+    for submission in plan_submissions or []:
+        user_id = submission.get("user_id")
+        if not user_id:
+            continue
+
+        stat = stats_by_user.setdefault(
+            user_id,
+            {
+                "total_plan_submissions": 0,
+                "matched_submissions": 0,
+                "no_match_submissions": 0,
+                "last_plan_at": None,
+                "last_rule_name": None,
+            },
+        )
+        stat["total_plan_submissions"] += 1
+        if submission.get("has_matched_rule"):
+            stat["matched_submissions"] += 1
+        else:
+            stat["no_match_submissions"] += 1
+
+        generated_at = submission.get("generated_at")
+        if generated_at and (
+            stat["last_plan_at"] is None or generated_at > stat["last_plan_at"]
+        ):
+            stat["last_plan_at"] = generated_at
+            stat["last_rule_name"] = (
+                submission.get("rule_name") if submission.get("has_matched_rule") else None
+            )
+
+    return stats_by_user
+
+
+@dashboard_bp.route("/doctor/users/data")
+@login_required
+@doctor_required
+@permission_required(
+    "dashboard.doctor",
+    "You have no permission to access doctor users data.",
+    json_response=True,
+)
+def doctor_dashboard_users_data():
+    """Users table data for doctor users insights page."""
+    page = request.args.get("page", default=1, type=int)
+    per_page = request.args.get("per_page", default=10, type=int)
+    q = str(request.args.get("q", "") or "").strip()
+    role_filter = str(request.args.get("role", "all") or "all").strip()
+    status_filter = str(request.args.get("status", "all") or "all").strip().lower()
+    sort = str(request.args.get("sort", "created_desc") or "created_desc").strip().lower()
+
+    page = page if isinstance(page, int) and page > 0 else 1
+    per_page = per_page if isinstance(per_page, int) and per_page > 0 else 10
+    per_page = min(per_page, 100)
+
+    users_query = UserTable.query.options(selectinload(UserTable.roles))
+
+    if q:
+        pattern = f"%{q}%"
+        users_query = users_query.filter(
+            or_(
+                UserTable.full_name.ilike(pattern),
+                UserTable.username.ilike(pattern),
+                UserTable.email.ilike(pattern),
+            )
+        )
+
+    if role_filter and role_filter.lower() != "all":
+        users_query = users_query.join(UserTable.roles).filter(
+            func.lower(RoleTable.name) == role_filter.lower()
+        )
+
+    if status_filter == "active":
+        users_query = users_query.filter(UserTable.is_active.is_(True))
+    elif status_filter == "inactive":
+        users_query = users_query.filter(UserTable.is_active.is_(False))
+
+    if sort == "created_asc":
+        users_query = users_query.order_by(UserTable.created_at.asc(), UserTable.id.asc())
+    elif sort == "full_name_asc":
+        users_query = users_query.order_by(UserTable.full_name.asc(), UserTable.id.asc())
+    elif sort == "full_name_desc":
+        users_query = users_query.order_by(
+            UserTable.full_name.desc(), UserTable.id.desc()
+        )
+    elif sort == "username_asc":
+        users_query = users_query.order_by(UserTable.username.asc(), UserTable.id.asc())
+    elif sort == "username_desc":
+        users_query = users_query.order_by(
+            UserTable.username.desc(), UserTable.id.desc()
+        )
+    else:
+        users_query = users_query.order_by(
+            UserTable.created_at.desc(), UserTable.id.desc()
+        )
+
+    users_query = users_query.distinct()
+    pagination = users_query.paginate(page=page, per_page=per_page, error_out=False)
+    users = pagination.items
+    user_ids = [user.id for user in users]
+
+    stats_by_user = _build_user_submission_stats(_fetch_plan_submissions(user_ids=user_ids))
+
+    users_payload = []
+    for user in users:
+        role_names = [
+            str(role.name).strip() for role in user.roles if str(role.name or "").strip()
+        ]
+        role_names = sorted(set(role_names), key=lambda item: item.lower())
+        stat = stats_by_user.get(user.id, {})
+        last_plan_at = stat.get("last_plan_at")
+        users_payload.append(
+            {
+                "id": user.id,
+                "full_name": user.full_name,
+                "username": user.username,
+                "email": user.email,
+                "roles": role_names,
+                "is_active": bool(user.is_active),
+                "created_at": user.created_at.isoformat() if user.created_at else None,
+                "plan_submissions": int(stat.get("total_plan_submissions", 0)),
+                "matched_submissions": int(stat.get("matched_submissions", 0)),
+                "no_match_submissions": int(stat.get("no_match_submissions", 0)),
+                "last_plan_at": last_plan_at.isoformat() if last_plan_at else None,
+                "last_rule_name": stat.get("last_rule_name"),
+            }
+        )
+
+    role_options = [
+        str(role.name).strip()
+        for role in RoleTable.query.order_by(RoleTable.name.asc()).all()
+        if str(role.name or "").strip()
     ]
 
-    return jsonify({"success": True, "count": len(users_payload), "users": users_payload})
+    return jsonify(
+        {
+            "success": True,
+            "users": users_payload,
+            "pagination": {
+                "page": pagination.page,
+                "per_page": pagination.per_page,
+                "total": pagination.total,
+                "total_pages": pagination.pages,
+                "has_next": pagination.has_next,
+                "has_prev": pagination.has_prev,
+            },
+            "filters": {
+                "q": q,
+                "role": role_filter,
+                "status": status_filter,
+                "sort": sort,
+            },
+            "role_options": role_options,
+        }
+    )
+
+
+@dashboard_bp.route("/doctor/users/analytics")
+@login_required
+@doctor_required
+@permission_required(
+    "dashboard.doctor",
+    "You have no permission to access doctor users analytics.",
+    json_response=True,
+)
+def doctor_dashboard_users_analytics():
+    """Rule usage analytics for doctor users insights page."""
+    submissions = _fetch_plan_submissions()
+    total_submissions = len(submissions)
+    total_accounts = UserTable.query.count()
+    active_accounts = UserTable.query.filter_by(is_active=True).count()
+
+    bucket_map = {}
+    no_match_count = 0
+
+    for submission in submissions:
+        if not submission.get("has_matched_rule"):
+            no_match_count += 1
+            continue
+
+        rule_id = submission.get("rule_id")
+        rule_name = str(submission.get("rule_name") or "").strip()
+        if rule_id is not None:
+            bucket_key = f"rule:{rule_id}"
+            bucket_label = rule_name or f"Rule {rule_id}"
+        else:
+            bucket_key = f"name:{rule_name.lower()}"
+            bucket_label = rule_name or "Unknown Rule"
+
+        if bucket_key not in bucket_map:
+            bucket_map[bucket_key] = {
+                "key": bucket_key,
+                "label": bucket_label,
+                "rule_id": rule_id,
+                "count": 0,
+                "is_no_match": False,
+                "user_ids": set(),
+            }
+
+        bucket_map[bucket_key]["count"] += 1
+        bucket_map[bucket_key]["user_ids"].add(submission.get("user_id"))
+
+    usage = []
+    for item in bucket_map.values():
+        count = int(item.get("count", 0))
+        usage.append(
+            {
+                "key": item["key"],
+                "label": item["label"],
+                "rule_id": item.get("rule_id"),
+                "count": count,
+                "percent": round((count / total_submissions) * 100, 2)
+                if total_submissions
+                else 0.0,
+                "is_no_match": False,
+                "users_count": len(item.get("user_ids", set())),
+            }
+        )
+
+    no_match_item = {
+        "key": "no-match",
+        "label": "No Matched Rule",
+        "rule_id": None,
+        "count": no_match_count,
+        "percent": round((no_match_count / total_submissions) * 100, 2)
+        if total_submissions
+        else 0.0,
+        "is_no_match": True,
+        "users_count": len(
+            {
+                submission.get("user_id")
+                for submission in submissions
+                if not submission.get("has_matched_rule")
+            }
+        ),
+    }
+    usage.append(no_match_item)
+    usage.sort(key=lambda item: (-int(item["count"]), str(item["label"]).lower()))
+
+    return jsonify(
+        {
+            "success": True,
+            "summary": {
+                "total_accounts": total_accounts,
+                "active_accounts": active_accounts,
+                "total_plan_submissions": total_submissions,
+                "matched_submissions": total_submissions - no_match_count,
+                "no_match_submissions": no_match_count,
+                "rules_used_count": len(
+                    [item for item in usage if not item.get("is_no_match") and item["count"] > 0]
+                ),
+            },
+            "usage": usage,
+        }
+    )
+
+
+def _serialize_submission_for_detail(submission):
+    allergies = submission.get("allergies") or []
+    allergies_text = ", ".join(allergies) if allergies else "None"
+    rule_name = (
+        submission.get("rule_name") if submission.get("has_matched_rule") else "No Matched Rule"
+    )
+    if submission.get("has_matched_rule") and not rule_name:
+        rule_id = submission.get("rule_id")
+        if rule_id is not None:
+            rule_name = f"Rule {rule_id}"
+
+    return {
+        "result_id": submission.get("result_id"),
+        "generated_at": submission.get("generated_at_iso"),
+        "rule_id": submission.get("rule_id"),
+        "rule_name": rule_name,
+        "has_matched_rule": bool(submission.get("has_matched_rule")),
+        "diet_type": submission.get("diet_type"),
+        "meals_per_day": submission.get("meals_per_day"),
+        "blood_sugar": submission.get("blood_sugar"),
+        "allergies": allergies,
+        "allergies_text": allergies_text,
+        "bmi": submission.get("bmi"),
+        "calories": submission.get("calories"),
+        "protein": submission.get("protein"),
+        "sugar": submission.get("sugar"),
+        "fat": submission.get("fat"),
+    }
+
+
+@dashboard_bp.route("/doctor/users/<int:user_id>/detail")
+@login_required
+@doctor_required
+@permission_required(
+    "dashboard.doctor",
+    "You have no permission to access doctor user detail data.",
+    json_response=True,
+)
+def doctor_dashboard_user_detail(user_id: int):
+    """Detailed plan and profile info for one user."""
+    user = UserTable.query.options(selectinload(UserTable.roles)).filter_by(id=user_id).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found."}), 404
+
+    submissions = _fetch_plan_submissions(user_ids=[user.id])
+    total_submissions = len(submissions)
+    matched_submissions = len([item for item in submissions if item.get("has_matched_rule")])
+    no_match_submissions = total_submissions - matched_submissions
+    latest_submission = submissions[0] if submissions else None
+    history = [_serialize_submission_for_detail(item) for item in submissions[:10]]
+
+    return jsonify(
+        {
+            "success": True,
+            "user": {
+                "id": user.id,
+                "full_name": user.full_name,
+                "username": user.username,
+                "email": user.email,
+                "roles": [
+                    str(role.name).strip()
+                    for role in user.roles
+                    if str(role.name or "").strip()
+                ],
+                "is_active": bool(user.is_active),
+                "photo": user.photo,
+                "created_at": user.created_at.isoformat() if user.created_at else None,
+            },
+            "summary": {
+                "total_plan_submissions": total_submissions,
+                "matched_submissions": matched_submissions,
+                "no_match_submissions": no_match_submissions,
+                "latest_plan_at": (
+                    latest_submission.get("generated_at_iso")
+                    if latest_submission
+                    else None
+                ),
+                "latest_rule_name": (
+                    latest_submission.get("rule_name")
+                    if latest_submission and latest_submission.get("has_matched_rule")
+                    else "No Matched Rule"
+                    if latest_submission
+                    else None
+                ),
+            },
+            "latest_plan": (
+                _serialize_submission_for_detail(latest_submission)
+                if latest_submission
+                else None
+            ),
+            "history": history,
+        }
+    )
 
 
 @dashboard_bp.route("/doctor/rules")
