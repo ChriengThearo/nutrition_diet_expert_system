@@ -2168,6 +2168,7 @@ def diagnosis_interface():
 )
 def user_dashboard():
     """User dashboard home page"""
+    history_limit = 10
     guest_mode_enabled = bool(session.get("user_guest_mode"))
     guest_history_entries = (
         session.get("guest_plan_history", []) if guest_mode_enabled else []
@@ -2179,38 +2180,6 @@ def user_dashboard():
         {} if guest_mode_enabled else DashboardService.get_user_statistics(current_user.id)
     )
     plan_total = 0
-
-    def to_rounded_float(value, precision=1):
-        try:
-            if value in (None, ""):
-                return None
-            return round(float(value), precision)
-        except Exception:
-            return None
-
-    def build_plan_signature(entry):
-        if not isinstance(entry, dict):
-            return ("invalid",)
-
-        generated_at = entry.get("generated_at")
-        if isinstance(generated_at, datetime):
-            # Collapse to minute precision to absorb accidental duplicate submits.
-            generated_key = generated_at.replace(second=0, microsecond=0).isoformat()
-        else:
-            generated_key = ""
-
-        return (
-            generated_key,
-            to_rounded_float(entry.get("bmi"), precision=1),
-            to_rounded_float(entry.get("calories"), precision=0),
-            to_rounded_float(entry.get("protein"), precision=1),
-            to_rounded_float(entry.get("sugar"), precision=1),
-            to_rounded_float(entry.get("fat"), precision=1),
-            to_rounded_float(entry.get("blood_sugar"), precision=1),
-            str(entry.get("diet_type") or "").strip().lower(),
-            str(entry.get("meals_per_day") or "").strip(),
-            str(entry.get("allergies") or "").strip().lower(),
-        )
 
     plan_history = []
     if not guest_mode_enabled:
@@ -2277,7 +2246,7 @@ def user_dashboard():
                     "allergies": _localize_allergies(allergies),
                 }
             )
-            if len(plan_history) >= 8:
+            if len(plan_history) >= history_limit:
                 break
 
     if guest_history_entries:
@@ -2312,7 +2281,7 @@ def user_dashboard():
 
         if guest_plan_history:
             if guest_mode_enabled:
-                plan_history = guest_plan_history[:8]
+                plan_history = guest_plan_history[:history_limit]
                 plan_total = len(guest_plan_history)
             else:
                 plan_history = guest_plan_history + plan_history
@@ -2320,19 +2289,10 @@ def user_dashboard():
                     key=lambda item: item.get("generated_at") or datetime.min,
                     reverse=True,
                 )
-                plan_history = plan_history[:8]
+                plan_history = plan_history[:history_limit]
                 plan_total += len(guest_plan_history)
-
     if plan_history:
-        deduped_plan_history = []
-        seen_plan_signatures = set()
-        for plan in plan_history:
-            signature = build_plan_signature(plan)
-            if signature in seen_plan_signatures:
-                continue
-            seen_plan_signatures.add(signature)
-            deduped_plan_history.append(plan)
-        plan_history = deduped_plan_history[:8]
+        plan_history = plan_history[:history_limit]
 
     return render_template(
         "dashboard/user_dashboard.html",
@@ -3315,7 +3275,7 @@ def user_dashboard_submit():
             if not isinstance(guest_plan_history, list):
                 guest_plan_history = []
             guest_plan_history.insert(0, guest_entry)
-            session["guest_plan_history"] = guest_plan_history[:8]
+            session["guest_plan_history"] = guest_plan_history[:10]
             session.modified = True
 
         return jsonify(
