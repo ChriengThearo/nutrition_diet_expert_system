@@ -3066,6 +3066,8 @@ def _parse_health_document(text):
     blood_sugar_patterns = [
         # Handles: "Blood Sugar: 210", "FBS 95", "Blood glucose (fasting): 102 mg/dL"
         r"(?:fasting|random|postprandial|pp|ppbs|fbs|rbs)?\s*(?:blood\s*)?(?:sugar|glucose)\b[^\d]{0,28}?([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)",
+        # Handles truncated OCR labels like "Blood Su..." or "Blood Glu..."
+        r"\bblood\s*(?:su[a-z.]{0,8}|glu[a-z.]{0,8})\b[^\d]{0,24}?([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)",
         # Handles: "FBS: 92", "RBS - 180"
         r"\b(?:fbs|rbs|fpg|ppbs|ppg)\b[^\d]{0,20}?([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)",
         # Handles: "Glucose level 145 mg/dL"
@@ -3086,7 +3088,9 @@ def _parse_health_document(text):
         lines = [line.strip() for line in re.split(r"[\r\n]+", lower) if line.strip()]
         sugar_keywords = (
             "blood sugar",
+            "blood su",
             "blood glucose",
+            "blood glu",
             "glucose",
             "fbs",
             "rbs",
@@ -3095,14 +3099,36 @@ def _parse_health_document(text):
             "ppg",
         )
         number_pattern = r"(?<!\d)([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)(?!\d)"
+        mgdl_pattern = r"\bmg\s*/?\s*d[l1]\b"
+        number_with_unit_pattern = (
+            r"([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)\s*mg\s*/?\s*d[l1]\b"
+        )
 
         for idx, line in enumerate(lines):
-            if not any(keyword in line for keyword in sugar_keywords):
+            prev_line = lines[idx - 1] if idx > 0 else ""
+            next_line = lines[idx + 1] if idx + 1 < len(lines) else ""
+            row_context = f"{prev_line} {line} {next_line}".strip()
+            has_keyword_hint = any(keyword in row_context for keyword in sugar_keywords)
+            has_unit_hint = bool(re.search(mgdl_pattern, line, flags=re.IGNORECASE))
+
+            if not has_keyword_hint and not has_unit_hint:
                 continue
 
-            context = line
-            if idx + 1 < len(lines):
-                context = f"{context} {lines[idx + 1]}"
+            if has_unit_hint and has_keyword_hint:
+                for match in re.finditer(
+                    number_with_unit_pattern, line, flags=re.IGNORECASE
+                ):
+                    val = _parse_ocr_number(match.group(1))
+                    if val is not None and 20 <= val <= 600:
+                        result["blood_sugar"] = val
+                        break
+                if result["blood_sugar"] is not None:
+                    break
+
+            if not has_keyword_hint:
+                continue
+
+            context = f"{line} {next_line}".strip()
 
             for match in re.finditer(number_pattern, context, flags=re.IGNORECASE):
                 val = _parse_ocr_number(match.group(1))
@@ -3112,6 +3138,44 @@ def _parse_health_document(text):
 
             if result["blood_sugar"] is not None:
                 break
+
+    # Final fallback: parse numeric values directly tied to mg/dL unit in whole text.
+    if result["blood_sugar"] is None:
+        unit_candidates = []
+        for match in re.finditer(
+            r"([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)\s*mg\s*/?\s*d[l1]\b",
+            lower,
+            flags=re.IGNORECASE,
+        ):
+            val = _parse_ocr_number(match.group(1))
+            if val is None or not (20 <= val <= 600):
+                continue
+
+            window_start = max(0, match.start() - 40)
+            window_end = min(len(lower), match.end() + 40)
+            context_window = lower[window_start:window_end]
+            has_sugar_context = any(
+                hint in context_window
+                for hint in (
+                    "blood",
+                    "sugar",
+                    "glucose",
+                    "fbs",
+                    "rbs",
+                    "fpg",
+                    "ppbs",
+                    "ppg",
+                    "blood su",
+                    "blood glu",
+                )
+            )
+            unit_candidates.append((1 if has_sugar_context else 0, val))
+
+        if unit_candidates:
+            unit_candidates.sort(key=lambda item: item[0], reverse=True)
+            best_score, best_val = unit_candidates[0]
+            if best_score > 0 or len(unit_candidates) == 1:
+                result["blood_sugar"] = best_val
 
     # --- Allergies ---
     allergy_map = {
