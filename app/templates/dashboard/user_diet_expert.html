@@ -396,6 +396,10 @@
         padding: 0.22rem 0;
     }
 
+    #resultsModal .modal-body {
+        overflow-y: visible;
+    }
+
     @media (max-width: 991.98px) {
         .diet-expert-header {
             margin-bottom: 1.35rem;
@@ -967,7 +971,7 @@
 
         <!-- Results Modal -->
         <div class="modal fade" id="resultsModal" tabindex="-1">
-            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title"><i class="fas fa-chart-pie me-2"></i>ផែនការអាហាររបស់អ្នក</h5>
@@ -1907,16 +1911,16 @@
             return `/${rawPath.replace(/^\/+/, '')}`;
         }
 
-        function renderMealItems(items) {
+        function renderFoodItems(items, emptyLabel) {
             if (!items || items.length === 0) {
-                return `<li class="meal-items-empty text-muted">${uiCopy('មិនមានធាតុដែលបានកំណត់', 'No items available')}</li>`;
+                return `<li class="meal-items-empty text-muted">${escapeHtml(emptyLabel)}</li>`;
             }
 
             const normalizedItems = items
                 .map(normalizeMealItem)
                 .filter(item => item.name);
             if (normalizedItems.length === 0) {
-                return `<li class="meal-items-empty text-muted">${uiCopy('មិនមានធាតុដែលបានកំណត់', 'No items available')}</li>`;
+                return `<li class="meal-items-empty text-muted">${escapeHtml(emptyLabel)}</li>`;
             }
 
             const safeFallbackPhotoUrl = escapeHtml(fallbackFoodPhotoUrl);
@@ -1932,6 +1936,14 @@
                     </li>
                 `;
             }).join('');
+        }
+
+        function renderMealItems(items) {
+            return renderFoodItems(items, uiCopy('មិនមានធាតុដែលបានកំណត់', 'No items available'));
+        }
+
+        function renderAvoidItems(items) {
+            return renderFoodItems(items, uiCopy('មិនមាន', 'None'));
         }
 
         function renderMealPlan(meals, mealsPerDay) {
@@ -2058,7 +2070,6 @@
             const mealFoods = foods
                 .map(normalizeMealItem)
                 .filter(item => item.name);
-            const avoidFoodNames = avoidFoods.map(item => item.name || item).filter(Boolean);
             const mealsCount = Number(profile.meals_per_day)
                 || Number(document.querySelector('input[name="mealsPerDay"]:checked')?.value)
                 || 3;
@@ -2187,10 +2198,8 @@
                     <h5 class="mb-0"><i class="fas fa-ban me-2 text-danger"></i>${avoidFoodsTitle}</h5>
                 </div>
                 <div class="card-body">
-                    <ul class="mb-0">
-                        ${avoidFoodNames.length
-                    ? avoidFoodNames.map(item => `<li>${item}</li>`).join('')
-                    : `<li class="text-muted">${noneText}</li>`}
+                    <ul class="meal-items mb-0">
+                        ${renderAvoidItems(avoidFoods)}
                     </ul>
                 </div>
             </div>
