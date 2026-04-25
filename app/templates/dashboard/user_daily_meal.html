@@ -301,9 +301,9 @@
                             {% endif %}
                             <section class="daily-meal-section">
                                 <h5 class="daily-meal-title"><i class="fas {{ section_icon }}"></i>{{ section_label }}</h5>
-                                {% if section.items %}
+                                {% if section.get('items') %}
                                 <ul class="daily-meal-items">
-                                    {% for item in section.items %}
+                                    {% for item in section.get('items', []) %}
                                     <li class="daily-meal-item">
                                         <span class="daily-meal-photo-wrap">
                                             <img src="{{ item.photo_url or fallback_food_photo_url }}" alt="{{ item.name }}" class="daily-meal-photo" loading="lazy"

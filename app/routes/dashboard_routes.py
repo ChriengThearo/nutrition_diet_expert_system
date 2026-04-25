@@ -662,6 +662,8 @@ def _normalize_daily_meal_food_items(items):
             continue
 
         key = food_id if food_id is not None else name.lower()
+        if isinstance(key, (dict, list, set)):
+            key = name.lower()
         if key in seen:
             continue
         seen.add(key)
