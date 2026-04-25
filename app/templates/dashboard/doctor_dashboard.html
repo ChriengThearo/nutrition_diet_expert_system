@@ -711,6 +711,10 @@
                         <div class="alert alert-info d-none" id="foods-table-empty">
                             <i class="fas fa-info-circle me-2"></i>No foods found yet. Use "Add Food" to get started.
                         </div>
+                        <div class="alert alert-danger d-none" id="foods-table-error">
+                            <i class="fas fa-triangle-exclamation me-2"></i>
+                            <span id="foods-table-error-text">Failed to load foods. Please refresh or try again.</span>
+                        </div>
                         <nav aria-label="Food pagination" class="mt-4">
                             <ul class="pagination justify-content-center" id="foods-pagination"></ul>
                         </nav>
@@ -2295,7 +2299,30 @@
             }
         }
 
-        function renderFoodTable(foods) {
+        function clearFoodsLoadError() {
+            const errorState = document.getElementById('foods-table-error');
+            const errorText = document.getElementById('foods-table-error-text');
+            if (errorState) {
+                errorState.classList.add('d-none');
+            }
+            if (errorText) {
+                errorText.textContent = '';
+            }
+        }
+
+        function showFoodsLoadError(message) {
+            const errorState = document.getElementById('foods-table-error');
+            const errorText = document.getElementById('foods-table-error-text');
+            if (!errorState) {
+                return;
+            }
+            if (errorText) {
+                errorText.textContent = message || 'Failed to load foods. Please refresh or try again.';
+            }
+            errorState.classList.remove('d-none');
+        }
+
+        function renderFoodTable(foods, options = {}) {
             const tableBody = document.getElementById('foods-table-body');
             const emptyState = document.getElementById('foods-table-empty');
             if (!tableBody) {
@@ -2310,10 +2337,15 @@
             currentFoodPage = Math.min(Math.max(1, currentFoodPage), totalPages);
             const start = (currentFoodPage - 1) * foodsPerPage;
             const pageFoods = items.slice(start, start + foodsPerPage);
+            const showEmptyState = options.showEmptyState !== false;
             if (items.length === 0) {
                 tableBody.innerHTML = '';
                 if (emptyState) {
-                    emptyState.classList.remove('d-none');
+                    if (showEmptyState) {
+                        emptyState.classList.remove('d-none');
+                    } else {
+                        emptyState.classList.add('d-none');
+                    }
                 }
                 renderFoodPagination(1);
                 return;
@@ -2418,8 +2450,15 @@
 
         function loadFoods() {
             return fetch('/dashboard/doctor/foods')
-                .then(response => response.json())
+                .then(async response => {
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok || data.success === false) {
+                        throw new Error(data.message || 'Failed to load foods. Please refresh or try again.');
+                    }
+                    return data;
+                })
                 .then(data => {
+                    clearFoodsLoadError();
                     foodsCache = Array.isArray(data.foods) ? data.foods : [];
                     populateFoodSelects(foodsCache, 'No foods found yet. Use "Add Food" to add items to the list.');
                     currentFoodPage = 1;
@@ -2428,10 +2467,11 @@
                 })
                 .catch(error => {
                     console.error('Error loading foods:', error);
+                    showFoodsLoadError(error.message || 'Failed to load foods. Please refresh or try again.');
                     populateFoodSelects([], 'Failed to load foods. Please refresh or try again.');
                     foodsCache = [];
                     currentFoodPage = 1;
-                    renderFoodTable([]);
+                    renderFoodTable([], { showEmptyState: false });
                     updateStats();
                 });
         }

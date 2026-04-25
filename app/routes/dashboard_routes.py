@@ -1638,26 +1638,40 @@ def doctor_test_plan():
 )
 def doctor_foods():
     """Return foods for doctor dashboard"""
-    foods = FoodsTable.query.order_by(FoodsTable.created_at.desc()).limit(100).all()
-    return jsonify(
-        {
-            "foods": [
+    try:
+        foods = FoodsTable.query.order_by(FoodsTable.created_at.desc()).limit(100).all()
+        return jsonify(
+            {
+                "success": True,
+                "foods": [
+                    {
+                        "id": food.id,
+                        "name": food.name,
+                        "photo": food.photo,
+                        "description": food.description or "",
+                        "is_vegan": 1 if getattr(food, "is_gevan", False) else 0,
+                        "food_type": getattr(food, "food_type", "general") or "general",
+                        "calories": food.calories,
+                        "protein": food.protein,
+                        "sugar": food.sugar,
+                        "fat": food.fat,
+                    }
+                    for food in foods
+                ],
+            }
+        )
+    except Exception:
+        current_app.logger.exception("Failed to load doctor foods")
+        return (
+            jsonify(
                 {
-                    "id": food.id,
-                    "name": food.name,
-                    "photo": food.photo,
-                    "description": food.description or "",
-                    "is_vegan": 1 if getattr(food, "is_gevan", False) else 0,
-                    "food_type": getattr(food, "food_type", "general") or "general",
-                    "calories": food.calories,
-                    "protein": food.protein,
-                    "sugar": food.sugar,
-                    "fat": food.fat,
+                    "success": False,
+                    "message": "Failed to load foods. Please refresh or try again.",
+                    "foods": [],
                 }
-                for food in foods
-            ]
-        }
-    )
+            ),
+            500,
+        )
 
 
 @dashboard_bp.route("/doctor/foods", methods=["POST"])
