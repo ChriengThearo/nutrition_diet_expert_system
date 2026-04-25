@@ -613,6 +613,415 @@ def _safe_json_object(raw_value):
     return parsed if isinstance(parsed, dict) else None
 
 
+def _coerce_datetime(value):
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return None
+        if text.endswith("Z"):
+            text = text[:-1] + "+00:00"
+        try:
+            return datetime.fromisoformat(text)
+        except Exception:
+            return None
+    return None
+
+
+def _normalize_food_photo_url(photo_path):
+    raw = str(photo_path or "").strip()
+    if not raw:
+        return ""
+    lower = raw.lower()
+    if lower.startswith("http://") or lower.startswith("https://") or raw.startswith("/"):
+        return raw
+    return "/" + raw.lstrip("/")
+
+
+def _normalize_daily_meal_food_items(items):
+    normalized = []
+    seen = set()
+
+    if not isinstance(items, list):
+        return normalized
+
+    for item in items:
+        if isinstance(item, dict):
+            food_id = item.get("id")
+            name = str(item.get("name") or item.get("label") or "").strip()
+            photo = _normalize_food_photo_url(
+                item.get("photo") or item.get("image") or item.get("image_url")
+            )
+        else:
+            food_id = None
+            name = str(item or "").strip()
+            photo = ""
+
+        if not name:
+            continue
+
+        key = food_id if food_id is not None else name.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+
+        normalized.append(
+            {
+                "id": food_id,
+                "name": name,
+                "photo_url": photo,
+            }
+        )
+
+    return normalized
+
+
+def _normalize_daily_meal_food_groups(plan_payload):
+    if not isinstance(plan_payload, dict):
+        return []
+
+    raw_groups = plan_payload.get("food_groups")
+    normalized = []
+
+    if isinstance(raw_groups, list):
+        for index, group in enumerate(raw_groups):
+            if not isinstance(group, dict):
+                continue
+            group_key = str(group.get("group_key") or "").strip() or f"group_{index + 1}"
+            foods = _normalize_daily_meal_food_items(group.get("foods"))
+            avoid_foods = _normalize_daily_meal_food_items(group.get("avoid_foods"))
+            if not foods and not avoid_foods:
+                continue
+            normalized.append(
+                {
+                    "group_key": group_key,
+                    "foods": foods,
+                    "avoid_foods": avoid_foods,
+                }
+            )
+
+    if normalized:
+        return normalized
+
+    fallback_foods = _normalize_daily_meal_food_items(plan_payload.get("foods"))
+    fallback_avoid_foods = _normalize_daily_meal_food_items(plan_payload.get("avoid_foods"))
+    if fallback_foods or fallback_avoid_foods:
+        return [
+            {
+                "group_key": "group_1",
+                "foods": fallback_foods,
+                "avoid_foods": fallback_avoid_foods,
+            }
+        ]
+    return []
+
+
+def _select_active_daily_meal_group(food_groups, active_group_key):
+    groups = food_groups if isinstance(food_groups, list) else []
+    if not groups:
+        return {
+            "group_key": "group_1",
+            "foods": [],
+            "avoid_foods": [],
+        }
+
+    selected_key = str(active_group_key or "").strip()
+    if selected_key:
+        for group in groups:
+            if str(group.get("group_key") or "").strip() == selected_key:
+                return group
+
+    return groups[0]
+
+
+def _split_items_evenly(items, parts):
+    try:
+        safe_parts = max(1, int(parts))
+    except Exception:
+        safe_parts = 1
+
+    source_items = list(items or [])
+    base = len(source_items) // safe_parts
+    remainder = len(source_items) % safe_parts
+    groups = []
+    cursor = 0
+
+    for index in range(safe_parts):
+        size = base + (1 if index < remainder else 0)
+        groups.append(source_items[cursor : cursor + size])
+        cursor += size
+
+    return groups
+
+
+def _split_foods_by_meal(items, meals_per_day):
+    try:
+        meals_count = int(meals_per_day)
+    except Exception:
+        meals_count = 3
+    if meals_count not in (2, 3, 4):
+        meals_count = 3
+
+    groups = _split_items_evenly(items, 3)
+    breakfast = groups[0] if len(groups) > 0 else []
+    lunch = groups[1] if len(groups) > 1 else []
+    dinner = groups[2] if len(groups) > 2 else []
+
+    if meals_count == 2:
+        dinner_split = _split_items_evenly(dinner, 2)
+        return {
+            "meals_per_day": meals_count,
+            "breakfast": breakfast + (dinner_split[0] if len(dinner_split) > 0 else []),
+            "lunch": lunch + (dinner_split[1] if len(dinner_split) > 1 else []),
+            "dinner": [],
+            "late_dinner": [],
+        }
+
+    if meals_count == 4:
+        dinner_split = _split_items_evenly(dinner, 2)
+        return {
+            "meals_per_day": meals_count,
+            "breakfast": breakfast,
+            "lunch": lunch,
+            "dinner": dinner_split[0] if len(dinner_split) > 0 else [],
+            "late_dinner": dinner_split[1] if len(dinner_split) > 1 else [],
+        }
+
+    return {
+        "meals_per_day": meals_count,
+        "breakfast": breakfast,
+        "lunch": lunch,
+        "dinner": dinner,
+        "late_dinner": [],
+    }
+
+
+def _format_diet_type_for_ui(value):
+    not_specified = "មិនបានបញ្ជាក់" if _is_khmer_ui() else "Not specified"
+    text = str(value or "").strip()
+    if not text:
+        return not_specified
+
+    token = text.lower().replace("-", "_").replace(" ", "_")
+    if _is_khmer_ui():
+        return _localize_diet_type(text)
+
+    english_labels = {
+        "normal": "Regular",
+        "vegan": "Vegan",
+        "vegetarian": "Vegetarian",
+        "keto": "Keto",
+        "low_carb": "Low Carb",
+        "mediterranean": "Mediterranean",
+        "high_protein": "High Protein",
+        "paleo": "Paleo",
+        "pescatarian": "Pescatarian",
+    }
+    return english_labels.get(token, text.replace("_", " ").title())
+
+
+def _format_gender_for_ui(value):
+    not_specified = "មិនបានបញ្ជាក់" if _is_khmer_ui() else "Not specified"
+    text = str(value or "").strip().lower()
+    if not text:
+        return not_specified
+
+    if _is_khmer_ui():
+        khmer_labels = {
+            "male": "ប្រុស",
+            "female": "ស្រី",
+            "other": "ផ្សេងទៀត",
+        }
+        return khmer_labels.get(text, str(value).strip())
+
+    english_labels = {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other",
+    }
+    return english_labels.get(text, str(value).strip().title())
+
+
+def _format_allergies_for_ui(values):
+    none_text = "មិនមាន" if _is_khmer_ui() else "None"
+    if _is_khmer_ui():
+        return _localize_allergies(values)
+
+    if isinstance(values, list):
+        raw_items = [str(item).strip() for item in values if str(item).strip()]
+    elif values in (None, ""):
+        raw_items = []
+    else:
+        raw_items = [
+            str(item).strip()
+            for item in re.split(r"[;,/|]+", str(values))
+            if str(item).strip()
+        ]
+
+    if not raw_items:
+        return none_text
+
+    english_labels = {
+        "seafood": "Seafood",
+        "eggs": "Eggs",
+        "egg": "Eggs",
+        "soy": "Soy",
+        "soybean": "Soy",
+        "soya": "Soy",
+    }
+
+    display_items = []
+    seen = set()
+    for item in raw_items:
+        token = item.lower().replace("-", "_").replace(" ", "_")
+        if token in {"none", "no_allergy", "no_allergies", "na", "n_a"}:
+            continue
+        label = english_labels.get(token, item.replace("_", " ").title())
+        key = label.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        display_items.append(label)
+
+    return ", ".join(display_items) if display_items else none_text
+
+
+def _format_daily_meal_metric(value, decimals=1):
+    try:
+        return f"{float(value):.{int(decimals)}f}"
+    except Exception:
+        return None
+
+
+def _build_daily_meal_view_model(plan_payload, generated_at=None):
+    if not isinstance(plan_payload, dict):
+        return None
+
+    profile = plan_payload.get("profile") if isinstance(plan_payload.get("profile"), dict) else {}
+    metrics = plan_payload.get("metrics") if isinstance(plan_payload.get("metrics"), dict) else {}
+    food_groups = _normalize_daily_meal_food_groups(plan_payload)
+    active_group = _select_active_daily_meal_group(
+        food_groups, plan_payload.get("active_food_group_key")
+    )
+    foods = active_group.get("foods", [])
+    avoid_foods = active_group.get("avoid_foods", [])
+    meal_split = _split_foods_by_meal(foods, profile.get("meals_per_day"))
+
+    meal_sections = [
+        {"key": "breakfast", "items": meal_split.get("breakfast", [])},
+        {"key": "lunch", "items": meal_split.get("lunch", [])},
+    ]
+    if meal_split.get("meals_per_day", 3) >= 3:
+        meal_sections.append({"key": "dinner", "items": meal_split.get("dinner", [])})
+    if meal_split.get("meals_per_day", 3) == 4:
+        meal_sections.append(
+            {"key": "late_dinner", "items": meal_split.get("late_dinner", [])}
+        )
+
+    is_khmer = _is_khmer_ui()
+    not_specified = "មិនបានបញ្ជាក់" if is_khmer else "Not specified"
+    not_provided = "មិនបានផ្ដល់" if is_khmer else "Not provided"
+
+    meals_count = meal_split.get("meals_per_day", 3)
+    meals_display = f"{meals_count} {'ពេល' if is_khmer else 'meals'}"
+
+    blood_sugar_value = profile.get("blood_sugar")
+    blood_sugar_display = (
+        f"{blood_sugar_value} mg/dL"
+        if blood_sugar_value not in (None, "")
+        else not_provided
+    )
+
+    age_value = profile.get("age")
+    age_display = str(age_value) if age_value not in (None, "") else not_specified
+    weight_value = profile.get("weight")
+    weight_display = (
+        f"{weight_value} kg" if weight_value not in (None, "") else not_specified
+    )
+    height_value = profile.get("height")
+    height_display = (
+        f"{height_value} cm" if height_value not in (None, "") else not_specified
+    )
+
+    return {
+        "generated_at": _coerce_datetime(generated_at),
+        "profile": profile,
+        "metrics": metrics,
+        "food_groups": food_groups,
+        "active_food_group_key": active_group.get("group_key"),
+        "foods": foods,
+        "avoid_foods": avoid_foods,
+        "meal_sections": meal_sections,
+        "meals_per_day": meals_count,
+        "display": {
+            "diet_type": _format_diet_type_for_ui(profile.get("diet_type")),
+            "age": age_display,
+            "gender": _format_gender_for_ui(profile.get("gender")),
+            "weight": weight_display,
+            "height": height_display,
+            "meals_per_day": meals_display,
+            "allergies": _format_allergies_for_ui(profile.get("allergies")),
+            "blood_sugar": blood_sugar_display,
+            "bmi": _format_daily_meal_metric(metrics.get("bmi"), 1) or not_specified,
+            "calories": _format_daily_meal_metric(metrics.get("calories"), 0)
+            or not_specified,
+            "protein": _format_daily_meal_metric(metrics.get("protein"), 0)
+            or not_specified,
+            "sugar": _format_daily_meal_metric(metrics.get("sugar"), 0)
+            or not_specified,
+            "fat": _format_daily_meal_metric(metrics.get("fat"), 0) or not_specified,
+        },
+    }
+
+
+def _get_latest_persisted_daily_meal_plan(user_id):
+    recent_results = (
+        UserResultsTable.query.filter_by(user_id=user_id)
+        .filter(UserResultsTable.result_data.isnot(None))
+        .order_by(UserResultsTable.generated_at.desc(), UserResultsTable.id.desc())
+        .limit(30)
+        .all()
+    )
+
+    for result in recent_results:
+        payload = _safe_json_object(result.result_data)
+        if not payload:
+            continue
+        plan_payload = payload.get("plan")
+        if not isinstance(plan_payload, dict):
+            continue
+
+        latest_plan = _build_daily_meal_view_model(
+            plan_payload, result.generated_at or result.created_at
+        )
+        if latest_plan:
+            return latest_plan
+
+    return None
+
+
+def _build_guest_latest_plan_snapshot(result):
+    if not isinstance(result, dict):
+        return None
+
+    profile = result.get("profile") if isinstance(result.get("profile"), dict) else {}
+    metrics = result.get("metrics") if isinstance(result.get("metrics"), dict) else {}
+    food_groups = result.get("food_groups") if isinstance(result.get("food_groups"), list) else []
+    foods = result.get("foods") if isinstance(result.get("foods"), list) else []
+    avoid_foods = result.get("avoid_foods") if isinstance(result.get("avoid_foods"), list) else []
+
+    return {
+        "generated_at": datetime.utcnow().isoformat(),
+        "profile": profile,
+        "metrics": metrics,
+        "food_groups": food_groups,
+        "active_food_group_key": result.get("active_food_group_key"),
+        "foods": foods,
+        "avoid_foods": avoid_foods,
+    }
+
+
 def _extract_plan_submission(result_row):
     payload = _safe_json_object(result_row.result_data)
     if not payload:
@@ -2305,6 +2714,40 @@ def user_dashboard():
     )
 
 
+@dashboard_bp.route("/user/daily-meal")
+@login_required
+@user_required
+@permission_required(
+    "user.dashboard.read", "You do not have permission to view your daily meal plan."
+)
+def user_daily_meal():
+    """Daily meal page based on latest generated plan."""
+    guest_mode_enabled = bool(session.get("user_guest_mode"))
+    latest_plan = None
+    latest_plan_source = None
+
+    if guest_mode_enabled:
+        guest_snapshot = session.get("guest_latest_plan")
+        if isinstance(guest_snapshot, dict):
+            latest_plan = _build_daily_meal_view_model(
+                guest_snapshot, guest_snapshot.get("generated_at")
+            )
+            if latest_plan:
+                latest_plan_source = "guest"
+
+    if latest_plan is None:
+        latest_plan = _get_latest_persisted_daily_meal_plan(current_user.id)
+        if latest_plan:
+            latest_plan_source = "saved"
+
+    return render_template(
+        "dashboard/user_daily_meal.html",
+        latest_plan=latest_plan,
+        latest_plan_source=latest_plan_source,
+        guest_mode=guest_mode_enabled,
+    )
+
+
 @dashboard_bp.route("/user/profile")
 @login_required
 @user_required
@@ -3310,6 +3753,7 @@ def user_guest_mode():
     else:
         session.pop("user_guest_mode", None)
         session.pop("guest_plan_history", None)
+        session.pop("guest_latest_plan", None)
         session.modified = True
         message = "បានបិទរបៀបភ្ញៀវ។ ការរក្សាទុកទៅមូលដ្ឋានទិន្នន័យត្រូវបានស្ដារឡើងវិញ។"
 
@@ -3368,6 +3812,9 @@ def user_dashboard_submit():
                 guest_plan_history = []
             guest_plan_history.insert(0, guest_entry)
             session["guest_plan_history"] = guest_plan_history[:10]
+            guest_latest_plan = _build_guest_latest_plan_snapshot(result)
+            if guest_latest_plan:
+                session["guest_latest_plan"] = guest_latest_plan
             session.modified = True
 
         return jsonify(

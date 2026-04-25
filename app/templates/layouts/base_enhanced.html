@@ -288,7 +288,7 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if current_user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="btn btn-light btn-sm {% if request.endpoint and 'dashboard' in request.endpoint and 'diet_expert' not in request.endpoint %}active{% endif %}"
+                        <a class="btn btn-light btn-sm {% if request.endpoint and 'dashboard' in request.endpoint and 'diet_expert' not in request.endpoint and 'daily_meal' not in request.endpoint %}active{% endif %}"
                             href="{{ url_for('dashboard.dashboard_home') }}" data-permission="user.dashboard.read"
                             data-action="ចូលប្រើផ្ទាំងគ្រប់គ្រងរបស់អ្នក">
                             <i class="fas fa-tachometer-alt me-1"></i>{{ 'ផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Dashboard' }}
@@ -320,6 +320,15 @@
                         </a>
                     </li>
 
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-sm {% if request.endpoint == 'dashboard.user_daily_meal' %}active{% endif %}"
+                            href="{{ url_for('dashboard.user_daily_meal') }}"
+                            data-permission="user.dashboard.read" data-action="View daily meal plan">
+                            <i class="fas fa-calendar-alt me-1"></i>{{ 'ផែនការអាហារប្រចាំថ្ងៃ' if ui_lang == 'km' else 'Daily Meal' }}
+                        </a>
+                    </li>
+                    {% endif %}
                     <!-- Admin Navigation -->
                     {% if current_user.is_authenticated and current_user.has_role('admin') %}
                     <li class="nav-item dropdown">
