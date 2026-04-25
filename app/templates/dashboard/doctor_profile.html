@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+{% set ui_lang = session.get('ui_lang', 'km') %}
+<html lang="{{ 'km' if ui_lang == 'km' else 'en' }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Profile | Diet Expert Rule Studio</title>
+    <title>{{ 'ប្រវត្តិរូបវេជ្ជបណ្ឌិត | Diet Expert Rule Studio' if ui_lang == 'km' else 'Doctor Profile | Diet Expert Rule Studio' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
@@ -313,7 +314,8 @@
         class="navbar navbar-expand-lg shadow-sm sticky-top navbar-light navbar-user-dashboard navbar-custom doctor-profile-navbar">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('main.home') }}">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert logo" class="doctor-brand-logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}"
+                    alt="{{ 'រូបសញ្ញា Diet Expert' if ui_lang == 'km' else 'Diet Expert logo' }}" class="doctor-brand-logo">
                 <span class="doctor-brand-text">NDES</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -323,22 +325,22 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
                         <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('dashboard.doctor_dashboard') }}">
-                            <i class="fas fa-gauge-high me-1"></i>Dashboard
+                            <i class="fas fa-gauge-high me-1"></i>{{ 'ផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Dashboard' }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('main.home') }}">
-                            <i class="fas fa-home me-1"></i>Home
+                            <i class="fas fa-home me-1"></i>{{ 'ទំព័រដើម' if ui_lang == 'km' else 'Home' }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('dashboard.doctor_dashboard') }}">
-                            <i class="fas fa-list-check me-1"></i>Rule Studio
+                            <i class="fas fa-list-check me-1"></i>{{ 'ស្ទូឌីយោក្បួន' if ui_lang == 'km' else 'Rule Studio' }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-light btn-sm doctor-nav-pill active" href="{{ url_for('dashboard.doctor_profile') }}">
-                            <i class="fas fa-user-doctor me-1"></i>Profile
+                            <i class="fas fa-user-doctor me-1"></i>{{ 'ប្រវត្តិរូប' if ui_lang == 'km' else 'Profile' }}
                         </a>
                     </li>
                 </ul>
@@ -348,10 +350,41 @@
                         {% include "dashboard/_dashboard_switcher.html" %}
                     </li>
                     {% endif %}
+                    {% set language_display_label = 'ភាសា' if ui_lang == 'km' else 'Language' %}
+                    <li class="nav-item dropdown me-2">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center doctor-nav-pill" href="#"
+                            id="doctorLanguageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                            title="{{ language_display_label }}">
+                            <i class="fas fa-language me-1"></i>
+                            <span>{{ language_display_label }}</span>
+                            <span class="ms-1">{{ 'KH' if ui_lang == 'km' else 'EN' }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="doctorLanguageDropdown">
+                            <li>
+                                <button class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'km' %}active{% endif %}"
+                                    type="button" data-language-option="km">
+                                    <span>{{ 'ខ្មែរ' if ui_lang == 'km' else 'Khmer' }}</span>
+                                    {% if ui_lang == 'km' %}
+                                    <i class="fas fa-check text-success"></i>
+                                    {% endif %}
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'en' %}active{% endif %}"
+                                    type="button" data-language-option="en">
+                                    <span>{{ 'អង់គ្លេស' if ui_lang == 'km' else 'English' }}</span>
+                                    {% if ui_lang == 'en' %}
+                                    <i class="fas fa-check text-success"></i>
+                                    {% endif %}
+                                </button>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle doctor-nav-user d-flex align-items-center" href="#"
                             id="doctorProfileNavDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ doctor_avatar_url }}" alt="Avatar" class="doctor-nav-avatar me-2"
+                            <img src="{{ doctor_avatar_url }}" alt="{{ 'រូបប្រវត្តិរូប' if ui_lang == 'km' else 'Avatar' }}"
+                                class="doctor-nav-avatar me-2"
                                 onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
                             <span>{{ display_name }}</span>
                         </a>
@@ -364,13 +397,13 @@
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('dashboard.doctor_profile') }}">
-                                    <i class="fas fa-user-doctor me-2"></i>Profile
+                                    <i class="fas fa-user-doctor me-2"></i>{{ 'ប្រវត្តិរូប' if ui_lang == 'km' else 'Profile' }}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('dashboard.doctor_profile_edit') }}"
                                     data-permission="dashboard.doctor" data-action="edit profile info">
-                                    <i class="fas fa-user-pen me-2"></i>Edit Profile
+                                    <i class="fas fa-user-pen me-2"></i>{{ 'កែប្រែប្រវត្តិរូប' if ui_lang == 'km' else 'Edit Profile' }}
                                 </a>
                             </li>
                             <li>
@@ -378,7 +411,7 @@
                             </li>
                             <li>
                                 <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    <i class="fas fa-sign-out-alt me-2"></i>{{ 'ចាកចេញ' if ui_lang == 'km' else 'Logout' }}
                                 </a>
                             </li>
                         </ul>
@@ -395,11 +428,11 @@
                     <div class="col-lg-8">
                         <div class="d-flex align-items-center gap-3">
                             <div class="profile-avatar">
-                                <img src="{{ doctor_avatar_url }}" alt="Doctor avatar"
+                                <img src="{{ doctor_avatar_url }}" alt="{{ 'រូបវេជ្ជបណ្ឌិត' if ui_lang == 'km' else 'Doctor avatar' }}"
                                     onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
                             </div>
                             <div>
-                                <p class="profile-label mb-0">Doctor Workspace Identity</p>
+                                <p class="profile-label mb-0">{{ 'អត្តសញ្ញាណគណនីវេជ្ជបណ្ឌិត' if ui_lang == 'km' else 'Doctor Workspace Identity' }}</p>
                                 <h1 class="profile-name">{{ display_name }}</h1>
                                 <p class="profile-email">{{ user.email }}</p>
                             </div>
@@ -411,11 +444,11 @@
                             </span>
                             <span class="profile-meta-chip">
                                 <i class="fas fa-circle-check"></i>
-                                {{ 'Active account' if user.is_active else 'Inactive account' }}
+                                {{ ('គណនីសកម្ម' if user.is_active else 'គណនីមិនសកម្ម') if ui_lang == 'km' else ('Active account' if user.is_active else 'Inactive account') }}
                             </span>
                             <span class="profile-meta-chip">
                                 <i class="fas fa-shield-halved"></i>
-                                {{ user.roles|length if user.roles else 0 }} role{{ '' if (user.roles|length == 1) else 's' }}
+                                {{ user.roles|length if user.roles else 0 }} {{ 'តួនាទី' if ui_lang == 'km' else ('role' if (user.roles|length == 1) else 'roles') }}
                             </span>
                         </div>
                     </div>
@@ -423,11 +456,11 @@
                         <div class="profile-action-row">
                             <a class="btn btn-light" href="{{ url_for('dashboard.doctor_profile_edit') }}"
                                 data-permission="dashboard.doctor" data-action="edit profile info">
-                                <i class="fas fa-pen me-2"></i>Edit Profile
+                                <i class="fas fa-pen me-2"></i>{{ 'កែប្រែប្រវត្តិរូប' if ui_lang == 'km' else 'Edit Profile' }}
                             </a>
                             <a class="btn btn-outline-light" href="{{ url_for('dashboard.doctor_dashboard') }}"
                                 data-permission="dashboard.doctor" data-action="access the doctor dashboard">
-                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                <i class="fas fa-arrow-left me-2"></i>{{ 'ត្រឡប់ទៅផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Back to Dashboard' }}
                             </a>
                         </div>
                     </div>
@@ -438,34 +471,34 @@
         <section class="profile-grid">
             <article class="profile-panel profile-anim" style="--anim-delay: 90ms;">
                 <header class="profile-panel-head">
-                    <h2 class="profile-panel-title"><i class="fas fa-id-badge me-2"></i>Account Overview</h2>
-                    <p class="profile-panel-subtitle">Core profile fields used across doctor dashboard tools.</p>
+                    <h2 class="profile-panel-title"><i class="fas fa-id-badge me-2"></i>{{ 'សង្ខេបគណនី' if ui_lang == 'km' else 'Account Overview' }}</h2>
+                    <p class="profile-panel-subtitle">{{ 'ព័ត៌មានមូលដ្ឋានដែលប្រើទូទាំងឧបករណ៍ក្នុងផ្ទាំងវេជ្ជបណ្ឌិត។' if ui_lang == 'km' else 'Core profile fields used across doctor dashboard tools.' }}</p>
                 </header>
                 <div class="profile-panel-body">
                     <ul class="profile-list">
                         <li class="profile-item">
-                            <span class="profile-item-label">Full Name</span>
-                            <span class="profile-item-value">{{ user.full_name or 'Not provided' }}</span>
+                            <span class="profile-item-label">{{ 'ឈ្មោះពេញ' if ui_lang == 'km' else 'Full Name' }}</span>
+                            <span class="profile-item-value">{{ user.full_name or ('មិនទាន់បញ្ចូល' if ui_lang == 'km' else 'Not provided') }}</span>
                         </li>
                         <li class="profile-item">
-                            <span class="profile-item-label">Email</span>
+                            <span class="profile-item-label">{{ 'អ៊ីមែល' if ui_lang == 'km' else 'Email' }}</span>
                             <span class="profile-item-value">{{ user.email }}</span>
                         </li>
                         <li class="profile-item">
-                            <span class="profile-item-label">Username</span>
+                            <span class="profile-item-label">{{ 'ឈ្មោះអ្នកប្រើ' if ui_lang == 'km' else 'Username' }}</span>
                             <span class="profile-item-value">{{ user.username }}</span>
                         </li>
                         <li class="profile-item">
-                            <span class="profile-item-label">Status</span>
-                            <span class="profile-item-value">{{ 'Active' if user.is_active else 'Inactive' }}</span>
+                            <span class="profile-item-label">{{ 'ស្ថានភាព' if ui_lang == 'km' else 'Status' }}</span>
+                            <span class="profile-item-value">{{ ('សកម្ម' if user.is_active else 'មិនសកម្ម') if ui_lang == 'km' else ('Active' if user.is_active else 'Inactive') }}</span>
                         </li>
                         <li class="profile-item">
-                            <span class="profile-item-label">Created At</span>
-                            <span class="profile-item-value">{{ user.created_at.strftime('%b %d, %Y %H:%M') if user.created_at else 'N/A' }}</span>
+                            <span class="profile-item-label">{{ 'ថ្ងៃបង្កើត' if ui_lang == 'km' else 'Created At' }}</span>
+                            <span class="profile-item-value">{{ user.created_at.strftime('%b %d, %Y %H:%M') if user.created_at else ('មិនមានទិន្នន័យ' if ui_lang == 'km' else 'N/A') }}</span>
                         </li>
                         <li class="profile-item">
-                            <span class="profile-item-label">Last Updated</span>
-                            <span class="profile-item-value">{{ user.updated_at.strftime('%b %d, %Y %H:%M') if user.updated_at else 'N/A' }}</span>
+                            <span class="profile-item-label">{{ 'កែប្រែចុងក្រោយ' if ui_lang == 'km' else 'Last Updated' }}</span>
+                            <span class="profile-item-value">{{ user.updated_at.strftime('%b %d, %Y %H:%M') if user.updated_at else ('មិនមានទិន្នន័យ' if ui_lang == 'km' else 'N/A') }}</span>
                         </li>
                     </ul>
                 </div>
@@ -474,8 +507,8 @@
             <div class="d-grid gap-3">
                 <article class="profile-panel profile-anim" style="--anim-delay: 140ms;">
                     <header class="profile-panel-head">
-                        <h2 class="profile-panel-title"><i class="fas fa-shield-halved me-2"></i>Roles & Access</h2>
-                        <p class="profile-panel-subtitle">Permissions assigned to this doctor account.</p>
+                        <h2 class="profile-panel-title"><i class="fas fa-shield-halved me-2"></i>{{ 'តួនាទី និងសិទ្ធិប្រើប្រាស់' if ui_lang == 'km' else 'Roles & Access' }}</h2>
+                        <p class="profile-panel-subtitle">{{ 'សិទ្ធិដែលបានកំណត់សម្រាប់គណនីវេជ្ជបណ្ឌិតនេះ។' if ui_lang == 'km' else 'Permissions assigned to this doctor account.' }}</p>
                     </header>
                     <div class="profile-panel-body">
                         {% if user.roles %}
@@ -485,46 +518,46 @@
                             {% endfor %}
                         </div>
                         {% else %}
-                        <p class="text-muted mb-0">No roles assigned.</p>
+                        <p class="text-muted mb-0">{{ 'មិនទាន់បានកំណត់តួនាទី។' if ui_lang == 'km' else 'No roles assigned.' }}</p>
                         {% endif %}
                         <div class="profile-note">
                             <i class="fas fa-lightbulb me-2"></i>
-                            Keep your profile and access role current to avoid dashboard permission issues.
+                            {{ 'សូមរក្សាព័ត៌មានប្រវត្តិរូប និងតួនាទីសិទ្ធិឱ្យទាន់សម័យ ដើម្បីជៀសវាងបញ្ហាសិទ្ធិប្រើប្រាស់ក្នុងផ្ទាំងគ្រប់គ្រង។' if ui_lang == 'km' else 'Keep your profile and access role current to avoid dashboard permission issues.' }}
                         </div>
                     </div>
                 </article>
 
                 <article class="profile-panel profile-anim" style="--anim-delay: 190ms;">
                     <header class="profile-panel-head">
-                        <h2 class="profile-panel-title"><i class="fas fa-compass me-2"></i>Workflow Shortcuts</h2>
-                        <p class="profile-panel-subtitle">Fast links for daily rule operations.</p>
+                        <h2 class="profile-panel-title"><i class="fas fa-compass me-2"></i>{{ 'ផ្លូវកាត់ការងារ' if ui_lang == 'km' else 'Workflow Shortcuts' }}</h2>
+                        <p class="profile-panel-subtitle">{{ 'តំណលឿនសម្រាប់ការងារក្បួនប្រចាំថ្ងៃ។' if ui_lang == 'km' else 'Fast links for daily rule operations.' }}</p>
                     </header>
                     <div class="profile-panel-body">
                         <ul class="shortcut-list">
                             <li>
                                 <a href="{{ url_for('dashboard.doctor_dashboard') }}"
                                     data-permission="dashboard.doctor" data-action="create rules">
-                                    <span><i class="fas fa-plus-circle me-2"></i>Create Or Edit Rules</span>
+                                    <span><i class="fas fa-plus-circle me-2"></i>{{ 'បង្កើត ឬ កែប្រែក្បួន' if ui_lang == 'km' else 'Create Or Edit Rules' }}</span>
                                     <i class="fas fa-arrow-right"></i>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ url_for('dashboard.doctor_dashboard') }}"
                                     data-permission="dashboard.doctor" data-action="test rules">
-                                    <span><i class="fas fa-vial me-2"></i>Test Rule Scenarios</span>
+                                    <span><i class="fas fa-vial me-2"></i>{{ 'សាកល្បងសេណារីយោក្បួន' if ui_lang == 'km' else 'Test Rule Scenarios' }}</span>
                                     <i class="fas fa-arrow-right"></i>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ url_for('dashboard.doctor_profile_edit') }}"
                                     data-permission="dashboard.doctor" data-action="edit profile info">
-                                    <span><i class="fas fa-user-gear me-2"></i>Update Doctor Profile</span>
+                                    <span><i class="fas fa-user-gear me-2"></i>{{ 'ធ្វើបច្ចុប្បន្នភាពប្រវត្តិរូបវេជ្ជបណ្ឌិត' if ui_lang == 'km' else 'Update Doctor Profile' }}</span>
                                     <i class="fas fa-arrow-right"></i>
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ url_for('auth.logout') }}">
-                                    <span><i class="fas fa-sign-out-alt me-2"></i>Secure Logout</span>
+                                    <span><i class="fas fa-sign-out-alt me-2"></i>{{ 'ចាកចេញដោយសុវត្ថិភាព' if ui_lang == 'km' else 'Secure Logout' }}</span>
                                     <i class="fas fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -538,6 +571,46 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         window.APP_PERMISSIONS = {{ current_user.get_permission_codes()|list|tojson if current_user.is_authenticated else [] }};
+
+        (function initDoctorLanguageSwitcher() {
+            const languageOptions = document.querySelectorAll('[data-language-option]');
+            if (!languageOptions.length) {
+                return;
+            }
+
+            const endpoint = "{{ url_for('dashboard.set_language_mode') }}";
+            const currentLanguage = "{{ ui_lang }}";
+            const fallbackMessage = currentLanguage === 'km'
+                ? 'មិនអាចប្ដូរភាសាបានទេ។'
+                : 'Unable to switch language mode.';
+
+            languageOptions.forEach(option => {
+                option.addEventListener('click', async () => {
+                    const selectedLanguage = option.getAttribute('data-language-option');
+                    if (!selectedLanguage || selectedLanguage === currentLanguage) {
+                        return;
+                    }
+
+                    option.disabled = true;
+                    try {
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ language: selectedLanguage })
+                        });
+                        const result = await response.json().catch(() => ({}));
+                        if (!response.ok || result.success === false) {
+                            throw new Error(result.message || fallbackMessage);
+                        }
+                        window.location.reload();
+                    } catch (error) {
+                        alert(error.message || fallbackMessage);
+                    } finally {
+                        option.disabled = false;
+                    }
+                });
+            });
+        })();
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

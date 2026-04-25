@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+{% set ui_lang = session.get('ui_lang', 'km') %}
+<html lang="{{ 'km' if ui_lang == 'km' else 'en' }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Dashboard | Diet Expert Rule Management System</title>
+    <title>{{ 'ផ្ទាំងវេជ្ជបណ្ឌិត | ប្រព័ន្ធគ្រប់គ្រងក្បួនរបបអាហារ' if ui_lang == 'km' else 'Doctor Dashboard | Diet Expert Rule Management System' }}</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome for icons -->
@@ -285,61 +286,6 @@
             opacity: 0.78;
         }
 
-        .meal-section-title {
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-            font-weight: 700;
-            color: #1f2d3d;
-            margin-bottom: 0.45rem;
-        }
-
-        .meal-items {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .meal-item {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            padding: 0.46rem 0;
-            border-bottom: 1px solid #edf2f6;
-        }
-
-        .meal-item:last-child {
-            border-bottom: 0;
-        }
-
-        .meal-item-photo-wrap {
-            width: 40px;
-            min-width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #d5e4dc;
-            background: #f4f7f6;
-        }
-
-        .meal-item-photo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .meal-item-name {
-            color: #1f2d3d;
-            font-weight: 500;
-            line-height: 1.35;
-        }
-
-        .meal-items-empty {
-            color: #6c757d;
-            padding: 0.22rem 0;
-        }
-
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
@@ -368,11 +314,13 @@
     {% set doctor_avatar_url = doctor_default_avatar_url if session.get('user_guest_mode') else
     (url_for('main.images', filename=doctor_photo_path|replace('images/', '')) if doctor_photo_path else
     doctor_default_avatar_url) %}
+    {% set language_display_label = 'ភាសា' if ui_lang == 'km' else 'Language' %}
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg shadow-sm sticky-top navbar-light navbar-user-dashboard navbar-custom">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('main.home') }}">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert logo"
+                <img src="{{ url_for('static', filename='images/logo.png') }}"
+                    alt="{{ 'រូបសញ្ញា Diet Expert' if ui_lang == 'km' else 'Diet Expert logo' }}"
                     class="doctor-brand-logo">
                 <span class="doctor-brand-text">NDES</span>
             </a>
@@ -383,17 +331,17 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
                         <a class="btn btn-light btn-sm me-2 doctor-nav-pill active" href="#">
-                            <i class="fas fa-gauge-high me-1"></i>Dashboard
+                            <i class="fas fa-gauge-high me-1"></i>{{ 'ផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Dashboard' }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('main.home') }}">
-                            <i class="fas fa-home me-1"></i>Home
+                            <i class="fas fa-home me-1"></i>{{ 'ទំព័រដើម' if ui_lang == 'km' else 'Home' }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <button type="button" class="btn btn-light btn-sm doctor-nav-pill" id="nav-open-builder">
-                            <i class="fas fa-plus-circle me-1"></i>Create Rule
+                            <i class="fas fa-plus-circle me-1"></i>{{ 'បង្កើតក្បួន' if ui_lang == 'km' else 'Create Rule' }}
                         </button>
                     </li>
                 </ul>
@@ -403,10 +351,40 @@
                         {% include "dashboard/_dashboard_switcher.html" %}
                     </li>
                     {% endif %}
+                    <li class="nav-item dropdown me-2">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center doctor-nav-pill" href="#"
+                            id="doctorLanguageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                            title="{{ language_display_label }}">
+                            <i class="fas fa-language me-1"></i>
+                            <span>{{ language_display_label }}</span>
+                            <span class="ms-1">{{ 'KH' if ui_lang == 'km' else 'EN' }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="doctorLanguageDropdown">
+                            <li>
+                                <button class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'km' %}active{% endif %}"
+                                    type="button" data-language-option="km">
+                                    <span>{{ 'ខ្មែរ' if ui_lang == 'km' else 'Khmer' }}</span>
+                                    {% if ui_lang == 'km' %}
+                                    <i class="fas fa-check text-success"></i>
+                                    {% endif %}
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'en' %}active{% endif %}"
+                                    type="button" data-language-option="en">
+                                    <span>{{ 'អង់គ្លេស' if ui_lang == 'km' else 'English' }}</span>
+                                    {% if ui_lang == 'en' %}
+                                    <i class="fas fa-check text-success"></i>
+                                    {% endif %}
+                                </button>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle doctor-nav-user d-flex align-items-center" href="#"
                             id="doctorNavDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ doctor_avatar_url }}" alt="Avatar" class="doctor-nav-avatar me-2"
+                            <img src="{{ doctor_avatar_url }}" alt="{{ 'រូបប្រវត្តិរូប' if ui_lang == 'km' else 'Avatar' }}"
+                                class="doctor-nav-avatar me-2"
                                 onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
                             <span>{{ doctor_display_name }}</span>
                         </a>
@@ -419,13 +397,13 @@
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('dashboard.doctor_profile') }}">
-                                    <i class="fas fa-user-doctor me-2"></i>Profile
+                                    <i class="fas fa-user-doctor me-2"></i>{{ 'ប្រវត្តិរូប' if ui_lang == 'km' else 'Profile' }}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('dashboard.doctor_profile_edit') }}"
                                     data-permission="dashboard.doctor" data-action="edit profile info">
-                                    <i class="fas fa-user-pen me-2"></i>Edit Profile
+                                    <i class="fas fa-user-pen me-2"></i>{{ 'កែប្រែប្រវត្តិរូប' if ui_lang == 'km' else 'Edit Profile' }}
                                 </a>
                             </li>
                             <li>
@@ -433,7 +411,7 @@
                             </li>
                             <li>
                                 <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    <i class="fas fa-sign-out-alt me-2"></i>{{ 'ចាកចេញ' if ui_lang == 'km' else 'Logout' }}
                                 </a>
                             </li>
                         </ul>
@@ -448,54 +426,51 @@
             <div class="doctor-hero-panel">
                 <div class="row align-items-center">
                     <div class="col-lg-8">
-                        <span class="hero-chip"><i class="fas fa-stethoscope"></i> Rule Command Center</span>
-                        <h1 class="hero-title">Clinical Nutrition Decision Studio</h1>
-                        <p class="hero-copy">Create treatment-ready diet rules, manage your food knowledge base, and
-                            simulate patient plans from one clean workflow.</p>
+                        <span class="hero-chip"><i class="fas fa-stethoscope"></i> {{ 'មជ្ឈមណ្ឌលបញ្ជាក្បួនរបបអាហារ' if ui_lang == 'km' else 'Rule Command Center' }}</span>
+                        <h1 class="hero-title">{{ 'ស្ទូឌីយោសម្រេចចិត្តអាហារូបត្ថម្ភវេជ្ជសាស្ត្រ' if ui_lang == 'km' else 'Clinical Nutrition Decision Studio' }}</h1>
+                        <p class="hero-copy">{{ 'បង្កើតក្បួនរបបអាហារដែលត្រៀមប្រើសម្រាប់ការព្យាបាល គ្រប់គ្រងមូលដ្ឋានចំណេះដឹងអាហារ និងសាកល្បងផែនការអ្នកជំងឺក្នុងលំហូរការងារតែមួយ។' if ui_lang == 'km' else 'Create treatment-ready diet rules, manage your food knowledge base, and simulate patient plans from one clean workflow.' }}</p>
                         <div class="hero-actions">
                             <button type="button" class="btn btn-light btn-sm" id="jump-builder">
                                 <span class="action-icon"><i class="fas fa-tools"></i></span>
-                                <span>Build Rule</span>
+                                <span>{{ 'រៀបចំក្បួន' if ui_lang == 'km' else 'Build Rule' }}</span>
                             </button>
                             <button type="button" class="btn btn-outline-light btn-sm" id="jump-rules">
                                 <span class="action-icon"><i class="fas fa-layer-group"></i></span>
-                                <span>Manage Rules</span>
+                                <span>{{ 'គ្រប់គ្រងក្បួន' if ui_lang == 'km' else 'Manage Rules' }}</span>
                             </button>
                             <button type="button" class="btn btn-outline-light btn-sm" id="jump-test">
                                 <span class="action-icon"><i class="fas fa-vial"></i></span>
-                                <span>Run Simulation</span>
+                                <span>{{ 'ដំណើរការសាកល្បង' if ui_lang == 'km' else 'Run Simulation' }}</span>
                             </button>
                         </div>
                     </div>
                     <div class="col-lg-4 mt-4 mt-lg-0">
                         <div class="hero-meta-card">
-                            <p class="hero-meta-label">Current Doctor</p>
+                            <p class="hero-meta-label">{{ 'វេជ្ជបណ្ឌិតបច្ចុប្បន្ន' if ui_lang == 'km' else 'Current Doctor' }}</p>
                             <p class="hero-meta-value">{{ current_user.full_name or current_user.username }}</p>
-                            <span class="badge bg-light text-dark mt-2">Decision Dashboard</span>
+                            <span class="badge bg-light text-dark mt-2">{{ 'ផ្ទាំងសម្រេចចិត្ត' if ui_lang == 'km' else 'Decision Dashboard' }}</span>
                         </div>
                     </div>
                 </div>
                 <div class="doctor-kpi-grid">
-                    <div class="doctor-kpi-card doctor-kpi-card-action" id="users-kpi-card" role="button" tabindex="0"
-                        aria-label="Open users insights page">
-                        <div class="doctor-kpi-icon"><i class="fas fa-users"></i></div>
-                        <p class="doctor-kpi-label">Users</p>
-                        <p class="doctor-kpi-value" id="total_users">{{ total_users }}</p>
-                        <p class="doctor-kpi-note mb-0">Click to open insights page</p>
+                    <div class="doctor-kpi-card">
+                        <div class="doctor-kpi-icon"><i class="fas fa-user-injured"></i></div>
+                        <p class="doctor-kpi-label">{{ 'អ្នកជំងឺ' if ui_lang == 'km' else 'Patients' }}</p>
+                        <p class="doctor-kpi-value" id="total_patients">{{ total_patients }}</p>
                     </div>
                     <div class="doctor-kpi-card">
                         <div class="doctor-kpi-icon"><i class="fas fa-stethoscope"></i></div>
-                        <p class="doctor-kpi-label">Consultations Today</p>
+                        <p class="doctor-kpi-label">{{ 'ការពិគ្រោះថ្ងៃនេះ' if ui_lang == 'km' else 'Consultations Today' }}</p>
                         <p class="doctor-kpi-value" id="consultations_today">{{ consultations_today }}</p>
                     </div>
                     <div class="doctor-kpi-card">
                         <div class="doctor-kpi-icon"><i class="fas fa-notes-medical"></i></div>
-                        <p class="doctor-kpi-label">Pending Diagnoses</p>
+                        <p class="doctor-kpi-label">{{ 'រង់ចាំវិនិច្ឆ័យ' if ui_lang == 'km' else 'Pending Diagnoses' }}</p>
                         <p class="doctor-kpi-value" id="pending_diagnoses">{{ pending_diagnoses }}</p>
                     </div>
                     <div class="doctor-kpi-card">
                         <div class="doctor-kpi-icon"><i class="fas fa-scroll"></i></div>
-                        <p class="doctor-kpi-label">Rules Authored</p>
+                        <p class="doctor-kpi-label">{{ 'ក្បួនដែលបានបង្កើត' if ui_lang == 'km' else 'Rules Authored' }}</p>
                         <p class="doctor-kpi-value" id="rules_authored">{{ rules_authored }}</p>
                     </div>
                 </div>
@@ -508,30 +483,30 @@
             <!-- Sidebar -->
             <div class="col-lg-3 mb-4">
                 <div class="sidebar control-sidebar">
-                    <h5 class="control-panel-title mb-2" id="control-panel-title">Rule Control Panel</h5>
-                    <p class="control-panel-copy" id="control-panel-copy">Search, filter, and jump into rule operations quickly.</p>
+                    <h5 class="control-panel-title mb-2" id="control-panel-title">{{ 'ផ្ទាំងបញ្ជាក្បួន' if ui_lang == 'km' else 'Rule Control Panel' }}</h5>
+                    <p class="control-panel-copy" id="control-panel-copy">{{ 'ស្វែងរក ត្រង និងចូលដំណើរការការងារក្បួនបានលឿន។' if ui_lang == 'km' else 'Search, filter, and jump into rule operations quickly.' }}</p>
 
                     <div class="search-rules-wrap mb-3">
-                        <label for="search-rules" class="form-label mb-1" id="control-search-label">Find rule</label>
+                        <label for="search-rules" class="form-label mb-1" id="control-search-label">{{ 'ស្វែងរកក្បួន' if ui_lang == 'km' else 'Find rule' }}</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
                             <input type="search" class="form-control" id="search-rules"
-                                placeholder="Search by name or description">
+                                placeholder="{{ 'ស្វែងរកតាមឈ្មោះ ឬ ពិពណ៌នា' if ui_lang == 'km' else 'Search by name or description' }}">
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label mb-2" id="control-filter-label">Status Filters</label>
+                        <label class="form-label mb-2" id="control-filter-label">{{ 'តម្រងស្ថានភាព' if ui_lang == 'km' else 'Status Filters' }}</label>
                         <div class="form-check rule-filter-pill">
                             <input class="form-check-input" type="checkbox" id="filter-active" checked>
                             <label class="form-check-label" for="filter-active">
-                                <span id="filter-active-label">Active Rules</span>
+                                <span id="filter-active-label">{{ 'ក្បួនសកម្ម' if ui_lang == 'km' else 'Active Rules' }}</span>
                             </label>
                         </div>
                         <div class="form-check rule-filter-pill">
                             <input class="form-check-input" type="checkbox" id="filter-inactive">
                             <label class="form-check-label" for="filter-inactive">
-                                <span id="filter-inactive-label">Inactive Rules</span>
+                                <span id="filter-inactive-label">{{ 'ក្បួនមិនសកម្ម' if ui_lang == 'km' else 'Inactive Rules' }}</span>
                             </label>
                         </div>
                     </div>
@@ -542,24 +517,24 @@
                         <button class="btn btn-custom" id="new-rule-btn" data-permission="rule.create"
                             data-action="create rules">
                             <span class="action-icon"><i class="fas fa-plus-circle" id="primary-sidebar-action-icon"></i></span>
-                            <span id="primary-sidebar-action-text">Create Rule</span>
+                            <span id="primary-sidebar-action-text">{{ 'បង្កើតក្បួន' if ui_lang == 'km' else 'Create Rule' }}</span>
                         </button>
                         <button class="btn btn-outline-custom" id="add-food-btn" data-permission="food.create"
                             data-action="add foods">
                             <span class="action-icon"><i class="fas fa-apple-alt" id="secondary-sidebar-action-icon"></i></span>
-                            <span id="secondary-sidebar-action-text">Add Food Item</span>
+                            <span id="secondary-sidebar-action-text">{{ 'បន្ថែមម្ហូបអាហារ' if ui_lang == 'km' else 'Add Food Item' }}</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Stats -->
                 <div class="sidebar mt-4 stats-sidebar">
-                    <h5 class="mb-3" id="snapshot-title"><i class="fas fa-chart-bar me-2"></i>Rule Snapshot</h5>
+                    <h5 class="mb-3" id="snapshot-title"><i class="fas fa-chart-bar me-2"></i>{{ 'សង្ខេបក្បួន' if ui_lang == 'km' else 'Rule Snapshot' }}</h5>
 
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-1" id="snapshot-stat-1-label">Total Rules</h6>
+                                <h6 class="mb-1" id="snapshot-stat-1-label">{{ 'ក្បួនសរុប' if ui_lang == 'km' else 'Total Rules' }}</h6>
                                 <h3 class="mb-0 stat-value" id="total-rules">{{ rules_authored or 0 }}</h3>
                             </div>
                             <div class="align-self-center">
@@ -571,7 +546,7 @@
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-1" id="snapshot-stat-2-label">Active Rules</h6>
+                                <h6 class="mb-1" id="snapshot-stat-2-label">{{ 'ក្បួនសកម្ម' if ui_lang == 'km' else 'Active Rules' }}</h6>
                                 <h3 class="mb-0 stat-value" id="active-rules">0</h3>
                             </div>
                             <div class="align-self-center">
@@ -583,7 +558,7 @@
                     <div class="stat-card">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="mb-1" id="snapshot-stat-3-label">Inactive Rules</h6>
+                                <h6 class="mb-1" id="snapshot-stat-3-label">{{ 'ក្បួនមិនសកម្ម' if ui_lang == 'km' else 'Inactive Rules' }}</h6>
                                 <h3 class="mb-0 stat-value" id="inactive-rules">0</h3>
                             </div>
                             <div class="align-self-center">
@@ -602,14 +577,14 @@
                         <button class="nav-link active" id="rules-tab" data-bs-toggle="tab" data-bs-target="#rules"
                             data-permission="rule.read" data-action="view rules" type="button">
                             <span class="tab-icon-wrap"><i class="fas fa-list"></i></span>
-                            <span>Rule Library</span>
+                            <span>{{ 'បណ្ណាល័យក្បួន' if ui_lang == 'km' else 'Rule Library' }}</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="foods-tab" data-bs-toggle="tab" data-bs-target="#foods"
                             data-permission="food.read" data-action="view foods" type="button">
                             <span class="tab-icon-wrap"><i class="fas fa-apple-alt"></i></span>
-                            <span>Food Catalog</span>
+                            <span>{{ 'កាតាឡុកម្ហូបអាហារ' if ui_lang == 'km' else 'Food Catalog' }}</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -617,21 +592,21 @@
                             data-bs-target="#cooked-foods" data-permission="food.read" data-action="view cooked foods"
                             type="button">
                             <span class="tab-icon-wrap"><i class="fas fa-utensils"></i></span>
-                            <span>Cooked Food Catalog</span>
+                            <span>{{ 'កាតាឡុកម្ហូបឆ្អិន' if ui_lang == 'km' else 'Cooked Food Catalog' }}</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="builder-tab" data-bs-toggle="tab" data-bs-target="#builder"
                             data-permission="rule.create" data-action="build rules" type="button">
                             <span class="tab-icon-wrap"><i class="fas fa-tools"></i></span>
-                            <span>Builder Studio</span>
+                            <span>{{ 'ស្ទូឌីយោបង្កើតក្បួន' if ui_lang == 'km' else 'Builder Studio' }}</span>
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="test-tab" data-bs-toggle="tab" data-bs-target="#test"
                             data-permission="rule.test" data-action="test rules" type="button">
                             <span class="tab-icon-wrap"><i class="fas fa-vial"></i></span>
-                            <span>Simulation Lab</span>
+                            <span>{{ 'មន្ទីរពិសោធន៍សាកល្បង' if ui_lang == 'km' else 'Simulation Lab' }}</span>
                         </button>
                     </li>
                 </ul>
@@ -642,24 +617,23 @@
                     <div class="tab-pane fade show active" id="rules" role="tabpanel">
                         <div class="rule-toolbar d-flex justify-content-between align-items-center mb-4">
                             <div>
-                                <h4 class="mb-1"><i class="fas fa-list-ul me-2"></i>Rule Management</h4>
-                                <p class="rule-selection-note mb-0">Select cards to activate, deactivate, or delete in
-                                    bulk.
+                                <h4 class="mb-1"><i class="fas fa-list-ul me-2"></i>{{ 'គ្រប់គ្រងក្បួន' if ui_lang == 'km' else 'Rule Management' }}</h4>
+                                <p class="rule-selection-note mb-0">{{ 'ជ្រើសរើសកាតដើម្បីបើកសកម្មភាព បិទសកម្មភាព ឬ លុបជាក្រុម។' if ui_lang == 'km' else 'Select cards to activate, deactivate, or delete in bulk.' }}
                                     <span class="rule-loading-note" id="rules-loading-status" aria-live="polite"></span>
                                 </p>
                             </div>
                             <div class="btn-group" role="group">
                                 <button type="button" class="btn btn-outline-primary btn-sm" id="activate-selected"
                                     data-permission="rule.edit" data-action="activate rules">
-                                    <i class="fas fa-toggle-on me-1"></i>Activate
+                                    <i class="fas fa-toggle-on me-1"></i>{{ 'បើកសកម្មភាព' if ui_lang == 'km' else 'Activate' }}
                                 </button>
                                 <button type="button" class="btn btn-outline-secondary btn-sm" id="deactivate-selected"
                                     data-permission="rule.edit" data-action="deactivate rules">
-                                    <i class="fas fa-toggle-off me-1"></i>Deactivate
+                                    <i class="fas fa-toggle-off me-1"></i>{{ 'បិទសកម្មភាព' if ui_lang == 'km' else 'Deactivate' }}
                                 </button>
                                 <button type="button" class="btn btn-outline-danger btn-sm" id="delete-selected"
                                     data-permission="rule.delete" data-action="delete rules">
-                                    <i class="fas fa-trash me-1"></i>Delete
+                                    <i class="fas fa-trash me-1"></i>{{ 'លុប' if ui_lang == 'km' else 'Delete' }}
                                 </button>
                             </div>
                         </div>
@@ -668,7 +642,7 @@
                             <!-- Rule cards will be dynamically loaded here -->
                         </div>
 
-                        <nav aria-label="Rule pagination" class="mt-4">
+                        <nav aria-label="{{ 'ការបែងចែកទំព័រក្បួន' if ui_lang == 'km' else 'Rule pagination' }}" class="mt-4">
                             <ul class="pagination justify-content-center" id="rules-pagination"></ul>
                         </nav>
                     </div>
@@ -676,14 +650,14 @@
                     <!-- Foods Tab -->
                     <div class="tab-pane fade" id="foods" role="tabpanel">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="mb-0"><i class="fas fa-apple-alt me-2"></i>Food Items</h4>
+                            <h4 class="mb-0"><i class="fas fa-apple-alt me-2"></i>{{ 'បញ្ជីម្ហូបអាហារ' if ui_lang == 'km' else 'Food Items' }}</h4>
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-outline-secondary btn-sm" id="refresh-foods-list">
-                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                    <i class="fas fa-sync-alt me-1"></i>{{ 'ធ្វើបច្ចុប្បន្នភាព' if ui_lang == 'km' else 'Refresh' }}
                                 </button>
                                 <button type="button" class="btn btn-custom btn-sm" id="add-food-btn-tab"
                                     data-permission="food.create" data-action="add foods">
-                                    <i class="fas fa-plus-circle me-1"></i>Add Food
+                                    <i class="fas fa-plus-circle me-1"></i>{{ 'បន្ថែមម្ហូបអាហារ' if ui_lang == 'km' else 'Add Food' }}
                                 </button>
                             </div>
                         </div>
@@ -692,15 +666,15 @@
                             <table class="table table-hover align-middle" id="foods-table">
                                 <thead>
                                     <tr>
-                                        <th>Photo</th>
-                                        <th>Name</th>
-                                        <th>Is Vegan</th>
-                                        <th>Food Type</th>
-                                        <th>Calories</th>
-                                        <th>Protein</th>
-                                        <th>Sugar</th>
-                                        <th>Fat</th>
-                                        <th class="text-end">Actions</th>
+                                        <th>{{ 'រូបភាព' if ui_lang == 'km' else 'Photo' }}</th>
+                                        <th>{{ 'ឈ្មោះ' if ui_lang == 'km' else 'Name' }}</th>
+                                        <th>{{ 'វីហ្គានឬទេ' if ui_lang == 'km' else 'Is Vegan' }}</th>
+                                        <th>{{ 'ប្រភេទម្ហូប' if ui_lang == 'km' else 'Food Type' }}</th>
+                                        <th>{{ 'កាឡូរី' if ui_lang == 'km' else 'Calories' }}</th>
+                                        <th>{{ 'ប្រូតេអ៊ីន' if ui_lang == 'km' else 'Protein' }}</th>
+                                        <th>{{ 'ជាតិស្ករ' if ui_lang == 'km' else 'Sugar' }}</th>
+                                        <th>{{ 'ជាតិខ្លាញ់' if ui_lang == 'km' else 'Fat' }}</th>
+                                        <th class="text-end">{{ 'សកម្មភាព' if ui_lang == 'km' else 'Actions' }}</th>
                                     </tr>
                                 </thead>
                                 <tbody id="foods-table-body">
@@ -709,13 +683,9 @@
                             </table>
                         </div>
                         <div class="alert alert-info d-none" id="foods-table-empty">
-                            <i class="fas fa-info-circle me-2"></i>No foods found yet. Use "Add Food" to get started.
+                            <i class="fas fa-info-circle me-2"></i>{{ 'មិនទាន់មានម្ហូបអាហារទេ។ សូមចុច "បន្ថែមម្ហូបអាហារ" ដើម្បីចាប់ផ្តើម។' if ui_lang == 'km' else 'No foods found yet. Use "Add Food" to get started.' }}
                         </div>
-                        <div class="alert alert-danger d-none" id="foods-table-error">
-                            <i class="fas fa-triangle-exclamation me-2"></i>
-                            <span id="foods-table-error-text">Failed to load foods. Please refresh or try again.</span>
-                        </div>
-                        <nav aria-label="Food pagination" class="mt-4">
+                        <nav aria-label="{{ 'ការបែងចែកទំព័រម្ហូបអាហារ' if ui_lang == 'km' else 'Food pagination' }}" class="mt-4">
                             <ul class="pagination justify-content-center" id="foods-pagination"></ul>
                         </nav>
                     </div>
@@ -723,15 +693,15 @@
                     <!-- Cooked Foods Tab -->
                     <div class="tab-pane fade" id="cooked-foods" role="tabpanel">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="mb-0"><i class="fas fa-utensils me-2"></i>Cooked Food Items</h4>
+                            <h4 class="mb-0"><i class="fas fa-utensils me-2"></i>{{ 'បញ្ជីម្ហូបឆ្អិន' if ui_lang == 'km' else 'Cooked Food Items' }}</h4>
                             <div class="d-flex gap-2">
                                 <button type="button" class="btn btn-outline-secondary btn-sm"
                                     id="refresh-cooked-foods-list">
-                                    <i class="fas fa-sync-alt me-1"></i>Refresh
+                                    <i class="fas fa-sync-alt me-1"></i>{{ 'ធ្វើបច្ចុប្បន្នភាព' if ui_lang == 'km' else 'Refresh' }}
                                 </button>
                                 <button type="button" class="btn btn-custom btn-sm" id="add-cooked-food-btn-tab"
                                     data-permission="food.create" data-action="add cooked foods">
-                                    <i class="fas fa-plus-circle me-1"></i>Add Cooked Food
+                                    <i class="fas fa-plus-circle me-1"></i>{{ 'បន្ថែមម្ហូបឆ្អិន' if ui_lang == 'km' else 'Add Cooked Food' }}
                                 </button>
                             </div>
                         </div>
@@ -740,15 +710,15 @@
                             <table class="table table-hover align-middle" id="cooked-foods-table">
                                 <thead>
                                     <tr>
-                                        <th>Photo</th>
-                                        <th>Name</th>
-                                        <th>Cooking Method</th>
-                                        <th>Is Vegan</th>
-                                        <th>Calories</th>
-                                        <th>Protein</th>
-                                        <th>Sugar</th>
-                                        <th>Fat</th>
-                                        <th class="text-end">Actions</th>
+                                        <th>{{ 'រូបភាព' if ui_lang == 'km' else 'Photo' }}</th>
+                                        <th>{{ 'ឈ្មោះ' if ui_lang == 'km' else 'Name' }}</th>
+                                        <th>{{ 'វិធីចម្អិន' if ui_lang == 'km' else 'Cooking Method' }}</th>
+                                        <th>{{ 'វីហ្គានឬទេ' if ui_lang == 'km' else 'Is Vegan' }}</th>
+                                        <th>{{ 'កាឡូរី' if ui_lang == 'km' else 'Calories' }}</th>
+                                        <th>{{ 'ប្រូតេអ៊ីន' if ui_lang == 'km' else 'Protein' }}</th>
+                                        <th>{{ 'ជាតិស្ករ' if ui_lang == 'km' else 'Sugar' }}</th>
+                                        <th>{{ 'ជាតិខ្លាញ់' if ui_lang == 'km' else 'Fat' }}</th>
+                                        <th class="text-end">{{ 'សកម្មភាព' if ui_lang == 'km' else 'Actions' }}</th>
                                     </tr>
                                 </thead>
                                 <tbody id="cooked-foods-table-body">
@@ -757,60 +727,59 @@
                             </table>
                         </div>
                         <div class="alert alert-info d-none" id="cooked-foods-table-empty">
-                            <i class="fas fa-info-circle me-2"></i>No cooked foods found yet. Use "Add Cooked Food" to
-                            get started.
+                            <i class="fas fa-info-circle me-2"></i>{{ 'មិនទាន់មានម្ហូបឆ្អិនទេ។ សូមចុច "បន្ថែមម្ហូបឆ្អិន" ដើម្បីចាប់ផ្តើម។' if ui_lang == 'km' else 'No cooked foods found yet. Use "Add Cooked Food" to get started.' }}
                         </div>
-                        <nav aria-label="Cooked food pagination" class="mt-4">
+                        <nav aria-label="{{ 'ការបែងចែកទំព័រម្ហូបឆ្អិន' if ui_lang == 'km' else 'Cooked food pagination' }}" class="mt-4">
                             <ul class="pagination justify-content-center" id="cooked-foods-pagination"></ul>
                         </nav>
                     </div>
 
                     <!-- Rule Builder Tab -->
                     <div class="tab-pane fade" id="builder" role="tabpanel">
-                        <h4 class="mb-4"><i class="fas fa-tools me-2"></i>Rule Builder Studio</h4>
+                        <h4 class="mb-4"><i class="fas fa-tools me-2"></i>{{ 'ស្ទូឌីយោបង្កើតក្បួន' if ui_lang == 'km' else 'Rule Builder Studio' }}</h4>
 
                         <div class="rule-builder">
                             <div class="alert alert-info mb-4 builder-intro">
-                                <strong>Rule Inputs from User Form:</strong>
+                                <strong>{{ 'ធាតុបញ្ចូលក្បួនពីទម្រង់អ្នកប្រើ៖' if ui_lang == 'km' else 'Rule Inputs from User Form:' }}</strong>
                                 <span class="small">age, gender, weight, height, diet_type (normal/vegan), allergies,
                                     meals_per_day, blood_sugar</span>
                             </div>
 
                             <div class="row mb-4">
                                 <div class="col-md-12">
-                                    <label for="rule-name" class="form-label">Rule Name</label>
+                                    <label for="rule-name" class="form-label">{{ 'ឈ្មោះក្បួន' if ui_lang == 'km' else 'Rule Name' }}</label>
                                     <input type="hidden" id="rule-id">
                                     <input type="text" class="form-control" id="rule-name"
-                                        placeholder="Enter descriptive rule name">
+                                        placeholder="{{ 'បញ្ចូលឈ្មោះក្បួនដែលពណ៌នាច្បាស់' if ui_lang == 'km' else 'Enter descriptive rule name' }}">
                                 </div>
                             </div>
 
                             <div class="row mb-4">
                                 <div class="col-md-12">
-                                    <label for="rule-description" class="form-label">Description</label>
+                                    <label for="rule-description" class="form-label">{{ 'ពិពណ៌នា' if ui_lang == 'km' else 'Description' }}</label>
                                     <textarea class="form-control" id="rule-description" rows="2"
-                                        placeholder="Describe what this rule does"></textarea>
+                                        placeholder="{{ 'ពិពណ៌នាអំពីមុខងាររបស់ក្បួននេះ' if ui_lang == 'km' else 'Describe what this rule does' }}"></textarea>
                                 </div>
                             </div>
 
                             <div class="border rounded p-3 mb-4 builder-section">
-                                <h6 class="mb-3"><i class="fas fa-bullseye me-2"></i>Weight Goal Rule Inputs</h6>
+                                <h6 class="mb-3"><i class="fas fa-bullseye me-2"></i>{{ 'ធាតុបញ្ចូលក្បួនតាមគោលដៅទម្ងន់' if ui_lang == 'km' else 'Weight Goal Rule Inputs' }}</h6>
                                 <div class="row mb-3">
                                     <div class="col-md-4">
-                                        <label class="form-label">Goal</label>
+                                        <label class="form-label">{{ 'គោលដៅ' if ui_lang == 'km' else 'Goal' }}</label>
                                         <select class="form-select" id="goal-rule-type">
-                                            <option value="lose">Lose Weight</option>
-                                            <option value="maintain" selected>Maintain Weight</option>
-                                            <option value="gain">Gain Weight</option>
+                                            <option value="lose">{{ 'បន្ថយទម្ងន់' if ui_lang == 'km' else 'Lose Weight' }}</option>
+                                            <option value="maintain" selected>{{ 'រក្សាទម្ងន់' if ui_lang == 'km' else 'Maintain Weight' }}</option>
+                                            <option value="gain">{{ 'បង្កើនទម្ងន់' if ui_lang == 'km' else 'Gain Weight' }}</option>
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">BMI Min</label>
+                                        <label class="form-label">{{ 'BMI អប្បបរមា' if ui_lang == 'km' else 'BMI Min' }}</label>
                                         <input type="number" step="0.1" class="form-control" id="goal-bmi-min"
                                             placeholder="e.g., 18.5">
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">BMI Max</label>
+                                        <label class="form-label">{{ 'BMI អតិបរមា' if ui_lang == 'km' else 'BMI Max' }}</label>
                                         <input type="number" step="0.1" class="form-control" id="goal-bmi-max"
                                             placeholder="e.g., 24.9">
                                     </div>
@@ -818,60 +787,60 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-4">
-                                        <label class="form-label">Gender</label>
+                                        <label class="form-label">{{ 'ភេទ' if ui_lang == 'km' else 'Gender' }}</label>
                                         <select class="form-select" id="goal-gender">
-                                            <option value="any" selected>Any</option>
-                                            <option value="male">Male</option>
-                                            <option value="female">Female</option>
+                                            <option value="any" selected>{{ 'គ្រប់ភេទ' if ui_lang == 'km' else 'Any' }}</option>
+                                            <option value="male">{{ 'ប្រុស' if ui_lang == 'km' else 'Male' }}</option>
+                                            <option value="female">{{ 'ស្រី' if ui_lang == 'km' else 'Female' }}</option>
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">Diet Type</label>
+                                        <label class="form-label">{{ 'ប្រភេទរបបអាហារ' if ui_lang == 'km' else 'Diet Type' }}</label>
                                         <select class="form-select" id="goal-diet-type">
-                                            <option value="any" selected>Any</option>
-                                            <option value="normal">Normal</option>
-                                            <option value="vegan">Vegan</option>
+                                            <option value="any" selected>{{ 'គ្រប់ប្រភេទ' if ui_lang == 'km' else 'Any' }}</option>
+                                            <option value="normal">{{ 'ធម្មតា' if ui_lang == 'km' else 'Normal' }}</option>
+                                            <option value="vegan">{{ 'វីហ្គាន' if ui_lang == 'km' else 'Vegan' }}</option>
                                         </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <label class="form-label">Blood Sugar</label>
+                                        <label class="form-label">{{ 'ជាតិស្ករក្នុងឈាម' if ui_lang == 'km' else 'Blood Sugar' }}</label>
                                         <select class="form-select" id="goal-blood-sugar-mode">
-                                            <option value="not_specified" selected>Not specified</option>
-                                            <option value="specify">Specify</option>
+                                            <option value="not_specified" selected>{{ 'មិនកំណត់' if ui_lang == 'km' else 'Not specified' }}</option>
+                                            <option value="specify">{{ 'កំណត់តម្លៃ' if ui_lang == 'km' else 'Specify' }}</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="row mb-3 d-none" id="goal-blood-sugar-range-row">
                                     <div class="col-md-6">
-                                        <label class="form-label">Blood Sugar Min</label>
+                                        <label class="form-label">{{ 'ជាតិស្ករក្នុងឈាមអប្បបរមា' if ui_lang == 'km' else 'Blood Sugar Min' }}</label>
                                         <input type="number" step="0.1" class="form-control" id="goal-blood-sugar-min"
                                             placeholder="mg/dL">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Blood Sugar Max</label>
+                                        <label class="form-label">{{ 'ជាតិស្ករក្នុងឈាមអតិបរមា' if ui_lang == 'km' else 'Blood Sugar Max' }}</label>
                                         <input type="number" step="0.1" class="form-control" id="goal-blood-sugar-max"
                                             placeholder="mg/dL">
                                     </div>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-md-12">
-                                        <label class="form-label">Allergies (select all that apply)</label>
+                                        <label class="form-label">{{ 'អាឡែហ្ស៊ី (ជ្រើសរើសបានច្រើន)' if ui_lang == 'km' else 'Allergies (select all that apply)' }}</label>
                                         <div class="d-flex flex-wrap gap-3">
                                             <div class="form-check">
                                                 <input class="form-check-input goal-allergy" type="checkbox"
                                                     id="goal-allergy-eggs" value="eggs">
-                                                <label class="form-check-label" for="goal-allergy-eggs">Eggs</label>
+                                                <label class="form-check-label" for="goal-allergy-eggs">{{ 'ស៊ុត' if ui_lang == 'km' else 'Eggs' }}</label>
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input goal-allergy" type="checkbox"
                                                     id="goal-allergy-soy" value="soy">
-                                                <label class="form-check-label" for="goal-allergy-soy">Soy</label>
+                                                <label class="form-check-label" for="goal-allergy-soy">{{ 'សណ្តែកសៀង' if ui_lang == 'km' else 'Soy' }}</label>
                                             </div>
                                             <div class="form-check">
                                                 <input class="form-check-input goal-allergy" type="checkbox"
                                                     id="goal-allergy-seafood" value="seafood">
                                                 <label class="form-check-label"
-                                                    for="goal-allergy-seafood">Seafood</label>
+                                                    for="goal-allergy-seafood">{{ 'អាហារសមុទ្រ' if ui_lang == 'km' else 'Seafood' }}</label>
                                             </div>
                                         </div>
                                     </div>
@@ -879,27 +848,27 @@
 
                                 <div class="row mb-3">
                                     <div class="col-md-3">
-                                        <label class="form-label">Calories</label>
+                                        <label class="form-label">{{ 'កាឡូរី' if ui_lang == 'km' else 'Calories' }}</label>
                                         <input type="number" class="form-control" id="goal-calories"
                                             placeholder="kcal/day">
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label">Protein</label>
+                                        <label class="form-label">{{ 'ប្រូតេអ៊ីន' if ui_lang == 'km' else 'Protein' }}</label>
                                         <input type="number" class="form-control" id="goal-protein" placeholder="g/day">
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label">Sugar</label>
+                                        <label class="form-label">{{ 'ជាតិស្ករ' if ui_lang == 'km' else 'Sugar' }}</label>
                                         <input type="number" class="form-control" id="goal-sugar" placeholder="g/day">
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label">Fat</label>
+                                        <label class="form-label">{{ 'ជាតិខ្លាញ់' if ui_lang == 'km' else 'Fat' }}</label>
                                         <input type="number" class="form-control" id="goal-fat" placeholder="g/day">
                                     </div>
                                 </div>
 
                                 <div class="d-flex justify-content-end">
                                     <button type="button" class="btn btn-outline-primary btn-sm" id="apply-weight-rule">
-                                        <i class="fas fa-magic me-1"></i>Apply Rule
+                                        <i class="fas fa-magic me-1"></i>{{ 'អនុវត្តក្បួន' if ui_lang == 'km' else 'Apply Rule' }}
                                     </button>
                                 </div>
                             </div>
@@ -907,11 +876,11 @@
                             <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
                                 <input class="form-check-input d-none" type="checkbox" id="rule-active" checked>
                                 <button type="button" class="btn btn-outline-secondary" id="add-food-group">
-                                    <i class="fas fa-layer-group me-1"></i>Add Group Food
+                                    <i class="fas fa-layer-group me-1"></i>{{ 'បន្ថែមក្រុមម្ហូបអាហារ' if ui_lang == 'km' else 'Add Group Food' }}
                                 </button>
                                 <button type="button" class="btn btn-custom" id="save-rule"
                                     data-permission="rule.create" data-action="save rules">
-                                    <i class="fas fa-save me-2"></i>Save Rule
+                                    <i class="fas fa-save me-2"></i>{{ 'រក្សាទុកក្បួន' if ui_lang == 'km' else 'Save Rule' }}
                                 </button>
                             </div>
 
@@ -919,7 +888,7 @@
                                 <div class="d-flex flex-wrap align-items-center gap-3">
                                     <h6 class="mb-0 text-primary" id="active-food-group-label">Group 1</h6>
                                     <div class="d-flex align-items-center gap-2">
-                                        <label for="food-group-selector" class="small text-muted mb-0">Switch Group</label>
+                                        <label for="food-group-selector" class="small text-muted mb-0">{{ 'ប្ដូរក្រុម' if ui_lang == 'km' else 'Switch Group' }}</label>
                                         <select id="food-group-selector" class="form-select form-select-sm" style="min-width: 170px;"></select>
                                     </div>
                                 </div>
@@ -927,39 +896,38 @@
 
                             <div class="border rounded p-3 mb-4 builder-section d-none" id="rule-foods-section">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="mb-0"><i class="fas fa-apple-alt me-2"></i>Foods for This Rule</h6>
+                                    <h6 class="mb-0"><i class="fas fa-apple-alt me-2"></i>{{ 'ម្ហូបអាហារសម្រាប់ក្បួននេះ' if ui_lang == 'km' else 'Foods for This Rule' }}</h6>
                                     <button type="button" class="btn btn-sm btn-outline-secondary" id="refresh-foods">
-                                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                                        <i class="fas fa-sync-alt me-1"></i>{{ 'ធ្វើបច្ចុប្បន្នភាព' if ui_lang == 'km' else 'Refresh' }}
                                     </button>
                                 </div>
-                                <p class="text-muted small mb-3">Select foods from the knowledge base to recommend or
-                                    avoid in this rule.</p>
+                                <p class="text-muted small mb-3">{{ 'ជ្រើសរើសម្ហូបពីមូលដ្ឋានចំណេះដឹង ដើម្បីណែនាំ ឬ ជៀសវាងក្នុងក្បួននេះ។' if ui_lang == 'km' else 'Select foods from the knowledge base to recommend or avoid in this rule.' }}</p>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label class="form-label">Recommended Foods</label>
+                                        <label class="form-label">{{ 'ម្ហូបណែនាំ' if ui_lang == 'km' else 'Recommended Foods' }}</label>
                                         <select class="form-select" id="rule-recommended-foods" size="6" multiple>
                                         </select>
                                         <div class="table-responsive mt-2">
                                             <table class="table table-sm table-bordered mb-0">
                                                 <thead class="table-light">
                                                     <tr>
-                                                        <th>Food</th>
-                                                        <th>Vegan</th>
-                                                        <th>Calories</th>
-                                                        <th>Protein</th>
-                                                        <th>Sugar</th>
-                                                        <th>Fat</th>
+                                                        <th>{{ 'ម្ហូប' if ui_lang == 'km' else 'Food' }}</th>
+                                                        <th>{{ 'វីហ្គាន' if ui_lang == 'km' else 'Vegan' }}</th>
+                                                        <th>{{ 'កាឡូរី' if ui_lang == 'km' else 'Calories' }}</th>
+                                                        <th>{{ 'ប្រូតេអ៊ីន' if ui_lang == 'km' else 'Protein' }}</th>
+                                                        <th>{{ 'ជាតិស្ករ' if ui_lang == 'km' else 'Sugar' }}</th>
+                                                        <th>{{ 'ជាតិខ្លាញ់' if ui_lang == 'km' else 'Fat' }}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="recommended-foods-details">
                                                     <tr>
-                                                        <td colspan="6" class="text-muted text-center">No foods selected
+                                                        <td colspan="6" class="text-muted text-center">{{ 'មិនទាន់ជ្រើសរើសម្ហូប' if ui_lang == 'km' else 'No foods selected' }}
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot>
                                                     <tr class="table-light" id="recommended-foods-total">
-                                                        <th>Total</th>
+                                                        <th>{{ 'សរុប' if ui_lang == 'km' else 'Total' }}</th>
                                                         <th>-</th>
                                                         <th>0 kcal</th>
                                                         <th>0 g</th>
@@ -971,30 +939,30 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Avoid Foods</label>
+                                        <label class="form-label">{{ 'ម្ហូបត្រូវជៀសវាង' if ui_lang == 'km' else 'Avoid Foods' }}</label>
                                         <select class="form-select" id="rule-excluded-foods" size="6" multiple>
                                         </select>
                                         <div class="table-responsive mt-2">
                                             <table class="table table-sm table-bordered mb-0">
                                                 <thead class="table-light">
                                                     <tr>
-                                                        <th>Food</th>
-                                                        <th>Vegan</th>
-                                                        <th>Calories</th>
-                                                        <th>Protein</th>
-                                                        <th>Sugar</th>
-                                                        <th>Fat</th>
+                                                        <th>{{ 'ម្ហូប' if ui_lang == 'km' else 'Food' }}</th>
+                                                        <th>{{ 'វីហ្គាន' if ui_lang == 'km' else 'Vegan' }}</th>
+                                                        <th>{{ 'កាឡូរី' if ui_lang == 'km' else 'Calories' }}</th>
+                                                        <th>{{ 'ប្រូតេអ៊ីន' if ui_lang == 'km' else 'Protein' }}</th>
+                                                        <th>{{ 'ជាតិស្ករ' if ui_lang == 'km' else 'Sugar' }}</th>
+                                                        <th>{{ 'ជាតិខ្លាញ់' if ui_lang == 'km' else 'Fat' }}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="excluded-foods-details">
                                                     <tr>
-                                                        <td colspan="6" class="text-muted text-center">No foods selected
+                                                        <td colspan="6" class="text-muted text-center">{{ 'មិនទាន់ជ្រើសរើសម្ហូប' if ui_lang == 'km' else 'No foods selected' }}
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot>
                                                     <tr class="table-light" id="excluded-foods-total">
-                                                        <th>Total</th>
+                                                        <th>{{ 'សរុប' if ui_lang == 'km' else 'Total' }}</th>
                                                         <th>-</th>
                                                         <th>0 kcal</th>
                                                         <th>0 g</th>
@@ -1007,46 +975,45 @@
                                     </div>
                                 </div>
                                 <div class="small text-muted mt-2 d-none" id="foods-empty">
-                                    No foods found yet. Use "Add Food" to add items to the list.
+                                    {{ 'មិនទាន់មានម្ហូបទេ។ សូមចុច "បន្ថែមម្ហូបអាហារ" ដើម្បីបញ្ចូលទៅក្នុងបញ្ជី។' if ui_lang == 'km' else 'No foods found yet. Use "Add Food" to add items to the list.' }}
                                 </div>
                                 <div class="small text-danger mt-2 d-none" id="foods-limit-warning"></div>
                             </div>
 
                             <div class="border rounded p-3 mb-4 builder-section d-none" id="rule-cooked-foods-section">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="mb-0"><i class="fas fa-utensils me-2"></i>Cooked Foods for This Rule</h6>
+                                    <h6 class="mb-0"><i class="fas fa-utensils me-2"></i>{{ 'ម្ហូបឆ្អិនសម្រាប់ក្បួននេះ' if ui_lang == 'km' else 'Cooked Foods for This Rule' }}</h6>
                                     <button type="button" class="btn btn-sm btn-outline-secondary" id="refresh-cooked-foods">
-                                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                                        <i class="fas fa-sync-alt me-1"></i>{{ 'ធ្វើបច្ចុប្បន្នភាព' if ui_lang == 'km' else 'Refresh' }}
                                     </button>
                                 </div>
-                                <p class="text-muted small mb-3">Select cooked foods from the catalog to recommend or
-                                    avoid in this rule.</p>
+                                <p class="text-muted small mb-3">{{ 'ជ្រើសរើសម្ហូបឆ្អិនពីកាតាឡុក ដើម្បីណែនាំ ឬ ជៀសវាងក្នុងក្បួននេះ។' if ui_lang == 'km' else 'Select cooked foods from the catalog to recommend or avoid in this rule.' }}</p>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <label class="form-label">Recommended Cooked Foods</label>
+                                        <label class="form-label">{{ 'ម្ហូបឆ្អិនណែនាំ' if ui_lang == 'km' else 'Recommended Cooked Foods' }}</label>
                                         <select class="form-select" id="rule-recommended-cooked-foods" size="6" multiple>
                                         </select>
                                         <div class="table-responsive mt-2">
                                             <table class="table table-sm table-bordered mb-0">
                                                 <thead class="table-light">
                                                     <tr>
-                                                        <th>Food</th>
-                                                        <th>Vegan</th>
-                                                        <th>Calories</th>
-                                                        <th>Protein</th>
-                                                        <th>Sugar</th>
-                                                        <th>Fat</th>
+                                                        <th>{{ 'ម្ហូប' if ui_lang == 'km' else 'Food' }}</th>
+                                                        <th>{{ 'វីហ្គាន' if ui_lang == 'km' else 'Vegan' }}</th>
+                                                        <th>{{ 'កាឡូរី' if ui_lang == 'km' else 'Calories' }}</th>
+                                                        <th>{{ 'ប្រូតេអ៊ីន' if ui_lang == 'km' else 'Protein' }}</th>
+                                                        <th>{{ 'ជាតិស្ករ' if ui_lang == 'km' else 'Sugar' }}</th>
+                                                        <th>{{ 'ជាតិខ្លាញ់' if ui_lang == 'km' else 'Fat' }}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="recommended-cooked-foods-details">
                                                     <tr>
-                                                        <td colspan="6" class="text-muted text-center">No foods selected
+                                                        <td colspan="6" class="text-muted text-center">{{ 'មិនទាន់ជ្រើសរើសម្ហូប' if ui_lang == 'km' else 'No foods selected' }}
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot>
                                                     <tr class="table-light" id="recommended-cooked-foods-total">
-                                                        <th>Total</th>
+                                                        <th>{{ 'សរុប' if ui_lang == 'km' else 'Total' }}</th>
                                                         <th>-</th>
                                                         <th>0 kcal</th>
                                                         <th>0 g</th>
@@ -1058,30 +1025,30 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Avoid Cooked Foods</label>
+                                        <label class="form-label">{{ 'ម្ហូបឆ្អិនត្រូវជៀសវាង' if ui_lang == 'km' else 'Avoid Cooked Foods' }}</label>
                                         <select class="form-select" id="rule-excluded-cooked-foods" size="6" multiple>
                                         </select>
                                         <div class="table-responsive mt-2">
                                             <table class="table table-sm table-bordered mb-0">
                                                 <thead class="table-light">
                                                     <tr>
-                                                        <th>Food</th>
-                                                        <th>Vegan</th>
-                                                        <th>Calories</th>
-                                                        <th>Protein</th>
-                                                        <th>Sugar</th>
-                                                        <th>Fat</th>
+                                                        <th>{{ 'ម្ហូប' if ui_lang == 'km' else 'Food' }}</th>
+                                                        <th>{{ 'វីហ្គាន' if ui_lang == 'km' else 'Vegan' }}</th>
+                                                        <th>{{ 'កាឡូរី' if ui_lang == 'km' else 'Calories' }}</th>
+                                                        <th>{{ 'ប្រូតេអ៊ីន' if ui_lang == 'km' else 'Protein' }}</th>
+                                                        <th>{{ 'ជាតិស្ករ' if ui_lang == 'km' else 'Sugar' }}</th>
+                                                        <th>{{ 'ជាតិខ្លាញ់' if ui_lang == 'km' else 'Fat' }}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="excluded-cooked-foods-details">
                                                     <tr>
-                                                        <td colspan="6" class="text-muted text-center">No foods selected
+                                                        <td colspan="6" class="text-muted text-center">{{ 'មិនទាន់ជ្រើសរើសម្ហូប' if ui_lang == 'km' else 'No foods selected' }}
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                                 <tfoot>
                                                     <tr class="table-light" id="excluded-cooked-foods-total">
-                                                        <th>Total</th>
+                                                        <th>{{ 'សរុប' if ui_lang == 'km' else 'Total' }}</th>
                                                         <th>-</th>
                                                         <th>0 kcal</th>
                                                         <th>0 g</th>
@@ -1496,7 +1463,6 @@
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function () {
             setupEventListeners();
-            setupUsersKpiCard();
             const activeTabTarget = document.querySelector('#expertTabs .nav-link.active')?.getAttribute('data-bs-target') || '#rules';
             syncSidebarToTarget(activeTabTarget);
             updateFoodGroupBuilderVisibility();
@@ -1515,25 +1481,6 @@
             }
             statusEl.textContent = message || '';
             statusEl.classList.toggle('text-danger', Boolean(isError));
-        }
-
-        function setupUsersKpiCard() {
-            const usersKpiCard = document.getElementById('users-kpi-card');
-            if (!usersKpiCard) {
-                return;
-            }
-            const usersInsightsUrl = "{{ url_for('dashboard.doctor_dashboard_users') }}";
-
-            usersKpiCard.addEventListener('click', function () {
-                window.location.href = usersInsightsUrl;
-            });
-            usersKpiCard.addEventListener('keydown', function (event) {
-                if (event.key !== 'Enter' && event.key !== ' ') {
-                    return;
-                }
-                event.preventDefault();
-                window.location.href = usersInsightsUrl;
-            });
         }
 
         function getSidebarModeFromTarget(targetSelector) {
@@ -2299,30 +2246,7 @@
             }
         }
 
-        function clearFoodsLoadError() {
-            const errorState = document.getElementById('foods-table-error');
-            const errorText = document.getElementById('foods-table-error-text');
-            if (errorState) {
-                errorState.classList.add('d-none');
-            }
-            if (errorText) {
-                errorText.textContent = '';
-            }
-        }
-
-        function showFoodsLoadError(message) {
-            const errorState = document.getElementById('foods-table-error');
-            const errorText = document.getElementById('foods-table-error-text');
-            if (!errorState) {
-                return;
-            }
-            if (errorText) {
-                errorText.textContent = message || 'Failed to load foods. Please refresh or try again.';
-            }
-            errorState.classList.remove('d-none');
-        }
-
-        function renderFoodTable(foods, options = {}) {
+        function renderFoodTable(foods) {
             const tableBody = document.getElementById('foods-table-body');
             const emptyState = document.getElementById('foods-table-empty');
             if (!tableBody) {
@@ -2337,15 +2261,10 @@
             currentFoodPage = Math.min(Math.max(1, currentFoodPage), totalPages);
             const start = (currentFoodPage - 1) * foodsPerPage;
             const pageFoods = items.slice(start, start + foodsPerPage);
-            const showEmptyState = options.showEmptyState !== false;
             if (items.length === 0) {
                 tableBody.innerHTML = '';
                 if (emptyState) {
-                    if (showEmptyState) {
-                        emptyState.classList.remove('d-none');
-                    } else {
-                        emptyState.classList.add('d-none');
-                    }
+                    emptyState.classList.remove('d-none');
                 }
                 renderFoodPagination(1);
                 return;
@@ -2450,15 +2369,8 @@
 
         function loadFoods() {
             return fetch('/dashboard/doctor/foods')
-                .then(async response => {
-                    const data = await response.json().catch(() => ({}));
-                    if (!response.ok || data.success === false) {
-                        throw new Error(data.message || 'Failed to load foods. Please refresh or try again.');
-                    }
-                    return data;
-                })
+                .then(response => response.json())
                 .then(data => {
-                    clearFoodsLoadError();
                     foodsCache = Array.isArray(data.foods) ? data.foods : [];
                     populateFoodSelects(foodsCache, 'No foods found yet. Use "Add Food" to add items to the list.');
                     currentFoodPage = 1;
@@ -2467,11 +2379,10 @@
                 })
                 .catch(error => {
                     console.error('Error loading foods:', error);
-                    showFoodsLoadError(error.message || 'Failed to load foods. Please refresh or try again.');
                     populateFoodSelects([], 'Failed to load foods. Please refresh or try again.');
                     foodsCache = [];
                     currentFoodPage = 1;
-                    renderFoodTable([], { showEmptyState: false });
+                    renderFoodTable([]);
                     updateStats();
                 });
         }
@@ -4509,8 +4420,6 @@
                 .join(' ');
         }
 
-        const fallbackFoodPhotoUrl = "{{ url_for('static', filename='images/a_dish_of_food.png') }}";
-
         function splitIntoParts(items, parts) {
             const groups = [];
             const safeParts = Math.max(1, parts);
@@ -4571,93 +4480,81 @@
             };
         }
 
-        function escapeHtml(value) {
-            return String(value ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        function normalizeMealItem(item) {
-            if (item && typeof item === 'object') {
-                return {
-                    name: String(item.name || item.label || '').trim(),
-                    photo: item.photo || item.image || item.image_url || ''
-                };
-            }
-            return {
-                name: String(item || '').trim(),
-                photo: ''
-            };
-        }
-
-        function resolveFoodPhotoUrl(photoPath) {
-            const rawPath = String(photoPath || '').trim();
-            if (!rawPath) {
-                return fallbackFoodPhotoUrl;
-            }
-            if (rawPath.startsWith('http://') || rawPath.startsWith('https://') || rawPath.startsWith('/')) {
-                return rawPath;
-            }
-            return `/${rawPath.replace(/^\/+/, '')}`;
-        }
-
         function renderMealItems(items) {
             if (!items || items.length === 0) {
-                return '<li class="meal-items-empty text-muted">No items assigned</li>';
+                return '<li class="text-muted">No items assigned</li>';
             }
-            const normalizedItems = items
-                .map(normalizeMealItem)
-                .filter(item => item.name);
-            if (normalizedItems.length === 0) {
-                return '<li class="meal-items-empty text-muted">No items assigned</li>';
-            }
-            const safeFallbackPhotoUrl = escapeHtml(fallbackFoodPhotoUrl);
-            return normalizedItems.map(item => {
-                const safeName = escapeHtml(item.name);
-                const safePhotoUrl = escapeHtml(resolveFoodPhotoUrl(item.photo));
-                return `
-                    <li class="meal-item">
-                        <span class="meal-item-photo-wrap">
-                            <img src="${safePhotoUrl}" alt="${safeName}" class="meal-item-photo" loading="lazy" onerror="this.onerror=null;this.src='${safeFallbackPhotoUrl}';">
-                        </span>
-                        <span class="meal-item-name">${safeName}</span>
-                    </li>
-                `;
-            }).join('');
+            return items.map(item => `<li>${item}</li>`).join('');
         }
 
         function renderMealPlan(meals, mealsPerDay) {
             const mealsCount = Number(mealsPerDay) || 3;
-            const sections = [
-                { label: 'Breakfast', items: meals.breakfast },
-                { label: 'Lunch', items: meals.lunch }
-            ];
-
-            if (mealsCount >= 3) {
-                sections.push({
-                    label: 'Dinner',
-                    items: meals.dinner
-                });
+            if (mealsCount === 2) {
+                return `
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-sun text-warning me-2"></i>Breakfast</h6>
+                        <ul>
+                            ${renderMealItems(meals.breakfast)}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-cloud-sun text-warning me-2"></i>Lunch</h6>
+                        <ul>
+                            ${renderMealItems(meals.lunch)}
+                        </ul>
+                    </div>
+                `;
             }
 
             if (mealsCount === 4) {
-                sections.push({
-                    label: 'Late Dinner',
-                    items: meals.late_dinner
-                });
+                return `
+                    <div class="col-md-3">
+                        <h6><i class="fas fa-sun text-warning me-2"></i>Breakfast</h6>
+                        <ul>
+                            ${renderMealItems(meals.breakfast)}
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h6><i class="fas fa-cloud-sun text-warning me-2"></i>Lunch</h6>
+                        <ul>
+                            ${renderMealItems(meals.lunch)}
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h6><i class="fas fa-moon text-warning me-2"></i>Dinner</h6>
+                        <ul>
+                            ${renderMealItems(meals.dinner)}
+                        </ul>
+                    </div>
+                    <div class="col-md-3">
+                        <h6><i class="fas fa-moon text-warning me-2"></i>Late Dinner</h6>
+                        <ul>
+                            ${renderMealItems(meals.late_dinner)}
+                        </ul>
+                    </div>
+                `;
             }
 
-            return sections.map(section => `
-                <div class="col-12 mb-3">
-                    <h6 class="meal-section-title">${section.label}</h6>
-                    <ul class="meal-items">
-                        ${renderMealItems(section.items)}
+            return `
+                <div class="col-md-4">
+                    <h6><i class="fas fa-sun text-warning me-2"></i>Breakfast</h6>
+                    <ul>
+                        ${renderMealItems(meals.breakfast)}
                     </ul>
                 </div>
-            `).join('');
+                <div class="col-md-4">
+                    <h6><i class="fas fa-cloud-sun text-warning me-2"></i>Lunch</h6>
+                    <ul>
+                        ${renderMealItems(meals.lunch)}
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6><i class="fas fa-moon text-warning me-2"></i>Dinner</h6>
+                    <ul>
+                        ${renderMealItems(meals.dinner)}
+                    </ul>
+                </div>
+            `;
         }
 
         function getTestInputValues() {
@@ -4728,14 +4625,12 @@
             const foods = Array.isArray(data.foods) ? data.foods : [];
             const avoidFoods = Array.isArray(data.avoid_foods) ? data.avoid_foods : [];
 
-            const mealFoods = foods
-                .map(normalizeMealItem)
-                .filter(item => item.name);
+            const foodNames = foods.map(item => item.name || item).filter(Boolean);
             const avoidFoodNames = avoidFoods.map(item => item.name || item).filter(Boolean);
             const mealsCount = Number(profile.meals_per_day)
                 || Number(document.getElementById('test-meals-per-day').value)
                 || 3;
-            const meals = splitMeals(mealFoods, mealsCount);
+            const meals = splitMeals(foodNames, mealsCount);
 
             const age = profile.age ?? document.getElementById('test-age').value;
             const gender = profile.gender ? titleCase(profile.gender) : titleCase(document.getElementById('test-gender').value) || 'Not specified';

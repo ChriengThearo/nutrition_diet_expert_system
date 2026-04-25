@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+{% set ui_lang = session.get('ui_lang', 'km') %}
+<html lang="{{ 'km' if ui_lang == 'km' else 'en' }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Doctor Profile | Diet Expert Rule Studio</title>
+    <title>{{ 'កែប្រែប្រវត្តិរូបវេជ្ជបណ្ឌិត | Diet Expert Rule Studio' if ui_lang == 'km' else 'Edit Doctor Profile | Diet Expert Rule Studio' }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
@@ -321,7 +322,8 @@
         class="navbar navbar-expand-lg shadow-sm sticky-top navbar-light navbar-user-dashboard navbar-custom doctor-profile-navbar">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('main.home') }}">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert logo" class="doctor-brand-logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}"
+                    alt="{{ 'រូបសញ្ញា Diet Expert' if ui_lang == 'km' else 'Diet Expert logo' }}" class="doctor-brand-logo">
                 <span class="doctor-brand-text">NDES</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -331,22 +333,22 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
                         <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('dashboard.doctor_dashboard') }}">
-                            <i class="fas fa-gauge-high me-1"></i>Dashboard
+                            <i class="fas fa-gauge-high me-1"></i>{{ 'ផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Dashboard' }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('main.home') }}">
-                            <i class="fas fa-home me-1"></i>Home
+                            <i class="fas fa-home me-1"></i>{{ 'ទំព័រដើម' if ui_lang == 'km' else 'Home' }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-light btn-sm me-2 doctor-nav-pill" href="{{ url_for('dashboard.doctor_dashboard') }}">
-                            <i class="fas fa-list-check me-1"></i>Rule Studio
+                            <i class="fas fa-list-check me-1"></i>{{ 'ស្ទូឌីយោក្បួន' if ui_lang == 'km' else 'Rule Studio' }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-light btn-sm doctor-nav-pill active" href="{{ url_for('dashboard.doctor_profile_edit') }}">
-                            <i class="fas fa-user-pen me-1"></i>Edit Profile
+                            <i class="fas fa-user-pen me-1"></i>{{ 'កែប្រែប្រវត្តិរូប' if ui_lang == 'km' else 'Edit Profile' }}
                         </a>
                     </li>
                 </ul>
@@ -356,10 +358,41 @@
                         {% include "dashboard/_dashboard_switcher.html" %}
                     </li>
                     {% endif %}
+                    {% set language_display_label = 'ភាសា' if ui_lang == 'km' else 'Language' %}
+                    <li class="nav-item dropdown me-2">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center doctor-nav-pill" href="#"
+                            id="doctorLanguageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                            title="{{ language_display_label }}">
+                            <i class="fas fa-language me-1"></i>
+                            <span>{{ language_display_label }}</span>
+                            <span class="ms-1">{{ 'KH' if ui_lang == 'km' else 'EN' }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="doctorLanguageDropdown">
+                            <li>
+                                <button class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'km' %}active{% endif %}"
+                                    type="button" data-language-option="km">
+                                    <span>{{ 'ខ្មែរ' if ui_lang == 'km' else 'Khmer' }}</span>
+                                    {% if ui_lang == 'km' %}
+                                    <i class="fas fa-check text-success"></i>
+                                    {% endif %}
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'en' %}active{% endif %}"
+                                    type="button" data-language-option="en">
+                                    <span>{{ 'អង់គ្លេស' if ui_lang == 'km' else 'English' }}</span>
+                                    {% if ui_lang == 'en' %}
+                                    <i class="fas fa-check text-success"></i>
+                                    {% endif %}
+                                </button>
+                            </li>
+                        </ul>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle doctor-nav-user d-flex align-items-center" href="#"
                             id="doctorProfileEditNavDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <img src="{{ doctor_avatar_url }}" alt="Avatar" class="doctor-nav-avatar me-2"
+                            <img src="{{ doctor_avatar_url }}" alt="{{ 'រូបប្រវត្តិរូប' if ui_lang == 'km' else 'Avatar' }}"
+                                class="doctor-nav-avatar me-2"
                                 onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
                             <span>{{ display_name }}</span>
                         </a>
@@ -372,12 +405,12 @@
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('dashboard.doctor_profile') }}">
-                                    <i class="fas fa-user-doctor me-2"></i>Profile
+                                    <i class="fas fa-user-doctor me-2"></i>{{ 'ប្រវត្តិរូប' if ui_lang == 'km' else 'Profile' }}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('dashboard.doctor_dashboard') }}">
-                                    <i class="fas fa-gauge-high me-2"></i>Dashboard
+                                    <i class="fas fa-gauge-high me-2"></i>{{ 'ផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Dashboard' }}
                                 </a>
                             </li>
                             <li>
@@ -385,7 +418,7 @@
                             </li>
                             <li>
                                 <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    <i class="fas fa-sign-out-alt me-2"></i>{{ 'ចាកចេញ' if ui_lang == 'km' else 'Logout' }}
                                 </a>
                             </li>
                         </ul>
@@ -413,16 +446,17 @@
                 <div class="d-flex flex-wrap align-items-center gap-3">
                     <div class="doctor-edit-avatar">
                         {% if user.photo %}
-                        <img src="{{ url_for('main.images', filename=user.photo|replace('images/', '')) }}" alt="Doctor avatar"
+                        <img src="{{ url_for('main.images', filename=user.photo|replace('images/', '')) }}"
+                            alt="{{ 'រូបវេជ្ជបណ្ឌិត' if ui_lang == 'km' else 'Doctor avatar' }}"
                             onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
                         {% else %}
                         {{ display_name[0]|upper if display_name else 'D' }}
                         {% endif %}
                     </div>
                     <div>
-                        <p class="doctor-edit-label mb-0">Doctor Workspace Profile</p>
-                        <h1 class="doctor-edit-title">Edit Account Identity</h1>
-                        <p class="doctor-edit-subtitle">Update your profile details used across rule management and simulation tools.</p>
+                        <p class="doctor-edit-label mb-0">{{ 'ប្រវត្តិរូបក្នុងផ្ទាំងវេជ្ជបណ្ឌិត' if ui_lang == 'km' else 'Doctor Workspace Profile' }}</p>
+                        <h1 class="doctor-edit-title">{{ 'កែប្រែអត្តសញ្ញាណគណនី' if ui_lang == 'km' else 'Edit Account Identity' }}</h1>
+                        <p class="doctor-edit-subtitle">{{ 'ធ្វើបច្ចុប្បន្នភាពព័ត៌មានប្រវត្តិរូបសម្រាប់ការគ្រប់គ្រងក្បួន និងការសាកល្បងផែនការអាហារ។' if ui_lang == 'km' else 'Update your profile details used across rule management and simulation tools.' }}</p>
                     </div>
                 </div>
                 <div class="d-flex flex-wrap gap-2 mt-3">
@@ -432,11 +466,11 @@
                     </span>
                     <span class="doctor-edit-meta-chip">
                         <i class="fas fa-circle-check"></i>
-                        {{ 'Active account' if user.is_active else 'Inactive account' }}
+                        {{ ('គណនីសកម្ម' if user.is_active else 'គណនីមិនសកម្ម') if ui_lang == 'km' else ('Active account' if user.is_active else 'Inactive account') }}
                     </span>
                     <span class="doctor-edit-meta-chip">
                         <i class="fas fa-shield-halved"></i>
-                        {{ user.roles|length if user.roles else 0 }} role{{ '' if (user.roles|length == 1) else 's' }}
+                        {{ user.roles|length if user.roles else 0 }} {{ 'តួនាទី' if ui_lang == 'km' else ('role' if (user.roles|length == 1) else 'roles') }}
                     </span>
                 </div>
             </div>
@@ -445,8 +479,8 @@
         <section class="doctor-edit-layout">
             <article class="doctor-edit-card doctor-edit-anim" style="--anim-delay: 80ms;">
                 <header class="doctor-edit-card-head">
-                    <h2 class="doctor-edit-card-title"><i class="fas fa-pen-to-square me-2"></i>Profile Form</h2>
-                    <p class="doctor-edit-card-subtitle">Edit full name, username, and profile photo.</p>
+                    <h2 class="doctor-edit-card-title"><i class="fas fa-pen-to-square me-2"></i>{{ 'ទម្រង់ប្រវត្តិរូប' if ui_lang == 'km' else 'Profile Form' }}</h2>
+                    <p class="doctor-edit-card-subtitle">{{ 'កែប្រែឈ្មោះពេញ ឈ្មោះអ្នកប្រើ និងរូបប្រវត្តិរូប។' if ui_lang == 'km' else 'Edit full name, username, and profile photo.' }}</p>
                 </header>
                 <div class="doctor-edit-card-body">
                     <form method="post" enctype="multipart/form-data" novalidate>
@@ -454,7 +488,7 @@
 
                         <div class="mb-3">
                             {{ form.full_name.label(class="form-label") }}
-                            {{ form.full_name(class="form-control", placeholder="Enter full name") }}
+                            {{ form.full_name(class="form-control", placeholder=('បញ្ចូលឈ្មោះពេញ' if ui_lang == 'km' else 'Enter full name')) }}
                             {% if form.full_name.errors %}
                             <div class="text-danger small mt-1">
                                 {% for error in form.full_name.errors %}
@@ -466,7 +500,7 @@
 
                         <div class="mb-3">
                             {{ form.username.label(class="form-label") }}
-                            {{ form.username(class="form-control", placeholder="Enter username") }}
+                            {{ form.username(class="form-control", placeholder=('បញ្ចូលឈ្មោះអ្នកប្រើ' if ui_lang == 'km' else 'Enter username')) }}
                             {% if form.username.errors %}
                             <div class="text-danger small mt-1">
                                 {% for error in form.username.errors %}
@@ -486,16 +520,16 @@
                                 {% endfor %}
                             </div>
                             {% endif %}
-                            <div class="form-text">Allowed: JPG, JPEG, PNG, GIF.</div>
+                            <div class="form-text">{{ 'អនុញ្ញាត៖ JPG, JPEG, PNG, GIF ។' if ui_lang == 'km' else 'Allowed: JPG, JPEG, PNG, GIF.' }}</div>
                         </div>
 
                         <hr class="my-4">
-                        <h6 class="doctor-edit-card-title mb-2"><i class="fas fa-lock me-2"></i>Change Login Password</h6>
-                        <p class="doctor-edit-card-subtitle mb-3">Fill these fields only if you want to change your password.</p>
+                        <h6 class="doctor-edit-card-title mb-2"><i class="fas fa-lock me-2"></i>{{ 'ប្ដូរពាក្យសម្ងាត់ចូលប្រើ' if ui_lang == 'km' else 'Change Login Password' }}</h6>
+                        <p class="doctor-edit-card-subtitle mb-3">{{ 'សូមបំពេញផ្នែកនេះ នៅពេលអ្នកចង់ប្ដូរពាក្យសម្ងាត់ប៉ុណ្ណោះ។' if ui_lang == 'km' else 'Fill these fields only if you want to change your password.' }}</p>
 
                         <div class="mb-3">
                             {{ form.current_password.label(class="form-label") }}
-                            {{ form.current_password(class="form-control", placeholder="Enter current password") }}
+                            {{ form.current_password(class="form-control", placeholder=('បញ្ចូលពាក្យសម្ងាត់បច្ចុប្បន្ន' if ui_lang == 'km' else 'Enter current password')) }}
                             {% if form.current_password.errors %}
                             <div class="text-danger small mt-1">
                                 {% for error in form.current_password.errors %}
@@ -507,7 +541,7 @@
 
                         <div class="mb-3">
                             {{ form.new_password.label(class="form-label") }}
-                            {{ form.new_password(class="form-control", placeholder="Enter new password (min 6 characters)") }}
+                            {{ form.new_password(class="form-control", placeholder=('បញ្ចូលពាក្យសម្ងាត់ថ្មី (យ៉ាងហោចណាស់ 6 តួអក្សរ)' if ui_lang == 'km' else 'Enter new password (min 6 characters)')) }}
                             {% if form.new_password.errors %}
                             <div class="text-danger small mt-1">
                                 {% for error in form.new_password.errors %}
@@ -519,7 +553,7 @@
 
                         <div class="mb-3">
                             {{ form.confirm_password.label(class="form-label") }}
-                            {{ form.confirm_password(class="form-control", placeholder="Confirm new password") }}
+                            {{ form.confirm_password(class="form-control", placeholder=('បញ្ជាក់ពាក្យសម្ងាត់ថ្មី' if ui_lang == 'km' else 'Confirm new password')) }}
                             {% if form.confirm_password.errors %}
                             <div class="text-danger small mt-1">
                                 {% for error in form.confirm_password.errors %}
@@ -532,10 +566,10 @@
                         <div class="doctor-edit-actions">
                             <button type="submit" class="btn btn-primary" name="{{ form.submit.name }}" id="{{ form.submit.id }}"
                                 data-permission="dashboard.doctor" data-action="update doctor profile">
-                                <i class="fas fa-floppy-disk me-2"></i>{{ form.submit.label.text }}
+                                <i class="fas fa-floppy-disk me-2"></i>{{ 'រក្សាទុកការកែប្រែ' if ui_lang == 'km' else form.submit.label.text }}
                             </button>
                             <a class="btn btn-outline-secondary" href="{{ url_for('dashboard.doctor_profile') }}">
-                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                                <i class="fas fa-arrow-left me-2"></i>{{ 'បោះបង់' if ui_lang == 'km' else 'Cancel' }}
                             </a>
                         </div>
                     </form>
@@ -544,13 +578,14 @@
 
             <aside class="doctor-edit-card doctor-edit-anim" style="--anim-delay: 140ms;">
                 <header class="doctor-edit-card-head">
-                    <h2 class="doctor-edit-card-title"><i class="fas fa-id-card me-2"></i>Current Preview</h2>
-                    <p class="doctor-edit-card-subtitle">How your profile appears in doctor workspace.</p>
+                    <h2 class="doctor-edit-card-title"><i class="fas fa-id-card me-2"></i>{{ 'ទិដ្ឋភាពបច្ចុប្បន្ន' if ui_lang == 'km' else 'Current Preview' }}</h2>
+                    <p class="doctor-edit-card-subtitle">{{ 'របៀបបង្ហាញប្រវត្តិរូបរបស់អ្នកក្នុងផ្ទាំងវេជ្ជបណ្ឌិត។' if ui_lang == 'km' else 'How your profile appears in doctor workspace.' }}</p>
                 </header>
                 <div class="doctor-edit-card-body">
                     <div class="doctor-edit-preview">
                         {% if user.photo %}
-                        <img src="{{ url_for('main.images', filename=user.photo|replace('images/', '')) }}" alt="Profile photo"
+                        <img src="{{ url_for('main.images', filename=user.photo|replace('images/', '')) }}"
+                            alt="{{ 'រូបប្រវត្តិរូប' if ui_lang == 'km' else 'Profile photo' }}"
                             onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
                         {% else %}
                         <i class="fas fa-user-doctor"></i>
@@ -558,21 +593,21 @@
                     </div>
                     <ul class="doctor-edit-info-list">
                         <li class="doctor-edit-info-item">
-                            <span class="doctor-edit-info-key">Full Name</span>
-                            <span class="doctor-edit-info-value">{{ user.full_name or 'Not set' }}</span>
+                            <span class="doctor-edit-info-key">{{ 'ឈ្មោះពេញ' if ui_lang == 'km' else 'Full Name' }}</span>
+                            <span class="doctor-edit-info-value">{{ user.full_name or ('មិនទាន់កំណត់' if ui_lang == 'km' else 'Not set') }}</span>
                         </li>
                         <li class="doctor-edit-info-item">
-                            <span class="doctor-edit-info-key">Username</span>
+                            <span class="doctor-edit-info-key">{{ 'ឈ្មោះអ្នកប្រើ' if ui_lang == 'km' else 'Username' }}</span>
                             <span class="doctor-edit-info-value">{{ user.username }}</span>
                         </li>
                         <li class="doctor-edit-info-item">
-                            <span class="doctor-edit-info-key">Email</span>
-                            <span class="doctor-edit-info-value">{{ user.email or 'N/A' }}</span>
+                            <span class="doctor-edit-info-key">{{ 'អ៊ីមែល' if ui_lang == 'km' else 'Email' }}</span>
+                            <span class="doctor-edit-info-value">{{ user.email or ('មិនមានទិន្នន័យ' if ui_lang == 'km' else 'N/A') }}</span>
                         </li>
                     </ul>
                     <div class="doctor-edit-note">
                         <i class="fas fa-circle-info me-2"></i>
-                        Keep your identity details current so clinical rule logs and team workflow attribution remain clear.
+                        {{ 'សូមរក្សាព័ត៌មានអត្តសញ្ញាណឱ្យទាន់សម័យ ដើម្បីឱ្យកំណត់ត្រាក្បួនវេជ្ជសាស្ត្រ និងការបែងចែកការងារក្រុមមានភាពច្បាស់លាស់។' if ui_lang == 'km' else 'Keep your identity details current so clinical rule logs and team workflow attribution remain clear.' }}
                     </div>
                 </div>
             </aside>
@@ -582,6 +617,46 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         window.APP_PERMISSIONS = {{ current_user.get_permission_codes()|list|tojson if current_user.is_authenticated else [] }};
+
+        (function initDoctorLanguageSwitcher() {
+            const languageOptions = document.querySelectorAll('[data-language-option]');
+            if (!languageOptions.length) {
+                return;
+            }
+
+            const endpoint = "{{ url_for('dashboard.set_language_mode') }}";
+            const currentLanguage = "{{ ui_lang }}";
+            const fallbackMessage = currentLanguage === 'km'
+                ? 'មិនអាចប្ដូរភាសាបានទេ។'
+                : 'Unable to switch language mode.';
+
+            languageOptions.forEach(option => {
+                option.addEventListener('click', async () => {
+                    const selectedLanguage = option.getAttribute('data-language-option');
+                    if (!selectedLanguage || selectedLanguage === currentLanguage) {
+                        return;
+                    }
+
+                    option.disabled = true;
+                    try {
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ language: selectedLanguage })
+                        });
+                        const result = await response.json().catch(() => ({}));
+                        if (!response.ok || result.success === false) {
+                            throw new Error(result.message || fallbackMessage);
+                        }
+                        window.location.reload();
+                    } catch (error) {
+                        alert(error.message || fallbackMessage);
+                    } finally {
+                        option.disabled = false;
+                    }
+                });
+            });
+        })();
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
