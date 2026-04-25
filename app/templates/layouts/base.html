@@ -32,7 +32,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script id="app-permissions" type="application/json">
+    {% if request.endpoint and request.endpoint.startswith('auth.') %}
+    []
+    {% else %}
     {{ current_user.get_permission_codes()|list|tojson if current_user.is_authenticated else [] }}
+    {% endif %}
   </script>
   <script>
     const permissionsEl = document.getElementById("app-permissions");

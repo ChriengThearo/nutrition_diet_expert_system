@@ -2,6 +2,7 @@ import os
 from urllib.parse import quote
 
 from dotenv import load_dotenv
+from sqlalchemy.pool import NullPool
 
 # Load environment variables
 load_dotenv()
@@ -56,13 +57,21 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = False  # Set to True for debugging SQL queries
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        "pool_size": 2,
-        "max_overflow": 1,
-        "pool_timeout": 30,
-        "pool_recycle": 1800,
-        "pool_pre_ping": True,
-    }
+    if IS_VERCEL:
+        # Vercel runs many short-lived instances. Using QueuePool here can
+        # quickly exhaust Postgres connections across instances.
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            "poolclass": NullPool,
+            "pool_pre_ping": True,
+        }
+    else:
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            "pool_size": 2,
+            "max_overflow": 1,
+            "pool_timeout": 30,
+            "pool_recycle": 1800,
+            "pool_pre_ping": True,
+        }
 
     if SQLALCHEMY_DATABASE_URI.startswith("postgresql"):
         connect_args = {}
@@ -70,6 +79,9 @@ class Config:
         # Supabase requires TLS for direct DB connections.
         if "supabase.co" in SQLALCHEMY_DATABASE_URI and "sslmode=" not in SQLALCHEMY_DATABASE_URI:
             connect_args["sslmode"] = "require"
+
+        # Avoid long request hangs when DB is waking up or unreachable.
+        connect_args.setdefault("connect_timeout", 10)
 
         # Optional: use a non-public schema as default search_path.
         if DB_SCHEMA:

@@ -40,15 +40,18 @@ def create_app(config_class: type[Config] = Config):
 
     @app.errorhandler(OperationalError)
     def handle_db_error(e):
+        app.logger.exception("Database operational error", exc_info=e)
         return render_template("errors/503.html"), 503
 
     @app.errorhandler(SQLAlchemyError)
     def handle_sqlalchemy_error(e):
+        app.logger.exception("SQLAlchemy error", exc_info=e)
         return render_template("errors/503.html"), 503
 
     @app.errorhandler(500)
     def handle_500(e):
-        return render_template("errors/503.html"), 503
+        app.logger.exception("Unhandled application error", exc_info=e)
+        return render_template("errors/500.html"), 500
 
     # Home route now handled by main blueprint
 
