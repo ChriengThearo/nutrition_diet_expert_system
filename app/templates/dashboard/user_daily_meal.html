@@ -84,17 +84,18 @@
         padding-left: 0;
     }
 
-    .daily-meal-avoid-list {
+    .daily-meal-avoid-items {
+        list-style: none;
         margin: 0;
-        padding-left: 1rem;
-    }
-
-    .daily-meal-avoid-list li {
-        margin-bottom: 0.34rem;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.6rem;
     }
 
     @media (max-width: 767.98px) {
-        .daily-meal-items {
+        .daily-meal-items,
+        .daily-meal-avoid-items {
             grid-template-columns: 1fr;
         }
     }
@@ -276,7 +277,7 @@
         </section>
 
         <div class="row g-4">
-            <div class="col-lg-8">
+            <div class="col-12">
                 <article class="history-card">
                     <header class="panel-head">
                         <div>
@@ -321,8 +322,8 @@
                     </div>
                 </article>
             </div>
-            <div class="col-lg-4">
-                <article class="profile-card">
+            <div class="col-12">
+                <article class="history-card">
                     <header class="panel-head">
                         <div>
                             <h3 class="panel-title"><i class="fas fa-ban"></i> {{ 'អាហារគួរជៀសវាង' if is_khmer_ui else 'Foods to Avoid' }}</h3>
@@ -331,9 +332,15 @@
                     </header>
                     <div class="panel-body">
                         {% if latest_plan.avoid_foods %}
-                        <ul class="daily-meal-avoid-list">
+                        <ul class="daily-meal-avoid-items">
                             {% for item in latest_plan.avoid_foods %}
-                            <li>{{ item.name }}</li>
+                            <li class="daily-meal-item">
+                                <span class="daily-meal-photo-wrap">
+                                    <img src="{{ item.photo_url or fallback_food_photo_url }}" alt="{{ item.name }}" class="daily-meal-photo" loading="lazy"
+                                         onerror="this.onerror=null;this.src='{{ fallback_food_photo_url }}';">
+                                </span>
+                                <span class="daily-meal-name">{{ item.name }}</span>
+                            </li>
                             {% endfor %}
                         </ul>
                         {% else %}
