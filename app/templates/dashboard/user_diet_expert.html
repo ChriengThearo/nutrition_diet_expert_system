@@ -354,6 +354,8 @@
         list-style: none;
         margin: 0;
         padding: 0;
+        max-height: none;
+        overflow: visible;
     }
 
     .meal-item {
@@ -398,6 +400,11 @@
 
     #resultsModal .modal-body {
         overflow-y: visible;
+    }
+
+    #resultsModal .meal-items {
+        max-height: none !important;
+        overflow: visible !important;
     }
 
     @media (max-width: 991.98px) {
