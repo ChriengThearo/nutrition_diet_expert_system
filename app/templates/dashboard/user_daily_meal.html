@@ -6,10 +6,6 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
 <style>
-    .daily-meal-shell .metric-grid {
-        margin-bottom: 1.1rem;
-    }
-
     .daily-meal-section {
         border: 1px solid #e5eef3;
         border-radius: 14px;
@@ -156,126 +152,6 @@
         </section>
 
         {% if latest_plan %}
-        <section class="metric-grid">
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'អាយុ' if is_khmer_ui else 'Age' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.age }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-user"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'ភេទ' if is_khmer_ui else 'Gender' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.gender }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-venus-mars"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'ទម្ងន់' if is_khmer_ui else 'Weight' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.weight }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-weight-scale"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'កម្ពស់' if is_khmer_ui else 'Height' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.height }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-ruler-vertical"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'ប្រភេទរបបអាហារ' if is_khmer_ui else 'Diet Type' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.diet_type }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-utensils"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'ពេលអាហារ/ថ្ងៃ' if is_khmer_ui else 'Meals / Day' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.meals_per_day }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-bowl-rice"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">BMI</p>
-                        <p class="metric-value">{{ latest_plan.display.bmi }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-weight-scale"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'កាឡូរី' if is_khmer_ui else 'Calories' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.calories }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-fire"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'ប្រូតេអ៊ីន (g)' if is_khmer_ui else 'Protein (g)' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.protein }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-drumstick-bite"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'ស្ករ (g)' if is_khmer_ui else 'Sugar (g)' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.sugar }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-cube"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'ខ្លាញ់ (g)' if is_khmer_ui else 'Fat (g)' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.fat }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-bacon"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'អាលែស៊ី' if is_khmer_ui else 'Allergies' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.allergies }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-shield-heart"></i></span>
-                </div>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">{{ 'ជាតិស្ករក្នុងឈាម' if is_khmer_ui else 'Blood Sugar' }}</p>
-                        <p class="metric-value">{{ latest_plan.display.blood_sugar }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-droplet"></i></span>
-                </div>
-            </article>
-        </section>
-
         <div class="row g-4">
             <div class="col-12">
                 <article class="history-card">
