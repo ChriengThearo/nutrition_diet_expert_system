@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-21T15:05:33.463179+00:00",
-  "database": "expert_system_v3",
+  "generated_at": "2026-08-07T08:07:24.454392+00:00",
+  "database": "postgres",
   "tables": [
     "tbl_cooked_foods",
     "tbl_diet_rules",
@@ -20,12 +20,12 @@
   "row_counts": {
     "tbl_cooked_foods": 50,
     "tbl_diet_rules": 720,
-    "tbl_foods": 83,
+    "tbl_foods": 85,
     "tbl_permissions": 28,
     "tbl_roles": 3,
     "tbl_users": 11,
     "tbl_goals": 3,
-    "tbl_role_permissions": 44,
+    "tbl_role_permissions": 47,
     "tbl_rule_food_map": 29668,
     "tbl_user_results": 37,
     "tbl_user_roles": 11,

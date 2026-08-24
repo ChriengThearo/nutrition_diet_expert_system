@@ -1,78 +1,955 @@
-{% extends "layouts/base.html" %} {% block title %}Users{% endblock %} {% block
-content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h3 mb-0">Users</h1>
-  <a href="{{ url_for('tbl_users.create') }}" class="btn btn-primary"
-    >Create User</a
-  >
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Users Management | Diet Expert</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --bg: #f7f9fc;
+  --card: #ffffff;
+  --white: #ffffff;
+  --ink: #0f1f3a;
+  --text: #26364f;
+  --muted: #66758b;
+  --muted-2: #69768b;
+  --muted-3: #7b8aa0;
+  --nav-text: #1d2d44;
+  --nav-icon: #3f5069;
+  --panel-title: #12243e;
+  --line: #e2e8f0;
+  --soft-line: #edf1f6;
+  --input-line: #dbe3ee;
+  --control-line: #dce3ec;
+  --green: #20b85d;
+  --green-dark: #12964b;
+  --green-mid: #16a950;
+  --green-soft: #e7f8ee;
+  --green-soft-2: #dcf6e9;
+  --green-soft-3: #e6f8ee;
+  --blue: #1779f2;
+  --blue-soft: #e8f2ff;
+  --orange: #f28b22;
+  --orange-soft: #fff0df;
+  --purple: #8657e9;
+  --purple-soft: #f1e6ff;
+  --red: #ef3f51;
+  --red-soft: #ffe7ec;
+  --gray-soft: #f1f4f7;
+  --shadow: 0 10px 30px rgba(15, 31, 58, .06);
+}
+
+* { box-sizing: border-box; }
+
+html,
+body { min-height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+a { color: inherit; text-decoration: none; }
+button,
+input,
+select { font: inherit; }
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  border-right: 1px solid var(--line);
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  height: 88px;
+  padding: 20px 15px 15px 24px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.brand-name {
+  margin: 0;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.brand-sub {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--muted-2);
+  display: grid;
+  place-items: center;
+}
+
+.nav {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.nav-section {
+  margin: 28px 10px 12px;
+  color: var(--muted-3);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.nav-section:first-of-type { margin-top: 26px; }
+
+.nav-link {
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: var(--nav-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nav-link + .nav-link { margin-top: 7px; }
+
+.nav-link i:first-child {
+  width: 18px;
+  color: var(--nav-icon);
+  font-size: 16px;
+  text-align: center;
+}
+
+.nav-link .chevron {
+  margin-left: auto;
+  color: var(--muted-2);
+  font-size: 12px;
+}
+
+.nav-link.active {
+  height: 45px;
+  background: linear-gradient(135deg, var(--green), var(--green-mid));
+  color: var(--white);
+  box-shadow: 0 9px 18px rgba(22, 169, 80, .2);
+}
+
+.nav-link.active i { color: var(--white); }
+
+.sidebar-user {
+  height: 102px;
+  padding: 20px 22px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--green-soft-2);
+  color: var(--green-dark);
+  font-weight: 800;
+}
+
+.user-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.user-role {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: 82px;
+  padding: 0 24px 0 29px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, .95);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.page-title h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.page-title p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.search-box {
+  position: relative;
+  width: 342px;
+}
+
+.search-box i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.search-box input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid var(--input-line);
+  border-radius: 10px;
+  background: var(--white);
+  outline: none;
+  padding: 0 14px 0 43px;
+  color: var(--text);
+  box-shadow: 0 7px 18px rgba(15, 31, 58, .035);
+}
+
+.search-box input::placeholder { color: var(--muted-2); }
+
+.date-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.date-pill i { font-size: 18px; }
+
+.notify {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+
+.notify span {
+  position: absolute;
+  top: -6px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--white);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.profile-head .avatar {
+  width: 45px;
+  height: 45px;
+}
+
+.profile-chevron,
+.sidebar-chevron {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.sidebar-chevron {
+  color: var(--muted-2);
+  font-size: 12px;
+}
+
+.content {
+  padding: 23px 24px 36px 29px;
+}
+
+.flash {
+  margin-bottom: 16px;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.flash-success {
+  background: var(--green-soft);
+  border-color: var(--green-soft-2);
+  color: var(--green-dark);
+}
+
+.flash-danger {
+  background: var(--red-soft);
+  border-color: #f8c8d0;
+  color: #a7172a;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.stat-card,
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.stat-card {
+  min-height: 132px;
+  padding: 18px 19px;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+
+.stat-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+}
+
+.soft-green { background: var(--green-soft); color: var(--green); }
+.soft-blue { background: var(--blue-soft); color: var(--blue); }
+.soft-orange { background: var(--orange-soft); color: var(--orange); }
+.soft-purple { background: var(--purple-soft); color: var(--purple); }
+
+.stat-label {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.trend {
+  margin: 10px 0 0;
+  color: var(--green-dark);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.trend.negative { color: var(--red); }
+
+.controls {
+  min-height: 76px;
+  margin-bottom: 22px;
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.table-search {
+  position: relative;
+  max-width: 520px;
+}
+
+.table-search i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.table-search input,
+.filter-select {
+  width: 100%;
+  height: 42px;
+  border: 1px solid var(--input-line);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text);
+  outline: none;
+}
+
+.table-search input {
+  padding: 0 14px 0 43px;
+}
+
+.filter-group {
+  display: flex;
+  gap: 12px;
+}
+
+.filter-select {
+  min-width: 140px;
+  padding: 0 12px;
+}
+
+.create-btn {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 8px;
+  background: var(--green);
+  color: var(--white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font-weight: 800;
+}
+
+.create-btn:hover { background: var(--green-mid); }
+
+.panel {
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background: #fafbfd;
+}
+
+.data-table th {
+  height: 52px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.data-table td {
+  height: 78px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--soft-line);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: #fbfdff; }
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.row-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--white);
+  font-weight: 900;
+}
+
+.avatar-green { background: var(--green); }
+.avatar-blue { background: var(--blue); }
+.avatar-orange { background: var(--orange); }
+.avatar-red { background: var(--red); }
+.avatar-purple { background: var(--purple); }
+
+.row-name {
+  margin: 0 0 5px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.row-email {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.role-badge,
+.permission-badge,
+.permission-more,
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.role-badge {
+  min-height: 30px;
+  padding: 0 12px;
+  background: var(--blue);
+  color: var(--white);
+  margin: 3px 4px 3px 0;
+}
+
+.permission-badge {
+  min-height: 27px;
+  padding: 0 10px;
+  margin: 3px 4px 3px 0;
+  background: var(--green);
+  color: var(--white);
+  font-size: 11px;
+}
+
+.permission-more {
+  color: var(--green-dark);
+  margin-left: 6px;
+}
+
+.muted-empty {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.status-badge {
+  min-height: 36px;
+  padding: 0 14px;
+  gap: 7px;
+}
+
+.status-badge.active {
+  background: var(--green-soft-2);
+  color: var(--green-dark);
+}
+
+.status-badge.inactive {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.action-btns {
+  display: flex;
+  gap: 9px;
+}
+
+.action-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+}
+
+.edit-btn {
+  background: #fff4cf;
+  color: #9b6a00;
+}
+
+.delete-btn {
+  background: #f8d4db;
+  color: #9f1230;
+}
+
+.empty-state {
+  min-height: 280px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.empty-state i {
+  color: var(--control-line);
+  font-size: 56px;
+  margin-bottom: 14px;
+}
+
+.empty-state h2 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.empty-state p {
+  margin: 0 0 20px;
+  color: var(--muted);
+}
+
+@media (max-width: 1200px) {
+  .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .controls { grid-template-columns: 1fr; }
+  .table-search { max-width: none; }
+  .filter-group { flex-wrap: wrap; }
+}
+
+@media (max-width: 900px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .topbar {
+    height: auto;
+    padding: 16px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .top-actions {
+    width: 100%;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    width: 100%;
+    order: 2;
+  }
+  .content { padding: 16px; }
+}
+
+@media (max-width: 640px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .data-table { min-width: 900px; }
+  .panel { overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">
+      <div>
+        <p class="brand-name">Diet Expert</p>
+        <p class="brand-sub">Clinical Nutrition Suite</p>
+      </div>
+      <button class="collapse-btn" type="button" aria-label="Collapse sidebar"><i class="fas fa-chevron-left"></i></button>
+    </div>
+
+    <nav class="nav" aria-label="Admin navigation">
+      <a class="nav-link" href="{{ url_for('dashboard.admin_dashboard') }}"><i class="fas fa-table-cells-large"></i><span>Dashboard</span></a>
+
+      <div class="nav-section">Management</div>
+      <a class="nav-link active" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}"><i class="fas fa-user-doctor"></i><span>Doctors</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="#"><i class="fas fa-hospital-user"></i><span>Patients</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span><i class="fas fa-chevron-right chevron"></i></a>
+
+      <div class="nav-section">Content & Data</div>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#rules"><i class="fas fa-list-ul"></i><span>Rule Library</span><i class="fas fa-chevron-right chevron"></i></a>
+
+      <div class="nav-section">System</div>
+      <a class="nav-link" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-gear"></i><span>Settings</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('main.home') }}"><i class="fas fa-house"></i><span>Home</span></a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="avatar">A</div>
+      <div>
+        <p class="user-name">Admin</p>
+        <p class="user-role">Super Administrator</p>
+      </div>
+      <i class="fas fa-chevron-down sidebar-chevron"></i>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="page-title">
+        <h1>Users Management</h1>
+        <p>Manage users inside your clinical nutrition platform</p>
+      </div>
+      <div class="top-actions">
+        <div class="search-box">
+          <i class="fas fa-magnifying-glass"></i>
+          <input type="search" placeholder="Search patients, doctors, foods...">
+        </div>
+        <div class="date-pill"><i class="far fa-calendar-alt"></i><span id="headerDate">Aug 24, 2026</span></div>
+        <button class="notify" type="button" aria-label="Notifications"><i class="far fa-bell"></i><span>5</span></button>
+        <div class="profile-head">
+          <div class="avatar">A</div>
+          <i class="fas fa-chevron-down profile-chevron"></i>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <section class="stat-grid" aria-label="User statistics">
+        <article class="stat-card">
+          <div class="stat-icon soft-green"><i class="fas fa-users"></i></div>
+          <div>
+            <p class="stat-label">Total Users</p>
+            <p class="stat-value">{{ users|length }}</p>
+            <p class="trend"><i class="fas fa-arrow-trend-up"></i> +5 this week</p>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-icon soft-blue"><i class="fas fa-user-check"></i></div>
+          <div>
+            <p class="stat-label">Active Users</p>
+            <p class="stat-value">{{ users|selectattr('is_active')|list|length }}</p>
+            <p class="trend"><i class="fas fa-arrow-trend-up"></i> +20%</p>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-icon soft-purple"><i class="fas fa-shield-halved"></i></div>
+          <div>
+            <p class="stat-label">Roles</p>
+            {% set unique_roles = [] %}
+            {% for user in users %}
+              {% for role in user.roles %}
+                {% if role.name not in unique_roles %}
+                  {% set _ = unique_roles.append(role.name) %}
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+            <p class="stat-value">{{ unique_roles|length }}</p>
+            <p class="trend"><i class="fas fa-arrow-trend-up"></i> +0%</p>
+          </div>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-icon soft-orange"><i class="fas fa-user-clock"></i></div>
+          <div>
+            <p class="stat-label">Inactive/Pending</p>
+            <p class="stat-value">{{ users|rejectattr('is_active')|list|length }}</p>
+            <p class="trend negative"><i class="fas fa-arrow-down"></i> -33%</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel controls">
+        <div class="table-search">
+          <i class="fas fa-magnifying-glass"></i>
+          <input type="search" id="userSearch" placeholder="Search users..." onkeyup="filterUsers()">
+        </div>
+        <div class="filter-group">
+          <select class="filter-select" aria-label="Filter by role">
+            <option>All Roles</option>
+            <option>Admin</option>
+            <option>Doctor</option>
+            <option>User</option>
+          </select>
+          <select class="filter-select" aria-label="Filter by status">
+            <option>All Status</option>
+            <option>Active</option>
+            <option>Inactive</option>
+          </select>
+        </div>
+        <a href="{{ url_for('tbl_users.create') }}" class="create-btn"><i class="fas fa-plus"></i>Create User</a>
+      </section>
+
+      {% if users %}
+      <section class="panel">
+        <table class="data-table" id="usersTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>Permissions</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr class="user-row"
+                data-name="{{ (user.full_name or '')|lower }}"
+                data-email="{{ (user.email or '')|lower }}"
+                data-username="{{ (user.username or '')|lower }}">
+              <td>
+                <div class="user-cell">
+                  <div class="row-avatar {% if loop.index % 5 == 0 %}avatar-purple{% elif loop.index % 5 == 1 %}avatar-green{% elif loop.index % 5 == 2 %}avatar-blue{% elif loop.index % 5 == 3 %}avatar-orange{% else %}avatar-red{% endif %}">
+                    {{ (user.username or user.email or 'U')[0]|upper }}
+                  </div>
+                  <div>
+                    <p class="row-name">{{ user.full_name or user.username }}</p>
+                    <p class="row-email">{{ user.email }}</p>
+                  </div>
+                </div>
+              </td>
+              <td>
+                {% if user.roles %}
+                  {% for role in user.roles %}
+                    <span class="role-badge">{{ role.name }}</span>
+                  {% endfor %}
+                {% else %}
+                  <span class="muted-empty">No role</span>
+                {% endif %}
+              </td>
+              <td>
+                {% set user_permissions = user.get_permission_codes()|sort %}
+                {% if user_permissions %}
+                  {% for permission in user_permissions[:3] %}
+                    <span class="permission-badge">{{ permission }}</span>
+                  {% endfor %}
+                  {% if user_permissions|length > 3 %}
+                    <a href="{{ url_for('tbl_users.detail', user_id=user.id) }}" class="permission-more">+{{ user_permissions|length - 3 }} more</a>
+                  {% endif %}
+                {% else %}
+                  <span class="muted-empty">No permissions</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if user.is_active %}
+                  <span class="status-badge active"><span class="status-dot"></span>Active</span>
+                {% else %}
+                  <span class="status-badge inactive"><span class="status-dot"></span>Inactive</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="action-btns">
+                  <a href="{{ url_for('tbl_users.edit', user_id=user.id) }}" class="action-btn edit-btn" title="Edit"><i class="fas fa-pen-to-square"></i></a>
+                  <a href="{{ url_for('tbl_users.delete_confirm', user_id=user.id) }}" class="action-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></a>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+      {% else %}
+      <section class="empty-state">
+        <div>
+          <i class="fas fa-users"></i>
+          <h2>No Users Found</h2>
+          <p>Get started by creating your first user.</p>
+          <a href="{{ url_for('tbl_users.create') }}" class="create-btn"><i class="fas fa-plus"></i>Create First User</a>
+        </div>
+      </section>
+      {% endif %}
+    </div>
+  </main>
 </div>
 
-{% if users %}
-<table class="table table-striped align-middle">
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>Full Name</th>
-      <th>Email</th>
-      <th>Roles</th>
-      <th>Permissions</th>
-      <th>Status</th>
-      <th class="text-end">Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for user in users %}
-    <tr>
-      <td>
-        <a
-          href="{{ url_for('tbl_users.detail', user_id=user.id) }}">
-          {{ user.username }}
-        </a>
-      </td>
-      <td>{{ user.full_name }}</td>
-      <td>{{ user.email }}</td>
-      <td>
-        {% if user.roles %}
-          {% for role in user.roles %}
-            <span class="badge text-bg-primary me-1">{{ role.name }}</span>
-          {% endfor %}
-        {% else %}
-          <span class="text-muted">No role</span>
-        {% endif %}
-      </td>
-      <td>
-        {% set user_permissions = user.get_permission_codes() %}
-        {% if user_permissions %}
-          {% for permission in user_permissions %}
-            <span class="badge text-bg-info me-1" style="font-size: 0.75em;">{{ permission }}</span>
-          {% endfor %}
-        {% else %}
-          <span class="text-muted">No permissions</span>
-        {% endif %}
-      </td>
-      <td>
-        {% if user.is_active %}
-        <span class="badge text-bg-success">Active</span>
-        {% else %}
-        <span class="badge text-bg-secondary">Inactive</span>
-        {% endif %}
-      </td>
+<script>
+const headerDate = document.getElementById("headerDate");
+if (headerDate) {
+  headerDate.textContent = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+}
 
-      <td class="text-end">
-        <a
-          href="{{ url_for('tbl_users.edit', user_id=user.id) }}"
-          class="btn btn-sm btn-warning">✏️</a>
+function filterUsers() {
+  const input = document.getElementById("userSearch");
+  const searchTerm = (input ? input.value : "").toLowerCase();
+  const rows = document.querySelectorAll(".user-row");
 
-        <a
-          href="{{ url_for('tbl_users.delete_confirm', user_id=user.id) }}"
-          class="btn btn-sm btn-danger">🗑️</a>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-{% else %}
-<p class="text-muted">No users found.</p>  
-{% endif %}
-{% endblock %}
+  rows.forEach((row) => {
+    const name = row.dataset.name || "";
+    const email = row.dataset.email || "";
+    const username = row.dataset.username || "";
+    const matchesSearch = !searchTerm || name.includes(searchTerm) || email.includes(searchTerm) || username.includes(searchTerm);
+    row.style.display = matchesSearch ? "" : "none";
+  });
+}
+</script>
+</body>
+</html>

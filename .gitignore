@@ -1,11 +1,7 @@
 .venv/
-.vscode/
 __pycache__/
-*.pyc
-*.pyo
-
+.vscode/
+.venv/
+.env/
 .env
-.env.*
-!.env.example
-
-instance/*.db
+.temporary/

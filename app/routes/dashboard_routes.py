@@ -26,19 +26,36 @@ from app.services.diet_rule_service import DietRuleService
 from app.routes.access_control import permission_required
 from extensions import db, csrf
 from datetime import datetime, timedelta
-from sqlalchemy import or_, func
 from sqlalchemy.orm import selectinload
 import json
 import os
 import re
 import uuid
+import subprocess
+from pathlib import Path
 from werkzeug.utils import secure_filename
 
 dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
 
+def auto_dump_seeds():
+    """Automatically dump database to seed files after food/cooked_food changes"""
+    try:
+        project_root = Path(current_app.root_path).parent
+        seed_script = project_root / "seeds" / "seed.py"
+        if seed_script.exists():
+            subprocess.Popen(
+                ["python", str(seed_script), "dump"],
+                cwd=str(project_root),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+    except Exception as e:
+        current_app.logger.warning(f"Auto seed dump failed: {e}")
+
+
 def _is_khmer_ui():
-    return str(session.get("ui_lang", "en")).strip().lower() == "km"
+    return str(session.get("ui_lang", "km")).strip().lower() != "en"
 
 
 def _normalize_text(value):
@@ -527,7 +544,9 @@ def audit_log():
 def doctor_dashboard():
     """Doctor dashboard main page"""
     # Get doctor-specific statistics
-    total_users = UserTable.query.count()
+    total_patients = (
+        UserTable.query.count()
+    )  # Simplified - would filter by doctor's patients
     consultations_today = 5  # Simplified - would count today's consultations
     pending_diagnoses = UserResultsTable.query.filter_by(status="pending").count()
     rules_authored = (
@@ -536,7 +555,7 @@ def doctor_dashboard():
 
     return render_template(
         "dashboard/doctor_dashboard.html",
-        total_users=total_users,
+        total_patients=total_patients,
         consultations_today=consultations_today,
         pending_diagnoses=pending_diagnoses,
         rules_authored=rules_authored,
@@ -566,896 +585,15 @@ def doctor_dashboard_data():
         },
     ]
 
-    total_users = UserTable.query.count()
     return jsonify(
         {
-            "total_users": total_users,
-            "total_patients": total_users,  # Backward compatibility
+            "total_patients": UserTable.query.count(),
             "consultations_today": 5,
             "pending_diagnoses": UserResultsTable.query.filter_by(
                 status="pending"
             ).count(),
             "rules_authored": DietRulesTable.query.count(),
             "consultations": consultations,
-        }
-    )
-
-
-@dashboard_bp.route("/doctor/users")
-@login_required
-@doctor_required
-@permission_required(
-    "dashboard.doctor",
-    "You have no permission to access doctor users insights.",
-)
-def doctor_dashboard_users():
-    """Doctor users insights page."""
-    role_options = [
-        str(role.name).strip()
-        for role in RoleTable.query.order_by(RoleTable.name.asc()).all()
-        if str(role.name or "").strip()
-    ]
-    return render_template(
-        "dashboard/doctor_users_insights.html",
-        total_users=UserTable.query.count(),
-        active_users=UserTable.query.filter_by(is_active=True).count(),
-        role_options=role_options,
-    )
-
-
-def _safe_json_object(raw_value):
-    if not raw_value:
-        return None
-    try:
-        parsed = json.loads(raw_value)
-    except Exception:
-        return None
-    return parsed if isinstance(parsed, dict) else None
-
-
-def _coerce_datetime(value):
-    if isinstance(value, datetime):
-        return value
-    if isinstance(value, str):
-        text = value.strip()
-        if not text:
-            return None
-        if text.endswith("Z"):
-            text = text[:-1] + "+00:00"
-        try:
-            return datetime.fromisoformat(text)
-        except Exception:
-            return None
-    return None
-
-
-def _normalize_food_photo_url(photo_path):
-    raw = str(photo_path or "").strip()
-    if not raw:
-        return ""
-    lower = raw.lower()
-    if lower.startswith("http://") or lower.startswith("https://") or raw.startswith("/"):
-        return raw
-    return "/" + raw.lstrip("/")
-
-
-def _normalize_daily_meal_food_items(items):
-    normalized = []
-    seen = set()
-
-    if not isinstance(items, list):
-        return normalized
-
-    for item in items:
-        if isinstance(item, dict):
-            food_id = item.get("id")
-            name = str(item.get("name") or item.get("label") or "").strip()
-            photo = _normalize_food_photo_url(
-                item.get("photo") or item.get("image") or item.get("image_url")
-            )
-        else:
-            food_id = None
-            name = str(item or "").strip()
-            photo = ""
-
-        if not name:
-            continue
-
-        key = food_id if food_id is not None else name.lower()
-        if isinstance(key, (dict, list, set)):
-            key = name.lower()
-        if key in seen:
-            continue
-        seen.add(key)
-
-        normalized.append(
-            {
-                "id": food_id,
-                "name": name,
-                "photo_url": photo,
-            }
-        )
-
-    return normalized
-
-
-def _normalize_daily_meal_food_groups(plan_payload):
-    if not isinstance(plan_payload, dict):
-        return []
-
-    raw_groups = plan_payload.get("food_groups")
-    normalized = []
-
-    if isinstance(raw_groups, list):
-        for index, group in enumerate(raw_groups):
-            if not isinstance(group, dict):
-                continue
-            group_key = str(group.get("group_key") or "").strip() or f"group_{index + 1}"
-            foods = _normalize_daily_meal_food_items(group.get("foods"))
-            avoid_foods = _normalize_daily_meal_food_items(group.get("avoid_foods"))
-            if not foods and not avoid_foods:
-                continue
-            normalized.append(
-                {
-                    "group_key": group_key,
-                    "foods": foods,
-                    "avoid_foods": avoid_foods,
-                }
-            )
-
-    if normalized:
-        return normalized
-
-    fallback_foods = _normalize_daily_meal_food_items(plan_payload.get("foods"))
-    fallback_avoid_foods = _normalize_daily_meal_food_items(plan_payload.get("avoid_foods"))
-    if fallback_foods or fallback_avoid_foods:
-        return [
-            {
-                "group_key": "group_1",
-                "foods": fallback_foods,
-                "avoid_foods": fallback_avoid_foods,
-            }
-        ]
-    return []
-
-
-def _select_active_daily_meal_group(food_groups, active_group_key):
-    groups = food_groups if isinstance(food_groups, list) else []
-    if not groups:
-        return {
-            "group_key": "group_1",
-            "foods": [],
-            "avoid_foods": [],
-        }
-
-    selected_key = str(active_group_key or "").strip()
-    if selected_key:
-        for group in groups:
-            if str(group.get("group_key") or "").strip() == selected_key:
-                return group
-
-    return groups[0]
-
-
-def _split_items_evenly(items, parts):
-    try:
-        safe_parts = max(1, int(parts))
-    except Exception:
-        safe_parts = 1
-
-    source_items = list(items or [])
-    base = len(source_items) // safe_parts
-    remainder = len(source_items) % safe_parts
-    groups = []
-    cursor = 0
-
-    for index in range(safe_parts):
-        size = base + (1 if index < remainder else 0)
-        groups.append(source_items[cursor : cursor + size])
-        cursor += size
-
-    return groups
-
-
-def _split_foods_by_meal(items, meals_per_day):
-    try:
-        meals_count = int(meals_per_day)
-    except Exception:
-        meals_count = 3
-    if meals_count not in (2, 3, 4):
-        meals_count = 3
-
-    groups = _split_items_evenly(items, 3)
-    breakfast = groups[0] if len(groups) > 0 else []
-    lunch = groups[1] if len(groups) > 1 else []
-    dinner = groups[2] if len(groups) > 2 else []
-
-    if meals_count == 2:
-        dinner_split = _split_items_evenly(dinner, 2)
-        return {
-            "meals_per_day": meals_count,
-            "breakfast": breakfast + (dinner_split[0] if len(dinner_split) > 0 else []),
-            "lunch": lunch + (dinner_split[1] if len(dinner_split) > 1 else []),
-            "dinner": [],
-            "late_dinner": [],
-        }
-
-    if meals_count == 4:
-        dinner_split = _split_items_evenly(dinner, 2)
-        return {
-            "meals_per_day": meals_count,
-            "breakfast": breakfast,
-            "lunch": lunch,
-            "dinner": dinner_split[0] if len(dinner_split) > 0 else [],
-            "late_dinner": dinner_split[1] if len(dinner_split) > 1 else [],
-        }
-
-    return {
-        "meals_per_day": meals_count,
-        "breakfast": breakfast,
-        "lunch": lunch,
-        "dinner": dinner,
-        "late_dinner": [],
-    }
-
-
-def _format_diet_type_for_ui(value):
-    not_specified = "មិនបានបញ្ជាក់" if _is_khmer_ui() else "Not specified"
-    text = str(value or "").strip()
-    if not text:
-        return not_specified
-
-    token = text.lower().replace("-", "_").replace(" ", "_")
-    if _is_khmer_ui():
-        return _localize_diet_type(text)
-
-    english_labels = {
-        "normal": "Regular",
-        "vegan": "Vegan",
-        "vegetarian": "Vegetarian",
-        "keto": "Keto",
-        "low_carb": "Low Carb",
-        "mediterranean": "Mediterranean",
-        "high_protein": "High Protein",
-        "paleo": "Paleo",
-        "pescatarian": "Pescatarian",
-    }
-    return english_labels.get(token, text.replace("_", " ").title())
-
-
-def _format_gender_for_ui(value):
-    not_specified = "មិនបានបញ្ជាក់" if _is_khmer_ui() else "Not specified"
-    text = str(value or "").strip().lower()
-    if not text:
-        return not_specified
-
-    if _is_khmer_ui():
-        khmer_labels = {
-            "male": "ប្រុស",
-            "female": "ស្រី",
-            "other": "ផ្សេងទៀត",
-        }
-        return khmer_labels.get(text, str(value).strip())
-
-    english_labels = {
-        "male": "Male",
-        "female": "Female",
-        "other": "Other",
-    }
-    return english_labels.get(text, str(value).strip().title())
-
-
-def _format_allergies_for_ui(values):
-    none_text = "មិនមាន" if _is_khmer_ui() else "None"
-    if _is_khmer_ui():
-        return _localize_allergies(values)
-
-    if isinstance(values, list):
-        raw_items = [str(item).strip() for item in values if str(item).strip()]
-    elif values in (None, ""):
-        raw_items = []
-    else:
-        raw_items = [
-            str(item).strip()
-            for item in re.split(r"[;,/|]+", str(values))
-            if str(item).strip()
-        ]
-
-    if not raw_items:
-        return none_text
-
-    english_labels = {
-        "seafood": "Seafood",
-        "eggs": "Eggs",
-        "egg": "Eggs",
-        "soy": "Soy",
-        "soybean": "Soy",
-        "soya": "Soy",
-    }
-
-    display_items = []
-    seen = set()
-    for item in raw_items:
-        token = item.lower().replace("-", "_").replace(" ", "_")
-        if token in {"none", "no_allergy", "no_allergies", "na", "n_a"}:
-            continue
-        label = english_labels.get(token, item.replace("_", " ").title())
-        key = label.lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        display_items.append(label)
-
-    return ", ".join(display_items) if display_items else none_text
-
-
-def _format_daily_meal_metric(value, decimals=1):
-    try:
-        return f"{float(value):.{int(decimals)}f}"
-    except Exception:
-        return None
-
-
-def _build_daily_meal_view_model(plan_payload, generated_at=None):
-    if not isinstance(plan_payload, dict):
-        return None
-
-    profile = plan_payload.get("profile") if isinstance(plan_payload.get("profile"), dict) else {}
-    metrics = plan_payload.get("metrics") if isinstance(plan_payload.get("metrics"), dict) else {}
-    food_groups = _normalize_daily_meal_food_groups(plan_payload)
-    active_group = _select_active_daily_meal_group(
-        food_groups, plan_payload.get("active_food_group_key")
-    )
-    foods = active_group.get("foods", [])
-    avoid_foods = active_group.get("avoid_foods", [])
-    meal_split = _split_foods_by_meal(foods, profile.get("meals_per_day"))
-
-    meal_sections = [
-        {"key": "breakfast", "items": meal_split.get("breakfast", [])},
-        {"key": "lunch", "items": meal_split.get("lunch", [])},
-    ]
-    if meal_split.get("meals_per_day", 3) >= 3:
-        meal_sections.append({"key": "dinner", "items": meal_split.get("dinner", [])})
-    if meal_split.get("meals_per_day", 3) == 4:
-        meal_sections.append(
-            {"key": "late_dinner", "items": meal_split.get("late_dinner", [])}
-        )
-
-    is_khmer = _is_khmer_ui()
-    not_specified = "មិនបានបញ្ជាក់" if is_khmer else "Not specified"
-    not_provided = "មិនបានផ្ដល់" if is_khmer else "Not provided"
-
-    meals_count = meal_split.get("meals_per_day", 3)
-    meals_display = f"{meals_count} {'ពេល' if is_khmer else 'meals'}"
-
-    blood_sugar_value = profile.get("blood_sugar")
-    blood_sugar_display = (
-        f"{blood_sugar_value} mg/dL"
-        if blood_sugar_value not in (None, "")
-        else not_provided
-    )
-
-    age_value = profile.get("age")
-    age_display = str(age_value) if age_value not in (None, "") else not_specified
-    weight_value = profile.get("weight")
-    weight_display = (
-        f"{weight_value} kg" if weight_value not in (None, "") else not_specified
-    )
-    height_value = profile.get("height")
-    height_display = (
-        f"{height_value} cm" if height_value not in (None, "") else not_specified
-    )
-
-    return {
-        "generated_at": _coerce_datetime(generated_at),
-        "profile": profile,
-        "metrics": metrics,
-        "food_groups": food_groups,
-        "active_food_group_key": active_group.get("group_key"),
-        "foods": foods,
-        "avoid_foods": avoid_foods,
-        "meal_sections": meal_sections,
-        "meals_per_day": meals_count,
-        "display": {
-            "diet_type": _format_diet_type_for_ui(profile.get("diet_type")),
-            "age": age_display,
-            "gender": _format_gender_for_ui(profile.get("gender")),
-            "weight": weight_display,
-            "height": height_display,
-            "meals_per_day": meals_display,
-            "allergies": _format_allergies_for_ui(profile.get("allergies")),
-            "blood_sugar": blood_sugar_display,
-            "bmi": _format_daily_meal_metric(metrics.get("bmi"), 1) or not_specified,
-            "calories": _format_daily_meal_metric(metrics.get("calories"), 0)
-            or not_specified,
-            "protein": _format_daily_meal_metric(metrics.get("protein"), 0)
-            or not_specified,
-            "sugar": _format_daily_meal_metric(metrics.get("sugar"), 0)
-            or not_specified,
-            "fat": _format_daily_meal_metric(metrics.get("fat"), 0) or not_specified,
-        },
-    }
-
-
-def _get_latest_persisted_daily_meal_plan(user_id):
-    recent_results = (
-        UserResultsTable.query.filter_by(user_id=user_id)
-        .filter(UserResultsTable.result_data.isnot(None))
-        .order_by(UserResultsTable.generated_at.desc(), UserResultsTable.id.desc())
-        .limit(30)
-        .all()
-    )
-
-    for result in recent_results:
-        payload = _safe_json_object(result.result_data)
-        if not payload:
-            continue
-        plan_payload = payload.get("plan")
-        if not isinstance(plan_payload, dict):
-            continue
-
-        latest_plan = _build_daily_meal_view_model(
-            plan_payload, result.generated_at or result.created_at
-        )
-        if latest_plan:
-            return latest_plan
-
-    return None
-
-
-def _build_guest_latest_plan_snapshot(result):
-    if not isinstance(result, dict):
-        return None
-
-    profile = result.get("profile") if isinstance(result.get("profile"), dict) else {}
-    metrics = result.get("metrics") if isinstance(result.get("metrics"), dict) else {}
-    food_groups = result.get("food_groups") if isinstance(result.get("food_groups"), list) else []
-    foods = result.get("foods") if isinstance(result.get("foods"), list) else []
-    avoid_foods = result.get("avoid_foods") if isinstance(result.get("avoid_foods"), list) else []
-
-    return {
-        "generated_at": datetime.utcnow().isoformat(),
-        "profile": profile,
-        "metrics": metrics,
-        "food_groups": food_groups,
-        "active_food_group_key": result.get("active_food_group_key"),
-        "foods": foods,
-        "avoid_foods": avoid_foods,
-    }
-
-
-def _extract_plan_submission(result_row):
-    payload = _safe_json_object(result_row.result_data)
-    if not payload:
-        return None
-
-    plan = payload.get("plan")
-    if not isinstance(plan, dict):
-        return None
-
-    rule_info = plan.get("rule")
-    rule_id = None
-    rule_name = ""
-    if isinstance(rule_info, dict):
-        raw_rule_id = rule_info.get("id")
-        try:
-            rule_id = int(raw_rule_id) if raw_rule_id is not None else None
-        except Exception:
-            rule_id = None
-        rule_name = str(rule_info.get("name") or "").strip()
-    elif rule_info is not None:
-        rule_name = str(rule_info).strip()
-
-    has_matched_rule = bool(rule_id is not None or rule_name)
-    if rule_id is not None and not rule_name:
-        rule_name = f"Rule {rule_id}"
-
-    profile = plan.get("profile") if isinstance(plan.get("profile"), dict) else {}
-    metrics = plan.get("metrics") if isinstance(plan.get("metrics"), dict) else {}
-    if not metrics and isinstance(payload.get("metrics"), dict):
-        metrics = payload.get("metrics")
-
-    allergies_raw = profile.get("allergies")
-    if isinstance(allergies_raw, list):
-        allergies = [str(item).strip() for item in allergies_raw if str(item).strip()]
-    elif allergies_raw in (None, ""):
-        allergies = []
-    else:
-        allergies = [str(allergies_raw).strip()]
-
-    generated_at = result_row.generated_at or result_row.created_at
-
-    return {
-        "result_id": result_row.id,
-        "user_id": result_row.user_id,
-        "generated_at": generated_at,
-        "generated_at_iso": generated_at.isoformat() if generated_at else None,
-        "rule_id": rule_id,
-        "rule_name": rule_name,
-        "has_matched_rule": has_matched_rule,
-        "diet_type": str(profile.get("diet_type") or "").strip(),
-        "meals_per_day": profile.get("meals_per_day"),
-        "blood_sugar": profile.get("blood_sugar"),
-        "allergies": allergies,
-        "bmi": metrics.get("bmi") if metrics.get("bmi") is not None else result_row.bmi,
-        "calories": metrics.get("calories"),
-        "protein": metrics.get("protein"),
-        "sugar": metrics.get("sugar"),
-        "fat": metrics.get("fat"),
-    }
-
-
-def _fetch_plan_submissions(user_ids=None):
-    query = UserResultsTable.query.filter(UserResultsTable.result_data.isnot(None))
-    if user_ids is not None:
-        normalized_ids = []
-        for value in user_ids:
-            try:
-                normalized_ids.append(int(value))
-            except Exception:
-                continue
-        if not normalized_ids:
-            return []
-        query = query.filter(UserResultsTable.user_id.in_(normalized_ids))
-
-    rows = query.order_by(UserResultsTable.generated_at.desc(), UserResultsTable.id.desc()).all()
-    submissions = []
-    for row in rows:
-        submission = _extract_plan_submission(row)
-        if submission:
-            submissions.append(submission)
-    return submissions
-
-
-def _build_user_submission_stats(plan_submissions):
-    stats_by_user = {}
-    for submission in plan_submissions or []:
-        user_id = submission.get("user_id")
-        if not user_id:
-            continue
-
-        stat = stats_by_user.setdefault(
-            user_id,
-            {
-                "total_plan_submissions": 0,
-                "matched_submissions": 0,
-                "no_match_submissions": 0,
-                "last_plan_at": None,
-                "last_rule_name": None,
-            },
-        )
-        stat["total_plan_submissions"] += 1
-        if submission.get("has_matched_rule"):
-            stat["matched_submissions"] += 1
-        else:
-            stat["no_match_submissions"] += 1
-
-        generated_at = submission.get("generated_at")
-        if generated_at and (
-            stat["last_plan_at"] is None or generated_at > stat["last_plan_at"]
-        ):
-            stat["last_plan_at"] = generated_at
-            stat["last_rule_name"] = (
-                submission.get("rule_name") if submission.get("has_matched_rule") else None
-            )
-
-    return stats_by_user
-
-
-@dashboard_bp.route("/doctor/users/data")
-@login_required
-@doctor_required
-@permission_required(
-    "dashboard.doctor",
-    "You have no permission to access doctor users data.",
-    json_response=True,
-)
-def doctor_dashboard_users_data():
-    """Users table data for doctor users insights page."""
-    page = request.args.get("page", default=1, type=int)
-    per_page = request.args.get("per_page", default=10, type=int)
-    q = str(request.args.get("q", "") or "").strip()
-    role_filter = str(request.args.get("role", "all") or "all").strip()
-    status_filter = str(request.args.get("status", "all") or "all").strip().lower()
-    sort = str(request.args.get("sort", "created_desc") or "created_desc").strip().lower()
-
-    page = page if isinstance(page, int) and page > 0 else 1
-    per_page = per_page if isinstance(per_page, int) and per_page > 0 else 10
-    per_page = min(per_page, 100)
-
-    users_query = UserTable.query.options(selectinload(UserTable.roles))
-
-    if q:
-        pattern = f"%{q}%"
-        users_query = users_query.filter(
-            or_(
-                UserTable.full_name.ilike(pattern),
-                UserTable.username.ilike(pattern),
-                UserTable.email.ilike(pattern),
-            )
-        )
-
-    if role_filter and role_filter.lower() != "all":
-        users_query = users_query.join(UserTable.roles).filter(
-            func.lower(RoleTable.name) == role_filter.lower()
-        )
-
-    if status_filter == "active":
-        users_query = users_query.filter(UserTable.is_active.is_(True))
-    elif status_filter == "inactive":
-        users_query = users_query.filter(UserTable.is_active.is_(False))
-
-    if sort == "created_asc":
-        users_query = users_query.order_by(UserTable.created_at.asc(), UserTable.id.asc())
-    elif sort == "full_name_asc":
-        users_query = users_query.order_by(UserTable.full_name.asc(), UserTable.id.asc())
-    elif sort == "full_name_desc":
-        users_query = users_query.order_by(
-            UserTable.full_name.desc(), UserTable.id.desc()
-        )
-    elif sort == "username_asc":
-        users_query = users_query.order_by(UserTable.username.asc(), UserTable.id.asc())
-    elif sort == "username_desc":
-        users_query = users_query.order_by(
-            UserTable.username.desc(), UserTable.id.desc()
-        )
-    else:
-        users_query = users_query.order_by(
-            UserTable.created_at.desc(), UserTable.id.desc()
-        )
-
-    users_query = users_query.distinct()
-    pagination = users_query.paginate(page=page, per_page=per_page, error_out=False)
-    users = pagination.items
-    user_ids = [user.id for user in users]
-
-    stats_by_user = _build_user_submission_stats(_fetch_plan_submissions(user_ids=user_ids))
-
-    users_payload = []
-    for user in users:
-        role_names = [
-            str(role.name).strip() for role in user.roles if str(role.name or "").strip()
-        ]
-        role_names = sorted(set(role_names), key=lambda item: item.lower())
-        stat = stats_by_user.get(user.id, {})
-        last_plan_at = stat.get("last_plan_at")
-        users_payload.append(
-            {
-                "id": user.id,
-                "full_name": user.full_name,
-                "username": user.username,
-                "email": user.email,
-                "roles": role_names,
-                "is_active": bool(user.is_active),
-                "created_at": user.created_at.isoformat() if user.created_at else None,
-                "plan_submissions": int(stat.get("total_plan_submissions", 0)),
-                "matched_submissions": int(stat.get("matched_submissions", 0)),
-                "no_match_submissions": int(stat.get("no_match_submissions", 0)),
-                "last_plan_at": last_plan_at.isoformat() if last_plan_at else None,
-                "last_rule_name": stat.get("last_rule_name"),
-            }
-        )
-
-    role_options = [
-        str(role.name).strip()
-        for role in RoleTable.query.order_by(RoleTable.name.asc()).all()
-        if str(role.name or "").strip()
-    ]
-
-    return jsonify(
-        {
-            "success": True,
-            "users": users_payload,
-            "pagination": {
-                "page": pagination.page,
-                "per_page": pagination.per_page,
-                "total": pagination.total,
-                "total_pages": pagination.pages,
-                "has_next": pagination.has_next,
-                "has_prev": pagination.has_prev,
-            },
-            "filters": {
-                "q": q,
-                "role": role_filter,
-                "status": status_filter,
-                "sort": sort,
-            },
-            "role_options": role_options,
-        }
-    )
-
-
-@dashboard_bp.route("/doctor/users/analytics")
-@login_required
-@doctor_required
-@permission_required(
-    "dashboard.doctor",
-    "You have no permission to access doctor users analytics.",
-    json_response=True,
-)
-def doctor_dashboard_users_analytics():
-    """Rule usage analytics for doctor users insights page."""
-    submissions = _fetch_plan_submissions()
-    total_submissions = len(submissions)
-    total_accounts = UserTable.query.count()
-    active_accounts = UserTable.query.filter_by(is_active=True).count()
-
-    bucket_map = {}
-    no_match_count = 0
-
-    for submission in submissions:
-        if not submission.get("has_matched_rule"):
-            no_match_count += 1
-            continue
-
-        rule_id = submission.get("rule_id")
-        rule_name = str(submission.get("rule_name") or "").strip()
-        if rule_id is not None:
-            bucket_key = f"rule:{rule_id}"
-            bucket_label = rule_name or f"Rule {rule_id}"
-        else:
-            bucket_key = f"name:{rule_name.lower()}"
-            bucket_label = rule_name or "Unknown Rule"
-
-        if bucket_key not in bucket_map:
-            bucket_map[bucket_key] = {
-                "key": bucket_key,
-                "label": bucket_label,
-                "rule_id": rule_id,
-                "count": 0,
-                "is_no_match": False,
-                "user_ids": set(),
-            }
-
-        bucket_map[bucket_key]["count"] += 1
-        bucket_map[bucket_key]["user_ids"].add(submission.get("user_id"))
-
-    usage = []
-    for item in bucket_map.values():
-        count = int(item.get("count", 0))
-        usage.append(
-            {
-                "key": item["key"],
-                "label": item["label"],
-                "rule_id": item.get("rule_id"),
-                "count": count,
-                "percent": round((count / total_submissions) * 100, 2)
-                if total_submissions
-                else 0.0,
-                "is_no_match": False,
-                "users_count": len(item.get("user_ids", set())),
-            }
-        )
-
-    no_match_item = {
-        "key": "no-match",
-        "label": "No Matched Rule",
-        "rule_id": None,
-        "count": no_match_count,
-        "percent": round((no_match_count / total_submissions) * 100, 2)
-        if total_submissions
-        else 0.0,
-        "is_no_match": True,
-        "users_count": len(
-            {
-                submission.get("user_id")
-                for submission in submissions
-                if not submission.get("has_matched_rule")
-            }
-        ),
-    }
-    usage.append(no_match_item)
-    usage.sort(key=lambda item: (-int(item["count"]), str(item["label"]).lower()))
-
-    return jsonify(
-        {
-            "success": True,
-            "summary": {
-                "total_accounts": total_accounts,
-                "active_accounts": active_accounts,
-                "total_plan_submissions": total_submissions,
-                "matched_submissions": total_submissions - no_match_count,
-                "no_match_submissions": no_match_count,
-                "rules_used_count": len(
-                    [item for item in usage if not item.get("is_no_match") and item["count"] > 0]
-                ),
-            },
-            "usage": usage,
-        }
-    )
-
-
-def _serialize_submission_for_detail(submission):
-    allergies = submission.get("allergies") or []
-    allergies_text = ", ".join(allergies) if allergies else "None"
-    rule_name = (
-        submission.get("rule_name") if submission.get("has_matched_rule") else "No Matched Rule"
-    )
-    if submission.get("has_matched_rule") and not rule_name:
-        rule_id = submission.get("rule_id")
-        if rule_id is not None:
-            rule_name = f"Rule {rule_id}"
-
-    return {
-        "result_id": submission.get("result_id"),
-        "generated_at": submission.get("generated_at_iso"),
-        "rule_id": submission.get("rule_id"),
-        "rule_name": rule_name,
-        "has_matched_rule": bool(submission.get("has_matched_rule")),
-        "diet_type": submission.get("diet_type"),
-        "meals_per_day": submission.get("meals_per_day"),
-        "blood_sugar": submission.get("blood_sugar"),
-        "allergies": allergies,
-        "allergies_text": allergies_text,
-        "bmi": submission.get("bmi"),
-        "calories": submission.get("calories"),
-        "protein": submission.get("protein"),
-        "sugar": submission.get("sugar"),
-        "fat": submission.get("fat"),
-    }
-
-
-@dashboard_bp.route("/doctor/users/<int:user_id>/detail")
-@login_required
-@doctor_required
-@permission_required(
-    "dashboard.doctor",
-    "You have no permission to access doctor user detail data.",
-    json_response=True,
-)
-def doctor_dashboard_user_detail(user_id: int):
-    """Detailed plan and profile info for one user."""
-    user = UserTable.query.options(selectinload(UserTable.roles)).filter_by(id=user_id).first()
-    if not user:
-        return jsonify({"success": False, "message": "User not found."}), 404
-
-    submissions = _fetch_plan_submissions(user_ids=[user.id])
-    total_submissions = len(submissions)
-    matched_submissions = len([item for item in submissions if item.get("has_matched_rule")])
-    no_match_submissions = total_submissions - matched_submissions
-    latest_submission = submissions[0] if submissions else None
-    history = [_serialize_submission_for_detail(item) for item in submissions[:10]]
-
-    return jsonify(
-        {
-            "success": True,
-            "user": {
-                "id": user.id,
-                "full_name": user.full_name,
-                "username": user.username,
-                "email": user.email,
-                "roles": [
-                    str(role.name).strip()
-                    for role in user.roles
-                    if str(role.name or "").strip()
-                ],
-                "is_active": bool(user.is_active),
-                "photo": user.photo,
-                "created_at": user.created_at.isoformat() if user.created_at else None,
-            },
-            "summary": {
-                "total_plan_submissions": total_submissions,
-                "matched_submissions": matched_submissions,
-                "no_match_submissions": no_match_submissions,
-                "latest_plan_at": (
-                    latest_submission.get("generated_at_iso")
-                    if latest_submission
-                    else None
-                ),
-                "latest_rule_name": (
-                    latest_submission.get("rule_name")
-                    if latest_submission and latest_submission.get("has_matched_rule")
-                    else "No Matched Rule"
-                    if latest_submission
-                    else None
-                ),
-            },
-            "latest_plan": (
-                _serialize_submission_for_detail(latest_submission)
-                if latest_submission
-                else None
-            ),
-            "history": history,
         }
     )
 
@@ -1638,40 +776,26 @@ def doctor_test_plan():
 )
 def doctor_foods():
     """Return foods for doctor dashboard"""
-    try:
-        foods = FoodsTable.query.order_by(FoodsTable.created_at.desc()).limit(100).all()
-        return jsonify(
-            {
-                "success": True,
-                "foods": [
-                    {
-                        "id": food.id,
-                        "name": food.name,
-                        "photo": food.photo,
-                        "description": food.description or "",
-                        "is_vegan": 1 if getattr(food, "is_gevan", False) else 0,
-                        "food_type": getattr(food, "food_type", "general") or "general",
-                        "calories": food.calories,
-                        "protein": food.protein,
-                        "sugar": food.sugar,
-                        "fat": food.fat,
-                    }
-                    for food in foods
-                ],
-            }
-        )
-    except Exception:
-        current_app.logger.exception("Failed to load doctor foods")
-        return (
-            jsonify(
+    foods = FoodsTable.query.order_by(FoodsTable.created_at.desc()).limit(100).all()
+    return jsonify(
+        {
+            "foods": [
                 {
-                    "success": False,
-                    "message": "Failed to load foods. Please refresh or try again.",
-                    "foods": [],
+                    "id": food.id,
+                    "name": food.name,
+                    "photo": food.photo,
+                    "description": food.description or "",
+                    "is_vegan": 1 if getattr(food, "is_gevan", False) else 0,
+                    "food_type": getattr(food, "food_type", "general") or "general",
+                    "calories": food.calories,
+                    "protein": food.protein,
+                    "sugar": food.sugar,
+                    "fat": food.fat,
                 }
-            ),
-            500,
-        )
+                for food in foods
+            ]
+        }
+    )
 
 
 @dashboard_bp.route("/doctor/foods", methods=["POST"])
@@ -1748,6 +872,10 @@ def create_doctor_food():
     try:
         db.session.add(food)
         db.session.commit()
+        
+        # Auto-dump to seed file
+        auto_dump_seeds()
+        
         return jsonify(
             {
                 "success": True,
@@ -1819,6 +947,10 @@ def update_or_delete_doctor_food(food_id: int):
                     os.remove(photo_path)
             db.session.delete(food)
             db.session.commit()
+            
+            # Auto-dump to seed file
+            auto_dump_seeds()
+            
             return jsonify({"success": True})
         except Exception:
             db.session.rollback()
@@ -1877,6 +1009,10 @@ def update_or_delete_doctor_food(food_id: int):
 
     try:
         db.session.commit()
+        
+        # Auto-dump to seed file
+        auto_dump_seeds()
+        
         return jsonify(
             {
                 "success": True,
@@ -1999,6 +1135,10 @@ def create_doctor_cooked_food():
     try:
         db.session.add(cooked_food)
         db.session.commit()
+        
+        # Auto-dump to seed file
+        auto_dump_seeds()
+        
         return jsonify(
             {
                 "success": True,
@@ -2074,6 +1214,10 @@ def update_or_delete_doctor_cooked_food(cooked_food_id: int):
                     os.remove(photo_path)
             db.session.delete(cooked_food)
             db.session.commit()
+            
+            # Auto-dump to seed file
+            auto_dump_seeds()
+            
             return jsonify({"success": True})
         except Exception:
             db.session.rollback()
@@ -2134,6 +1278,10 @@ def update_or_delete_doctor_cooked_food(cooked_food_id: int):
 
     try:
         db.session.commit()
+        
+        # Auto-dump to seed file
+        auto_dump_seeds()
+        
         return jsonify(
             {
                 "success": True,
@@ -2593,7 +1741,6 @@ def diagnosis_interface():
 )
 def user_dashboard():
     """User dashboard home page"""
-    history_limit = 10
     guest_mode_enabled = bool(session.get("user_guest_mode"))
     guest_history_entries = (
         session.get("guest_plan_history", []) if guest_mode_enabled else []
@@ -2605,6 +1752,38 @@ def user_dashboard():
         {} if guest_mode_enabled else DashboardService.get_user_statistics(current_user.id)
     )
     plan_total = 0
+
+    def to_rounded_float(value, precision=1):
+        try:
+            if value in (None, ""):
+                return None
+            return round(float(value), precision)
+        except Exception:
+            return None
+
+    def build_plan_signature(entry):
+        if not isinstance(entry, dict):
+            return ("invalid",)
+
+        generated_at = entry.get("generated_at")
+        if isinstance(generated_at, datetime):
+            # Collapse to minute precision to absorb accidental duplicate submits.
+            generated_key = generated_at.replace(second=0, microsecond=0).isoformat()
+        else:
+            generated_key = ""
+
+        return (
+            generated_key,
+            to_rounded_float(entry.get("bmi"), precision=1),
+            to_rounded_float(entry.get("calories"), precision=0),
+            to_rounded_float(entry.get("protein"), precision=1),
+            to_rounded_float(entry.get("sugar"), precision=1),
+            to_rounded_float(entry.get("fat"), precision=1),
+            to_rounded_float(entry.get("blood_sugar"), precision=1),
+            str(entry.get("diet_type") or "").strip().lower(),
+            str(entry.get("meals_per_day") or "").strip(),
+            str(entry.get("allergies") or "").strip().lower(),
+        )
 
     plan_history = []
     if not guest_mode_enabled:
@@ -2671,7 +1850,7 @@ def user_dashboard():
                     "allergies": _localize_allergies(allergies),
                 }
             )
-            if len(plan_history) >= history_limit:
+            if len(plan_history) >= 8:
                 break
 
     if guest_history_entries:
@@ -2706,7 +1885,7 @@ def user_dashboard():
 
         if guest_plan_history:
             if guest_mode_enabled:
-                plan_history = guest_plan_history[:history_limit]
+                plan_history = guest_plan_history[:8]
                 plan_total = len(guest_plan_history)
             else:
                 plan_history = guest_plan_history + plan_history
@@ -2714,10 +1893,47 @@ def user_dashboard():
                     key=lambda item: item.get("generated_at") or datetime.min,
                     reverse=True,
                 )
-                plan_history = plan_history[:history_limit]
+                plan_history = plan_history[:8]
                 plan_total += len(guest_plan_history)
+
     if plan_history:
-        plan_history = plan_history[:history_limit]
+        deduped_plan_history = []
+        seen_plan_signatures = set()
+        for plan in plan_history:
+            signature = build_plan_signature(plan)
+            if signature in seen_plan_signatures:
+                continue
+            seen_plan_signatures.add(signature)
+            deduped_plan_history.append(plan)
+        plan_history = deduped_plan_history[:8]
+
+    # Extract foods and avoid_foods from the latest generated plan
+    latest_plan_foods = []
+    latest_plan_avoid_foods = []
+    latest_plan_rule_name = None
+    if not guest_mode_enabled:
+        latest_result = (
+            UserResultsTable.query.filter_by(user_id=current_user.id)
+            .filter(UserResultsTable.result_data.isnot(None))
+            .order_by(UserResultsTable.generated_at.desc())
+            .first()
+        )
+        if latest_result and latest_result.result_data:
+            try:
+                lp = json.loads(latest_result.result_data)
+                plan_node = lp.get("plan") or lp
+                latest_plan_foods = plan_node.get("foods") or []
+                latest_plan_avoid_foods = plan_node.get("avoid_foods") or []
+                rule_node = plan_node.get("rule")
+                if isinstance(rule_node, dict):
+                    latest_plan_rule_name = rule_node.get("name")
+            except Exception:
+                pass
+    elif guest_history_entries:
+        first_entry = guest_history_entries[0] if guest_history_entries else {}
+        if isinstance(first_entry, dict):
+            latest_plan_foods = first_entry.get("foods") or []
+            latest_plan_avoid_foods = first_entry.get("avoid_foods") or []
 
     return render_template(
         "dashboard/user_dashboard.html",
@@ -2727,40 +1943,9 @@ def user_dashboard():
         plan_total=plan_total,
         localized_user_goals=[_localize_goal_name(goal.name) for goal in current_user.goals],
         guest_mode=guest_mode_enabled,
-    )
-
-
-@dashboard_bp.route("/user/daily-meal")
-@login_required
-@user_required
-@permission_required(
-    "user.dashboard.read", "You do not have permission to view your daily meal plan."
-)
-def user_daily_meal():
-    """Daily meal page based on latest generated plan."""
-    guest_mode_enabled = bool(session.get("user_guest_mode"))
-    latest_plan = None
-    latest_plan_source = None
-
-    if guest_mode_enabled:
-        guest_snapshot = session.get("guest_latest_plan")
-        if isinstance(guest_snapshot, dict):
-            latest_plan = _build_daily_meal_view_model(
-                guest_snapshot, guest_snapshot.get("generated_at")
-            )
-            if latest_plan:
-                latest_plan_source = "guest"
-
-    if latest_plan is None:
-        latest_plan = _get_latest_persisted_daily_meal_plan(current_user.id)
-        if latest_plan:
-            latest_plan_source = "saved"
-
-    return render_template(
-        "dashboard/user_daily_meal.html",
-        latest_plan=latest_plan,
-        latest_plan_source=latest_plan_source,
-        guest_mode=guest_mode_enabled,
+        latest_plan_foods=latest_plan_foods,
+        latest_plan_avoid_foods=latest_plan_avoid_foods,
+        latest_plan_rule_name=latest_plan_rule_name,
     )
 
 
@@ -2919,74 +2104,12 @@ def user_diet_expert():
     json_response=True,
 )
 def user_ocr_upload():
-    """Extract health data from an uploaded document using cloud OCR or EasyOCR."""
+    """Extract health data from an uploaded document using EasyOCR."""
     import tempfile
-
-    def _extract_text_with_ocr_space(file_path, filename):
-        api_key = (os.getenv("OCR_SPACE_API_KEY") or "").strip()
-        if not api_key:
-            return None, "Cloud OCR is not configured."
-
-        try:
-            import requests
-        except Exception:
-            return None, "Cloud OCR dependency is unavailable."
-
-        endpoint = os.getenv("OCR_SPACE_ENDPOINT", "https://api.ocr.space/parse/image")
-        timeout_seconds = int(os.getenv("OCR_HTTP_TIMEOUT", "45"))
-
-        data = {
-            "apikey": api_key,
-            "language": os.getenv("OCR_SPACE_LANGUAGE", "eng"),
-            "isOverlayRequired": "false",
-            "OCREngine": os.getenv("OCR_SPACE_ENGINE", "2"),
-            "scale": "true",
-        }
-
-        try:
-            with open(file_path, "rb") as f:
-                files = {"file": (filename or os.path.basename(file_path), f)}
-                response = requests.post(
-                    endpoint, data=data, files=files, timeout=timeout_seconds
-                )
-            if not response.ok:
-                body = (response.text or "").strip().replace("\n", " ")
-                if len(body) > 240:
-                    body = body[:240] + "..."
-                current_app.logger.warning(
-                    "Cloud OCR HTTP %s response: %s", response.status_code, body
-                )
-                return (
-                    None,
-                    f"Cloud OCR HTTP {response.status_code}. {body or 'No response details.'}",
-                )
-            payload = response.json()
-        except Exception as exc:
-            current_app.logger.warning("Cloud OCR request failed: %s", exc)
-            return None, f"Cloud OCR request failed: {exc}"
-
-        if payload.get("IsErroredOnProcessing"):
-            details = payload.get("ErrorMessage") or payload.get("ErrorDetails")
-            if isinstance(details, list):
-                details = "; ".join(str(item) for item in details if item)
-            return None, str(details or "Cloud OCR failed to parse this file.")
-
-        parsed_results = payload.get("ParsedResults") or []
-        chunks = []
-        for item in parsed_results:
-            parsed_text = str(item.get("ParsedText") or "").strip()
-            if parsed_text:
-                chunks.append(parsed_text)
-
-        full_text = "\n".join(chunks).strip()
-        if not full_text:
-            return None, "Cloud OCR returned no readable text."
-
-        return full_text, None
 
     uploaded = request.files.get("document")
     if not uploaded or not uploaded.filename:
-        return jsonify({"success": False, "message": "No document was uploaded."}), 400
+        return jsonify({"success": False, "message": "មិនមានឯកសារត្រូវបានផ្ទុកឡើងទេ។"}), 400
 
     allowed_ext = {"png", "jpg", "jpeg", "bmp", "tiff", "tif", "pdf"}
     ext = (
@@ -2995,18 +2118,16 @@ def user_ocr_upload():
         else ""
     )
     if ext not in allowed_ext:
-        return jsonify({"success": False, "message": "Unsupported file type."}), 400
+        return jsonify({"success": False, "message": "ប្រភេទឯកសារនេះមិនត្រូវបានគាំទ្រទេ។"}), 400
 
     tmp_path = None
     pdf_img_path = None
-    cloud_ocr_enabled = bool((os.getenv("OCR_SPACE_API_KEY") or "").strip())
-
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}") as tmp:
             uploaded.save(tmp)
             tmp_path = tmp.name
 
-        # Convert PDF first page to image if needed for EasyOCR fallback.
+        # Convert PDF first page to image if needed
         image_path = tmp_path
         if ext == "pdf":
             try:
@@ -3018,60 +2139,31 @@ def user_ocr_upload():
                     images[0].save(pdf_img_path, "PNG")
                     image_path = pdf_img_path
             except ImportError:
-                if not cloud_ocr_enabled:
-                    return (
-                        jsonify(
-                            {
-                                "success": False,
-                                "message": "PDF OCR requires cloud OCR or pdf2image.",
-                            }
-                        ),
-                        400,
-                    )
-                current_app.logger.info(
-                    "pdf2image unavailable; trying cloud OCR with original PDF."
+                return (
+                    jsonify(
+                        {
+                            "success": False,
+                            "message": "ការគាំទ្រ PDF ត្រូវការ pdf2image។ សូមផ្ទុកឯកសាររូបភាពជំនួស។",
+                        }
+                    ),
+                    400,
                 )
 
-        full_text = None
-        reader = None
-        results = None
-        cloud_error_message = None
+        import easyocr
 
-        if cloud_ocr_enabled:
-            full_text, cloud_error_message = _extract_text_with_ocr_space(
-                file_path=image_path,
-                filename=uploaded.filename,
-            )
-            if full_text:
-                current_app.logger.info(
-                    "Cloud OCR extracted %d characters from uploaded document",
-                    len(full_text),
-                )
+        reader = easyocr.Reader(["en"], gpu=False, verbose=False)
+        results = reader.readtext(image_path)
 
-        can_use_easyocr = not (ext == "pdf" and not pdf_img_path)
-        if not full_text and can_use_easyocr:
-            try:
-                import easyocr
-            except ImportError:
-                easyocr = None
+        # Keep low-confidence tokens as well; small values like "F" can be weak.
+        lines = [text for _, text, conf in results if conf > 0.05]
 
-            if easyocr is not None:
-                reader = easyocr.Reader(["en"], gpu=False, verbose=False)
-                results = reader.readtext(image_path)
-
-                # Keep low-confidence tokens as well; small values like "F" can be weak.
-                lines = [text for _, text, conf in results if conf > 0.05]
-                full_text = "\n".join(lines)
-                current_app.logger.info(
-                    "EasyOCR extracted %d lines from uploaded document", len(lines)
-                )
-
-        if not full_text:
-            message = cloud_error_message or "OCR service is unavailable in this deployment."
-            return jsonify({"success": False, "message": message}), 503
+        full_text = "\n".join(lines)
+        current_app.logger.info(
+            "OCR extracted %d lines from uploaded document", len(lines)
+        )
 
         extracted = _parse_health_document(full_text)
-        if not extracted.get("gender") and results and reader is not None:
+        if not extracted.get("gender"):
             extracted["gender"] = _extract_gender_from_ocr_layout(
                 ocr_results=results,
                 image_path=image_path,
@@ -3082,7 +2174,12 @@ def user_ocr_upload():
         return jsonify({"success": True, **extracted})
     except Exception as e:
         current_app.logger.exception("OCR processing failed")
-        return jsonify({"success": False, "message": f"OCR processing failed: {str(e)}"}), 500
+        return (
+            jsonify(
+                {"success": False, "message": f"ការដំណើរការ OCR បរាជ័យ៖ {str(e)}"}
+            ),
+            500,
+        )
     finally:
         if tmp_path:
             try:
@@ -3094,27 +2191,6 @@ def user_ocr_upload():
                 os.unlink(pdf_img_path)
             except OSError:
                 pass
-
-
-@dashboard_bp.route("/user/ocr-parse-text", methods=["POST"])
-@login_required
-@user_required
-@csrf.exempt
-@permission_required(
-    "user.dashboard.create",
-    "អ្នកមិនមានសិទ្ធិនាំចូលឯកសារទេ។",
-    json_response=True,
-)
-def user_ocr_parse_text():
-    """Parse OCR plain text into health fields."""
-    payload = request.get_json(silent=True) or {}
-    raw_text = str(payload.get("raw_text") or "").strip()
-    if not raw_text:
-        return jsonify({"success": False, "message": "OCR text is empty."}), 400
-
-    extracted = _parse_health_document(raw_text)
-    extracted["raw_text"] = raw_text
-    return jsonify({"success": True, **extracted})
 
 
 def _extract_gender_from_ocr_layout(ocr_results, image_path, reader):
@@ -3415,68 +2491,41 @@ def _parse_health_document(text):
                 break
 
     # --- Gender ---
-    # Prefer explicit short values near "Sex/Gender" labels.
+    # Prefer explicit "Sex/Gender" labels first; avoid broad global matches.
     lines = [line.strip().lower() for line in re.split(r"[\r\n]+", text) if line.strip()]
-    has_gender_label = any(
-        bool(re.search(r"\b(?:sex|gender)\b", line, flags=re.IGNORECASE))
-        for line in lines
-    )
+    for idx, line in enumerate(lines):
+        if "sex" not in line and "gender" not in line:
+            continue
 
-    strict_value_patterns = [
-        r"\b(?:sex|gender)\b[ \t]*[:\-]?[ \t]*(m|male)\b(?!\s*/)",
-        r"\b(?:sex|gender)\b[ \t]*[:\-]?[ \t]*(f|female)\b(?!\s*/)",
-    ]
-    for line in lines:
-        for pattern in strict_value_patterns:
-            m = re.search(pattern, line, flags=re.IGNORECASE)
-            if not m:
-                continue
-            normalized = _normalize_gender_token(m.group(1))
-            if normalized:
-                result["gender"] = normalized
+        contexts = [line]
+        if idx + 1 < len(lines):
+            contexts.append(f"{line} {lines[idx + 1]}")
+
+        for context in contexts:
+            m = re.search(
+                r"\b(?:sex|gender)\b\s*[:\-]?\s*([a-z0-9/|,\s]{1,24})",
+                context,
+                flags=re.IGNORECASE,
+            )
+
+            segment = m.group(1) if m else context
+            candidates = []
+            for token in re.split(r"[/|,\s]+", segment):
+                normalized = _normalize_gender_token(token)
+                if normalized and normalized not in candidates:
+                    candidates.append(normalized)
+
+            if len(candidates) == 1:
+                result["gender"] = candidates[0]
                 break
+
         if result["gender"] is not None:
             break
-
-    if result["gender"] is None:
-        for idx, line in enumerate(lines):
-            if "sex" not in line and "gender" not in line:
-                continue
-
-            contexts = [line]
-            # If line only contains the label, inspect only a short next-line window.
-            if re.search(r"\b(?:sex|gender)\b\s*[:\-]?\s*$", line, flags=re.IGNORECASE):
-                if idx + 1 < len(lines):
-                    contexts.append(f"{line} {lines[idx + 1][:12]}")
-
-            for context in contexts:
-                m = re.search(
-                    r"\b(?:sex|gender)\b\s*[:\-]?\s*([a-z0-9/|,\s]{1,10})",
-                    context,
-                    flags=re.IGNORECASE,
-                )
-
-                segment = m.group(1) if m else ""
-                if not segment:
-                    continue
-
-                candidates = []
-                for token in re.split(r"[/|,\s]+", segment):
-                    normalized = _normalize_gender_token(token)
-                    if normalized and normalized not in candidates:
-                        candidates.append(normalized)
-
-                if len(candidates) == 1:
-                    result["gender"] = candidates[0]
-                    break
-
-            if result["gender"] is not None:
-                break
 
     # Secondary fallback: labeled match in full text.
     if result["gender"] is None:
         m = re.search(
-            r"\b(?:sex|gender)\b\s*[:\-]?\s*([a-z0-9/|,\s]{1,10})",
+            r"\b(?:sex|gender)\b\s*[:\-]?\s*([a-z0-9/|,\s]{1,20})",
             lower,
             flags=re.IGNORECASE,
         )
@@ -3489,9 +2538,8 @@ def _parse_health_document(text):
             if len(candidates) == 1:
                 result["gender"] = candidates[0]
 
-    # Final conservative fallback: only use global word if it is unambiguous
-    # and there is no explicit gender/sex label in the OCR text.
-    if result["gender"] is None and not has_gender_label:
+    # Final conservative fallback: only use global word if it is unambiguous.
+    if result["gender"] is None:
         has_male = bool(re.search(r"\bmale\b", lower))
         has_female = bool(re.search(r"\bfemale\b", lower))
         if has_male ^ has_female:
@@ -3525,8 +2573,6 @@ def _parse_health_document(text):
     blood_sugar_patterns = [
         # Handles: "Blood Sugar: 210", "FBS 95", "Blood glucose (fasting): 102 mg/dL"
         r"(?:fasting|random|postprandial|pp|ppbs|fbs|rbs)?\s*(?:blood\s*)?(?:sugar|glucose)\b[^\d]{0,28}?([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)",
-        # Handles truncated OCR labels like "Blood Su..." or "Blood Glu..."
-        r"\bblood\s*(?:su[a-z.]{0,8}|glu[a-z.]{0,8})\b[^\d]{0,24}?([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)",
         # Handles: "FBS: 92", "RBS - 180"
         r"\b(?:fbs|rbs|fpg|ppbs|ppg)\b[^\d]{0,20}?([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)",
         # Handles: "Glucose level 145 mg/dL"
@@ -3547,9 +2593,7 @@ def _parse_health_document(text):
         lines = [line.strip() for line in re.split(r"[\r\n]+", lower) if line.strip()]
         sugar_keywords = (
             "blood sugar",
-            "blood su",
             "blood glucose",
-            "blood glu",
             "glucose",
             "fbs",
             "rbs",
@@ -3558,36 +2602,14 @@ def _parse_health_document(text):
             "ppg",
         )
         number_pattern = r"(?<!\d)([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)(?!\d)"
-        mgdl_pattern = r"\bmg\s*/?\s*d[l1]\b"
-        number_with_unit_pattern = (
-            r"([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)\s*mg\s*/?\s*d[l1]\b"
-        )
 
         for idx, line in enumerate(lines):
-            prev_line = lines[idx - 1] if idx > 0 else ""
-            next_line = lines[idx + 1] if idx + 1 < len(lines) else ""
-            row_context = f"{prev_line} {line} {next_line}".strip()
-            has_keyword_hint = any(keyword in row_context for keyword in sugar_keywords)
-            has_unit_hint = bool(re.search(mgdl_pattern, line, flags=re.IGNORECASE))
-
-            if not has_keyword_hint and not has_unit_hint:
+            if not any(keyword in line for keyword in sugar_keywords):
                 continue
 
-            if has_unit_hint and has_keyword_hint:
-                for match in re.finditer(
-                    number_with_unit_pattern, line, flags=re.IGNORECASE
-                ):
-                    val = _parse_ocr_number(match.group(1))
-                    if val is not None and 20 <= val <= 600:
-                        result["blood_sugar"] = val
-                        break
-                if result["blood_sugar"] is not None:
-                    break
-
-            if not has_keyword_hint:
-                continue
-
-            context = f"{line} {next_line}".strip()
+            context = line
+            if idx + 1 < len(lines):
+                context = f"{context} {lines[idx + 1]}"
 
             for match in re.finditer(number_pattern, context, flags=re.IGNORECASE):
                 val = _parse_ocr_number(match.group(1))
@@ -3597,44 +2619,6 @@ def _parse_health_document(text):
 
             if result["blood_sugar"] is not None:
                 break
-
-    # Final fallback: parse numeric values directly tied to mg/dL unit in whole text.
-    if result["blood_sugar"] is None:
-        unit_candidates = []
-        for match in re.finditer(
-            r"([0-9oOIl|]{2,4}(?:[.,][0-9oOIl|]{1,2})?)\s*mg\s*/?\s*d[l1]\b",
-            lower,
-            flags=re.IGNORECASE,
-        ):
-            val = _parse_ocr_number(match.group(1))
-            if val is None or not (20 <= val <= 600):
-                continue
-
-            window_start = max(0, match.start() - 40)
-            window_end = min(len(lower), match.end() + 40)
-            context_window = lower[window_start:window_end]
-            has_sugar_context = any(
-                hint in context_window
-                for hint in (
-                    "blood",
-                    "sugar",
-                    "glucose",
-                    "fbs",
-                    "rbs",
-                    "fpg",
-                    "ppbs",
-                    "ppg",
-                    "blood su",
-                    "blood glu",
-                )
-            )
-            unit_candidates.append((1 if has_sugar_context else 0, val))
-
-        if unit_candidates:
-            unit_candidates.sort(key=lambda item: item[0], reverse=True)
-            best_score, best_val = unit_candidates[0]
-            if best_score > 0 or len(unit_candidates) == 1:
-                result["blood_sugar"] = best_val
 
     # --- Allergies ---
     allergy_map = {
@@ -3769,7 +2753,6 @@ def user_guest_mode():
     else:
         session.pop("user_guest_mode", None)
         session.pop("guest_plan_history", None)
-        session.pop("guest_latest_plan", None)
         session.modified = True
         message = "បានបិទរបៀបភ្ញៀវ។ ការរក្សាទុកទៅមូលដ្ឋានទិន្នន័យត្រូវបានស្ដារឡើងវិញ។"
 
@@ -3827,10 +2810,7 @@ def user_dashboard_submit():
             if not isinstance(guest_plan_history, list):
                 guest_plan_history = []
             guest_plan_history.insert(0, guest_entry)
-            session["guest_plan_history"] = guest_plan_history[:10]
-            guest_latest_plan = _build_guest_latest_plan_snapshot(result)
-            if guest_latest_plan:
-                session["guest_latest_plan"] = guest_latest_plan
+            session["guest_plan_history"] = guest_plan_history[:8]
             session.modified = True
 
         return jsonify(
@@ -3992,4 +2972,5 @@ def forbidden(e):
 def not_found(e):
     flash("រកមិនឃើញទំព័រនេះទេ។" if _is_khmer_ui() else "Page not found.", "warning")
     return redirect(url_for("main.home"))
+
 

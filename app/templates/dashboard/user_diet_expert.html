@@ -341,72 +341,6 @@
         color: var(--hp-ink);
     }
 
-    .meal-section-title {
-        display: flex;
-        align-items: center;
-        gap: 0.45rem;
-        font-weight: 700;
-        color: var(--hp-ink);
-        margin-bottom: 0.45rem;
-    }
-
-    .meal-items {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        max-height: none;
-        overflow: visible;
-    }
-
-    .meal-item {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        padding: 0.46rem 0;
-        border-bottom: 1px solid #edf2f6;
-    }
-
-    .meal-item:last-child {
-        border-bottom: 0;
-    }
-
-    .meal-item-photo-wrap {
-        width: 40px;
-        min-width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        overflow: hidden;
-        border: 1px solid #d5e4dc;
-        background: #f4f7f6;
-    }
-
-    .meal-item-photo {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-
-    .meal-item-name {
-        color: var(--hp-ink);
-        font-weight: 500;
-        line-height: 1.35;
-    }
-
-    .meal-items-empty {
-        color: var(--hp-ink-soft);
-        padding: 0.22rem 0;
-    }
-
-    #resultsModal .modal-body {
-        overflow-y: visible;
-    }
-
-    #resultsModal .meal-items {
-        max-height: none !important;
-        overflow: visible !important;
-    }
-
     @media (max-width: 991.98px) {
         .diet-expert-header {
             margin-bottom: 1.35rem;
@@ -563,15 +497,6 @@
         .table td {
             font-size: 0.88rem;
             padding: 0.38rem 0.3rem;
-        }
-
-        .meal-item {
-            gap: 0.5rem;
-            padding: 0.36rem 0;
-        }
-
-        .meal-item-name {
-            font-size: 0.9rem;
         }
 
         #dietForm > .form-nav-actions {
@@ -978,7 +903,7 @@
 
         <!-- Results Modal -->
         <div class="modal fade" id="resultsModal" tabindex="-1">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header bg-primary text-white">
                         <h5 class="modal-title"><i class="fas fa-chart-pie me-2"></i>ផែនការអាហាររបស់អ្នក</h5>
@@ -1008,7 +933,7 @@
         let resultFoodGroups = [];
         let activeResultFoodGroupIndex = 0;
         let submitBtnLabel = '';
-        const uiLang = "{{ 'km' if session.get('ui_lang', 'en') == 'km' else 'en' }}";
+        const uiLang = "{{ 'en' if session.get('ui_lang', 'km') == 'en' else 'km' }}";
 
         function isEnglishUI() {
             return uiLang === 'en';
@@ -1182,15 +1107,6 @@
             } catch(e) { return null; }
         }());
 
-        function normalizeGenderValue(value) {
-            const token = String(value || '').trim().toLowerCase();
-            if (!token) return '';
-            if (token === 'm' || token.startsWith('mal')) return 'male';
-            if (token === 'f' || token.startsWith('fem')) return 'female';
-            if (token === 'male' || token === 'female') return token;
-            return '';
-        }
-
         function prefillFromLastPlan() {
             if (!lastFormData || typeof lastFormData !== 'object') return;
 
@@ -1199,8 +1115,7 @@
             const preferences = lastFormData.preferences || {};
 
             if (personal.age) document.getElementById('age').value = personal.age;
-            const normalizedStoredGender = normalizeGenderValue(personal.gender);
-            if (normalizedStoredGender) document.getElementById('gender').value = normalizedStoredGender;
+            if (personal.gender) document.getElementById('gender').value = personal.gender;
             if (personal.weight) document.getElementById('weight').value = personal.weight;
             if (personal.height) document.getElementById('height').value = personal.height;
 
@@ -1256,18 +1171,21 @@
             const externalBtn = document.getElementById('analystExternal');
             const fileInput = document.getElementById('ocrFileInput');
             const loading = document.getElementById('analystLoading');
-            const loadingText = document.getElementById('analystLoadingText');
             const bloodAlert = document.getElementById('bloodTestedAlert');
             const analystError = document.getElementById('analystError');
-            const ocrUploadUrl = "{{ url_for('dashboard.user_ocr_upload') }}";
-            const ocrParseTextUrl = "{{ url_for('dashboard.user_ocr_parse_text') }}";
 
             if (!gate || !shell || !normalBtn || !externalBtn || !fileInput || !loading) {
                 return;
             }
 
-            const defaultLoadingText = loadingText ? loadingText.textContent : '';
-            let tesseractLoaderPromise = null;
+            const revealContent = (showAlert) => {
+                gate.classList.add('d-none');
+                shell.classList.remove('is-hidden');
+                if (showAlert && bloodAlert) {
+                    bloodAlert.classList.remove('d-none');
+                    bloodAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            };
 
             const lockButtons = () => {
                 normalBtn.disabled = true;
@@ -1277,23 +1195,6 @@
             const unlockButtons = () => {
                 normalBtn.disabled = false;
                 externalBtn.disabled = false;
-            };
-
-            const setLoadingText = (message) => {
-                if (loadingText) {
-                    loadingText.textContent = message || defaultLoadingText;
-                }
-            };
-
-            const revealContent = (showAlert) => {
-                loading.classList.add('d-none');
-                unlockButtons();
-                gate.classList.add('d-none');
-                shell.classList.remove('is-hidden');
-                if (showAlert && bloodAlert) {
-                    bloodAlert.classList.remove('d-none');
-                    bloodAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
             };
 
             const showError = (msg) => {
@@ -1310,92 +1211,10 @@
                 }
             };
 
-            const loadTesseractJs = () => {
-                if (window.Tesseract) {
-                    return Promise.resolve(window.Tesseract);
-                }
-                if (tesseractLoaderPromise) {
-                    return tesseractLoaderPromise;
-                }
-
-                tesseractLoaderPromise = new Promise((resolve, reject) => {
-                    const existing = document.querySelector('script[data-tesseract="1"]');
-                    if (existing) {
-                        existing.addEventListener('load', () => resolve(window.Tesseract), { once: true });
-                        existing.addEventListener('error', () => reject(new Error('Failed to load OCR engine.')), { once: true });
-                        return;
-                    }
-
-                    const script = document.createElement('script');
-                    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-                    script.async = true;
-                    script.dataset.tesseract = '1';
-                    script.onload = () => {
-                        if (window.Tesseract) {
-                            resolve(window.Tesseract);
-                        } else {
-                            reject(new Error('OCR engine is unavailable.'));
-                        }
-                    };
-                    script.onerror = () => reject(new Error('Failed to load OCR engine.'));
-                    document.head.appendChild(script);
-                });
-
-                return tesseractLoaderPromise;
-            };
-
-            const isImageFile = (file) => {
-                if (!file) return false;
-                if (file.type && file.type.startsWith('image/')) return true;
-                const name = String(file.name || '').toLowerCase();
-                return /\.(png|jpe?g|bmp|tiff?|webp)$/i.test(name);
-            };
-
-            const runBrowserOcrFallback = async (file, headers) => {
-                if (!isImageFile(file)) {
-                    throw new Error('Browser OCR fallback supports image files only.');
-                }
-
-                setLoadingText('Preparing in-browser OCR...');
-                const Tesseract = await loadTesseractJs();
-                setLoadingText('Reading text from image...');
-
-                const ocrResult = await Tesseract.recognize(file, 'eng', {
-                    logger: (m) => {
-                        if (m && m.status === 'recognizing text' && typeof m.progress === 'number') {
-                            const percent = Math.round(m.progress * 100);
-                            setLoadingText(`Recognizing text... ${percent}%`);
-                        }
-                    }
-                });
-
-                const rawText = String(ocrResult?.data?.text || '').trim();
-                if (!rawText) {
-                    throw new Error('No readable text found in this image.');
-                }
-
-                setLoadingText('Parsing extracted text...');
-                const parseResponse = await fetch(ocrParseTextUrl, {
-                    method: 'POST',
-                    headers: {
-                        ...headers,
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'same-origin',
-                    body: JSON.stringify({ raw_text: rawText })
-                });
-
-                const parseData = await parseResponse.json().catch(() => ({}));
-                if (!parseResponse.ok || !parseData.success) {
-                    throw new Error(parseData.message || 'Unable to parse OCR text into health fields.');
-                }
-                return parseData;
-            };
-
+            /* Fill form fields from OCR response */
             const fillFromOcr = (data) => {
                 if (data.age) document.getElementById('age').value = data.age;
-                const normalizedOcrGender = normalizeGenderValue(data.gender);
-                if (normalizedOcrGender) document.getElementById('gender').value = normalizedOcrGender;
+                if (data.gender) document.getElementById('gender').value = data.gender;
                 if (data.weight) document.getElementById('weight').value = data.weight;
                 if (data.height) document.getElementById('height').value = data.height;
 
@@ -1416,23 +1235,25 @@
                 }
             };
 
+            /* Manual Generate â€” same existing flow */
             normalBtn.addEventListener('click', () => {
                 revealContent(false);
             });
 
+            /* Import Documents â€” open file picker */
             externalBtn.addEventListener('click', () => {
                 clearError();
                 fileInput.click();
             });
 
-            fileInput.addEventListener('change', async () => {
+            /* When user picks a file, upload it for OCR */
+            fileInput.addEventListener('change', () => {
                 const file = fileInput.files[0];
                 if (!file) return;
 
                 lockButtons();
                 clearError();
                 loading.classList.remove('d-none');
-                setLoadingText(defaultLoadingText);
 
                 const formData = new FormData();
                 formData.append('document', file);
@@ -1441,38 +1262,32 @@
                 const headers = {};
                 if (csrfToken) headers['X-CSRFToken'] = csrfToken.value;
 
-                try {
-                    const res = await fetch(ocrUploadUrl, {
-                        method: 'POST',
-                        headers: headers,
-                        credentials: 'same-origin',
-                        body: formData
-                    });
-
+                fetch("{{ url_for('dashboard.user_ocr_upload') }}", {
+                    method: 'POST',
+                    headers: headers,
+                    credentials: 'same-origin',
+                    body: formData
+                })
+                .then(async res => {
                     const data = await res.json();
                     if (!res.ok || !data.success) {
-                        throw new Error(data.message || 'OCR processing failed.');
+                        throw new Error(data.message || uiCopy('ការដំណើរការ OCR បរាជ័យ។', 'OCR processing failed.'));
                     }
-
+                    return data;
+                })
+                .then(data => {
                     fillFromOcr(data);
                     revealContent(true);
-                } catch (err) {
+                })
+                .catch(err => {
                     console.error('OCR error:', err);
-                    try {
-                        const fallbackData = await runBrowserOcrFallback(file, headers);
-                        fillFromOcr(fallbackData);
-                        revealContent(true);
-                        return;
-                    } catch (fallbackErr) {
-                        console.error('Browser OCR fallback error:', fallbackErr);
-                        loading.classList.add('d-none');
-                        unlockButtons();
-                        showError(fallbackErr.message || err.message || 'Unable to process the selected document. Please try again.');
-                    }
-                } finally {
-                    setLoadingText(defaultLoadingText);
+                    loading.classList.add('d-none');
+                    unlockButtons();
+                    showError(err.message || uiCopy('មិនអាចដំណើរការឯកសារបានទេ។ សូមព្យាយាមម្តងទៀត។', 'Unable to process the selected document. Please try again.'));
+                })
+                .finally(() => {
                     fileInput.value = '';
-                }
+                });
             });
         }
 
@@ -1614,7 +1429,6 @@
         }
 
         const dietFormSubmitUrl = dietForm?.getAttribute('action') || '/dashboard/user/submit';
-        const fallbackFoodPhotoUrl = "{{ url_for('static', filename='images/a_dish_of_food.png') }}";
         const submitBtn = document.getElementById('submitBtn');
         submitBtnLabel = submitBtn ? submitBtn.innerHTML : submitBtnLabel;
         const dietFormError = document.getElementById('dietFormError');
@@ -1885,72 +1699,11 @@
             };
         }
 
-        function escapeHtml(value) {
-            return String(value ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-        }
-
-        function normalizeMealItem(item) {
-            if (item && typeof item === 'object') {
-                return {
-                    name: String(item.name || item.label || '').trim(),
-                    photo: item.photo || item.image || item.image_url || ''
-                };
-            }
-            return {
-                name: String(item || '').trim(),
-                photo: ''
-            };
-        }
-
-        function resolveFoodPhotoUrl(photoPath) {
-            const rawPath = String(photoPath || '').trim();
-            if (!rawPath) {
-                return fallbackFoodPhotoUrl;
-            }
-            if (rawPath.startsWith('http://') || rawPath.startsWith('https://') || rawPath.startsWith('/')) {
-                return rawPath;
-            }
-            return `/${rawPath.replace(/^\/+/, '')}`;
-        }
-
-        function renderFoodItems(items, emptyLabel) {
-            if (!items || items.length === 0) {
-                return `<li class="meal-items-empty text-muted">${escapeHtml(emptyLabel)}</li>`;
-            }
-
-            const normalizedItems = items
-                .map(normalizeMealItem)
-                .filter(item => item.name);
-            if (normalizedItems.length === 0) {
-                return `<li class="meal-items-empty text-muted">${escapeHtml(emptyLabel)}</li>`;
-            }
-
-            const safeFallbackPhotoUrl = escapeHtml(fallbackFoodPhotoUrl);
-            return normalizedItems.map(item => {
-                const safeName = escapeHtml(item.name);
-                const safePhotoUrl = escapeHtml(resolveFoodPhotoUrl(item.photo));
-                return `
-                    <li class="meal-item">
-                        <span class="meal-item-photo-wrap">
-                            <img src="${safePhotoUrl}" alt="${safeName}" class="meal-item-photo" loading="lazy" onerror="this.onerror=null;this.src='${safeFallbackPhotoUrl}';">
-                        </span>
-                        <span class="meal-item-name">${safeName}</span>
-                    </li>
-                `;
-            }).join('');
-        }
-
         function renderMealItems(items) {
-            return renderFoodItems(items, uiCopy('មិនមានធាតុដែលបានកំណត់', 'No items available'));
-        }
-
-        function renderAvoidItems(items) {
-            return renderFoodItems(items, uiCopy('មិនមាន', 'None'));
+            if (!items || items.length === 0) {
+                return `<li class="text-muted">${uiCopy('មិនមានធាតុដែលបានកំណត់', 'No items available')}</li>`;
+            }
+            return items.map(item => `<li>${item}</li>`).join('');
         }
 
         function renderMealPlan(meals, mealsPerDay) {
@@ -1960,33 +1713,72 @@
             const dinnerLabel = isEnglishUI() ? 'Dinner' : 'ពេលល្ងាច';
             const lateDinnerLabel = isEnglishUI() ? 'Late dinner' : 'ពេលយប់';
 
-            const sections = [
-                { label: breakfastLabel, items: meals.breakfast },
-                { label: lunchLabel, items: meals.lunch }
-            ];
-
-            if (mealsCount >= 3) {
-                sections.push({
-                    label: dinnerLabel,
-                    items: meals.dinner
-                });
+            if (mealsCount === 2) {
+                return `
+                <div class="col-md-6">
+                    <h6><i class="fas fa-sun text-warning me-2"></i>${breakfastLabel}</h6>
+                    <ul>
+                        ${renderMealItems(meals.breakfast)}
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6><i class="fas fa-cloud-sun text-warning me-2"></i>${lunchLabel}</h6>
+                    <ul>
+                        ${renderMealItems(meals.lunch)}
+                    </ul>
+                </div>
+            `;
             }
 
             if (mealsCount === 4) {
-                sections.push({
-                    label: lateDinnerLabel,
-                    items: meals.late_dinner
-                });
-            }
-
-            return sections.map(section => `
-                <div class="col-12 mb-3">
-                    <h6 class="meal-section-title">${section.label}</h6>
-                    <ul class="meal-items">
-                        ${renderMealItems(section.items)}
+                return `
+                <div class="col-md-3">
+                    <h6><i class="fas fa-sun text-warning me-2"></i>${breakfastLabel}</h6>
+                    <ul>
+                        ${renderMealItems(meals.breakfast)}
                     </ul>
                 </div>
-            `).join('');
+                <div class="col-md-3">
+                    <h6><i class="fas fa-cloud-sun text-warning me-2"></i>${lunchLabel}</h6>
+                    <ul>
+                        ${renderMealItems(meals.lunch)}
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6><i class="fas fa-moon text-warning me-2"></i>${dinnerLabel}</h6>
+                    <ul>
+                        ${renderMealItems(meals.dinner)}
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6><i class="fas fa-moon text-warning me-2"></i>${lateDinnerLabel}</h6>
+                    <ul>
+                        ${renderMealItems(meals.late_dinner)}
+                    </ul>
+                </div>
+            `;
+            }
+
+            return `
+            <div class="col-md-4">
+                <h6><i class="fas fa-sun text-warning me-2"></i>${breakfastLabel}</h6>
+                <ul>
+                    ${renderMealItems(meals.breakfast)}
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-cloud-sun text-warning me-2"></i>${lunchLabel}</h6>
+                <ul>
+                    ${renderMealItems(meals.lunch)}
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-moon text-warning me-2"></i>${dinnerLabel}</h6>
+                <ul>
+                    ${renderMealItems(meals.dinner)}
+                </ul>
+            </div>
+        `;
         }
 
         function normalizeResultFoodGroups(data) {
@@ -2074,13 +1866,12 @@
             const foods = Array.isArray(activeGroup.foods) ? activeGroup.foods : [];
             const avoidFoods = Array.isArray(activeGroup.avoid_foods) ? activeGroup.avoid_foods : [];
 
-            const mealFoods = foods
-                .map(normalizeMealItem)
-                .filter(item => item.name);
+            const foodNames = foods.map(item => item.name || item).filter(Boolean);
+            const avoidFoodNames = avoidFoods.map(item => item.name || item).filter(Boolean);
             const mealsCount = Number(profile.meals_per_day)
                 || Number(document.querySelector('input[name="mealsPerDay"]:checked')?.value)
                 || 3;
-            const meals = splitMeals(mealFoods, mealsCount);
+            const meals = splitMeals(foodNames, mealsCount);
             const groupLabel = getGroupLabel(activeGroup, activeResultFoodGroupIndex);
             const totalGroups = resultFoodGroups.length;
             const groupDisplay = totalGroups > 1 ? `${groupLabel} / ${totalGroups}` : groupLabel;
@@ -2205,8 +1996,10 @@
                     <h5 class="mb-0"><i class="fas fa-ban me-2 text-danger"></i>${avoidFoodsTitle}</h5>
                 </div>
                 <div class="card-body">
-                    <ul class="meal-items mb-0">
-                        ${renderAvoidItems(avoidFoods)}
+                    <ul class="mb-0">
+                        ${avoidFoodNames.length
+                    ? avoidFoodNames.map(item => `<li>${item}</li>`).join('')
+                    : `<li class="text-muted">${noneText}</li>`}
                     </ul>
                 </div>
             </div>

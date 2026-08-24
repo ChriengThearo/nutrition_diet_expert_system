@@ -40,18 +40,15 @@ def create_app(config_class: type[Config] = Config):
 
     @app.errorhandler(OperationalError)
     def handle_db_error(e):
-        app.logger.exception("Database operational error", exc_info=e)
         return render_template("errors/503.html"), 503
 
     @app.errorhandler(SQLAlchemyError)
     def handle_sqlalchemy_error(e):
-        app.logger.exception("SQLAlchemy error", exc_info=e)
         return render_template("errors/503.html"), 503
 
     @app.errorhandler(500)
     def handle_500(e):
-        app.logger.exception("Unhandled application error", exc_info=e)
-        return render_template("errors/500.html"), 500
+        return render_template("errors/503.html"), 503
 
     # Home route now handled by main blueprint
 
@@ -59,8 +56,8 @@ def create_app(config_class: type[Config] = Config):
     with app.app_context():
         try:
             if not app.config.get("SKIP_DB_CREATE_ALL", False):
-                # Ensure model metadata is loaded without shadowing UserTable in this scope.
-                from app import models as _models  # noqa: F401
+                from app.models.role import RoleTable
+                from app.models.permission import PermissionTable
 
                 db.create_all()
             try:

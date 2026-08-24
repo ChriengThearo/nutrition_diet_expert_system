@@ -1,275 +1,1012 @@
-{% extends "layouts/base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | Diet Expert</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --bg: #f7f9fc;
+  --card: #ffffff;
+  --white: #ffffff;
+  --ink: #0f1f3a;
+  --text: #26364f;
+  --muted: #66758b;
+  --muted-2: #69768b;
+  --muted-3: #7b8aa0;
+  --nav-text: #1d2d44;
+  --nav-icon: #3f5069;
+  --panel-title: #12243e;
+  --line: #e2e8f0;
+  --soft-line: #edf1f6;
+  --input-line: #dbe3ee;
+  --control-line: #dce3ec;
+  --green: #20b85d;
+  --green-dark: #12964b;
+  --green-mid: #16a950;
+  --green-soft: #e7f8ee;
+  --green-soft-2: #dcf6e9;
+  --green-soft-3: #e6f8ee;
+  --green-soft-4: #edf9f4;
+  --blue: #1779f2;
+  --blue-soft: #e8f2ff;
+  --cyan: #10b9a9;
+  --cyan-soft: #e3fbf7;
+  --orange: #f28b22;
+  --orange-soft: #fff0df;
+  --purple: #8657e9;
+  --purple-soft: #f1e6ff;
+  --red: #ef3f51;
+  --red-soft: #ffe7ec;
+  --gray-soft: #f1f4f7;
+  --shadow: 0 10px 30px rgba(15, 31, 58, .06);
+}
 
-{% block title %}Admin Dashboard{% endblock %}
+* { box-sizing: border-box; }
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
-{% endblock %}
+html,
+body { min-height: 100%; }
 
-{% block content %}
-<div class="dashboard-shell admin-shell">
-    <div class="dashboard-container">
-        <section class="role-hero">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <span class="hero-chip"><i class="fas fa-shield-alt"></i> Global Admin Control</span>
-                    <h1 class="hero-title">Administration Command Center</h1>
-                    <p class="hero-copy">Track platform health, manage users and security policy, and coordinate rule
-                        operations from one high-clarity workspace.</p>
-                    <div class="hero-actions">
-                        <a class="btn btn-light" href="{{ url_for('tbl_users.index') }}"
-                           data-permission="user.read" data-action="view users">
-                            <i class="fas fa-users me-2"></i>Open User Directory
-                        </a>
-                        <a class="btn btn-outline-light" href="{{ url_for('dashboard.doctor_dashboard') }}"
-                           data-permission="dashboard.doctor" data-action="open doctor dashboard">
-                            <i class="fas fa-stethoscope me-2"></i>Open Doctor Workspace
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4 mt-4 mt-lg-0">
-                    <div class="hero-meta-card">
-                        <p class="hero-meta-label">Signed In As</p>
-                        <p class="hero-meta-value">{{ current_user.full_name or current_user.username }}</p>
-                        <div class="d-flex flex-wrap gap-2 mt-2">
-                            <span class="badge bg-danger">Administrator</span>
-                            <span class="badge bg-light text-dark">System Core</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  letter-spacing: 0;
+}
 
-        <section class="metric-grid">
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">Total Users</p>
-                        <p class="metric-value" id="total_users">{{ total_users }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-users"></i></span>
-                </div>
-                <p class="metric-meta">All registered platform members.</p>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">Doctors</p>
-                        <p class="metric-value" id="total_doctors">{{ total_doctors }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-user-md"></i></span>
-                </div>
-                <p class="metric-meta">Experts maintaining diet intelligence.</p>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">Diet Rules</p>
-                        <p class="metric-value" id="total_rules">{{ total_rules }}</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-balance-scale"></i></span>
-                </div>
-                <p class="metric-meta">Knowledge rules powering recommendations.</p>
-            </article>
-            <article class="metric-card">
-                <div class="metric-head">
-                    <div>
-                        <p class="metric-label">Security Status</p>
-                        <p class="metric-value">Stable</p>
-                    </div>
-                    <span class="metric-icon"><i class="fas fa-shield-alt"></i></span>
-                </div>
-                <p class="metric-meta">No critical issues detected in this session.</p>
-            </article>
-        </section>
+a { color: inherit; text-decoration: none; }
+button,
+input,
+select { font: inherit; }
 
-        <section class="command-grid">
-            <article class="panel-card">
-                <header class="panel-head">
-                    <div>
-                        <h3 class="panel-title"><i class="fas fa-users-cog"></i> User & Access</h3>
-                        <p class="panel-subtitle">Identity, role, and permission administration.</p>
-                    </div>
-                </header>
-                <div class="panel-body">
-                    <div class="quick-actions">
-                        <a class="quick-action" href="{{ url_for('tbl_users.create') }}"
-                           data-permission="user.create" data-action="create users"><i class="fas fa-user-plus"></i>Create User</a>
-                        <a class="quick-action" href="{{ url_for('tbl_roles.index') }}"
-                           data-permission="role.read" data-action="view roles"><i class="fas fa-user-tag"></i>Manage Roles</a>
-                        <a class="quick-action" href="{{ url_for('tbl_permissions.index') }}"
-                           data-permission="permission.read" data-action="view permissions"><i class="fas fa-key"></i>Permissions</a>
-                        <button class="quick-action" onclick="showAuditLog()"
-                                data-permission="system.audit" data-action="view audit log"><i class="fas fa-history"></i>Audit Log</button>
-                    </div>
-                </div>
-            </article>
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+}
 
-            <article class="panel-card">
-                <header class="panel-head">
-                    <div>
-                        <h3 class="panel-title"><i class="fas fa-database"></i> Knowledge Hub</h3>
-                        <p class="panel-subtitle">Rules, foods, and goal exploration surfaces.</p>
-                    </div>
-                </header>
-                <div class="panel-body">
-                    <div class="quick-actions">
-                        <a class="quick-action" href="{{ url_for('main.match') }}"><i class="fas fa-bullseye"></i>Goal Matching</a>
-                        <a class="quick-action" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"
-                           data-permission="food.read" data-action="view foods"><i class="fas fa-carrot"></i>Food Database</a>
-                        <a class="quick-action" href="{{ url_for('main.rules') }}"
-                           data-permission="rule.read" data-action="view rules"><i class="fas fa-book-open"></i>Rule Library</a>
-                        <button class="quick-action" onclick="showComingSoon('Data export center')"><i class="fas fa-download"></i>Export Data</button>
-                    </div>
-                </div>
-            </article>
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  border-right: 1px solid var(--line);
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+}
 
-            <article class="panel-card">
-                <header class="panel-head">
-                    <div>
-                        <h3 class="panel-title"><i class="fas fa-gavel"></i> Rule Operations</h3>
-                        <p class="panel-subtitle">Authoring, testing, and rule quality checks.</p>
-                    </div>
-                </header>
-                <div class="panel-body">
-                    <div class="quick-actions">
-                        <a class="quick-action" href="{{ url_for('dashboard.doctor_dashboard') }}#builder"
-                           data-permission="rule.create" data-action="create rules"><i class="fas fa-plus-circle"></i>Create Rule</a>
-                        <a class="quick-action" href="{{ url_for('dashboard.doctor_dashboard') }}#test"
-                           data-permission="rule.test" data-action="test rules"><i class="fas fa-vial"></i>Test Rules</a>
-                        <button class="quick-action" onclick="showComingSoon('Rule validator')"
-                                data-permission="rule.edit" data-action="validate rules"><i class="fas fa-check-double"></i>Validate</button>
-                        <button class="quick-action" onclick="showComingSoon('Rule analytics')"
-                                data-permission="rule.read" data-action="view rule analytics"><i class="fas fa-chart-line"></i>Analytics</button>
-                    </div>
-                </div>
-            </article>
+.brand {
+  height: 88px;
+  padding: 20px 15px 15px 24px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 10px;
+}
 
-            <article class="panel-card">
-                <header class="panel-head">
-                    <div>
-                        <h3 class="panel-title"><i class="fas fa-cogs"></i> Platform Operations</h3>
-                        <p class="panel-subtitle">System-level maintenance and governance settings.</p>
-                    </div>
-                </header>
-                <div class="panel-body">
-                    <div class="quick-actions">
-                        <button class="quick-action" onclick="showComingSoon('Approval policy')"><i class="fas fa-user-check"></i>Approval Policy</button>
-                        <button class="quick-action" onclick="showComingSoon('System logs')"><i class="fas fa-file-alt"></i>System Logs</button>
-                        <button class="quick-action" onclick="showComingSoon('Backup automation')"><i class="fas fa-save"></i>Backup</button>
-                        <button class="quick-action" onclick="showComingSoon('Security hardening')"><i class="fas fa-shield-alt"></i>Security</button>
-                    </div>
-                </div>
-            </article>
-        </section>
+.brand-mark {
+  width: 36px;
+  height: 44px;
+  object-fit: contain;
+}
 
-        <section class="panel-card mt-3">
-            <header class="panel-head">
-                <div>
-                    <h3 class="panel-title"><i class="fas fa-clock"></i> Recent Activity</h3>
-                    <p class="panel-subtitle">Live operational feed from the admin data endpoint.</p>
-                </div>
-                <button class="btn btn-outline-secondary btn-sm" onclick="refreshActivity()">Refresh</button>
-            </header>
-            <div class="panel-body">
-                <div class="activity-stream" id="activityFeed">
-                    <div class="activity-item">
-                        <p class="activity-time">Loading</p>
-                        <p class="activity-title mb-1">Fetching latest activity</p>
-                        <p class="activity-description">Dashboard stream is synchronizing with server data.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+.brand-name {
+  margin: 0;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.brand-sub {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--muted-2);
+  display: grid;
+  place-items: center;
+}
+
+.nav {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.nav-section {
+  margin: 28px 10px 12px;
+  color: var(--muted-3);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.nav-section:first-of-type { margin-top: 26px; }
+
+.nav-link {
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: var(--nav-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nav-link + .nav-link { margin-top: 7px; }
+
+.nav-link i:first-child {
+  width: 18px;
+  color: var(--nav-icon);
+  font-size: 16px;
+  text-align: center;
+}
+
+.nav-link .chevron {
+  margin-left: auto;
+  color: var(--muted-2);
+  font-size: 12px;
+}
+
+.nav-link.active {
+  height: 45px;
+  background: linear-gradient(135deg, var(--green), var(--green-mid));
+  color: var(--white);
+  box-shadow: 0 9px 18px rgba(22, 169, 80, .2);
+}
+
+.nav-link.active i { color: var(--white); }
+
+.sidebar-user {
+  height: 102px;
+  padding: 20px 22px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--green-soft-2);
+  color: var(--green-dark);
+  font-weight: 800;
+}
+
+.user-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.user-role {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  height: 82px;
+  padding: 0 24px 0 29px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, .95);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.page-title h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.page-title p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.search-box {
+  position: relative;
+  width: 342px;
+}
+
+.search-box i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.search-box input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid var(--input-line);
+  border-radius: 10px;
+  background: var(--white);
+  outline: none;
+  padding: 0 14px 0 43px;
+  color: var(--text);
+  box-shadow: 0 7px 18px rgba(15, 31, 58, .035);
+}
+
+.search-box input::placeholder { color: var(--muted-2); }
+
+.date-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.date-pill i { font-size: 18px; }
+
+.notify {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+
+.notify span {
+  position: absolute;
+  top: -6px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--white);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.profile-head .avatar {
+  width: 45px;
+  height: 45px;
+  background: var(--green-soft-2);
+}
+
+.content {
+  padding: 23px 24px 36px 29px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stat-card,
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.stat-card {
+  min-height: 158px;
+  padding: 18px 19px;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.stat-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+}
+
+.soft-green { background: var(--green-soft); color: var(--green); }
+.soft-cyan { background: var(--cyan-soft); color: var(--cyan); }
+.soft-blue { background: var(--blue-soft); color: var(--blue); }
+.soft-orange { background: var(--orange-soft); color: var(--orange); }
+.soft-purple { background: var(--purple-soft); color: var(--purple); }
+.soft-red { background: var(--red-soft); color: var(--red); }
+.soft-gray { background: var(--gray-soft); color: var(--muted-2); }
+
+.stat-label {
+  margin: 0 0 12px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.stat-caption {
+  margin: 11px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.trend {
+  grid-column: 1 / -1;
+  margin: 6px 0 0;
+  color: var(--green-dark);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.panel {
+  overflow: hidden;
+}
+
+.panel-head {
+  height: 54px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: var(--panel-title);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.panel-title i {
+  color: var(--green);
+  font-size: 18px;
+}
+
+.period-select,
+.view-btn {
+  height: 32px;
+  border: 1px solid var(--control-line);
+  border-radius: 7px;
+  background: var(--white);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.period-select {
+  min-width: 94px;
+  padding: 0 13px;
+}
+
+.view-btn {
+  min-width: 62px;
+  padding: 0 14px;
+}
+
+.overview {
+  margin-bottom: 20px;
+}
+
+.chart-wrap {
+  padding: 14px 20px 14px 18px;
+}
+
+.chart-legend {
+  height: 27px;
+  display: flex;
+  align-items: center;
+  gap: 27px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ring {
+  width: 14px;
+  height: 14px;
+  margin-right: 7px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: -2px;
+}
+
+.chart {
+  width: 100%;
+  height: 266px;
+  display: block;
+}
+
+.grid-line {
+  stroke: var(--control-line);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+.axis {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.bottom-grid {
+  display: grid;
+  grid-template-columns: .93fr .92fr 1.08fr;
+  gap: 18px;
+}
+
+.activity-list,
+.plan-list,
+.patient-body {
+  padding: 10px 16px 16px;
+}
+
+.activity-item {
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 58px;
+  align-items: center;
+  gap: 12px;
+}
+
+.activity-item + .activity-item,
+.plan-item + .plan-item {
+  border-top: 1px solid var(--soft-line);
+}
+
+.mini-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+}
+
+.item-title {
+  margin: 0 0 4px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-time {
+  justify-self: end;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.plan-item {
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 58px;
+  align-items: center;
+  gap: 16px;
+}
+
+.rank {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--green-soft-2);
+  color: var(--green-dark);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.rank-muted { background: var(--gray-soft); color: var(--muted-2); }
+
+.use-badge {
+  height: 23px;
+  border-radius: 7px;
+  background: var(--green-soft-3);
+  color: var(--green-dark);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.patient-body {
+  display: grid;
+  grid-template-columns: 178px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.donut {
+  width: 146px;
+  height: 146px;
+  margin: 5px auto;
+  border-radius: 50%;
+  background: conic-gradient(var(--green) 0 60.8%, var(--blue) 60.8% 85.7%, var(--orange) 85.7% 90.7%, var(--red) 90.7% 100%);
+  display: grid;
+  place-items: center;
+  transform: rotate(-55deg);
+}
+
+.donut-core {
+  width: 91px;
+  height: 91px;
+  border-radius: 50%;
+  background: var(--white);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  transform: rotate(55deg);
+}
+
+.donut-core strong {
+  display: block;
+  color: var(--ink);
+  font-size: 24px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.donut-core span {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted-2);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.patient-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.legend-row {
+  display: grid;
+  grid-template-columns: 9px minmax(0, 1fr) 116px;
+  align-items: center;
+  gap: 13px;
+  color: var(--text);
+  font-size: 12px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-value {
+  justify-self: end;
+  font-weight: 500;
+}
+
+.patient-stats {
+  grid-column: 1 / -1;
+  min-height: 66px;
+  margin-top: 12px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--green-soft), var(--green-soft-4));
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+}
+
+.patient-stat {
+  min-height: 46px;
+  padding: 0 26px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.patient-stat + .patient-stat { border-left: 1px solid var(--control-line); }
+
+.patient-stat i {
+  color: var(--green);
+  font-size: 20px;
+}
+
+.patient-stat strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.patient-stat span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.profile-chevron {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.sidebar-chevron {
+  color: var(--muted-2);
+  font-size: 12px;
+}
+
+.legend-key-green { color: var(--green); }
+.legend-key-blue { color: var(--blue); }
+.legend-copy { color: var(--text); }
+.dot-active { background: var(--green); }
+.dot-inactive { background: var(--blue); }
+.dot-new { background: var(--orange); }
+.dot-risk { background: var(--red); }
+
+@media (max-width: 1200px) {
+  .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bottom-grid { grid-template-columns: 1fr; }
+  .patient-body { grid-template-columns: 190px 1fr; }
+}
+
+@media (max-width: 900px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .topbar {
+    height: auto;
+    padding: 16px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .top-actions {
+    width: 100%;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    width: 100%;
+    order: 2;
+  }
+  .content { padding: 16px; }
+}
+
+@media (max-width: 640px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .patient-body { grid-template-columns: 1fr; }
+  .patient-legend { gap: 12px; }
+  .chart { height: 230px; }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">
+      <div>
+        <p class="brand-name">Diet Expert</p>
+        <p class="brand-sub">Clinical Nutrition Suite</p>
+      </div>
+      <button class="collapse-btn" type="button" aria-label="Collapse sidebar"><i class="fas fa-chevron-left"></i></button>
     </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
-<script>
-function showComingSoon(featureName) {
-    const message = `${featureName} will be available soon.`;
-    if (window.showNotification) {
-        window.showNotification(message, 'info');
-        return;
-    }
-    alert(message);
-}
+    <nav class="nav" aria-label="Admin navigation">
+      <a class="nav-link active" href="{{ url_for('dashboard.admin_dashboard') }}"><i class="fas fa-table-cells-large"></i><span>Dashboard</span></a>
 
-function formatRelativeTime(timestamp) {
-    const date = new Date(timestamp);
-    if (Number.isNaN(date.getTime())) {
-        return 'Unknown time';
-    }
-    const diffMs = Date.now() - date.getTime();
-    const diffMinutes = Math.floor(diffMs / 60000);
-    if (diffMinutes < 1) return 'Just now';
-    if (diffMinutes < 60) return `${diffMinutes}m ago`;
-    const diffHours = Math.floor(diffMinutes / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return date.toLocaleDateString();
-}
+      <div class="nav-section">Management</div>
+      <a class="nav-link" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}"><i class="fas fa-user-doctor"></i><span>Doctors</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="#"><i class="fas fa-hospital-user"></i><span>Patients</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span><i class="fas fa-chevron-right chevron"></i></a>
 
-function renderActivities(activities) {
-    const feed = document.getElementById('activityFeed');
-    if (!feed) return;
-    if (!activities || activities.length === 0) {
-        feed.innerHTML = `
-            <div class="activity-item">
-                <p class="activity-time">No Updates</p>
-                <p class="activity-title mb-1">No recent activity</p>
-                <p class="activity-description">Try again in a few minutes.</p>
-            </div>
-        `;
-        return;
-    }
-    feed.innerHTML = activities.map(activity => `
-        <div class="activity-item">
-            <p class="activity-time">${formatRelativeTime(activity.timestamp)}</p>
-            <p class="activity-title mb-1">${activity.title || 'Activity'}</p>
-            <p class="activity-description">${activity.description || 'No details available.'}</p>
+      <div class="nav-section">Content & Data</div>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#rules"><i class="fas fa-list-ul"></i><span>Rule Library</span><i class="fas fa-chevron-right chevron"></i></a>
+
+      <div class="nav-section">System</div>
+      <a class="nav-link" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-gear"></i><span>Settings</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('main.home') }}"><i class="fas fa-house"></i><span>Home</span></a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="avatar">A</div>
+      <div>
+        <p class="user-name">Admin</p>
+        <p class="user-role">Super Administrator</p>
+      </div>
+      <i class="fas fa-chevron-down sidebar-chevron"></i>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="page-title">
+        <h1>Admin Dashboard</h1>
+        <p>Overview of your clinical nutrition platform</p>
+      </div>
+      <div class="top-actions">
+        <div class="search-box">
+          <i class="fas fa-magnifying-glass"></i>
+          <input type="search" placeholder="Search patients, doctors, foods...">
         </div>
-    `).join('');
-}
+        <div class="date-pill"><i class="far fa-calendar-alt"></i><span id="adminDate">Aug 24, 2026</span></div>
+        <button class="notify" type="button" aria-label="Notifications"><i class="far fa-bell"></i><span>5</span></button>
+        <div class="profile-head">
+          <div class="avatar">A</div>
+          <i class="fas fa-chevron-down profile-chevron"></i>
+        </div>
+      </div>
+    </header>
 
-function refreshActivity() {
-    fetch('/dashboard/admin/data')
-        .then(response => response.json())
-        .then(data => {
-            if (data.total_users !== undefined) {
-                document.getElementById('total_users').textContent = data.total_users;
-            }
-            if (data.total_doctors !== undefined) {
-                document.getElementById('total_doctors').textContent = data.total_doctors;
-            }
-            if (data.total_rules !== undefined) {
-                document.getElementById('total_rules').textContent = data.total_rules;
-            }
-            renderActivities(data.activities || []);
-        })
-        .catch(() => {
-            showComingSoon('Live admin stream');
-        });
-}
+    <div class="content">
+      <section class="stat-grid" aria-label="Dashboard statistics">
+        <article class="stat-card">
+          <div class="stat-icon soft-green"><i class="fas fa-users"></i></div>
+          <div>
+            <p class="stat-label">Total Users</p>
+            <p class="stat-value">{{ total_users|default(156, true) }}</p>
+            <p class="stat-caption">Active users</p>
+          </div>
+          <p class="trend"><i class="fas fa-arrow-trend-up"></i> +5 this week</p>
+        </article>
 
-function showAuditLog() {
-    fetch('/dashboard/admin/audit-log')
-        .then(response => response.json())
-        .then(data => {
-            const normalized = (data || []).map(item => ({
-                timestamp: item.timestamp,
-                title: item.action || item.title || 'Audit Event',
-                description: item.details
-                    ? `${item.user || 'System'}: ${item.details}`
-                    : (item.description || 'No details available.')
-            }));
-            renderActivities(normalized);
-        })
-        .catch(() => showComingSoon('Audit log'));
-}
+        <article class="stat-card">
+          <div class="stat-icon soft-cyan"><i class="fas fa-user-doctor"></i></div>
+          <div>
+            <p class="stat-label">Doctors</p>
+            <p class="stat-value">{{ total_doctors|default(28, true) }}</p>
+            <p class="stat-caption">Registered</p>
+          </div>
+          <p class="trend"><i class="fas fa-arrow-trend-up"></i> +3 this week</p>
+        </article>
 
-document.addEventListener('DOMContentLoaded', refreshActivity);
+        <article class="stat-card">
+          <div class="stat-icon soft-blue"><i class="far fa-user"></i></div>
+          <div>
+            <p class="stat-label">Patients</p>
+            <p class="stat-value">842</p>
+            <p class="stat-caption">Active patients</p>
+          </div>
+          <p class="trend"><i class="fas fa-arrow-trend-up"></i> +42 this week</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-icon soft-orange"><i class="fas fa-apple-whole"></i></div>
+          <div>
+            <p class="stat-label">Total Foods</p>
+            <p class="stat-value">1,246</p>
+            <p class="stat-caption">In catalog</p>
+          </div>
+          <p class="trend"><i class="fas fa-arrow-trend-up"></i> +22 this week</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-icon soft-purple"><i class="far fa-clipboard"></i></div>
+          <div>
+            <p class="stat-label">Diet Plans</p>
+            <p class="stat-value">324</p>
+            <p class="stat-caption">Active plans</p>
+          </div>
+          <p class="trend"><i class="fas fa-arrow-trend-up"></i> +12 this week</p>
+        </article>
+      </section>
+
+      <section class="panel overview">
+        <div class="panel-head">
+          <h2 class="panel-title"><i class="fas fa-chart-line"></i>System Overview</h2>
+          <select class="period-select" aria-label="Chart period">
+            <option>Week</option>
+            <option>Month</option>
+            <option>Year</option>
+          </select>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-legend">
+            <span class="legend-key-green"><i class="ring"></i><span class="legend-copy">Users</span></span>
+            <span class="legend-key-blue"><i class="ring"></i><span class="legend-copy">Consultations</span></span>
+          </div>
+          <svg class="chart" viewBox="0 0 1188 266" role="img" aria-label="System overview users and consultations chart" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="blueFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="var(--blue)" stop-opacity=".16"></stop>
+                <stop offset="1" stop-color="var(--blue)" stop-opacity=".07"></stop>
+              </linearGradient>
+              <linearGradient id="greenFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="var(--green)" stop-opacity=".11"></stop>
+                <stop offset="1" stop-color="var(--green)" stop-opacity=".02"></stop>
+              </linearGradient>
+            </defs>
+
+            <line class="grid-line" x1="34" y1="18" x2="1174" y2="18"></line>
+            <line class="grid-line" x1="34" y1="42.9" x2="1174" y2="42.9"></line>
+            <line class="grid-line" x1="34" y1="67.8" x2="1174" y2="67.8"></line>
+            <line class="grid-line" x1="34" y1="92.7" x2="1174" y2="92.7"></line>
+            <line class="grid-line" x1="34" y1="117.6" x2="1174" y2="117.6"></line>
+            <line class="grid-line" x1="34" y1="142.5" x2="1174" y2="142.5"></line>
+            <line class="grid-line" x1="34" y1="167.4" x2="1174" y2="167.4"></line>
+            <line class="grid-line" x1="34" y1="192.3" x2="1174" y2="192.3"></line>
+            <line class="grid-line" x1="34" y1="217.2" x2="1174" y2="217.2"></line>
+            <line class="grid-line" x1="34" y1="242" x2="1174" y2="242"></line>
+
+            <text class="axis" x="0" y="22">450</text>
+            <text class="axis" x="0" y="47">400</text>
+            <text class="axis" x="0" y="72">350</text>
+            <text class="axis" x="0" y="97">300</text>
+            <text class="axis" x="0" y="122">250</text>
+            <text class="axis" x="0" y="147">200</text>
+            <text class="axis" x="0" y="172">150</text>
+            <text class="axis" x="0" y="197">100</text>
+            <text class="axis" x="8" y="222">50</text>
+            <text class="axis" x="14" y="247">0</text>
+
+            <path d="M34 158 C92 151 138 123 224 110 S342 96 414 126 S558 126 640 102 S778 72 846 66 S982 61 1048 56 S1132 42 1174 38 L1174 242 L34 242 Z" fill="url(#greenFill)"></path>
+            <path d="M34 192 C102 185 148 164 224 160 S344 158 414 177 S570 157 640 140 S780 124 846 118 S986 108 1048 101 S1136 82 1174 75 L1174 242 L34 242 Z" fill="url(#blueFill)"></path>
+            <path d="M34 158 C92 151 138 123 224 110 S342 96 414 126 S558 126 640 102 S778 72 846 66 S982 61 1048 56 S1132 42 1174 38" fill="none" stroke="var(--green)" stroke-width="3" stroke-linecap="round"></path>
+            <path d="M34 192 C102 185 148 164 224 160 S344 158 414 177 S570 157 640 140 S780 124 846 118 S986 108 1048 101 S1136 82 1174 75" fill="none" stroke="var(--blue)" stroke-width="3" stroke-linecap="round"></path>
+
+            <g fill="var(--white)" stroke="var(--green)" stroke-width="3">
+              <circle cx="34" cy="158" r="4"></circle><circle cx="224" cy="110" r="4"></circle><circle cx="414" cy="126" r="4"></circle><circle cx="640" cy="102" r="4"></circle><circle cx="846" cy="66" r="4"></circle><circle cx="1048" cy="56" r="4"></circle><circle cx="1174" cy="38" r="4"></circle>
+            </g>
+            <g fill="var(--white)" stroke="var(--blue)" stroke-width="3">
+              <circle cx="34" cy="192" r="4"></circle><circle cx="224" cy="160" r="4"></circle><circle cx="414" cy="177" r="4"></circle><circle cx="640" cy="140" r="4"></circle><circle cx="846" cy="118" r="4"></circle><circle cx="1048" cy="101" r="4"></circle><circle cx="1174" cy="75" r="4"></circle>
+            </g>
+
+            <text class="axis" x="18" y="264">Aug 12</text>
+            <text class="axis" x="206" y="264">Aug 13</text>
+            <text class="axis" x="396" y="264">Aug 14</text>
+            <text class="axis" x="622" y="264">Aug 15</text>
+            <text class="axis" x="828" y="264">Aug 16</text>
+            <text class="axis" x="1030" y="264">Aug 17</text>
+            <text class="axis" x="1148" y="264">Aug 18</text>
+          </svg>
+        </div>
+      </section>
+
+      <section class="bottom-grid">
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title"><i class="fas fa-wave-square"></i>Recent Activity</h2>
+            <button class="view-btn" type="button">View all</button>
+          </div>
+          <div class="activity-list">
+            <div class="activity-item"><div class="mini-icon soft-green"><i class="fas fa-user-plus"></i></div><div><p class="item-title">New patient registered</p><p class="item-sub">Sarah Johnson</p></div><span class="item-time">2m ago</span></div>
+            <div class="activity-item"><div class="mini-icon soft-blue"><i class="far fa-clipboard"></i></div><div><p class="item-title">Diet plan created</p><p class="item-sub">Weight Loss Plan</p></div><span class="item-time">15m ago</span></div>
+            <div class="activity-item"><div class="mini-icon soft-orange"><i class="fas fa-apple-whole"></i></div><div><p class="item-title">New food added</p><p class="item-sub">Quinoa (Cooked)</p></div><span class="item-time">1h ago</span></div>
+            <div class="activity-item"><div class="mini-icon soft-purple"><i class="far fa-user"></i></div><div><p class="item-title">Doctor profile updated</p><p class="item-sub">Dr. Michael Chen</p></div><span class="item-time">2h ago</span></div>
+            <div class="activity-item"><div class="mini-icon soft-green"><i class="fas fa-shield-halved"></i></div><div><p class="item-title">Permission updated</p><p class="item-sub">Users role modified</p></div><span class="item-time">3h ago</span></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title"><i class="fas fa-trophy"></i>Top Diet Plans</h2>
+            <button class="view-btn" type="button">View all</button>
+          </div>
+          <div class="plan-list">
+            <div class="plan-item"><span class="rank">1</span><p class="item-title">Weight Loss Plan</p><span class="use-badge">142 uses</span></div>
+            <div class="plan-item"><span class="rank">2</span><p class="item-title">Diabetes Control Plan</p><span class="use-badge">98 uses</span></div>
+            <div class="plan-item"><span class="rank">3</span><p class="item-title">Heart Healthy Plan</p><span class="use-badge">76 uses</span></div>
+            <div class="plan-item"><span class="rank rank-muted">4</span><p class="item-title">Muscle Gain Plan</p><span class="use-badge">54 uses</span></div>
+            <div class="plan-item"><span class="rank rank-muted">5</span><p class="item-title">PCOS Management Plan</p><span class="use-badge">41 uses</span></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title"><i class="fas fa-users"></i>Patient Overview</h2>
+          </div>
+          <div class="patient-body">
+            <div class="donut">
+              <div class="donut-core">
+                <div><strong>842</strong><span>Total Patients</span></div>
+              </div>
+            </div>
+            <div class="patient-legend">
+              <div class="legend-row"><span class="dot dot-active"></span><span>Active</span><span class="legend-value">512&nbsp;&nbsp;(60.8%)</span></div>
+              <div class="legend-row"><span class="dot dot-inactive"></span><span>Inactive</span><span class="legend-value">210&nbsp;&nbsp;(24.9%)</span></div>
+              <div class="legend-row"><span class="dot dot-new"></span><span>New This Week</span><span class="legend-value">42&nbsp;&nbsp;&nbsp;&nbsp;(5.0%)</span></div>
+              <div class="legend-row"><span class="dot dot-risk"></span><span>At Risk</span><span class="legend-value">78&nbsp;&nbsp;&nbsp;&nbsp;(9.3%)</span></div>
+            </div>
+            <div class="patient-stats">
+              <div class="patient-stat"><i class="fas fa-arrow-trend-up"></i><div><strong>+42</strong><span>vs last week</span></div></div>
+              <div class="patient-stat"><i class="fas fa-users"></i><div><strong>84.2%</strong><span>engagement rate</span></div></div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+const dateNode = document.getElementById("adminDate");
+if (dateNode) {
+  dateNode.textContent = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+}
 </script>
-{% endblock %}
+</body>
+</html>

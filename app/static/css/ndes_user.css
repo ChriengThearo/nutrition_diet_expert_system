@@ -1,0 +1,177 @@
+/* ============================================================
+   NDES User Dashboard — matches Doctor Dashboard design
+   ============================================================ */
+:root {
+  --nd-green: #2e7d32;
+  --nd-green-mid: #388e3c;
+  --nd-green-light: #43a047;
+  --nd-green-pale: #e8f5e9;
+  --nd-green-soft: #c8e6c9;
+  --nd-sidebar-bg: #1b5e20;
+  --nd-sidebar-hover: #2e7d32;
+  --nd-sidebar-active: #43a047;
+  --nd-white: #ffffff;
+  --nd-bg: #f1f8f2;
+  --nd-card: #ffffff;
+  --nd-ink: #1a2e1a;
+  --nd-muted: #607d6b;
+  --nd-border: #dcedc8;
+  --nd-shadow: 0 2px 12px rgba(46,125,50,0.10);
+  --nd-shadow-lg: 0 8px 32px rgba(46,125,50,0.14);
+  --nd-radius: 14px;
+  --nd-radius-sm: 8px;
+}
+
+/* ── Layout ─────────────────────────────────────── */
+.nd-app { display:flex; min-height:100vh; background:var(--nd-bg); font-family:'Plus Jakarta Sans','Segoe UI',sans-serif; color:var(--nd-ink); }
+.nd-sidebar { width:220px; min-width:220px; background:var(--nd-sidebar-bg); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:100; overflow-y:auto; }
+.nd-main { margin-left:220px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
+
+/* ── Sidebar ─────────────────────────────────────── */
+.nd-sidebar-brand { padding:18px 18px 10px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.12); }
+.nd-sidebar-brand img { width:36px; height:36px; border-radius:8px; }
+.nd-sidebar-brand-text { color:#fff; font-weight:800; font-size:0.95rem; line-height:1.2; }
+.nd-sidebar-brand-sub { color:rgba(255,255,255,0.6); font-size:0.7rem; }
+.nd-nav { list-style:none; padding:10px 0; margin:0; flex:1; }
+.nd-nav-item { margin:2px 10px; border-radius:var(--nd-radius-sm); overflow:hidden; }
+.nd-nav-link { display:flex; align-items:center; gap:10px; padding:9px 12px; color:rgba(255,255,255,0.78); font-size:0.85rem; font-weight:600; text-decoration:none; border-radius:var(--nd-radius-sm); transition:all 0.18s; cursor:pointer; background:none; border:none; width:100%; }
+.nd-nav-link:hover { background:var(--nd-sidebar-hover); color:#fff; }
+.nd-nav-link.active { background:var(--nd-sidebar-active); color:#fff; }
+.nd-nav-link i { width:18px; text-align:center; font-size:0.9rem; }
+.nd-nav-arrow { margin-left:auto; font-size:0.7rem; opacity:0.6; }
+.nd-nav-section { padding:10px 18px 4px; color:rgba(255,255,255,0.38); font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; }
+.nd-sidebar-footer { padding:14px 16px; border-top:1px solid rgba(255,255,255,0.12); }
+.nd-sidebar-user { display:flex; align-items:center; gap:10px; }
+.nd-sidebar-user-avatar { width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.3); }
+.nd-sidebar-user-name { color:#fff; font-size:0.82rem; font-weight:700; }
+.nd-sidebar-user-role { color:rgba(255,255,255,0.55); font-size:0.7rem; }
+
+/* ── Top Bar ─────────────────────────────────────── */
+.nd-topbar { background:#fff; border-bottom:1px solid var(--nd-border); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; box-shadow:0 1px 6px rgba(0,0,0,0.06); }
+.nd-topbar-left h1 { font-size:1.15rem; font-weight:800; color:var(--nd-ink); margin:0; }
+.nd-topbar-left p { font-size:0.8rem; color:var(--nd-muted); margin:0; }
+.nd-topbar-right { display:flex; align-items:center; gap:12px; }
+.nd-topbar-date { font-size:0.78rem; color:var(--nd-muted); font-weight:600; }
+.nd-topbar-icon { width:34px; height:34px; border-radius:50%; border:1px solid var(--nd-border); background:#fff; display:flex; align-items:center; justify-content:center; color:var(--nd-muted); cursor:pointer; transition:all 0.18s; font-size:0.9rem; }
+.nd-topbar-icon:hover { background:var(--nd-green-pale); color:var(--nd-green); }
+.nd-topbar-icon .badge { top:4px; right:4px; width:8px; height:8px; padding:0; border-radius:50%; }
+
+/* ── Content Area ────────────────────────────────── */
+.nd-content { padding:20px 24px; flex:1; }
+.nd-section { display:block; }
+
+/* ── Stat Cards ──────────────────────────────────── */
+.nd-stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+.nd-stat { background:#fff; border-radius:var(--nd-radius); padding:14px 16px; box-shadow:var(--nd-shadow); border:1px solid var(--nd-border); position:relative; overflow:hidden; }
+.nd-stat-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.nd-stat-label { font-size:0.72rem; color:var(--nd-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.06em; }
+.nd-stat-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; color:#fff; }
+.nd-stat-icon.green { background:linear-gradient(135deg,#43a047,#2e7d32); }
+.nd-stat-icon.blue  { background:linear-gradient(135deg,#1e88e5,#1565c0); }
+.nd-stat-icon.amber { background:linear-gradient(135deg,#fb8c00,#e65100); }
+.nd-stat-icon.teal  { background:linear-gradient(135deg,#00897b,#00695c); }
+.nd-stat-icon.purple{ background:linear-gradient(135deg,#8e24aa,#6a1b9a); }
+.nd-stat-value { font-size:1.65rem; font-weight:800; color:var(--nd-ink); line-height:1; }
+.nd-stat-sub { font-size:0.72rem; color:var(--nd-muted); margin-top:3px; }
+.nd-stat-trend { font-size:0.72rem; font-weight:700; margin-top:6px; }
+.nd-stat-trend.up { color:#43a047; }
+.nd-stat-trend.down { color:#e53935; }
+.nd-stat-trend.neutral { color:var(--nd-muted); }
+
+/* ── Panels ──────────────────────────────────────── */
+.nd-panels { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:18px; margin-bottom:20px; }
+.nd-panel { background:#fff; border-radius:var(--nd-radius); box-shadow:var(--nd-shadow); border:1px solid var(--nd-border); padding:18px; }
+.nd-panel-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; }
+.nd-panel-title { font-size:0.9rem; font-weight:800; color:var(--nd-ink); margin:0; display:flex; align-items:center; gap:8px; }
+.nd-panel-subtitle { font-size:0.72rem; color:var(--nd-muted); margin:4px 0 0; }
+.nd-panel-action { font-size:0.7rem; color:var(--nd-green); font-weight:700; cursor:pointer; text-decoration:none; white-space:nowrap; }
+.nd-panel-action:hover { text-decoration:underline; }
+
+/* ── BMI Chart ───────────────────────────────────── */
+.bmi-row-chart { display:flex; flex-direction:column; gap:7px; margin-top:10px; }
+.bmi-row-item { display:flex; align-items:center; gap:8px; font-size:0.75rem; }
+.bmi-row-date { width:38px; color:var(--nd-muted); font-weight:600; flex-shrink:0; }
+.bmi-row-track { flex:1; height:8px; background:#f1f8f2; border-radius:99px; overflow:hidden; }
+.bmi-row-fill { height:100%; border-radius:99px; transition:width 0.4s; }
+.bmi-row-normal { background:linear-gradient(90deg,#43a047,#66bb6a); }
+.bmi-row-under  { background:linear-gradient(90deg,#1e88e5,#42a5f5); }
+.bmi-row-over   { background:linear-gradient(90deg,#fb8c00,#ffa726); }
+.bmi-row-obese  { background:linear-gradient(90deg,#e53935,#ef5350); }
+.bmi-row-number { width:30px; text-align:right; font-weight:700; color:var(--nd-ink); flex-shrink:0; }
+
+/* ── History Table ───────────────────────────────── */
+.nd-workspace { background:#fff; border-radius:var(--nd-radius); box-shadow:var(--nd-shadow); border:1px solid var(--nd-border); overflow:hidden; }
+.nd-workspace-header { padding:16px 20px; border-bottom:1px solid var(--nd-border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+.nd-workspace-title { margin:0; font-size:1rem; font-weight:800; }
+.nd-workspace-sub { margin:2px 0 0; font-size:0.78rem; color:var(--nd-muted); }
+.nd-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+.nd-table thead th { padding:10px 14px; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--nd-muted); background:var(--nd-green-pale); border-bottom:1px solid var(--nd-border); }
+.nd-table tbody tr { border-bottom:1px solid #f0f4f0; transition:background 0.14s; }
+.nd-table tbody tr:hover { background:#f9fdf9; }
+.nd-table tbody td { padding:10px 14px; vertical-align:middle; }
+.nd-table tbody tr:last-child { border-bottom:none; }
+
+/* ── Profile Panel ───────────────────────────────── */
+.nd-profile-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+.nd-profile-list li { display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; padding-bottom:10px; border-bottom:1px solid #f0f4f0; }
+.nd-profile-list li:last-child { border-bottom:none; padding-bottom:0; }
+.nd-profile-label { color:var(--nd-muted); font-weight:600; }
+.nd-profile-value { font-weight:700; color:var(--nd-ink); text-align:right; max-width:60%; }
+
+/* ── Pills / Badges ──────────────────────────────── */
+.nd-pill { display:inline-block; padding:2px 9px; border-radius:99px; font-size:0.72rem; font-weight:700; }
+.nd-pill-green { background:var(--nd-green-pale); color:var(--nd-green); }
+.nd-pill-blue  { background:#e3f2fd; color:#1565c0; }
+.nd-pill-amber { background:#fff3e0; color:#e65100; }
+.nd-pill-red   { background:#ffebee; color:#c62828; }
+.nd-pill-gray  { background:#f5f5f5; color:#555; }
+
+/* ── Buttons ─────────────────────────────────────── */
+.nd-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:var(--nd-radius-sm); font-size:0.82rem; font-weight:700; cursor:pointer; border:none; transition:all 0.18s; text-decoration:none; }
+.nd-btn-primary { background:var(--nd-green); color:#fff; }
+.nd-btn-primary:hover { background:var(--nd-green-mid); color:#fff; }
+.nd-btn-outline { background:transparent; color:var(--nd-green); border:1.5px solid var(--nd-green); }
+.nd-btn-outline:hover { background:var(--nd-green-pale); }
+.nd-btn-sm { padding:5px 12px; font-size:0.77rem; }
+
+/* ── Alert ───────────────────────────────────────── */
+.nd-alert { border-radius:var(--nd-radius-sm); padding:10px 14px; font-size:0.82rem; }
+.nd-alert-info { background:#e3f2fd; color:#1565c0; border:1px solid #bbdefb; }
+.nd-alert-success { background:var(--nd-green-pale); color:var(--nd-green); border:1px solid var(--nd-green-soft); }
+.nd-alert-warn { background:#fff8e1; color:#e65100; border:1px solid #ffe082; }
+
+/* ── Empty State ─────────────────────────────────── */
+.nd-empty { text-align:center; padding:40px 20px; color:var(--nd-muted); }
+.nd-empty i { font-size:2.5rem; margin-bottom:12px; opacity:0.4; display:block; }
+.nd-empty h6 { font-weight:700; margin-bottom:6px; color:var(--nd-ink); }
+.nd-empty p { font-size:0.82rem; margin-bottom:14px; }
+
+/* ── Nutrition Progress ──────────────────────────── */
+.nd-progress-track { height:6px; background:#f1f8f2; border-radius:99px; overflow:hidden; }
+.nd-progress-fill { height:100%; border-radius:99px; }
+.nd-progress-fill.green { background:linear-gradient(90deg,#43a047,#66bb6a); }
+.nd-progress-fill.blue  { background:linear-gradient(90deg,#1e88e5,#42a5f5); }
+.nd-progress-fill.amber { background:linear-gradient(90deg,#fb8c00,#ffa726); }
+.nd-progress-fill.red   { background:linear-gradient(90deg,#e53935,#ef5350); }
+.nd-nutrition-item { display:flex; align-items:center; justify-content:space-between; font-size:0.8rem; margin-bottom:4px; }
+.nd-nutrition-label { display:flex; align-items:center; gap:6px; color:var(--nd-muted); font-weight:600; }
+.nd-nutrition-stat { font-weight:700; color:var(--nd-ink); }
+.nd-nutrition-icon { width:20px; height:20px; border-radius:5px; display:inline-flex; align-items:center; justify-content:center; font-size:0.72rem; color:#fff; }
+.nd-nutrition-icon.fire   { background:#e53935; }
+.nd-nutrition-icon.prot   { background:#1e88e5; }
+.nd-nutrition-icon.veg    { background:#43a047; }
+.nd-nutrition-icon.sugar  { background:#fb8c00; }
+.nd-nutrition-icon.water  { background:#00897b; }
+.nd-nutrition-pct { font-size:0.7rem; font-weight:700; text-align:right; color:var(--nd-muted); margin-top:-4px; margin-bottom:6px; }
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width:1100px) {
+  .nd-stats-row { grid-template-columns:repeat(2,1fr); }
+  .nd-panels { grid-template-columns:1fr 1fr; }
+}
+@media (max-width:768px) {
+  .nd-sidebar { display:none; }
+  .nd-main { margin-left:0; }
+  .nd-stats-row { grid-template-columns:1fr 1fr; }
+  .nd-panels { grid-template-columns:1fr; }
+}

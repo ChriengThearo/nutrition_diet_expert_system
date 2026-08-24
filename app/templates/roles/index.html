@@ -1,59 +1,618 @@
-{% extends "layouts/base.html" %} 
-{% block title %}Roles{% endblock %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roles Management | Diet Expert</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --bg: #f4f7fb;
+  --surface: #ffffff;
+  --ink: #111827;
+  --muted: #667085;
+  --faint: #98a2b3;
+  --border: #e5ebf3;
+  --green: #16a85a;
+  --blue: #2563eb;
+  --purple: #8b5cf6;
+  --orange: #f97316;
+  --rose: #e84b74;
+  --shadow: 0 10px 28px rgba(16, 24, 40, .06);
+}
 
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h3 mb-0">Roles</h1>
-  <a href="{{ url_for('tbl_roles.create') }}" class="btn btn-primary">
-    Create Role
-  </a>
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 13px;
+}
+a { color: inherit; text-decoration: none; }
+button, input, select { font: inherit; }
+
+.layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 244px minmax(0, 1fr);
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: #fff;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  height: 72px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.brand img { width: 38px; height: 38px; border-radius: 8px; object-fit: contain; }
+.brand-title { margin: 0; font-size: 15px; font-weight: 900; }
+.brand-sub { margin-top: 2px; color: var(--muted); font-size: 10px; font-weight: 700; }
+
+.nav {
+  flex: 1;
+  min-height: 0;
+  padding: 14px 12px;
+  overflow-y: auto;
+}
+.nav-label {
+  margin: 17px 8px 8px;
+  color: #8a95a8;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.nav-link {
+  height: 38px;
+  margin-bottom: 5px;
+  padding: 0 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.nav-link:hover { background: #eefbf4; color: var(--green); }
+.nav-link.active {
+  background: linear-gradient(135deg, #22c768, #16a85a);
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(22, 168, 90, .24);
+}
+.nav-link i:first-child { width: 16px; text-align: center; font-size: 13px; }
+.nav-link .arrow { margin-left: auto; font-size: 9px; opacity: .48; }
+
+.sidebar-footer { padding: 12px; border-top: 1px solid var(--border); }
+.back-link {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #d8e1ed;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #fbfcfe;
+  color: #344054;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.main { min-width: 0; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  min-height: 70px;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background: rgba(255,255,255,.94);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+}
+.title h1 { margin: 0; font-size: 21px; font-weight: 950; }
+.title p { margin: 2px 0 0; color: var(--muted); font-size: 12px; font-weight: 700; }
+.top-tools { display: flex; align-items: center; gap: 12px; }
+.date-pill { color: #344054; font-size: 11px; font-weight: 900; white-space: nowrap; }
+.icon-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: #667085;
+}
+.icon-btn .count {
+  position: absolute;
+  top: -5px;
+  right: -3px;
+  min-width: 17px;
+  height: 17px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #ef4444;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+}
+.profile { display: flex; align-items: center; gap: 9px; }
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #dff8e9;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 950;
+}
+.profile-name { margin: 0; font-size: 12px; font-weight: 950; line-height: 1.1; }
+.profile-role { margin: 2px 0 0; color: var(--muted); font-size: 10px; font-weight: 800; line-height: 1.1; }
+
+.content { padding: 18px 20px 24px; }
+.flash-stack { margin-bottom: 14px; display: grid; gap: 8px; }
+.flash {
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: #344054;
+  font-weight: 750;
+}
+.flash.success { border-color: #bcebd0; background: #effbf4; color: #137a42; }
+.flash.danger { border-color: #ffd1d8; background: #fff1f3; color: #b4233f; }
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.25fr) repeat(3, minmax(160px, .48fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.hero, .metric-card, .roles-card, .toolbar, .empty-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.hero {
+  min-height: 118px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.hero h2 { margin: 0; font-size: 18px; font-weight: 950; }
+.hero p { max-width: 560px; margin: 5px 0 0; color: var(--muted); font-size: 12px; font-weight: 700; line-height: 1.5; }
+.hero-icon {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  background: #ecfdf3;
+  color: var(--green);
+  font-size: 30px;
+}
+.metric-card {
+  min-height: 118px;
+  padding: 16px;
+}
+.metric-label { margin: 0; color: var(--muted); font-size: 11px; font-weight: 900; }
+.metric-value { margin: 8px 0 3px; color: #111827; font-size: 27px; font-weight: 950; line-height: 1; }
+.metric-note { margin: 0; color: var(--green); font-size: 10px; font-weight: 900; }
+.meter { height: 7px; margin-top: 14px; border-radius: 999px; background: #edf2f7; overflow: hidden; }
+.meter span { display: block; height: 100%; border-radius: inherit; }
+
+.toolbar {
+  min-height: 66px;
+  margin-bottom: 16px;
+  padding: 13px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.search-wrap { position: relative; flex: 1; max-width: 430px; }
+.search-wrap i {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--faint);
+  font-size: 12px;
+}
+.search-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 13px 0 36px;
+  border: 1px solid #d8e1ed;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #344054;
+  outline: none;
+  font-size: 12px;
+  font-weight: 750;
+}
+.search-input:focus { border-color: var(--green); background: #fff; }
+.toolbar-actions { display: flex; align-items: center; gap: 10px; }
+.select {
+  height: 40px;
+  padding: 0 34px 0 12px;
+  border: 1px solid #d8e1ed;
+  border-radius: 8px;
+  background: #fff;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 800;
+}
+.create-btn {
+  height: 40px;
+  padding: 0 15px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--green);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 10px 22px rgba(22, 168, 90, .22);
+}
+.create-btn:hover { background: #128d4c; }
+
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.roles-card {
+  min-width: 0;
+  overflow: hidden;
+}
+.role-head {
+  min-height: 74px;
+  padding: 15px;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.role-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+.tone-green { background: #e8f8ef; color: var(--green); }
+.tone-blue { background: #eaf1ff; color: var(--blue); }
+.tone-purple { background: #f3edff; color: var(--purple); }
+.tone-orange { background: #fff2e8; color: var(--orange); }
+.tone-rose { background: #fff0f4; color: var(--rose); }
+.role-title { margin: 0; color: #1d2939; font-size: 14px; font-weight: 950; line-height: 1.1; }
+.role-desc { margin: 4px 0 0; color: var(--muted); font-size: 11px; font-weight: 700; line-height: 1.35; }
+.role-count {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #f2f4f7;
+  color: #475467;
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.role-body { padding: 14px 15px 15px; }
+.card-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.meta-box {
+  padding: 10px;
+  border: 1px solid #edf2f7;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.meta-label { margin: 0; color: var(--muted); font-size: 10px; font-weight: 850; }
+.meta-value { margin: 3px 0 0; color: #1d2939; font-size: 17px; font-weight: 950; line-height: 1; }
+.permissions {
+  min-height: 65px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+}
+.permission-chip {
+  max-width: 100%;
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: #eefbf4;
+  color: #137a42;
+  font-size: 10px;
+  font-weight: 850;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.permission-chip.more {
+  background: #eef2ff;
+  color: var(--blue);
+}
+.empty-perms {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 800;
+}
+.role-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 8px;
+}
+.action-btn {
+  height: 34px;
+  padding: 0 11px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 900;
+}
+.action-view { background: #eef2ff; color: var(--blue); }
+.action-edit { background: #fff7ed; color: #c05612; }
+.action-delete { margin-left: auto; width: 34px; padding: 0; background: #fff1f3; color: #b4233f; }
+.empty-card {
+  padding: 58px 20px;
+  text-align: center;
+}
+.empty-card i { color: #d0d5dd; font-size: 56px; }
+.empty-card h2 { margin: 15px 0 5px; font-size: 20px; font-weight: 950; }
+.empty-card p { margin: 0 0 20px; color: var(--muted); font-weight: 700; }
+
+@media (max-width: 1500px) {
+  .hero-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .roles-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 920px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .topbar { align-items: flex-start; flex-direction: column; padding: 12px; }
+  .content { padding: 12px; }
+  .hero-grid, .roles-grid { grid-template-columns: 1fr; }
+  .toolbar { align-items: stretch; flex-direction: column; }
+  .search-wrap { max-width: none; }
+  .toolbar-actions { flex-wrap: wrap; }
+  .profile-role, .date-pill { display: none; }
+}
+</style>
+</head>
+<body>
+{% set ns = namespace(total_permissions=0, privileged_roles=0) %}
+{% for role in roles %}
+  {% set ns.total_permissions = ns.total_permissions + (role.permissions|length) %}
+  {% if role.name|lower in ['admin', 'super admin', 'super_admin', 'administrator'] %}
+    {% set ns.privileged_roles = ns.privileged_roles + 1 %}
+  {% endif %}
+{% endfor %}
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">
+      <div>
+        <p class="brand-title">Diet Expert</p>
+        <div class="brand-sub">Clinical Nutrition Suite</div>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Admin navigation">
+      <a class="nav-link" href="{{ url_for('dashboard.admin_dashboard') }}"><i class="fas fa-table-columns"></i><span>Dashboard</span></a>
+
+      <div class="nav-label">Management</div>
+      <a class="nav-link" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span><i class="fas fa-chevron-right arrow"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}"><i class="fas fa-stethoscope"></i><span>Doctors</span><i class="fas fa-chevron-right arrow"></i></a>
+      <a class="nav-link" href="#"><i class="fas fa-hospital-user"></i><span>Patients</span><i class="fas fa-chevron-right arrow"></i></a>
+      <a class="nav-link active" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-shield-halved"></i><span>Roles & Permissions</span></a>
+
+      <div class="nav-label">Content & Data</div>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span><i class="fas fa-chevron-right arrow"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span><i class="fas fa-chevron-right arrow"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#rules"><i class="fas fa-list-check"></i><span>Rule Library</span><i class="fas fa-chevron-right arrow"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#builder"><i class="fas fa-calendar-days"></i><span>Diet Plans</span><i class="fas fa-chevron-right arrow"></i></a>
+
+      <div class="nav-label">System</div>
+      <a class="nav-link" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span><i class="fas fa-chevron-right arrow"></i></a>
+      <a class="nav-link" href="#"><i class="fas fa-file-lines"></i><span>Audit Logs</span><i class="fas fa-chevron-right arrow"></i></a>
+      <a class="nav-link" href="#"><i class="fas fa-heart-pulse"></i><span>System Health</span><i class="fas fa-chevron-right arrow"></i></a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a class="back-link" href="{{ url_for('main.home') }}"><i class="fas fa-arrow-up-right-from-square"></i><span>Back to Website</span></a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="title">
+        <h1>Roles Management</h1>
+        <p>Control access levels, modules, and permissions for the expert system.</p>
+      </div>
+      <div class="top-tools">
+        <span class="date-pill" id="rolesDate">Aug 24, 2026</span>
+        <button class="icon-btn" type="button" aria-label="Notifications"><i class="fas fa-bell"></i><span class="count">3</span></button>
+        <div class="profile">
+          <div class="avatar">AD</div>
+          <div>
+            <p class="profile-name">Admin</p>
+            <p class="profile-role">Super Administrator</p>
+          </div>
+          <i class="fas fa-chevron-down" style="color:#667085;font-size:10px;"></i>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-stack">
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <section class="hero-grid">
+        <article class="hero">
+          <div>
+            <h2>Access control overview</h2>
+            <p>Review role coverage, inspect assigned permissions, and maintain clean access boundaries for admins, doctors, and users.</p>
+          </div>
+          <div class="hero-icon"><i class="fas fa-shield-halved"></i></div>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Total Roles</p>
+          <p class="metric-value">{{ roles|length }}</p>
+          <p class="metric-note"><i class="fas fa-layer-group"></i> Active definitions</p>
+          <div class="meter"><span style="width:84%;background:var(--green);"></span></div>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Permission Links</p>
+          <p class="metric-value">{{ ns.total_permissions }}</p>
+          <p class="metric-note"><i class="fas fa-key"></i> Assigned permissions</p>
+          <div class="meter"><span style="width:72%;background:var(--blue);"></span></div>
+        </article>
+        <article class="metric-card">
+          <p class="metric-label">Privileged Roles</p>
+          <p class="metric-value">{{ ns.privileged_roles }}</p>
+          <p class="metric-note"><i class="fas fa-user-shield"></i> Admin-level access</p>
+          <div class="meter"><span style="width:58%;background:var(--purple);"></span></div>
+        </article>
+      </section>
+
+      <section class="toolbar">
+        <div class="search-wrap">
+          <i class="fas fa-magnifying-glass"></i>
+          <input class="search-input" id="roleSearch" type="search" placeholder="Search roles, descriptions, permissions" oninput="filterRoles()">
+        </div>
+        <div class="toolbar-actions">
+          <select class="select" id="permissionFilter" onchange="filterRoles()">
+            <option value="all">All roles</option>
+            <option value="with">With permissions</option>
+            <option value="without">No permissions</option>
+          </select>
+          <a class="create-btn" href="{{ url_for('tbl_roles.create') }}"><i class="fas fa-plus"></i>Create Role</a>
+        </div>
+      </section>
+
+      {% if roles %}
+        <section class="roles-grid" id="rolesGrid">
+          {% for role in roles %}
+            {% set sorted_permissions = role.permissions|sort(attribute='code') %}
+            {% set tone = ['tone-green', 'tone-blue', 'tone-purple', 'tone-orange', 'tone-rose'][loop.index0 % 5] %}
+            <article class="roles-card role-card"
+                     data-permission-state="{{ 'with' if sorted_permissions else 'without' }}"
+                     data-search="{{ role.name|lower }} {{ (role.description or '')|lower }} {% for permission in sorted_permissions %}{{ permission.code|lower }} {{ permission.name|lower }} {% endfor %}">
+              <div class="role-head">
+                <div class="role-icon {{ tone }}"><i class="fas fa-user-shield"></i></div>
+                <div>
+                  <h2 class="role-title">{{ role.name }}</h2>
+                  <p class="role-desc">{{ role.description or "No description provided." }}</p>
+                </div>
+                <span class="role-count">{{ sorted_permissions|length }} permission{{ sorted_permissions|length != 1 and 's' or '' }}</span>
+              </div>
+              <div class="role-body">
+                <div class="card-meta">
+                  <div class="meta-box">
+                    <p class="meta-label">Users</p>
+                    <p class="meta-value">{{ role.users|length }}</p>
+                  </div>
+                  <div class="meta-box">
+                    <p class="meta-label">Permissions</p>
+                    <p class="meta-value">{{ sorted_permissions|length }}</p>
+                  </div>
+                </div>
+                <div class="permissions">
+                  {% if sorted_permissions %}
+                    {% for permission in sorted_permissions[:5] %}
+                      <span class="permission-chip">{{ permission.code }}</span>
+                    {% endfor %}
+                    {% if sorted_permissions|length > 5 %}
+                      <span class="permission-chip more">+{{ sorted_permissions|length - 5 }} more</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="empty-perms">No permissions assigned</span>
+                  {% endif %}
+                </div>
+                <div class="role-actions">
+                  <a class="action-btn action-view" href="{{ url_for('tbl_roles.detail', role_id=role.id) }}"><i class="fas fa-eye"></i>View</a>
+                  <a class="action-btn action-edit" href="{{ url_for('tbl_roles.edit', role_id=role.id) }}"><i class="fas fa-pen"></i>Edit</a>
+                  <a class="action-btn action-delete" href="{{ url_for('tbl_roles.delete_confirm', role_id=role.id) }}" title="Delete role"><i class="fas fa-trash"></i></a>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </section>
+      {% else %}
+        <section class="empty-card">
+          <i class="fas fa-user-shield"></i>
+          <h2>No Roles Found</h2>
+          <p>Create your first role and assign permissions to start managing access.</p>
+          <a class="create-btn" href="{{ url_for('tbl_roles.create') }}"><i class="fas fa-plus"></i>Create First Role</a>
+        </section>
+      {% endif %}
+    </div>
+  </main>
 </div>
 
-{% if roles %}
-<table class="table table-striped align-middle">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Description</th>
-      <th>Permissions</th>
-      <th class="text-end"></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for role in roles %}
-    <tr>
-      <td>
-        <a href="{{ url_for('tbl_roles.detail', role_id=role.id) }}">
-          {{ role.name }}
-        </a>
-      </td>
-      <td>{{ role.description or "-" }}</td>
-      <td>
-        {% if role.permissions %}
-        <span class="badge bg-secondary">
-          {{ role.permissions|length }} permission{{ role.permissions|length !=
-          1 and 's' or '' }}
-        </span>
-        {% else %}
-        <span class="text-muted small">No permissions</span>
-        {% endif %}
-      </td>
-      <td class="text-end">
-        <a
-          href="{{ url_for('tbl_roles.edit', role_id=role.id) }}"
-          class="btn btn-sm btn-warning"
-          >✏️</a
-        >
-        <a
-          href="{{ url_for('tbl_roles.delete_confirm', role_id=role.id) }}"
-          class="btn btn-sm btn-danger"
-          >🗑️</a
-        >
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% else %}
-<p class="text-muted">No roles defined yet.</p>
-{% endif %} {% endblock %}
+<script>
+const rolesDate = document.getElementById("rolesDate");
+if (rolesDate) {
+  rolesDate.textContent = new Date().toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+}
+
+function filterRoles() {
+  const searchTerm = (document.getElementById("roleSearch")?.value || "").toLowerCase().trim();
+  const permissionState = document.getElementById("permissionFilter")?.value || "all";
+
+  document.querySelectorAll(".role-card").forEach(card => {
+    const matchesSearch = !searchTerm || card.dataset.search.includes(searchTerm);
+    const matchesPermission = permissionState === "all" || card.dataset.permissionState === permissionState;
+    card.style.display = matchesSearch && matchesPermission ? "" : "none";
+  });
+}
+</script>
+</body>
+</html>
