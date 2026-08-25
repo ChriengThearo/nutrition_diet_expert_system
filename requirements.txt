@@ -10,4 +10,7 @@ python-dotenv
 pymysql
 easyocr
 psycopg
-fastapi uvicorn httpx python-dotenv
+fastapi
+uvicorn
+httpx
+requests
