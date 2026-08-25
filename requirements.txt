@@ -9,3 +9,5 @@ Flask-Migrate == 4.0.5
 python-dotenv
 pymysql
 easyocr
+psycopg
+fastapi uvicorn httpx python-dotenv
