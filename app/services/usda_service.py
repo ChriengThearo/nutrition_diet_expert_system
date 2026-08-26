@@ -56,10 +56,13 @@ class USDAService:
     @staticmethod
     def _nutrient(food: dict[str, Any], names: set[str]):
         for item in food.get("foodNutrients", []) or []:
-            name = str(item.get("nutrientName") or "").lower()
-            number = str(item.get("nutrientNumber") or "")
+            nutrient = item.get("nutrient") if isinstance(item.get("nutrient"), dict) else {}
+            name = str(item.get("nutrientName") or nutrient.get("name") or "").lower()
+            number = str(item.get("nutrientNumber") or nutrient.get("number") or "")
             if name in names or number in names:
                 value = item.get("value")
+                if value in (None, ""):
+                    value = item.get("amount")
                 return value if value not in (None, "") else None
         return None
 
@@ -103,7 +106,7 @@ class USDAService:
             "serving_size": food.get("servingSize"),
             "serving_size_unit": food.get("servingSizeUnit"),
             "nutrients": {
-                "calories": cls._nutrient(food, {"energy", "1008"}),
+                "calories": cls._nutrient(food, {"208", "1008"}),
                 "protein_g": cls._nutrient(food, {"protein", "203"}),
                 "fat_g": cls._nutrient(food, {"total lipid (fat)", "204"}),
                 "carbohydrates_g": cls._nutrient(food, {"carbohydrate, by difference", "205"}),

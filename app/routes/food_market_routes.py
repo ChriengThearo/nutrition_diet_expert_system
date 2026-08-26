@@ -4,7 +4,7 @@ from flask_login import current_user, login_required
 from app.models.doctor_food_favorite import DoctorFoodFavorite
 from app.routes.dashboard_routes import doctor_required
 from app.services.usda_service import USDAService
-from extensions import db
+from extensions import csrf, db
 
 food_market_bp = Blueprint("food_market", __name__, url_prefix="/dashboard/doctor/food-market")
 
@@ -28,6 +28,7 @@ def categories():
 
 
 @food_market_bp.route("/search", methods=["GET", "POST"])
+@csrf.exempt
 @login_required
 @doctor_required
 def search():
@@ -57,28 +58,8 @@ def detail(fdc_id):
         return _error(str(exc), 503)
 
 
-def _grounded_analysis(food):
-    n = food.get("nutrients", {})
-    facts = []
-    for label, key, unit in (("Calories", "calories", "kcal"), ("Protein", "protein_g", "g"), ("Carbohydrates", "carbohydrates_g", "g"), ("Fat", "fat_g", "g"), ("Fiber", "fiber_g", "g"), ("Sodium", "sodium_mg", "mg")):
-        if n.get(key) is not None:
-            facts.append(f"{label}: {n[key]} {unit}")
-    interpretation = "Interpretation is limited to the USDA values shown; missing nutrients are not treated as zero."
-    return {"food": food, "usda_facts": facts, "ai_interpretation": interpretation, "ai_provider": "not configured"}
-
-
-@food_market_bp.route("/analyze", methods=["POST"])
-@login_required
-@doctor_required
-def analyze():
-    payload = request.get_json(silent=True) or {}
-    food = payload.get("food")
-    if not isinstance(food, dict):
-        return _error("A USDA food record is required.")
-    return jsonify({"success": True, "analysis": _grounded_analysis(food)})
-
-
 @food_market_bp.route("/compare", methods=["POST"])
+@csrf.exempt
 @login_required
 @doctor_required
 def compare():
@@ -89,6 +70,7 @@ def compare():
 
 
 @food_market_bp.route("/ai-search", methods=["POST"])
+@csrf.exempt
 @login_required
 @doctor_required
 def ai_search():
@@ -101,6 +83,7 @@ def ai_search():
 
 
 @food_market_bp.route("/favorites", methods=["GET", "POST"])
+@csrf.exempt
 @login_required
 @doctor_required
 def favorites():
@@ -123,6 +106,7 @@ def favorites():
 
 
 @food_market_bp.route("/favorites/<int:fdc_id>", methods=["DELETE"])
+@csrf.exempt
 @login_required
 @doctor_required
 def delete_favorite(fdc_id):
