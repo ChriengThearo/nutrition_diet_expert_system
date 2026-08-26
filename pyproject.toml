@@ -5,7 +5,15 @@ requires-python = ">=3.9"
 dependencies = [
     "flask>=3.0.0",
     "flask-sqlalchemy>=3.1.0",
-    "sqlalchemy>=2.0.0"
+    "sqlalchemy>=2.0.0",
+    "flask-wtf>=1.2.1",
+    "wtforms>=3.1.2",
+    "email-validator>=2.1.0",
+    "flask-login>=0.6.3",
+    "flask-migrate>=4.0.5",
+    "python-dotenv",
+    "psycopg[binary]",
+    "requests"
 ]
 
 [tool.vercel]
