@@ -3,7 +3,9 @@ name = "nutrition-diet-expert-system"
 version = "0.1.0"
 requires-python = ">=3.9"
 dependencies = [
-    "flask>=3.0.0"
+    "flask>=3.0.0",
+    "flask-sqlalchemy>=3.1.0",
+    "sqlalchemy>=2.0.0"
 ]
 
 [tool.vercel]
