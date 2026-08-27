@@ -7,7 +7,7 @@
   --nd-green-light: #43a047;
   --nd-green-pale: #e8f5e9;
   --nd-green-soft: #c8e6c9;
-  --nd-sidebar-bg: #1b5e20;
+  --nd-sidebar-bg: oklch(44.8% 0.119 151.328);
   --nd-sidebar-hover: #2e7d32;
   --nd-sidebar-active: #43a047;
   --nd-white: #ffffff;
@@ -24,25 +24,27 @@
 
 /* ── Layout ─────────────────────────────────────── */
 .nd-app { display:flex; min-height:100vh; background:var(--nd-bg); font-family:'Plus Jakarta Sans','Segoe UI',sans-serif; color:var(--nd-ink); }
-.nd-sidebar { width:220px; min-width:220px; background:var(--nd-sidebar-bg); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:100; overflow-y:auto; }
+.nd-sidebar { width:220px; min-width:220px; background:var(--nd-sidebar-bg); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:100; overflow-y:auto; overflow-x:hidden; }
+.nd-sidebar-leaf-bg { position:absolute; top:0; left:0; right:0; bottom:0; z-index:0; background-repeat:no-repeat; background-position:-40px bottom; background-size:340px auto; opacity:0.18; pointer-events:none; }
 .nd-main { margin-left:220px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
 
 /* ── Sidebar ─────────────────────────────────────── */
-.nd-sidebar-brand { padding:18px 18px 10px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.12); }
-.nd-sidebar-brand img { width:36px; height:36px; border-radius:8px; }
-.nd-sidebar-brand-text { color:#fff; font-weight:800; font-size:0.95rem; line-height:1.2; }
-.nd-sidebar-brand-sub { color:rgba(255,255,255,0.6); font-size:0.7rem; }
-.nd-nav { list-style:none; padding:10px 0; margin:0; flex:1; }
-.nd-nav-item { margin:2px 10px; border-radius:var(--nd-radius-sm); overflow:hidden; }
-.nd-nav-link { display:flex; align-items:center; gap:10px; padding:9px 12px; color:rgba(255,255,255,0.78); font-size:0.85rem; font-weight:600; text-decoration:none; border-radius:var(--nd-radius-sm); transition:all 0.18s; cursor:pointer; background:none; border:none; width:100%; }
-.nd-nav-link:hover { background:var(--nd-sidebar-hover); color:#fff; }
-.nd-nav-link.active { background:var(--nd-sidebar-active); color:#fff; }
+.nd-sidebar-brand { padding:22px 18px 16px; display:flex; align-items:center; gap:12px; position:relative; z-index:2; }
+.nd-sidebar-logo { width:42px; height:42px; border-radius:12px; background:#ffffff; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,0.25); padding:4px; }
+.nd-sidebar-logo img { width:100%; height:100%; object-fit:contain; }
+.nd-sidebar-brand-text { color:#fff; font-weight:800; font-size:1rem; line-height:1.2; }
+.nd-sidebar-brand-sub { color:rgba(255,255,255,0.55); font-size:0.72rem; }
+.nd-nav { list-style:none; padding:8px 14px; margin:0; position:relative; z-index:2; }
+.nd-nav-item { margin:6px 0; border-radius:999px; overflow:hidden; }
+.nd-nav-link { display:flex; align-items:center; gap:12px; padding:11px 16px; color:rgba(255,255,255,0.75); font-size:0.85rem; font-weight:600; text-decoration:none; border-radius:999px; transition:all 0.18s; cursor:pointer; background:none; border:none; width:100%; }
+.nd-nav-link:hover { background:rgba(255,255,255,0.08); color:#fff; }
+.nd-nav-link.active { background:var(--nd-sidebar-active); color:#fff; box-shadow:0 4px 14px rgba(0,0,0,0.2); }
 .nd-nav-link i { width:18px; text-align:center; font-size:0.9rem; }
 .nd-nav-arrow { margin-left:auto; font-size:0.7rem; opacity:0.6; }
 .nd-nav-section { padding:10px 18px 4px; color:rgba(255,255,255,0.38); font-size:0.68rem; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; }
-.nd-sidebar-footer { padding:14px 16px; border-top:1px solid rgba(255,255,255,0.12); }
+.nd-sidebar-footer { padding:14px; margin:10px 14px 16px; margin-top:auto; border-top:none; background:rgba(255,255,255,0.06); border-radius:16px; position:relative; z-index:2; }
 .nd-sidebar-user { display:flex; align-items:center; gap:10px; }
-.nd-sidebar-user-avatar { width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.3); }
+.nd-sidebar-user-avatar { width:38px; height:38px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,0.3); }
 .nd-sidebar-user-name { color:#fff; font-size:0.82rem; font-weight:700; }
 .nd-sidebar-user-role { color:rgba(255,255,255,0.55); font-size:0.7rem; }
 

@@ -1,293 +1,462 @@
-<!DOCTYPE html>
-<html lang="km">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>User Dashboard | Diet Expert</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/ndes_user.css') }}">
-<script id="app-permissions" type="application/json">
-  {{ current_user.get_permission_codes()|list|tojson if current_user.is_authenticated else [] }}
-</script>
-<script>
-  window.APP_PERMISSIONS = JSON.parse(document.getElementById('app-permissions').textContent || '[]');
-</script>
-</head>
-<body>
+{% extends "layouts/dashboard_user_shell.html" %}
+{% block title %}User Dashboard | Diet Expert{% endblock %}
+
+{% block page_title %}{% if current_section == 'history' %}ប្រវត្តិផែនការអាហារ{% elif current_section == 'profile' %}ព័ត៌មានប្រវត្តិរូប{% else %}ផ្ទាំងគ្រប់គ្រងអ្នកប្រើប្រាស់{% endif %}{% endblock %}
+{% block page_subtitle %}សូមស្វាគមន៍មកវិញ {{ user_display_name }} 👋{% endblock %}
+
+{% block content %}
 {% set last_plan = plan_history[0] if plan_history else None %}
-{% set is_guest_mode = guest_mode if guest_mode is defined else session.get('user_guest_mode', False) %}
-{% set user_display_name = 'ភ្ញៀវ' if is_guest_mode else (current_user.full_name or current_user.username) %}
-{% set default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
-{% set photo_path = (current_user.photo or '')|trim %}
-{% set avatar_url = default_avatar_url if is_guest_mode else
-  (url_for('main.images', filename=photo_path|replace('images/', '')) if photo_path else default_avatar_url) %}
-{% set dashboard_permissions = current_user.get_permission_codes() if current_user.is_authenticated else [] %}
-{% set dashboard_option_count =
-  (1 if 'dashboard.admin' in dashboard_permissions else 0) +
-  (1 if 'dashboard.doctor' in dashboard_permissions else 0) +
-  (1 if 'dashboard.user' in dashboard_permissions else 0) %}
-{% set show_dashboard_switcher = dashboard_option_count > 1 %}
 
-<div class="nd-app">
+<!-- ═══ SECTION: OVERVIEW ═══ -->
+<div id="section-overview" class="nd-content nd-section" {{ '' if current_section == 'overview' else 'style="display:none;"' }}>
 
-  <!-- SIDEBAR -->
-  <aside class="nd-sidebar">
-    <div class="nd-sidebar-brand">
-      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">
-      <div>
-        <div class="nd-sidebar-brand-text">Diet Expert</div>
-        <div class="nd-sidebar-brand-sub">Personal Nutrition</div>
+  <!-- STAT CARDS -->
+  <div class="nd-stats-row">
+    <div class="nd-stat">
+      <div class="nd-stat-header">
+        <span class="nd-stat-label">BMI ចុងក្រោយ</span>
+        <div class="nd-stat-icon green"><i class="fas fa-weight-scale"></i></div>
+      </div>
+      <div class="nd-stat-value">
+        {{ '%.1f'|format(last_plan.bmi|float) if last_plan and last_plan.bmi else '—' }}
+      </div>
+      <div class="nd-stat-sub">សន្ទស្សន៍ម៉ាសរាងកាយ</div>
+      <div class="nd-stat-trend {% if last_plan and last_plan.bmi and last_plan.bmi|float >= 18.5 and last_plan.bmi|float < 25 %}up{% else %}neutral{% endif %}">
+        <i class="fas fa-circle-info"></i>
+        {% if last_plan and last_plan.bmi %}
+          {% set b = last_plan.bmi|float %}
+          {% if b < 18.5 %}មានទម្ងន់តិចពេក{% elif b < 25 %}ធម្មតា{% elif b < 30 %}លើស​ទម្ងន់{% else %}ធាត់{% endif %}
+        {% else %}មិនទាន់មានទិន្នន័យ{% endif %}
       </div>
     </div>
+    <div class="nd-stat">
+      <div class="nd-stat-header">
+        <span class="nd-stat-label">កាឡូរី/ថ្ងៃ</span>
+        <div class="nd-stat-icon amber"><i class="fas fa-fire"></i></div>
+      </div>
+      <div class="nd-stat-value">{{ last_plan.calories if last_plan and last_plan.calories else '—' }}</div>
+      <div class="nd-stat-sub">គោលដៅប្រចាំថ្ងៃ (kcal)</div>
+      <div class="nd-stat-trend neutral"><i class="fas fa-bullseye"></i> គោលដៅ</div>
+    </div>
+    <div class="nd-stat">
+      <div class="nd-stat-header">
+        <span class="nd-stat-label">ពេលអាហារ/ថ្ងៃ</span>
+        <div class="nd-stat-icon blue"><i class="fas fa-bowl-rice"></i></div>
+      </div>
+      <div class="nd-stat-value">{{ last_plan.meals_per_day if last_plan and last_plan.meals_per_day else '—' }}</div>
+      <div class="nd-stat-sub">ផ្អែកលើផែនការចុងក្រោយ</div>
+      <div class="nd-stat-trend neutral"><i class="fas fa-utensils"></i> ពេលអាហារ</div>
+    </div>
+    <div class="nd-stat">
+      <div class="nd-stat-header">
+        <span class="nd-stat-label">ចំនួនផែនការ</span>
+        <div class="nd-stat-icon purple"><i class="fas fa-scroll"></i></div>
+      </div>
+      <div class="nd-stat-value">{{ plan_history|length if plan_history else 0 }}</div>
+      <div class="nd-stat-sub">ផែនការបានបង្កើត</div>
+      <div class="nd-stat-trend up"><i class="fas fa-arrow-up"></i> ប្រវត្តិ</div>
+    </div>
+  </div>
 
-    <ul class="nd-nav">
-      <li class="nd-nav-item">
-        <button class="nd-nav-link active" id="nav-overview" onclick="showSection('overview')">
-          <i class="fas fa-gauge-high"></i> ផ្ទាំងគ្រប់គ្រង
-        </button>
-      </li>
-      <li class="nd-nav-section">របស់ខ្ញុំ</li>
-      <li class="nd-nav-item">
-        <button class="nd-nav-link" id="nav-history" onclick="showSection('history')">
-          <i class="fas fa-clock-rotate-left"></i> ប្រវត្តិផែនការ
-          <i class="fas fa-chevron-right nd-nav-arrow"></i>
-        </button>
-      </li>
-      <li class="nd-nav-item">
-        <button class="nd-nav-link" id="nav-profile" onclick="showSection('profile')">
-          <i class="fas fa-id-card"></i> ប្រវត្តិរូប
-          <i class="fas fa-chevron-right nd-nav-arrow"></i>
-        </button>
-      </li>
-      <li class="nd-nav-section">ឧបករណ៍</li>
-      <li class="nd-nav-item">
-        <a class="nd-nav-link" href="{{ url_for('dashboard.user_diet_expert') }}">
-          <i class="fas fa-utensils"></i> បង្កើតផែនការ
-        </a>
-      </li>
-      <li class="nd-nav-item">
-        <a class="nd-nav-link" href="{{ url_for('main.bmi') }}">
-          <i class="fas fa-weight-scale"></i> គណនា BMI
-        </a>
-      </li>
-      <li class="nd-nav-item">
-        <a class="nd-nav-link" href="{{ url_for('main.home') }}">
-          <i class="fas fa-home"></i> ទំព័រដើម
-        </a>
-      </li>
-    </ul>
+  <!-- THREE PANELS -->
+  <div class="nd-panels">
 
-    <div class="nd-sidebar-footer">
-      <div class="nd-sidebar-user">
-        <img src="{{ avatar_url }}" alt="Avatar" class="nd-sidebar-user-avatar"
-             onerror="this.onerror=null;this.src='{{ default_avatar_url }}';">
+    <!-- PANEL 1: BMI Trend -->
+    <div class="nd-panel">
+      <div class="nd-panel-header">
         <div>
-          <div class="nd-sidebar-user-name">{{ user_display_name }}</div>
-          <div class="nd-sidebar-user-role">{{ 'Guest Session' if is_guest_mode else 'Member' }}</div>
+          <h5 class="nd-panel-title"><i class="fas fa-chart-column" style="color:#43a047;"></i> និន្នាការ BMI</h5>
+          <p class="nd-panel-subtitle">ប្រវត្តិ BMI ចុងក្រោយ ៧ ដង</p>
         </div>
+<<<<<<< HEAD
         <a href="{{ url_for('auth.logout') }}" class="ms-auto" style="color:rgba(255,255,255,0.5);font-size:0.85rem;" title="Logout"
            onclick="openLogoutModal(event);">
           <i class="fas fa-sign-out-alt"></i>
         </a>
+=======
+>>>>>>> f33c8ad800c6a7f976f9e2667fb40ee3653fec70
       </div>
+      {% set bmi_ns = namespace(points=[], keys=[]) %}
+      {% for plan in plan_history %}
+        {% if plan.bmi and bmi_ns.points|length < 7 %}
+          {% set pk = (plan.generated_at.strftime('%Y-%m-%d') if plan.generated_at else 'x') ~ '|' ~ '%.1f'|format(plan.bmi|float) %}
+          {% if pk not in bmi_ns.keys %}
+            {% set _ = bmi_ns.keys.append(pk) %}
+            {% set _ = bmi_ns.points.append(plan) %}
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+      {% if bmi_ns.points %}
+        {% set scale_ns = namespace(max=0) %}
+        {% for plan in bmi_ns.points %}{% if plan.bmi|float > scale_ns.max %}{% set scale_ns.max = plan.bmi|float %}{% endif %}{% endfor %}
+        {% set bmi_scale = scale_ns.max if scale_ns.max > 30 else 30 %}
+        <div class="bmi-row-chart">
+          {% for plan in bmi_ns.points|reverse %}
+            {% set bv = plan.bmi|float %}
+            {% set bw = ((bv / bmi_scale) * 100)|round(0,'ceil') %}
+            {% set tone = 'normal' %}
+            {% if bv < 18.5 %}{% set tone = 'under' %}{% elif bv >= 30 %}{% set tone = 'obese' %}{% elif bv >= 25 %}{% set tone = 'over' %}{% endif %}
+            <div class="bmi-row-item">
+              <span class="bmi-row-date">{{ plan.generated_at.strftime('%d/%m') if plan.generated_at else '?' }}</span>
+              <div class="bmi-row-track"><div class="bmi-row-fill bmi-row-{{ tone }}" style="width:{{ [bw,8]|max }}%;"></div></div>
+              <span class="bmi-row-number">{{ '%.1f'|format(bv) }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="nd-empty" style="padding:20px 0;">
+          <i class="fas fa-chart-bar"></i>
+          <p>មិនទាន់មានទិន្នន័យ BMI ។ សូមបង្កើតផែនការដំបូង។</p>
+        </div>
+      {% endif %}
     </div>
-  </aside>
 
-  <!-- MAIN AREA -->
-  <div class="nd-main">
-
-    <!-- TOP BAR -->
-    <div class="nd-topbar">
-      <div class="nd-topbar-left">
-        <h1 id="nd-page-title">ផ្ទាំងគ្រប់គ្រងអ្នកប្រើប្រាស់</h1>
-        <p>សូមស្វាគមន៍មកវិញ {{ user_display_name }} 👋</p>
+    <!-- PANEL 2: Latest Plan Summary -->
+    <div class="nd-panel">
+      <div class="nd-panel-header">
+        <div>
+          <h5 class="nd-panel-title"><i class="fas fa-star" style="color:#ffd600;"></i> ផែនការចុងក្រោយ</h5>
+          <p class="nd-panel-subtitle">
+            {% if last_plan and last_plan.generated_at %}{{ last_plan.generated_at.strftime('%d/%m/%Y') }}{% else %}មិនទាន់មាន{% endif %}
+          </p>
+        </div>
+        <a class="nd-panel-action" href="{{ url_for('dashboard.user_diet_expert') }}">បង្កើតថ្មី</a>
       </div>
-      <div class="nd-topbar-right">
-        <span class="nd-topbar-date" id="nd-today-date"></span>
-        <div class="nd-topbar-icon">
-          <a href="{{ url_for('dashboard.user_profile_edit') }}" style="color:inherit;text-decoration:none;" title="Edit Profile">
-            <img src="{{ avatar_url }}" alt="Avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"
-                 onerror="this.onerror=null;this.src='{{ default_avatar_url }}';">
+      {% if last_plan %}
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <div class="nd-nutrition-item">
+              <span class="nd-nutrition-label"><span class="nd-nutrition-icon fire"><i class="fas fa-fire"></i></span> កាឡូរី</span>
+              <span class="nd-nutrition-stat">{{ last_plan.calories or '—' }} kcal</span>
+            </div>
+            {% if last_plan.calories %}
+            <div class="nd-progress-track mb-1"><div class="nd-progress-fill amber" style="width:{{ [(last_plan.calories|float / 2000 * 100)|round|int, 100]|min }}%;"></div></div>
+            {% endif %}
+          </div>
+          <div>
+            <div class="nd-nutrition-item">
+              <span class="nd-nutrition-label"><span class="nd-nutrition-icon prot"><i class="fas fa-dumbbell"></i></span> ប្រូតេអ៊ីន</span>
+              <span class="nd-nutrition-stat">{{ last_plan.protein or '—' }} g</span>
+            </div>
+            {% if last_plan.protein %}
+            <div class="nd-progress-track mb-1"><div class="nd-progress-fill blue" style="width:{{ [(last_plan.protein|float / 80 * 100)|round|int, 100]|min }}%;"></div></div>
+            {% endif %}
+          </div>
+          <div>
+            <div class="nd-nutrition-item">
+              <span class="nd-nutrition-label"><span class="nd-nutrition-icon veg"><i class="fas fa-leaf"></i></span> ជាតិស្ករ</span>
+              <span class="nd-nutrition-stat">{{ last_plan.sugar or '—' }} g</span>
+            </div>
+            {% if last_plan.sugar %}
+            <div class="nd-progress-track mb-1"><div class="nd-progress-fill green" style="width:{{ [(last_plan.sugar|float / 50 * 100)|round|int, 100]|min }}%;"></div></div>
+            {% endif %}
+          </div>
+          <div>
+            <div class="nd-nutrition-item">
+              <span class="nd-nutrition-label"><span class="nd-nutrition-icon water"><i class="fas fa-droplet"></i></span> ជាតិខ្លាញ់</span>
+              <span class="nd-nutrition-stat">{{ last_plan.fat or '—' }} g</span>
+            </div>
+            {% if last_plan.fat %}
+            <div class="nd-progress-track mb-1"><div class="nd-progress-fill red" style="width:{{ [(last_plan.fat|float / 65 * 100)|round|int, 100]|min }}%;"></div></div>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <div class="nd-empty" style="padding:20px 0;">
+          <i class="fas fa-utensils"></i>
+          <p>មិនទាន់មានផែនការ។</p>
+          <a class="nd-btn nd-btn-primary nd-btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}">
+            <i class="fas fa-plus"></i> បង្កើតផែនការ
           </a>
         </div>
-        {% if show_dashboard_switcher %}
-        <div class="nd-topbar-icon dropdown">
-          {% include "dashboard/_dashboard_switcher.html" %}
-        </div>
-        {% endif %}
-      </div>
+      {% endif %}
     </div>
 
-    <!-- ═══ SECTION: OVERVIEW ═══ -->
-    <div id="section-overview" class="nd-content nd-section">
-
-      <!-- STAT CARDS -->
-      <div class="nd-stats-row">
-        <div class="nd-stat">
-          <div class="nd-stat-header">
-            <span class="nd-stat-label">BMI ចុងក្រោយ</span>
-            <div class="nd-stat-icon green"><i class="fas fa-weight-scale"></i></div>
-          </div>
-          <div class="nd-stat-value">
-            {{ '%.1f'|format(last_plan.bmi|float) if last_plan and last_plan.bmi else '—' }}
-          </div>
-          <div class="nd-stat-sub">សន្ទស្សន៍ម៉ាសរាងកាយ</div>
-          <div class="nd-stat-trend {% if last_plan and last_plan.bmi and last_plan.bmi|float >= 18.5 and last_plan.bmi|float < 25 %}up{% else %}neutral{% endif %}">
-            <i class="fas fa-circle-info"></i>
-            {% if last_plan and last_plan.bmi %}
-              {% set b = last_plan.bmi|float %}
-              {% if b < 18.5 %}មានទម្ងន់តិចពេក{% elif b < 25 %}ធម្មតា{% elif b < 30 %}លើស​ទម្ងន់{% else %}ធាត់{% endif %}
-            {% else %}មិនទាន់មានទិន្នន័យ{% endif %}
-          </div>
+    <!-- PANEL 3: Profile Snapshot -->
+    <div class="nd-panel">
+      <div class="nd-panel-header">
+        <div>
+          <h5 class="nd-panel-title"><i class="fas fa-id-card" style="color:#1e88e5;"></i> ប្រវត្តិរូប</h5>
         </div>
-        <div class="nd-stat">
-          <div class="nd-stat-header">
-            <span class="nd-stat-label">កាឡូរី/ថ្ងៃ</span>
-            <div class="nd-stat-icon amber"><i class="fas fa-fire"></i></div>
-          </div>
-          <div class="nd-stat-value">{{ last_plan.calories if last_plan and last_plan.calories else '—' }}</div>
-          <div class="nd-stat-sub">គោលដៅប្រចាំថ្ងៃ (kcal)</div>
-          <div class="nd-stat-trend neutral"><i class="fas fa-bullseye"></i> គោលដៅ</div>
-        </div>
-        <div class="nd-stat">
-          <div class="nd-stat-header">
-            <span class="nd-stat-label">ពេលអាហារ/ថ្ងៃ</span>
-            <div class="nd-stat-icon blue"><i class="fas fa-bowl-rice"></i></div>
-          </div>
-          <div class="nd-stat-value">{{ last_plan.meals_per_day if last_plan and last_plan.meals_per_day else '—' }}</div>
-          <div class="nd-stat-sub">ផ្អែកលើផែនការចុងក្រោយ</div>
-          <div class="nd-stat-trend neutral"><i class="fas fa-utensils"></i> ពេលអាហារ</div>
-        </div>
-        <div class="nd-stat">
-          <div class="nd-stat-header">
-            <span class="nd-stat-label">ចំនួនផែនការ</span>
-            <div class="nd-stat-icon purple"><i class="fas fa-scroll"></i></div>
-          </div>
-          <div class="nd-stat-value">{{ plan_history|length if plan_history else 0 }}</div>
-          <div class="nd-stat-sub">ផែនការបានបង្កើត</div>
-          <div class="nd-stat-trend up"><i class="fas fa-arrow-up"></i> ប្រវត្តិ</div>
-        </div>
+        <a class="nd-panel-action" href="{{ url_for('dashboard.user_profile_edit') }}">កែប្រែ</a>
       </div>
+      <ul class="nd-profile-list">
+        <li>
+          <span class="nd-profile-label">ឈ្មោះ</span>
+          <span class="nd-profile-value">{{ 'បានលាក់' if is_guest_mode else (user.full_name or 'មិនទាន់កំណត់') }}</span>
+        </li>
+        <li>
+          <span class="nd-profile-label">អ៊ីមែល</span>
+          <span class="nd-profile-value">{{ 'បានលាក់' if is_guest_mode else user.email }}</span>
+        </li>
+        <li>
+          <span class="nd-profile-label">ឈ្មោះអ្នកប្រើ</span>
+          <span class="nd-profile-value">{{ 'ភ្ញៀវ' if is_guest_mode else user.username }}</span>
+        </li>
+        <li>
+          <span class="nd-profile-label">គោលដៅ</span>
+          <span class="nd-profile-value">
+            {% if is_guest_mode %}មិនទាន់ជ្រើស
+            {% elif localized_user_goals %}{{ localized_user_goals|join(', ') }}
+            {% else %}មិនទាន់ជ្រើស{% endif %}
+          </span>
+        </li>
+        <li>
+          <span class="nd-profile-label">អាឡែស៊ី</span>
+          <span class="nd-profile-value">{{ last_plan.allergies if last_plan and last_plan.allergies else 'មិនមាន' }}</span>
+        </li>
+        <li>
+          <span class="nd-profile-label">តួនាទី</span>
+          <span class="nd-profile-value">
+            {% if is_guest_mode %}<span class="nd-pill nd-pill-gray">ភ្ញៀវ</span>
+            {% else %}{% for role in user.roles %}<span class="nd-pill nd-pill-green">{{ 'អ្នកគ្រប់គ្រង' if role.name|lower=='admin' else 'វេជ្ជបណ្ឌិត' if role.name|lower=='doctor' else 'អ្នកប្រើប្រាស់' if role.name|lower=='user' else role.name }}</span>{% endfor %}{% endif %}
+          </span>
+        </li>
+      </ul>
+      {% if not is_guest_mode and user.created_at %}
+      <div class="nd-alert nd-alert-success mt-3 mb-0" style="font-size:0.77rem;">
+        <i class="fas fa-calendar-check me-1"></i> សមាជិកតាំងពីឆ្នាំ {{ user.created_at.strftime('%Y') }}
+      </div>
+      {% endif %}
+    </div>
+  </div><!-- /nd-panels -->
 
-      <!-- THREE PANELS -->
-      <div class="nd-panels">
 
-        <!-- PANEL 1: BMI Trend -->
-        <div class="nd-panel">
-          <div class="nd-panel-header">
-            <div>
-              <h5 class="nd-panel-title"><i class="fas fa-chart-column" style="color:#43a047;"></i> និន្នាការ BMI</h5>
-              <p class="nd-panel-subtitle">ប្រវត្តិ BMI ចុងក្រោយ ៧ ដង</p>
-            </div>
+  <!-- ═══ FOOD PANEL ═══ -->
+  <div class="nd-workspace" style="margin-top:0;">
+    <div class="nd-workspace-header">
+      <div>
+        <h4 class="nd-workspace-title">
+          <i class="fas fa-bowl-food me-2" style="color:#43a047;"></i>អាហារពីផែនការចុងក្រោយ
+        </h4>
+        <p class="nd-workspace-sub">
+          {% if latest_plan_rule_name %}
+            ច្បាប់: <strong>{{ latest_plan_rule_name }}</strong> &mdash;
+          {% endif %}
+          អាហារដែលបានណែនាំ និងអាហារដែលត្រូវជៀសវាង
+        </p>
+      </div>
+      <a class="nd-btn nd-btn-primary nd-btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}">
+        <i class="fas fa-arrows-rotate"></i> បង្កើតថ្មី
+      </a>
+    </div>
+
+    {% if latest_plan_foods or latest_plan_avoid_foods %}
+    <div style="padding:20px 24px;">
+      <div class="row g-4">
+
+        <!-- RECOMMENDED FOODS -->
+        <div class="col-lg-7">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#43a047;display:inline-block;"></span>
+            <h6 style="margin:0;font-weight:800;font-size:0.88rem;color:#2e7d32;">
+              អាហារដែលបានណែនាំ
+              <span style="font-weight:400;color:#607d6b;font-size:0.78rem;">({{ latest_plan_foods|length }} មុខ)</span>
+            </h6>
           </div>
-          {% set bmi_ns = namespace(points=[], keys=[]) %}
-          {% for plan in plan_history %}
-            {% if plan.bmi and bmi_ns.points|length < 7 %}
-              {% set pk = (plan.generated_at.strftime('%Y-%m-%d') if plan.generated_at else 'x') ~ '|' ~ '%.1f'|format(plan.bmi|float) %}
-              {% if pk not in bmi_ns.keys %}
-                {% set _ = bmi_ns.keys.append(pk) %}
-                {% set _ = bmi_ns.points.append(plan) %}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          {% if bmi_ns.points %}
-            {% set scale_ns = namespace(max=0) %}
-            {% for plan in bmi_ns.points %}{% if plan.bmi|float > scale_ns.max %}{% set scale_ns.max = plan.bmi|float %}{% endif %}{% endfor %}
-            {% set bmi_scale = scale_ns.max if scale_ns.max > 30 else 30 %}
-            <div class="bmi-row-chart">
-              {% for plan in bmi_ns.points|reverse %}
-                {% set bv = plan.bmi|float %}
-                {% set bw = ((bv / bmi_scale) * 100)|round(0,'ceil') %}
-                {% set tone = 'normal' %}
-                {% if bv < 18.5 %}{% set tone = 'under' %}{% elif bv >= 30 %}{% set tone = 'obese' %}{% elif bv >= 25 %}{% set tone = 'over' %}{% endif %}
-                <div class="bmi-row-item">
-                  <span class="bmi-row-date">{{ plan.generated_at.strftime('%d/%m') if plan.generated_at else '?' }}</span>
-                  <div class="bmi-row-track"><div class="bmi-row-fill bmi-row-{{ tone }}" style="width:{{ [bw,8]|max }}%;"></div></div>
-                  <span class="bmi-row-number">{{ '%.1f'|format(bv) }}</span>
+          {% if latest_plan_foods %}
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+            {% for food in latest_plan_foods %}
+            <div style="background:#f9fdf9;border:1px solid #dcedc8;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:box-shadow 0.18s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(46,125,50,0.12)'" onmouseout="this.style.boxShadow='none'">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
+                  {% if food.photo %}
+                  <img src="{{ url_for('main.images', filename=food.photo|replace('images/','')) }}"
+                       alt="{{ food.name }}"
+                       style="width:42px;height:42px;object-fit:cover;border-radius:10px;"
+                       onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                  <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;">
+                    <i class="fas fa-leaf" style="color:#2e7d32;font-size:1rem;"></i>
+                  </span>
+                  {% else %}
+                  <i class="fas fa-leaf" style="color:#2e7d32;font-size:1rem;"></i>
+                  {% endif %}
                 </div>
-              {% endfor %}
+                <div>
+                  <div style="font-weight:700;font-size:0.85rem;color:#1a2e1a;line-height:1.3;">{{ food.name }}</div>
+                  {% if food.calories %}
+                  <div style="font-size:0.72rem;color:#607d6b;">{{ food.calories }} kcal</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:4px;">
+                {% if food.protein %}
+                <div style="text-align:center;background:#e3f2fd;border-radius:6px;padding:4px 2px;">
+                  <div style="font-size:0.68rem;color:#1565c0;font-weight:600;">ប្រូតេអ៊ីន</div>
+                  <div style="font-size:0.78rem;font-weight:800;color:#1565c0;">{{ food.protein }}g</div>
+                </div>
+                {% endif %}
+                {% if food.sugar %}
+                <div style="text-align:center;background:#fff8e1;border-radius:6px;padding:4px 2px;">
+                  <div style="font-size:0.68rem;color:#e65100;font-weight:600;">ស្ករ</div>
+                  <div style="font-size:0.78rem;font-weight:800;color:#e65100;">{{ food.sugar }}g</div>
+                </div>
+                {% endif %}
+                {% if food.fat %}
+                <div style="text-align:center;background:#fce4ec;border-radius:6px;padding:4px 2px;">
+                  <div style="font-size:0.68rem;color:#c62828;font-weight:600;">ខ្លាញ់</div>
+                  <div style="font-size:0.78rem;font-weight:800;color:#c62828;">{{ food.fat }}g</div>
+                </div>
+                {% endif %}
+              </div>
             </div>
+            {% endfor %}
+          </div>
           {% else %}
-            <div class="nd-empty" style="padding:20px 0;">
-              <i class="fas fa-chart-bar"></i>
-              <p>មិនទាន់មានទិន្នន័យ BMI ។ សូមបង្កើតផែនការដំបូង។</p>
-            </div>
+          <div class="nd-empty" style="padding:20px 0;">
+            <i class="fas fa-circle-info"></i>
+            <p>មិនមានអាហារណែនាំសម្រាប់ផែនការនេះ។</p>
+          </div>
           {% endif %}
         </div>
 
-        <!-- PANEL 2: Latest Plan Summary -->
-        <div class="nd-panel">
-          <div class="nd-panel-header">
-            <div>
-              <h5 class="nd-panel-title"><i class="fas fa-star" style="color:#ffd600;"></i> ផែនការចុងក្រោយ</h5>
-              <p class="nd-panel-subtitle">
-                {% if last_plan and last_plan.generated_at %}{{ last_plan.generated_at.strftime('%d/%m/%Y') }}{% else %}មិនទាន់មាន{% endif %}
-              </p>
-            </div>
-            <a class="nd-panel-action" href="{{ url_for('dashboard.user_diet_expert') }}">បង្កើតថ្មី</a>
+        <!-- AVOID FOODS -->
+        <div class="col-lg-5">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#e53935;display:inline-block;"></span>
+            <h6 style="margin:0;font-weight:800;font-size:0.88rem;color:#c62828;">
+              អាហារដែលត្រូវជៀសវាង
+              <span style="font-weight:400;color:#607d6b;font-size:0.78rem;">({{ latest_plan_avoid_foods|length }} មុខ)</span>
+            </h6>
           </div>
-          {% if last_plan %}
-            <div style="display:flex;flex-direction:column;gap:10px;">
-              <div>
-                <div class="nd-nutrition-item">
-                  <span class="nd-nutrition-label"><span class="nd-nutrition-icon fire"><i class="fas fa-fire"></i></span> កាឡូរី</span>
-                  <span class="nd-nutrition-stat">{{ last_plan.calories or '—' }} kcal</span>
-                </div>
-                {% if last_plan.calories %}
-                <div class="nd-progress-track mb-1"><div class="nd-progress-fill amber" style="width:{{ [(last_plan.calories|float / 2000 * 100)|round|int, 100]|min }}%;"></div></div>
+          {% if latest_plan_avoid_foods %}
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            {% for food in latest_plan_avoid_foods %}
+            <div style="background:#fff5f5;border:1px solid #ffcdd2;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:12px;">
+              <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#ffebee,#ffcdd2);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
+                {% if food.photo %}
+                <img src="{{ url_for('main.images', filename=food.photo|replace('images/','')) }}"
+                     alt="{{ food.name }}"
+                     style="width:36px;height:36px;object-fit:cover;border-radius:8px;"
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;">
+                  <i class="fas fa-ban" style="color:#e53935;font-size:0.85rem;"></i>
+                </span>
+                {% else %}
+                <i class="fas fa-ban" style="color:#e53935;font-size:0.85rem;"></i>
                 {% endif %}
               </div>
-              <div>
-                <div class="nd-nutrition-item">
-                  <span class="nd-nutrition-label"><span class="nd-nutrition-icon prot"><i class="fas fa-dumbbell"></i></span> ប្រូតេអ៊ីន</span>
-                  <span class="nd-nutrition-stat">{{ last_plan.protein or '—' }} g</span>
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:0.83rem;color:#1a2e1a;">{{ food.name }}</div>
+                <div style="font-size:0.72rem;color:#607d6b;display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;">
+                  {% if food.calories %}<span>{{ food.calories }} kcal</span>{% endif %}
+                  {% if food.protein %}<span>P: {{ food.protein }}g</span>{% endif %}
+                  {% if food.fat %}<span>F: {{ food.fat }}g</span>{% endif %}
                 </div>
-                {% if last_plan.protein %}
-                <div class="nd-progress-track mb-1"><div class="nd-progress-fill blue" style="width:{{ [(last_plan.protein|float / 80 * 100)|round|int, 100]|min }}%;"></div></div>
-                {% endif %}
               </div>
-              <div>
-                <div class="nd-nutrition-item">
-                  <span class="nd-nutrition-label"><span class="nd-nutrition-icon veg"><i class="fas fa-leaf"></i></span> ជាតិស្ករ</span>
-                  <span class="nd-nutrition-stat">{{ last_plan.sugar or '—' }} g</span>
-                </div>
-                {% if last_plan.sugar %}
-                <div class="nd-progress-track mb-1"><div class="nd-progress-fill green" style="width:{{ [(last_plan.sugar|float / 50 * 100)|round|int, 100]|min }}%;"></div></div>
-                {% endif %}
-              </div>
-              <div>
-                <div class="nd-nutrition-item">
-                  <span class="nd-nutrition-label"><span class="nd-nutrition-icon water"><i class="fas fa-droplet"></i></span> ជាតិខ្លាញ់</span>
-                  <span class="nd-nutrition-stat">{{ last_plan.fat or '—' }} g</span>
-                </div>
-                {% if last_plan.fat %}
-                <div class="nd-progress-track mb-1"><div class="nd-progress-fill red" style="width:{{ [(last_plan.fat|float / 65 * 100)|round|int, 100]|min }}%;"></div></div>
-                {% endif %}
-              </div>
+              <span class="nd-pill nd-pill-red" style="flex-shrink:0;">ជៀសវាង</span>
             </div>
+            {% endfor %}
+          </div>
           {% else %}
-            <div class="nd-empty" style="padding:20px 0;">
-              <i class="fas fa-utensils"></i>
-              <p>មិនទាន់មានផែនការ។</p>
-              <a class="nd-btn nd-btn-primary nd-btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}">
-                <i class="fas fa-plus"></i> បង្កើតផែនការ
-              </a>
-            </div>
+          <div class="nd-empty" style="padding:20px 0;">
+            <i class="fas fa-circle-check" style="color:#43a047;"></i>
+            <p style="color:#43a047;">គ្មានអាហារត្រូវជៀសវាងទេ!</p>
+          </div>
           {% endif %}
         </div>
 
-        <!-- PANEL 3: Profile Snapshot -->
-        <div class="nd-panel">
-          <div class="nd-panel-header">
-            <div>
-              <h5 class="nd-panel-title"><i class="fas fa-id-card" style="color:#1e88e5;"></i> ប្រវត្តិរូប</h5>
-            </div>
-            <a class="nd-panel-action" href="{{ url_for('dashboard.user_profile_edit') }}">កែប្រែ</a>
-          </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="nd-empty" style="padding:40px;">
+      <i class="fas fa-utensils"></i>
+      <h6>មិនទាន់មានអាហារពីផែនការ</h6>
+      <p>សូមបង្កើតផែនការអាហារមួយ ដើម្បីឃើញអាហារដែលបានណែនាំ។</p>
+      <a class="nd-btn nd-btn-primary" href="{{ url_for('dashboard.user_diet_expert') }}">
+        <i class="fas fa-utensils me-1"></i> បង្កើតផែនការ
+      </a>
+    </div>
+    {% endif %}
+  </div><!-- /food panel -->
+
+</div><!-- /section-overview -->
+
+<!-- ═══ SECTION: HISTORY ═══ -->
+<div id="section-history" class="nd-content nd-section" {{ '' if current_section == 'history' else 'style="display:none;"' }}>
+  <div class="nd-workspace">
+    <div class="nd-workspace-header">
+      <div>
+        <h4 class="nd-workspace-title"><i class="fas fa-clock-rotate-left me-2" style="color:#43a047;"></i>ប្រវត្តិផែនការអាហារ</h4>
+        <p class="nd-workspace-sub">ផែនការអាហារដែលបានបង្កើតទាំងអស់របស់អ្នក</p>
+      </div>
+      <a class="nd-btn nd-btn-primary nd-btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}">
+        <i class="fas fa-plus"></i> បង្កើតផែនការ
+      </a>
+    </div>
+    <div style="padding:0 0 4px;">
+      {% if plan_history %}
+      <div class="table-responsive">
+        <table class="nd-table">
+          <thead>
+            <tr>
+              <th>កាលបរិច្ឆេទ</th>
+              <th>ប្រភេទរបបអាហារ</th>
+              <th>ពេលអាហារ/ថ្ងៃ</th>
+              <th>BMI</th>
+              <th>កាឡូរី</th>
+              <th>ប្រូតេអ៊ីន</th>
+              <th>អាឡែស៊ី</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for plan in plan_history %}
+            <tr>
+              <td>{{ plan.generated_at.strftime('%d/%m/%Y') if plan.generated_at else 'មិនស្គាល់' }}</td>
+              <td>
+                <span class="nd-pill nd-pill-green">
+                  {{ plan.diet_type_label if plan.diet_type_label else (plan.diet_type|replace('_',' ')|title if plan.diet_type else 'មិនទាន់កំណត់') }}
+                </span>
+              </td>
+              <td>{{ plan.meals_per_day or '—' }}</td>
+              <td>
+                {% if plan.bmi %}
+                  {% set bv = plan.bmi|float %}
+                  <span class="nd-pill {% if bv < 18.5 %}nd-pill-blue{% elif bv < 25 %}nd-pill-green{% elif bv < 30 %}nd-pill-amber{% else %}nd-pill-red{% endif %}">
+                    {{ '%.1f'|format(bv) }}
+                  </span>
+                {% else %}—{% endif %}
+              </td>
+              <td>{{ plan.calories or '—' }}</td>
+              <td>{{ plan.protein or '—' }}</td>
+              <td>{{ plan.allergies if plan.allergies else 'មិនមាន' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="nd-empty">
+        <i class="fas fa-clipboard-list"></i>
+        <h6>មិនទាន់មានផែនការអាហារ</h6>
+        <p>សូមបង្កើតផែនការដំបូង ដើម្បីមើលប្រវត្តិ។</p>
+        <a class="nd-btn nd-btn-primary" href="{{ url_for('dashboard.user_diet_expert') }}">
+          <i class="fas fa-utensils me-1"></i> បង្កើតផែនការដំបូង
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div><!-- /section-history -->
+
+<!-- ═══ SECTION: PROFILE ═══ -->
+<div id="section-profile" class="nd-content nd-section" {{ '' if current_section == 'profile' else 'style="display:none;"' }}>
+  <div class="nd-workspace">
+    <div class="nd-workspace-header">
+      <div>
+        <h4 class="nd-workspace-title"><i class="fas fa-id-card me-2" style="color:#1e88e5;"></i>ព័ត៌មានប្រវត្តិរូប</h4>
+        <p class="nd-workspace-sub">ព័ត៌មានស្នូលគណនី និងគោលដៅ</p>
+      </div>
+      <a class="nd-btn nd-btn-outline nd-btn-sm" href="{{ url_for('dashboard.user_profile_edit') }}">
+        <i class="fas fa-user-edit"></i> កែប្រែ
+      </a>
+    </div>
+    <div style="padding:20px 24px;">
+      <div class="row g-4">
+        <div class="col-md-6">
           <ul class="nd-profile-list">
             <li>
-              <span class="nd-profile-label">ឈ្មោះ</span>
+              <span class="nd-profile-label">ឈ្មោះពេញ</span>
               <span class="nd-profile-value">{{ 'បានលាក់' if is_guest_mode else (user.full_name or 'មិនទាន់កំណត់') }}</span>
             </li>
             <li>
@@ -295,9 +464,21 @@
               <span class="nd-profile-value">{{ 'បានលាក់' if is_guest_mode else user.email }}</span>
             </li>
             <li>
-              <span class="nd-profile-label">ឈ្មោះអ្នកប្រើ</span>
+              <span class="nd-profile-label">ឈ្មោះអ្នកប្រើប្រាស់</span>
               <span class="nd-profile-value">{{ 'ភ្ញៀវ' if is_guest_mode else user.username }}</span>
             </li>
+            <li>
+              <span class="nd-profile-label">តួនាទី</span>
+              <span class="nd-profile-value">
+                {% if is_guest_mode %}<span class="nd-pill nd-pill-gray">ភ្ញៀវ</span>
+                {% else %}{% for role in user.roles %}<span class="nd-pill nd-pill-green">{{ 'អ្នកគ្រប់គ្រង' if role.name|lower=='admin' else 'វេជ្ជបណ្ឌិត' if role.name|lower=='doctor' else 'អ្នកប្រើប្រាស់' if role.name|lower=='user' else role.name }}</span>{% endfor %}
+                {% endif %}
+              </span>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <ul class="nd-profile-list">
             <li>
               <span class="nd-profile-label">គោលដៅ</span>
               <span class="nd-profile-value">
@@ -307,332 +488,38 @@
               </span>
             </li>
             <li>
-              <span class="nd-profile-label">អាឡែស៊ី</span>
-              <span class="nd-profile-value">{{ last_plan.allergies if last_plan and last_plan.allergies else 'មិនមាន' }}</span>
+              <span class="nd-profile-label">ប្រភេទរបបអាហារ</span>
+              <span class="nd-profile-value">{{ last_plan.diet_type_label if last_plan and last_plan.diet_type_label else '—' }}</span>
             </li>
             <li>
-              <span class="nd-profile-label">តួនាទី</span>
-              <span class="nd-profile-value">
-                {% if is_guest_mode %}<span class="nd-pill nd-pill-gray">ភ្ញៀវ</span>
-                {% else %}{% for role in user.roles %}<span class="nd-pill nd-pill-green">{{ 'អ្នកគ្រប់គ្រង' if role.name|lower=='admin' else 'វេជ្ជបណ្ឌិត' if role.name|lower=='doctor' else 'អ្នកប្រើប្រាស់' if role.name|lower=='user' else role.name }}</span>{% endfor %}{% endif %}
-              </span>
+              <span class="nd-profile-label">BMI ចុងក្រោយ</span>
+              <span class="nd-profile-value">{{ '%.1f'|format(last_plan.bmi|float) if last_plan and last_plan.bmi else '—' }}</span>
+            </li>
+            <li>
+              <span class="nd-profile-label">ចុះឈ្មោះ</span>
+              <span class="nd-profile-value">{{ 'ភ្ញៀវ' if is_guest_mode else (user.created_at.strftime('%d/%m/%Y') if user.created_at else '—') }}</span>
             </li>
           </ul>
-          {% if not is_guest_mode and user.created_at %}
-          <div class="nd-alert nd-alert-success mt-3 mb-0" style="font-size:0.77rem;">
-            <i class="fas fa-calendar-check me-1"></i> សមាជិកតាំងពីឆ្នាំ {{ user.created_at.strftime('%Y') }}
-          </div>
-          {% endif %}
-        </div>
-      </div><!-- /nd-panels -->
-
-
-      <!-- ═══ FOOD PANEL ═══ -->
-      <div class="nd-workspace" style="margin-top:0;">
-        <div class="nd-workspace-header">
-          <div>
-            <h4 class="nd-workspace-title">
-              <i class="fas fa-bowl-food me-2" style="color:#43a047;"></i>អាហារពីផែនការចុងក្រោយ
-            </h4>
-            <p class="nd-workspace-sub">
-              {% if latest_plan_rule_name %}
-                ច្បាប់: <strong>{{ latest_plan_rule_name }}</strong> &mdash;
-              {% endif %}
-              អាហារដែលបានណែនាំ និងអាហារដែលត្រូវជៀសវាង
-            </p>
-          </div>
-          <a class="nd-btn nd-btn-primary nd-btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}">
-            <i class="fas fa-arrows-rotate"></i> បង្កើតថ្មី
-          </a>
-        </div>
-
-        {% if latest_plan_foods or latest_plan_avoid_foods %}
-        <div style="padding:20px 24px;">
-          <div class="row g-4">
-
-            <!-- RECOMMENDED FOODS -->
-            <div class="col-lg-7">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-                <span style="width:10px;height:10px;border-radius:50%;background:#43a047;display:inline-block;"></span>
-                <h6 style="margin:0;font-weight:800;font-size:0.88rem;color:#2e7d32;">
-                  អាហារដែលបានណែនាំ
-                  <span style="font-weight:400;color:#607d6b;font-size:0.78rem;">({{ latest_plan_foods|length }} មុខ)</span>
-                </h6>
-              </div>
-              {% if latest_plan_foods %}
-              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
-                {% for food in latest_plan_foods %}
-                <div style="background:#f9fdf9;border:1px solid #dcedc8;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:box-shadow 0.18s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(46,125,50,0.12)'" onmouseout="this.style.boxShadow='none'">
-                  <div style="display:flex;align-items:center;gap:10px;">
-                    <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
-                      {% if food.photo %}
-                      <img src="{{ url_for('main.images', filename=food.photo|replace('images/','')) }}"
-                           alt="{{ food.name }}"
-                           style="width:42px;height:42px;object-fit:cover;border-radius:10px;"
-                           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                      <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;">
-                        <i class="fas fa-leaf" style="color:#2e7d32;font-size:1rem;"></i>
-                      </span>
-                      {% else %}
-                      <i class="fas fa-leaf" style="color:#2e7d32;font-size:1rem;"></i>
-                      {% endif %}
-                    </div>
-                    <div>
-                      <div style="font-weight:700;font-size:0.85rem;color:#1a2e1a;line-height:1.3;">{{ food.name }}</div>
-                      {% if food.calories %}
-                      <div style="font-size:0.72rem;color:#607d6b;">{{ food.calories }} kcal</div>
-                      {% endif %}
-                    </div>
-                  </div>
-                  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:4px;">
-                    {% if food.protein %}
-                    <div style="text-align:center;background:#e3f2fd;border-radius:6px;padding:4px 2px;">
-                      <div style="font-size:0.68rem;color:#1565c0;font-weight:600;">ប្រូតេអ៊ីន</div>
-                      <div style="font-size:0.78rem;font-weight:800;color:#1565c0;">{{ food.protein }}g</div>
-                    </div>
-                    {% endif %}
-                    {% if food.sugar %}
-                    <div style="text-align:center;background:#fff8e1;border-radius:6px;padding:4px 2px;">
-                      <div style="font-size:0.68rem;color:#e65100;font-weight:600;">ស្ករ</div>
-                      <div style="font-size:0.78rem;font-weight:800;color:#e65100;">{{ food.sugar }}g</div>
-                    </div>
-                    {% endif %}
-                    {% if food.fat %}
-                    <div style="text-align:center;background:#fce4ec;border-radius:6px;padding:4px 2px;">
-                      <div style="font-size:0.68rem;color:#c62828;font-weight:600;">ខ្លាញ់</div>
-                      <div style="font-size:0.78rem;font-weight:800;color:#c62828;">{{ food.fat }}g</div>
-                    </div>
-                    {% endif %}
-                  </div>
-                </div>
-                {% endfor %}
-              </div>
-              {% else %}
-              <div class="nd-empty" style="padding:20px 0;">
-                <i class="fas fa-circle-info"></i>
-                <p>មិនមានអាហារណែនាំសម្រាប់ផែនការនេះ។</p>
-              </div>
-              {% endif %}
-            </div>
-
-            <!-- AVOID FOODS -->
-            <div class="col-lg-5">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-                <span style="width:10px;height:10px;border-radius:50%;background:#e53935;display:inline-block;"></span>
-                <h6 style="margin:0;font-weight:800;font-size:0.88rem;color:#c62828;">
-                  អាហារដែលត្រូវជៀសវាង
-                  <span style="font-weight:400;color:#607d6b;font-size:0.78rem;">({{ latest_plan_avoid_foods|length }} មុខ)</span>
-                </h6>
-              </div>
-              {% if latest_plan_avoid_foods %}
-              <div style="display:flex;flex-direction:column;gap:8px;">
-                {% for food in latest_plan_avoid_foods %}
-                <div style="background:#fff5f5;border:1px solid #ffcdd2;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:12px;">
-                  <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#ffebee,#ffcdd2);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
-                    {% if food.photo %}
-                    <img src="{{ url_for('main.images', filename=food.photo|replace('images/','')) }}"
-                         alt="{{ food.name }}"
-                         style="width:36px;height:36px;object-fit:cover;border-radius:8px;"
-                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                    <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;">
-                      <i class="fas fa-ban" style="color:#e53935;font-size:0.85rem;"></i>
-                    </span>
-                    {% else %}
-                    <i class="fas fa-ban" style="color:#e53935;font-size:0.85rem;"></i>
-                    {% endif %}
-                  </div>
-                  <div style="flex:1;min-width:0;">
-                    <div style="font-weight:700;font-size:0.83rem;color:#1a2e1a;">{{ food.name }}</div>
-                    <div style="font-size:0.72rem;color:#607d6b;display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;">
-                      {% if food.calories %}<span>{{ food.calories }} kcal</span>{% endif %}
-                      {% if food.protein %}<span>P: {{ food.protein }}g</span>{% endif %}
-                      {% if food.fat %}<span>F: {{ food.fat }}g</span>{% endif %}
-                    </div>
-                  </div>
-                  <span class="nd-pill nd-pill-red" style="flex-shrink:0;">ជៀសវាង</span>
-                </div>
-                {% endfor %}
-              </div>
-              {% else %}
-              <div class="nd-empty" style="padding:20px 0;">
-                <i class="fas fa-circle-check" style="color:#43a047;"></i>
-                <p style="color:#43a047;">គ្មានអាហារត្រូវជៀសវាងទេ!</p>
-              </div>
-              {% endif %}
-            </div>
-
-          </div>
-        </div>
-        {% else %}
-        <div class="nd-empty" style="padding:40px;">
-          <i class="fas fa-utensils"></i>
-          <h6>មិនទាន់មានអាហារពីផែនការ</h6>
-          <p>សូមបង្កើតផែនការអាហារមួយ ដើម្បីឃើញអាហារដែលបានណែនាំ។</p>
-          <a class="nd-btn nd-btn-primary" href="{{ url_for('dashboard.user_diet_expert') }}">
-            <i class="fas fa-utensils me-1"></i> បង្កើតផែនការ
-          </a>
-        </div>
-        {% endif %}
-      </div><!-- /food panel -->
-
-    </div><!-- /section-overview -->
-
-    <!-- ═══ SECTION: HISTORY ═══ -->
-    <div id="section-history" class="nd-content nd-section" style="display:none;">
-      <div class="nd-workspace">
-        <div class="nd-workspace-header">
-          <div>
-            <h4 class="nd-workspace-title"><i class="fas fa-clock-rotate-left me-2" style="color:#43a047;"></i>ប្រវត្តិផែនការអាហារ</h4>
-            <p class="nd-workspace-sub">ផែនការអាហារដែលបានបង្កើតទាំងអស់របស់អ្នក</p>
-          </div>
-          <a class="nd-btn nd-btn-primary nd-btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}">
-            <i class="fas fa-plus"></i> បង្កើតផែនការ
-          </a>
-        </div>
-        <div style="padding:0 0 4px;">
-          {% if plan_history %}
-          <div class="table-responsive">
-            <table class="nd-table">
-              <thead>
-                <tr>
-                  <th>កាលបរិច្ឆេទ</th>
-                  <th>ប្រភេទរបបអាហារ</th>
-                  <th>ពេលអាហារ/ថ្ងៃ</th>
-                  <th>BMI</th>
-                  <th>កាឡូរី</th>
-                  <th>ប្រូតេអ៊ីន</th>
-                  <th>អាឡែស៊ី</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for plan in plan_history %}
-                <tr>
-                  <td>{{ plan.generated_at.strftime('%d/%m/%Y') if plan.generated_at else 'មិនស្គាល់' }}</td>
-                  <td>
-                    <span class="nd-pill nd-pill-green">
-                      {{ plan.diet_type_label if plan.diet_type_label else (plan.diet_type|replace('_',' ')|title if plan.diet_type else 'មិនទាន់កំណត់') }}
-                    </span>
-                  </td>
-                  <td>{{ plan.meals_per_day or '—' }}</td>
-                  <td>
-                    {% if plan.bmi %}
-                      {% set bv = plan.bmi|float %}
-                      <span class="nd-pill {% if bv < 18.5 %}nd-pill-blue{% elif bv < 25 %}nd-pill-green{% elif bv < 30 %}nd-pill-amber{% else %}nd-pill-red{% endif %}">
-                        {{ '%.1f'|format(bv) }}
-                      </span>
-                    {% else %}—{% endif %}
-                  </td>
-                  <td>{{ plan.calories or '—' }}</td>
-                  <td>{{ plan.protein or '—' }}</td>
-                  <td>{{ plan.allergies if plan.allergies else 'មិនមាន' }}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          {% else %}
-          <div class="nd-empty">
-            <i class="fas fa-clipboard-list"></i>
-            <h6>មិនទាន់មានផែនការអាហារ</h6>
-            <p>សូមបង្កើតផែនការដំបូង ដើម្បីមើលប្រវត្តិ។</p>
-            <a class="nd-btn nd-btn-primary" href="{{ url_for('dashboard.user_diet_expert') }}">
-              <i class="fas fa-utensils me-1"></i> បង្កើតផែនការដំបូង
-            </a>
-          </div>
-          {% endif %}
         </div>
       </div>
-    </div><!-- /section-history -->
-
-    <!-- ═══ SECTION: PROFILE ═══ -->
-    <div id="section-profile" class="nd-content nd-section" style="display:none;">
-      <div class="nd-workspace">
-        <div class="nd-workspace-header">
-          <div>
-            <h4 class="nd-workspace-title"><i class="fas fa-id-card me-2" style="color:#1e88e5;"></i>ព័ត៌មានប្រវត្តិរូប</h4>
-            <p class="nd-workspace-sub">ព័ត៌មានស្នូលគណនី និងគោលដៅ</p>
-          </div>
-          <a class="nd-btn nd-btn-outline nd-btn-sm" href="{{ url_for('dashboard.user_profile_edit') }}">
-            <i class="fas fa-user-edit"></i> កែប្រែ
-          </a>
-        </div>
-        <div style="padding:20px 24px;">
-          <div class="row g-4">
-            <div class="col-md-6">
-              <ul class="nd-profile-list">
-                <li>
-                  <span class="nd-profile-label">ឈ្មោះពេញ</span>
-                  <span class="nd-profile-value">{{ 'បានលាក់' if is_guest_mode else (user.full_name or 'មិនទាន់កំណត់') }}</span>
-                </li>
-                <li>
-                  <span class="nd-profile-label">អ៊ីមែល</span>
-                  <span class="nd-profile-value">{{ 'បានលាក់' if is_guest_mode else user.email }}</span>
-                </li>
-                <li>
-                  <span class="nd-profile-label">ឈ្មោះអ្នកប្រើប្រាស់</span>
-                  <span class="nd-profile-value">{{ 'ភ្ញៀវ' if is_guest_mode else user.username }}</span>
-                </li>
-                <li>
-                  <span class="nd-profile-label">តួនាទី</span>
-                  <span class="nd-profile-value">
-                    {% if is_guest_mode %}<span class="nd-pill nd-pill-gray">ភ្ញៀវ</span>
-                    {% else %}{% for role in user.roles %}<span class="nd-pill nd-pill-green">{{ 'អ្នកគ្រប់គ្រង' if role.name|lower=='admin' else 'វេជ្ជបណ្ឌិត' if role.name|lower=='doctor' else 'អ្នកប្រើប្រាស់' if role.name|lower=='user' else role.name }}</span>{% endfor %}
-                    {% endif %}
-                  </span>
-                </li>
-              </ul>
-            </div>
-            <div class="col-md-6">
-              <ul class="nd-profile-list">
-                <li>
-                  <span class="nd-profile-label">គោលដៅ</span>
-                  <span class="nd-profile-value">
-                    {% if is_guest_mode %}មិនទាន់ជ្រើស
-                    {% elif localized_user_goals %}{{ localized_user_goals|join(', ') }}
-                    {% else %}មិនទាន់ជ្រើស{% endif %}
-                  </span>
-                </li>
-                <li>
-                  <span class="nd-profile-label">ប្រភេទរបបអាហារ</span>
-                  <span class="nd-profile-value">{{ last_plan.diet_type_label if last_plan and last_plan.diet_type_label else '—' }}</span>
-                </li>
-                <li>
-                  <span class="nd-profile-label">BMI ចុងក្រោយ</span>
-                  <span class="nd-profile-value">{{ '%.1f'|format(last_plan.bmi|float) if last_plan and last_plan.bmi else '—' }}</span>
-                </li>
-                <li>
-                  <span class="nd-profile-label">ចុះឈ្មោះ</span>
-                  <span class="nd-profile-value">{{ 'ភ្ញៀវ' if is_guest_mode else (user.created_at.strftime('%d/%m/%Y') if user.created_at else '—') }}</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-          {% if not is_guest_mode %}
-          <div class="nd-alert nd-alert-info mt-4">
-            <i class="fas fa-lightbulb me-2"></i>
-            សូមរក្សាប្រវត្តិផ្ទាល់ខ្លួនឱ្យទាន់សម័យ ដើម្បីទទួលបានផែនការអាហារដែលត្រឹមត្រូវ។
-          </div>
-          {% else %}
-          <div class="nd-alert nd-alert-warn mt-4">
-            <i class="fas fa-user-clock me-2"></i>
-            របៀបភ្ញៀវ — ព័ត៌មានគណនីត្រូវបានលាក់ជាបណ្តោះអាសន្ន។
-          </div>
-          {% endif %}
-        </div>
+      {% if not is_guest_mode %}
+      <div class="nd-alert nd-alert-info mt-4">
+        <i class="fas fa-lightbulb me-2"></i>
+        សូមរក្សាប្រវត្តិផ្ទាល់ខ្លួនឱ្យទាន់សម័យ ដើម្បីទទួលបានផែនការអាហារដែលត្រឹមត្រូវ។
       </div>
-    </div><!-- /section-profile -->
+      {% else %}
+      <div class="nd-alert nd-alert-warn mt-4">
+        <i class="fas fa-user-clock me-2"></i>
+        របៀបភ្ញៀវ — ព័ត៌មានគណនីត្រូវបានលាក់ជាបណ្តោះអាសន្ន។
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div><!-- /section-profile -->
+{% endblock %}
 
-  </div><!-- /nd-main -->
-</div><!-- /nd-app -->
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}
 <script>
-  // Date display
-  document.getElementById('nd-today-date').textContent = new Date().toLocaleDateString('km-KH', {
-    weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
-  });
-
-  // Section navigation
   const sections = ['overview', 'history', 'profile'];
   const titles = {
     overview: 'ផ្ទាំងគ្រប់គ្រងអ្នកប្រើប្រាស់',
@@ -650,7 +537,26 @@
     const titleEl = document.getElementById('nd-page-title');
     if (titleEl && titles[name]) titleEl.textContent = titles[name];
   }
+
+  document.querySelectorAll('.nd-nav-link[data-inpage]').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const section = this.dataset.inpage;
+      showSection(section);
+      history.replaceState(null, '', this.getAttribute('href'));
+    });
+  });
+
+  document.getElementById('nav-overview').addEventListener('click', function (e) {
+    e.preventDefault();
+    showSection('overview');
+    history.replaceState(null, '', this.getAttribute('href'));
+  });
 </script>
+<<<<<<< HEAD
 {% include "dashboard/_logout_modal.html" %}
 </body>
 </html>
+=======
+{% endblock %}
+>>>>>>> f33c8ad800c6a7f976f9e2667fb40ee3653fec70

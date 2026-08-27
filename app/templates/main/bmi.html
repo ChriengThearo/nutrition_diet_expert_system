@@ -1,6 +1,8 @@
-{% extends "layouts/base_enhanced.html" %}
+{% extends "layouts/dashboard_user_shell.html" if (current_user.is_authenticated and current_user.has_role('user')) else "layouts/base_enhanced.html" %}
 
 {% block title %}BMI Calculator{% endblock %}
+{% block page_title %}គណនា BMI{% endblock %}
+{% block page_subtitle %}គណនាសន្ទស្សន៍ម៉ាសរាងកាយរបស់អ្នក{% endblock %}
 
 {% block footer %}{% endblock %}
 {% block breadcrumb %}{% endblock %}
