@@ -719,7 +719,8 @@
               </li>
               <li><hr class="dropdown-divider"></li>
               <li>
-                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"
+                  onclick="openLogoutModal(event);">
                   <i class="fas fa-sign-out-alt me-2"></i>{{ 'ចាកចេញ' if ui_lang == 'km' else 'Logout' }}
                 </a>
               </li>
@@ -936,5 +937,8 @@
       });
     })();
   </script>
+  {% if current_user.is_authenticated %}
+  {% include "dashboard/_logout_modal.html" %}
+  {% endif %}
 </body>
 </html>

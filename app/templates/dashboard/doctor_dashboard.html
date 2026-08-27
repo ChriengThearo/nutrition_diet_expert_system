@@ -69,18 +69,18 @@
         </button>
       </li>
       <li class="nd-nav-item">
-        <button class="nd-nav-link" id="nav-rules" onclick="showSection('rules')">
-          <i class="fas fa-list-ul"></i> Rule Library
-          <i class="fas fa-chevron-right nd-nav-arrow"></i>
-        </button>
-      </li>
-      <li class="nd-nav-item">
         <button class="nd-nav-link" id="nav-food-market" onclick="showSection('food-market')">
           <i class="fas fa-store"></i> Food Market
           <i class="fas fa-chevron-right nd-nav-arrow"></i>
         </button>
       </li>
-      <li class="nd-nav-section">Tools</li>
+      <li class="nd-nav-item">
+        <button class="nd-nav-link" id="nav-rules" onclick="showSection('rules')">
+          <i class="fas fa-list-ul"></i> Rule Library
+          <i class="fas fa-chevron-right nd-nav-arrow"></i>
+        </button>
+      </li>
+      <li class="nd-nav-section">Planning Tools</li>
       <li class="nd-nav-item">
         <button class="nd-nav-link" id="nav-builder" onclick="showSection('builder')">
           <i class="fas fa-tools"></i> Builder Studio
@@ -93,16 +93,17 @@
           <i class="fas fa-chevron-right nd-nav-arrow"></i>
         </button>
       </li>
-      <li class="nd-nav-section">Reports</li>
+      <li class="nd-nav-section">Reports &amp; Management</li>
       <li class="nd-nav-item">
-        <a class="nd-nav-link" href="#"><i class="fas fa-chart-bar"></i> Analytics</a>
+        <a class="nd-nav-link" href="#" onclick="event.preventDefault(); notifyComingSoon('Patients');"><i class="fas fa-users"></i> Patients</a>
       </li>
       <li class="nd-nav-item">
-        <a class="nd-nav-link" href="#"><i class="fas fa-stethoscope"></i> Consultations</a>
+        <a class="nd-nav-link" href="#" onclick="event.preventDefault(); notifyComingSoon('Consultations');"><i class="fas fa-stethoscope"></i> Consultations</a>
       </li>
       <li class="nd-nav-item">
-        <a class="nd-nav-link" href="#"><i class="fas fa-users"></i> Patients</a>
+        <a class="nd-nav-link" href="#" onclick="event.preventDefault(); notifyComingSoon('Analytics');"><i class="fas fa-chart-bar"></i> Analytics</a>
       </li>
+      <li class="nd-nav-section">Main</li>
       <li class="nd-nav-item">
         <a class="nd-nav-link" href="{{ url_for('main.home') }}"><i class="fas fa-home"></i> Home</a>
       </li>
@@ -116,7 +117,8 @@
           <div class="nd-sidebar-user-name">{{ doctor_display_name }}</div>
           <div class="nd-sidebar-user-role">Nutrition Specialist</div>
         </div>
-        <a href="{{ url_for('auth.logout') }}" class="ms-auto" style="color:#9ca3af;font-size:0.85rem;text-decoration:none;" title="Logout">
+        <a href="{{ url_for('auth.logout') }}" class="ms-auto" style="color:#9ca3af;font-size:0.85rem;text-decoration:none;" title="Logout"
+           onclick="openLogoutModal(event);">
           <i class="fas fa-sign-out-alt"></i>
         </a>
       </div>
@@ -142,7 +144,7 @@
         </a>
         {% endif %}
         <span class="nd-topbar-date" id="nd-today-date"></span>
-        <div class="nd-topbar-icon position-relative" title="Notifications">
+        <div class="nd-topbar-icon position-relative" title="Notifications" style="cursor:pointer;" onclick="notifyComingSoon('Notifications');">
           <i class="fas fa-bell"></i>
           <span class="badge bg-danger position-absolute nd-topbar-icon"></span>
         </div>
@@ -434,7 +436,7 @@
         
         <div class="quick-actions-grid">
           <!-- Add Patient -->
-          <div class="quick-action-card">
+          <div class="quick-action-card" onclick="notifyComingSoon('Add Patient');">
             <div class="quick-action-icon quick-icon-green">
               <i class="fas fa-user-plus"></i>
             </div>
@@ -445,7 +447,7 @@
           </div>
 
           <!-- New Consultation -->
-          <div class="quick-action-card">
+          <div class="quick-action-card" onclick="notifyComingSoon('New Consultation');">
             <div class="quick-action-icon quick-icon-blue">
               <i class="fas fa-stethoscope"></i>
             </div>
@@ -456,7 +458,7 @@
           </div>
 
           <!-- Create Diet Plan -->
-          <div class="quick-action-card">
+          <div class="quick-action-card" onclick="showSection('builder')">
             <div class="quick-action-icon quick-icon-purple">
               <i class="fas fa-clipboard-list"></i>
             </div>
@@ -478,7 +480,7 @@
           </div>
 
           <!-- View Analytics -->
-          <div class="quick-action-card">
+          <div class="quick-action-card" onclick="notifyComingSoon('Analytics');">
             <div class="quick-action-icon quick-icon-cyan">
               <i class="fas fa-chart-bar"></i>
             </div>
@@ -494,7 +496,7 @@
               <img src="{{ doctor_avatar_url }}" alt="Doctor" class="profile-avatar" onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
             </div>
             <div class="quick-action-content">
-              <div class="quick-action-title">Doctor Jonh</div>
+              <div class="quick-action-title">{{ doctor_display_name }}</div>
               <div class="quick-action-desc">Nutrition Specialist</div>
             </div>
             <i class="fas fa-external-link-alt quick-action-external"></i>
@@ -1037,6 +1039,9 @@ let foodGroupsState = [], activeFoodGroupKey = null;
 let rulesLoadToken = 0;
 
 // ── Section Navigation ───────────────────────────────
+function notifyComingSoon(featureName) {
+  alert(featureName + ' is coming soon.');
+}
 const ALL_SECTIONS = ['overview','food-market','foods','cooked','rules','builder','simulation'];
 function showSection(name) {
   ALL_SECTIONS.forEach(s => {
@@ -1938,5 +1943,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }, 800);
 });
 </script>
+{% include "dashboard/_logout_modal.html" %}
 </body>
 </html>

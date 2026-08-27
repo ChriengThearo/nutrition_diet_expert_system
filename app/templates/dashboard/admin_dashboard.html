@@ -315,9 +315,11 @@ select { font: inherit; }
 }
 
 .profile-head {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 13px;
+  cursor: pointer;
 }
 
 .profile-head .avatar {
@@ -325,6 +327,61 @@ select { font: inherit; }
   height: 45px;
   background: var(--green-soft-2);
 }
+
+.profile-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 220px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(15, 31, 58, 0.14);
+  padding: 12px 14px;
+  z-index: 50;
+}
+
+.profile-dropdown-menu.is-open { display: block; }
+
+.pdm-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.pdm-email {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  word-break: break-word;
+}
+
+.pdm-divider {
+  margin: 10px 0;
+  border: none;
+  border-top: 1px solid var(--line);
+}
+
+.pdm-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 8px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.pdm-item:hover { background: var(--soft-line); }
+
+.pdm-item.pdm-danger { color: #c62828; }
 
 .content {
   padding: 23px 24px 36px 29px;
@@ -788,13 +845,18 @@ select { font: inherit; }
       <a class="nav-link" href="{{ url_for('main.home') }}"><i class="fas fa-house"></i><span>Home</span></a>
     </nav>
 
+    {% set admin_display_name = current_user.full_name or current_user.username %}
+    {% set admin_initial = (admin_display_name[0]|upper) if admin_display_name else 'A' %}
     <div class="sidebar-user">
-      <div class="avatar">A</div>
+      <div class="avatar">{{ admin_initial }}</div>
       <div>
-        <p class="user-name">Admin</p>
+        <p class="user-name">{{ admin_display_name }}</p>
         <p class="user-role">Super Administrator</p>
       </div>
-      <i class="fas fa-chevron-down sidebar-chevron"></i>
+      <a href="{{ url_for('auth.logout') }}" title="Logout" onclick="openLogoutModal(event);"
+         style="color:var(--muted);font-size:0.9rem;text-decoration:none;">
+        <i class="fas fa-sign-out-alt"></i>
+      </a>
     </div>
   </aside>
 
@@ -811,9 +873,17 @@ select { font: inherit; }
         </div>
         <div class="date-pill"><i class="far fa-calendar-alt"></i><span id="adminDate">Aug 24, 2026</span></div>
         <button class="notify" type="button" aria-label="Notifications"><i class="far fa-bell"></i><span>5</span></button>
-        <div class="profile-head">
-          <div class="avatar">A</div>
+        <div class="profile-head" id="adminProfileHead">
+          <div class="avatar">{{ admin_initial }}</div>
           <i class="fas fa-chevron-down profile-chevron"></i>
+          <div class="profile-dropdown-menu" id="adminProfileMenu">
+            <p class="pdm-name">{{ admin_display_name }}</p>
+            <p class="pdm-email">{{ current_user.email }}</p>
+            <hr class="pdm-divider">
+            <button type="button" class="pdm-item pdm-danger" onclick="openLogoutModal(event);">
+              <i class="fas fa-sign-out-alt"></i> Log Out
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -1007,6 +1077,19 @@ if (dateNode) {
     year: "numeric"
   });
 }
+
+const adminProfileHead = document.getElementById("adminProfileHead");
+const adminProfileMenu = document.getElementById("adminProfileMenu");
+if (adminProfileHead && adminProfileMenu) {
+  adminProfileHead.addEventListener("click", (e) => {
+    e.stopPropagation();
+    adminProfileMenu.classList.toggle("is-open");
+  });
+  document.addEventListener("click", (e) => {
+    if (!adminProfileHead.contains(e.target)) adminProfileMenu.classList.remove("is-open");
+  });
+}
 </script>
+{% include "dashboard/_logout_modal.html" %}
 </body>
 </html>

@@ -20,7 +20,7 @@ from app.models.cooked_food import CookedFoodsTable
 from app.models.food_group import FoodGroupTable
 from app.models.rule_food_map import RuleFoodMapTable
 from app.models.user_result import UserResultsTable
-from app.forms.dashboard_forms import UserProfileEditForm
+from app.forms.dashboard_forms import UserProfileEditForm, DoctorProfileEditForm
 from app.services.dashboard_services import DashboardService
 from app.services.diet_rule_service import DietRuleService
 from app.routes.access_control import permission_required
@@ -1327,11 +1327,13 @@ def doctor_profile():
 )
 def doctor_profile_edit():
     """Edit doctor profile info."""
-    form = UserProfileEditForm(current_user, obj=current_user)
+    form = DoctorProfileEditForm(current_user, obj=current_user)
 
     if form.validate_on_submit():
         current_user.username = (form.username.data or "").strip()
         current_user.full_name = (form.full_name.data or "").strip()
+        current_user.specialty = (form.specialty.data or "").strip() or None
+        current_user.license_number = (form.license_number.data or "").strip() or None
 
         photo_file = form.photo.data
         if photo_file and getattr(photo_file, "filename", ""):

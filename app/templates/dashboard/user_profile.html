@@ -242,7 +242,7 @@
                         <a class="btn btn-outline-success" href="{{ url_for('dashboard.user_dashboard') }}">
                             <i class="fas fa-arrow-left me-2"></i>ត្រឡប់ក្រោយ
                         </a>
-                        <a class="btn btn-danger" href="{{ url_for('auth.logout') }}">
+                        <a class="btn btn-danger" href="{{ url_for('auth.logout') }}" onclick="openLogoutModal(event);">
                             <i class="fas fa-sign-out-alt me-2"></i>ចាកចេញ
                         </a>
                     </div>

@@ -91,3 +91,14 @@ class UserProfileEditForm(FlaskForm):
             is_valid = False
 
         return is_valid
+
+
+class DoctorProfileEditForm(UserProfileEditForm):
+    """Doctor profile edit form: adds doctor-only professional fields."""
+
+    specialty = StringField(
+        "ជំនាញឯកទេស", validators=[Optional(), Length(max=120)]
+    )
+    license_number = StringField(
+        "លេខអាជ្ញាប័ណ្ណវេជ្ជសាស្ត្រ", validators=[Optional(), Length(max=60)]
+    )

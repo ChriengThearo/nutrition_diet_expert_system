@@ -377,7 +377,8 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"
+                                    onclick="openLogoutModal(event);">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
                                 </a>
                             </li>
@@ -456,6 +457,14 @@
                             <span class="profile-item-value">{{ user.username }}</span>
                         </li>
                         <li class="profile-item">
+                            <span class="profile-item-label">Specialty</span>
+                            <span class="profile-item-value">{{ user.specialty or 'Not provided' }}</span>
+                        </li>
+                        <li class="profile-item">
+                            <span class="profile-item-label">License Number</span>
+                            <span class="profile-item-value">{{ user.license_number or 'Not provided' }}</span>
+                        </li>
+                        <li class="profile-item">
                             <span class="profile-item-label">Status</span>
                             <span class="profile-item-value">{{ 'Active' if user.is_active else 'Inactive' }}</span>
                         </li>
@@ -523,7 +532,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ url_for('auth.logout') }}">
+                                <a href="{{ url_for('auth.logout') }}" onclick="openLogoutModal(event);">
                                     <span><i class="fas fa-sign-out-alt me-2"></i>Secure Logout</span>
                                     <i class="fas fa-arrow-right"></i>
                                 </a>
@@ -540,6 +549,7 @@
         window.APP_PERMISSIONS = {{ current_user.get_permission_codes()|list|tojson if current_user.is_authenticated else [] }};
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% include "dashboard/_logout_modal.html" %}
 </body>
 
 </html>

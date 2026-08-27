@@ -384,7 +384,8 @@
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+                                <a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"
+                                    onclick="openLogoutModal(event);">
                                     <i class="fas fa-sign-out-alt me-2"></i>Logout
                                 </a>
                             </li>
@@ -489,6 +490,30 @@
                             <div class="form-text">Allowed: JPG, JPEG, PNG, GIF.</div>
                         </div>
 
+                        <div class="mb-3">
+                            {{ form.specialty.label(class="form-label") }}
+                            {{ form.specialty(class="form-control", placeholder="e.g. Clinical Nutrition, Diabetes Care") }}
+                            {% if form.specialty.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.specialty.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.license_number.label(class="form-label") }}
+                            {{ form.license_number(class="form-control", placeholder="Enter medical license number") }}
+                            {% if form.license_number.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.license_number.errors %}
+                                <div>{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
                         <hr class="my-4">
                         <h6 class="doctor-edit-card-title mb-2"><i class="fas fa-lock me-2"></i>Change Login Password</h6>
                         <p class="doctor-edit-card-subtitle mb-3">Fill these fields only if you want to change your password.</p>
@@ -584,6 +609,7 @@
         window.APP_PERMISSIONS = {{ current_user.get_permission_codes()|list|tojson if current_user.is_authenticated else [] }};
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% include "dashboard/_logout_modal.html" %}
 </body>
 
 </html>

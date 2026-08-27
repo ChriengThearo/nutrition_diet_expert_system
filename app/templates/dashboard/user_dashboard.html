@@ -86,7 +86,8 @@
           <div class="nd-sidebar-user-name">{{ user_display_name }}</div>
           <div class="nd-sidebar-user-role">{{ 'Guest Session' if is_guest_mode else 'Member' }}</div>
         </div>
-        <a href="{{ url_for('auth.logout') }}" class="ms-auto" style="color:rgba(255,255,255,0.5);font-size:0.85rem;" title="Logout">
+        <a href="{{ url_for('auth.logout') }}" class="ms-auto" style="color:rgba(255,255,255,0.5);font-size:0.85rem;" title="Logout"
+           onclick="openLogoutModal(event);">
           <i class="fas fa-sign-out-alt"></i>
         </a>
       </div>
@@ -650,5 +651,6 @@
     if (titleEl && titles[name]) titleEl.textContent = titles[name];
   }
 </script>
+{% include "dashboard/_logout_modal.html" %}
 </body>
 </html>
