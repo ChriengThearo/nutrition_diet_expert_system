@@ -8,6 +8,9 @@ from .cooked_food import CookedFoodsTable
 from .food_group import FoodGroupTable
 from .user_result import UserResultsTable
 from .doctor_food_favorite import DoctorFoodFavorite
+from .doctor_patient import DoctorPatient
+from .consultation import Consultation
+from .notification import Notification
 from .associations import (
     tbl_user_roles,
     tbl_role_permissions,
@@ -18,5 +21,5 @@ from .associations import (
 __all__ = [
     "UserTable", "RoleTable", "PermissionTable", "GoalsTable", "DietRulesTable",
     "FoodsTable", "CookedFoodsTable", "FoodGroupTable", "UserResultsTable",
-    "DoctorFoodFavorite",
+    "DoctorFoodFavorite", "DoctorPatient", "Consultation", "Notification",
 ]

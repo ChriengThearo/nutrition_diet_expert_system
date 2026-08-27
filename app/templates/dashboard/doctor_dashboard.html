@@ -95,13 +95,22 @@
       </li>
       <li class="nd-nav-section">Reports &amp; Management</li>
       <li class="nd-nav-item">
-        <a class="nd-nav-link" href="#" onclick="event.preventDefault(); notifyComingSoon('Patients');"><i class="fas fa-users"></i> Patients</a>
+        <button class="nd-nav-link" id="nav-patients" onclick="showSection('patients')">
+          <i class="fas fa-users"></i> Patients
+          <i class="fas fa-chevron-right nd-nav-arrow"></i>
+        </button>
       </li>
       <li class="nd-nav-item">
-        <a class="nd-nav-link" href="#" onclick="event.preventDefault(); notifyComingSoon('Consultations');"><i class="fas fa-stethoscope"></i> Consultations</a>
+        <button class="nd-nav-link" id="nav-consultations" onclick="showSection('consultations')">
+          <i class="fas fa-stethoscope"></i> Consultations
+          <i class="fas fa-chevron-right nd-nav-arrow"></i>
+        </button>
       </li>
       <li class="nd-nav-item">
-        <a class="nd-nav-link" href="#" onclick="event.preventDefault(); notifyComingSoon('Analytics');"><i class="fas fa-chart-bar"></i> Analytics</a>
+        <button class="nd-nav-link" id="nav-analytics" onclick="showSection('analytics')">
+          <i class="fas fa-chart-bar"></i> Analytics
+          <i class="fas fa-chevron-right nd-nav-arrow"></i>
+        </button>
       </li>
       <li class="nd-nav-section">Main</li>
       <li class="nd-nav-item">
@@ -144,9 +153,20 @@
         </a>
         {% endif %}
         <span class="nd-topbar-date" id="nd-today-date"></span>
-        <div class="nd-topbar-icon position-relative" title="Notifications" style="cursor:pointer;" onclick="notifyComingSoon('Notifications');">
-          <i class="fas fa-bell"></i>
-          <span class="badge bg-danger position-absolute nd-topbar-icon"></span>
+        <div class="nd-notif-wrap position-relative">
+          <div class="nd-topbar-icon position-relative" title="Notifications" style="cursor:pointer;" onclick="toggleNotifications(event);">
+            <i class="fas fa-bell"></i>
+            <span class="nd-notif-badge d-none" id="nd-notif-badge">0</span>
+          </div>
+          <div class="nd-notif-panel" id="nd-notif-panel" style="display:none;">
+            <div class="nd-notif-panel-header">
+              <strong>Notifications</strong>
+              <button type="button" class="nd-notif-mark-all" id="nd-notif-mark-all" onclick="markAllNotificationsRead();">Mark all read</button>
+            </div>
+            <div class="nd-notif-panel-list" id="nd-notif-panel-list">
+              <div class="nd-loading"><i class="fas fa-spinner fa-spin me-1"></i> Loading...</div>
+            </div>
+          </div>
         </div>
         <div class="nd-topbar-icon">
           <a href="{{ url_for('dashboard.doctor_profile') }}" style="color:inherit;text-decoration:none;">
@@ -174,7 +194,11 @@
           </div>
           <div class="stat-number">{{ total_patients }}</div>
           <div class="stat-subtitle">Active patients</div>
-          <div class="stat-trend positive"><i class="fas fa-arrow-up"></i> +2 today</div>
+          {% if new_patients_today %}
+          <div class="stat-trend positive"><i class="fas fa-arrow-up"></i> +{{ new_patients_today }} today</div>
+          {% else %}
+          <div class="stat-trend neutral">— no new patients today</div>
+          {% endif %}
         </div>
 
         <div class="stat-card stat-blue">
@@ -183,8 +207,8 @@
             <div class="stat-icon"><i class="fas fa-stethoscope"></i></div>
           </div>
           <div class="stat-number">{{ consultations_today }}</div>
-          <div class="stat-subtitle">Completed</div>
-          <div class="stat-trend positive"><i class="fas fa-arrow-up"></i> +1 today</div>
+          <div class="stat-subtitle">Logged today</div>
+          <div class="stat-trend neutral">See Consultations for history</div>
         </div>
 
         <div class="stat-card stat-orange">
@@ -436,24 +460,24 @@
         
         <div class="quick-actions-grid">
           <!-- Add Patient -->
-          <div class="quick-action-card" onclick="notifyComingSoon('Add Patient');">
+          <div class="quick-action-card" onclick="openAddPatientModal();">
             <div class="quick-action-icon quick-icon-green">
               <i class="fas fa-user-plus"></i>
             </div>
             <div class="quick-action-content">
               <div class="quick-action-title">Add Patient</div>
-              <div class="quick-action-desc">Register a new patient</div>
+              <div class="quick-action-desc">Assign an existing patient to yourself</div>
             </div>
           </div>
 
           <!-- New Consultation -->
-          <div class="quick-action-card" onclick="notifyComingSoon('New Consultation');">
+          <div class="quick-action-card" onclick="openConsultationModal();">
             <div class="quick-action-icon quick-icon-blue">
               <i class="fas fa-stethoscope"></i>
             </div>
             <div class="quick-action-content">
               <div class="quick-action-title">New Consultation</div>
-              <div class="quick-action-desc">Start a consultation</div>
+              <div class="quick-action-desc">Log a consultation for a patient</div>
             </div>
           </div>
 
@@ -480,7 +504,7 @@
           </div>
 
           <!-- View Analytics -->
-          <div class="quick-action-card" onclick="notifyComingSoon('Analytics');">
+          <div class="quick-action-card" onclick="showSection('analytics')">
             <div class="quick-action-icon quick-icon-cyan">
               <i class="fas fa-chart-bar"></i>
             </div>
@@ -915,6 +939,103 @@
       </div>
     </div>
 
+    <!-- ═══ SECTION: PATIENTS ═══ -->
+    <div id="section-patients" class="nd-content nd-section" style="display:none;">
+      <div class="nd-workspace">
+        <div style="padding:16px 20px;border-bottom:1px solid #dcedc8;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div>
+            <h4 style="margin:0;font-size:1rem;font-weight:800;">Patients</h4>
+            <p style="margin:0;font-size:0.78rem;color:#607d6b;">Patients assigned to your care.</p>
+          </div>
+          <button class="nd-btn nd-btn-primary nd-btn-sm" onclick="openAddPatientModal();">
+            <i class="fas fa-user-plus"></i> Add Patient
+          </button>
+        </div>
+        <div style="padding:16px 20px;">
+          <div class="nd-search-bar">
+            <input type="search" class="nd-search-input" id="patient-search" placeholder="Search patients…" oninput="onPatientSearchInput()">
+          </div>
+          <div class="table-responsive">
+            <table class="nd-table">
+              <thead><tr><th>Patient</th><th>Assigned</th><th>Diagnosis</th><th>Last Consultation</th><th>Actions</th></tr></thead>
+              <tbody id="patients-list"><tr><td colspan="5" style="text-align:center;color:#9e9e9e;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+            </table>
+          </div>
+          <div class="nd-pagination" id="nd-patients-pagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION: CONSULTATIONS ═══ -->
+    <div id="section-consultations" class="nd-content nd-section" style="display:none;">
+      <div class="nd-workspace">
+        <div style="padding:16px 20px;border-bottom:1px solid #dcedc8;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div>
+            <h4 style="margin:0;font-size:1rem;font-weight:800;">Consultations</h4>
+            <p style="margin:0;font-size:0.78rem;color:#607d6b;">Consultation history for your patients.</p>
+          </div>
+          <button class="nd-btn nd-btn-primary nd-btn-sm" onclick="openConsultationModal();">
+            <i class="fas fa-plus"></i> New Consultation
+          </button>
+        </div>
+        <div style="padding:16px 20px;">
+          <div class="nd-search-bar">
+            <select class="nd-filter-select" id="consultation-status-filter" onchange="loadConsultations(1)">
+              <option value="">All Statuses</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="table-responsive">
+            <table class="nd-table">
+              <thead><tr><th>Patient</th><th>Reason</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+              <tbody id="consultations-list"><tr><td colspan="5" style="text-align:center;color:#9e9e9e;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+            </table>
+          </div>
+          <div class="nd-pagination" id="nd-consultations-pagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION: ANALYTICS ═══ -->
+    <div id="section-analytics" class="nd-content nd-section" style="display:none;">
+      <div class="nd-workspace">
+        <div style="padding:16px 20px;border-bottom:1px solid #dcedc8;">
+          <h4 style="margin:0;font-size:1rem;font-weight:800;"><i class="fas fa-chart-bar me-2" style="color:var(--nd-green);"></i>Analytics</h4>
+          <p style="margin:0;font-size:0.78rem;color:#607d6b;">Overview of your patients and consultations.</p>
+        </div>
+        <div style="padding:20px;">
+          <div class="row g-4">
+            <div class="col-lg-8">
+              <div class="nd-form-section">
+                <div class="nd-form-section-title">Consultations (last 14 days)</div>
+                <canvas id="analyticsConsultationsChart" height="110"></canvas>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="nd-form-section">
+                <div class="nd-form-section-title">Consultation Status</div>
+                <canvas id="analyticsStatusChart" height="180"></canvas>
+              </div>
+            </div>
+            <div class="col-lg-8">
+              <div class="nd-form-section">
+                <div class="nd-form-section-title">New Patients (last 30 days)</div>
+                <canvas id="analyticsPatientsChart" height="110"></canvas>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="nd-form-section">
+                <div class="nd-form-section-title">Diagnosis Status</div>
+                <canvas id="analyticsDiagnosisChart" height="180"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /nd-main -->
 </div><!-- /nd-app -->
 
@@ -1005,6 +1126,81 @@
   </div>
 </div>
 
+<!-- Add Patient Modal -->
+<div class="modal fade" id="addPatientModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--nd-green-pale);border-bottom:1px solid var(--nd-border);">
+        <h5 class="modal-title" style="font-weight:800;font-size:0.95rem;">
+          <i class="fas fa-user-plus me-2" style="color:var(--nd-green);"></i>Add Patient
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="small text-muted mb-2">Search for an existing patient account to assign to yourself.</p>
+        <input type="search" class="nd-form-control mb-2" id="patient-search-input" placeholder="Search by name, username, or email…" oninput="onPatientAssignSearchInput()">
+        <div id="patient-search-results" class="nd-food-grid" style="display:block;max-height:280px;overflow-y:auto;">
+          <div class="nd-empty"><p>Start typing to search for a patient.</p></div>
+        </div>
+        <div class="nd-alert nd-alert-danger d-none mt-2" id="add-patient-error"></div>
+        <div class="nd-alert nd-alert-success d-none mt-2" id="add-patient-success"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="nd-btn nd-btn-ghost nd-btn-sm" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Consultation Modal -->
+<div class="modal fade" id="consultationModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header" style="background:var(--nd-green-pale);border-bottom:1px solid var(--nd-border);">
+        <h5 class="modal-title" id="consultationModalLabel" style="font-weight:800;font-size:0.95rem;">
+          <i class="fas fa-stethoscope me-2" style="color:var(--nd-green);"></i>New Consultation
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="consultation-id">
+        <div class="mb-3">
+          <label class="nd-form-label">Patient</label>
+          <select class="nd-form-control nd-select" id="consultation-patient-id"></select>
+        </div>
+        <div class="mb-3">
+          <label class="nd-form-label">Reason</label>
+          <input type="text" class="nd-form-control" id="consultation-reason" placeholder="e.g., Follow-up on diet plan">
+        </div>
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <label class="nd-form-label">Status</label>
+            <select class="nd-form-control nd-select" id="consultation-status">
+              <option value="scheduled">Scheduled</option>
+              <option value="completed" selected>Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="nd-form-label">Date &amp; Time</label>
+            <input type="datetime-local" class="nd-form-control" id="consultation-occurred-at">
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="nd-form-label">Notes</label>
+          <textarea class="nd-form-control" id="consultation-notes" rows="3" placeholder="Optional notes"></textarea>
+        </div>
+        <div class="nd-alert nd-alert-danger d-none mt-2" id="consultation-error"></div>
+        <div class="nd-alert nd-alert-success d-none mt-2" id="consultation-success"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="nd-btn nd-btn-ghost nd-btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="nd-btn nd-btn-primary nd-btn-sm" id="save-consultation-btn">Save Consultation</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Rule Details Modal -->
 <div class="modal fade" id="ruleDetailsModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -1035,6 +1231,9 @@ let foodsCache = [], cookedFoodsCache = [], sampleRules = [];
 let currentFoodPage = 1, currentCookedPage = 1;
 let currentRulePage = 1;
 const FOODS_PER_PAGE = 12, COOKED_PER_PAGE = 12, RULES_PER_PAGE = 8;
+let currentPatientPage = 1, currentConsultationPage = 1;
+const PATIENTS_PER_PAGE = 10, CONSULTATIONS_PER_PAGE = 10;
+let assignedPatientsCache = [];
 let foodGroupsState = [], activeFoodGroupKey = null;
 let rulesLoadToken = 0;
 
@@ -1042,7 +1241,7 @@ let rulesLoadToken = 0;
 function notifyComingSoon(featureName) {
   alert(featureName + ' is coming soon.');
 }
-const ALL_SECTIONS = ['overview','food-market','foods','cooked','rules','builder','simulation'];
+const ALL_SECTIONS = ['overview','food-market','foods','cooked','rules','builder','simulation','patients','consultations','analytics'];
 function showSection(name) {
   ALL_SECTIONS.forEach(s => {
     const el = document.getElementById('section-' + s);
@@ -1051,7 +1250,8 @@ function showSection(name) {
     if (nav) nav.classList.toggle('active', s === name);
   });
   const titles = { overview:'Doctor Dashboard', 'food-market':'Food Market', foods:'Food Catalog', cooked:'Cooked Foods',
-                   rules:'Rule Library', builder:'Builder Studio', simulation:'Simulation Lab' };
+                   rules:'Rule Library', builder:'Builder Studio', simulation:'Simulation Lab',
+                   patients:'Patients', consultations:'Consultations', analytics:'Analytics' };
   const t = document.getElementById('nd-page-title');
   if (t) t.textContent = titles[name] || 'Dashboard';
   if (name === 'food-market') { renderMarketCategories(); loadMarketFavorites(); marketSearch(1); }
@@ -1059,6 +1259,9 @@ function showSection(name) {
   if (name === 'cooked' && !cookedFoodsCache.length) loadCookedFoods();
   if (name === 'rules' && !sampleRules.length) loadRules();
   if (name === 'builder') { loadFoodsForBuilder(); loadCookedFoodsForBuilder(); }
+  if (name === 'patients') loadPatients(1);
+  if (name === 'consultations') loadConsultations(1);
+  if (name === 'analytics') loadAnalytics();
 }
 
 // ── Date ────────────────────────────────────────────
@@ -1922,21 +2125,383 @@ function loadDashboardCookedFoods() {
 }
 
 // ═══════════════════════════════════════════════════════
+//  PATIENTS
+// ═══════════════════════════════════════════════════════
+function debounce(fn, delay) {
+  let timer = null;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return isNaN(d) ? '—' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function fmtDateTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return isNaN(d) ? '—' : d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+function escapeHtml(v) { const d = document.createElement('div'); d.textContent = v ?? ''; return d.innerHTML; }
+
+function loadPatients(page = 1) {
+  currentPatientPage = page;
+  const q = document.getElementById('patient-search')?.value || '';
+  const list = document.getElementById('patients-list');
+  const pag = document.getElementById('nd-patients-pagination');
+  if (list) list.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9e9e9e;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+  const params = new URLSearchParams({ page: String(page), per_page: String(PATIENTS_PER_PAGE) });
+  if (q) params.set('q', q);
+  fetch('/dashboard/doctor/patients?' + params)
+    .then(r => r.json())
+    .then(data => {
+      const patients = data.patients || [];
+      assignedPatientsCache = patients;
+      if (!list) return;
+      if (!patients.length) {
+        list.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9e9e9e;padding:20px;">No patients yet. Click "Add Patient" to assign one.</td></tr>';
+        if (pag) pag.innerHTML = '';
+        return;
+      }
+      list.innerHTML = patients.map(p => `
+        <tr>
+          <td>
+            <div class="food-row">
+              <span style="width:32px;height:32px;border-radius:50%;background:#6e7780;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex:none;">${escapeHtml((p.full_name||'?')[0]||'?').toUpperCase()}</span>
+              <div>
+                <div class="food-name">${escapeHtml(p.full_name)}</div>
+                <div style="font-size:0.72rem;color:#9ca3af;">${escapeHtml(p.email)}</div>
+              </div>
+            </div>
+          </td>
+          <td>${fmtDate(p.assigned_at)}</td>
+          <td>${p.has_pending_diagnosis ? '<span class="nd-badge nd-badge-amber">Pending</span>' : '<span class="nd-badge nd-badge-green">None</span>'}</td>
+          <td>${fmtDate(p.last_consultation_at)}</td>
+          <td>
+            <button class="nd-btn nd-btn-ghost nd-btn-sm" title="Log Consultation" onclick="openConsultationModal(null, ${p.patient_id})"><i class="fas fa-stethoscope"></i></button>
+            <button class="nd-btn nd-btn-ghost nd-btn-sm" style="color:#c62828;" title="Remove" onclick="removePatientLink(${p.link_id})"><i class="fas fa-user-minus"></i></button>
+          </td>
+        </tr>`).join('');
+      renderPagination(pag, data.pagination?.total_pages || 0, page, p2 => loadPatients(p2));
+    })
+    .catch(() => { if (list) list.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#c62828;padding:20px;">Failed to load patients.</td></tr>'; });
+}
+const onPatientSearchInput = debounce(() => loadPatients(1), 350);
+
+function removePatientLink(linkId) {
+  if (!confirm('Remove this patient from your list?')) return;
+  fetch('/dashboard/doctor/patients/' + linkId, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(d => { if (!d.success) throw new Error(d.message); loadPatients(currentPatientPage); })
+    .catch(e => alert(e.message || 'Could not remove patient.'));
+}
+
+function openAddPatientModal() {
+  document.getElementById('patient-search-input').value = '';
+  document.getElementById('patient-search-results').innerHTML = '<div class="nd-empty"><p>Start typing to search for a patient.</p></div>';
+  document.getElementById('add-patient-error').classList.add('d-none');
+  document.getElementById('add-patient-success').classList.add('d-none');
+  new bootstrap.Modal(document.getElementById('addPatientModal')).show();
+}
+
+function onPatientAssignSearchInput() {
+  clearTimeout(window._patientAssignTimer);
+  window._patientAssignTimer = setTimeout(() => {
+    const q = document.getElementById('patient-search-input').value.trim();
+    const results = document.getElementById('patient-search-results');
+    if (!q) { results.innerHTML = '<div class="nd-empty"><p>Start typing to search for a patient.</p></div>'; return; }
+    results.innerHTML = '<div class="nd-loading"><i class="fas fa-spinner fa-spin me-1"></i> Searching...</div>';
+    fetch('/dashboard/doctor/patients/search?q=' + encodeURIComponent(q))
+      .then(r => r.json())
+      .then(d => {
+        const users = d.users || [];
+        if (!users.length) { results.innerHTML = '<div class="nd-empty"><p>No matching accounts found.</p></div>'; return; }
+        results.innerHTML = users.map(u => `
+          <div class="nd-food-card" style="display:flex;align-items:center;justify-content:space-between;padding:10px;">
+            <div>
+              <div class="food-name">${escapeHtml(u.full_name)}</div>
+              <div style="font-size:0.72rem;color:#9ca3af;">${escapeHtml(u.email)}</div>
+            </div>
+            <button class="nd-btn nd-btn-primary nd-btn-sm" onclick="assignPatientToSelf(${u.id})"><i class="fas fa-plus"></i> Add</button>
+          </div>`).join('');
+      })
+      .catch(() => { results.innerHTML = '<div class="nd-empty"><p>Search unavailable.</p></div>'; });
+  }, 300);
+}
+
+function assignPatientToSelf(userId) {
+  const errorEl = document.getElementById('add-patient-error');
+  const successEl = document.getElementById('add-patient-success');
+  errorEl.classList.add('d-none');
+  successEl.classList.add('d-none');
+  fetch('/dashboard/doctor/patients', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId }),
+  })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.success) throw new Error(d.message);
+      successEl.textContent = 'Patient added.';
+      successEl.classList.remove('d-none');
+      loadPatients(1);
+      refreshNotificationBadge();
+      onPatientAssignSearchInput();
+    })
+    .catch(e => { errorEl.textContent = e.message || 'Could not add patient.'; errorEl.classList.remove('d-none'); });
+}
+
+// ═══════════════════════════════════════════════════════
+//  CONSULTATIONS
+// ═══════════════════════════════════════════════════════
+let consultationsCache = [];
+
+function loadConsultations(page = 1) {
+  currentConsultationPage = page;
+  const status = document.getElementById('consultation-status-filter')?.value || '';
+  const list = document.getElementById('consultations-list');
+  const pag = document.getElementById('nd-consultations-pagination');
+  if (list) list.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9e9e9e;padding:20px;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+  const params = new URLSearchParams({ page: String(page), per_page: String(CONSULTATIONS_PER_PAGE) });
+  if (status) params.set('status', status);
+  fetch('/dashboard/doctor/consultations?' + params)
+    .then(r => r.json())
+    .then(data => {
+      consultationsCache = data.consultations || [];
+      if (!list) return;
+      if (!consultationsCache.length) {
+        list.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#9e9e9e;padding:20px;">No consultations logged yet.</td></tr>';
+        if (pag) pag.innerHTML = '';
+        return;
+      }
+      const statusBadge = { scheduled: 'nd-badge-blue', completed: 'nd-badge-green', cancelled: 'nd-badge-gray' };
+      list.innerHTML = consultationsCache.map(c => `
+        <tr>
+          <td>${escapeHtml(c.patient_name)}</td>
+          <td>${escapeHtml(c.reason)}</td>
+          <td><span class="nd-badge ${statusBadge[c.status] || 'nd-badge-gray'}">${escapeHtml(c.status)}</span></td>
+          <td>${fmtDateTime(c.occurred_at)}</td>
+          <td>
+            <button class="nd-btn nd-btn-ghost nd-btn-sm" title="Edit" onclick="editConsultationRow(${c.id})"><i class="fas fa-pen"></i></button>
+            <button class="nd-btn nd-btn-ghost nd-btn-sm" style="color:#c62828;" title="Delete" onclick="deleteConsultationRow(${c.id})"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`).join('');
+      renderPagination(pag, data.pagination?.total_pages || 0, page, p2 => loadConsultations(p2));
+    })
+    .catch(() => { if (list) list.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#c62828;padding:20px;">Failed to load consultations.</td></tr>'; });
+}
+
+function populateConsultationPatientSelect(preselectPatientId) {
+  const sel = document.getElementById('consultation-patient-id');
+  return fetch('/dashboard/doctor/patients?per_page=100')
+    .then(r => r.json())
+    .then(d => {
+      const patients = d.patients || [];
+      if (!patients.length) {
+        sel.innerHTML = '<option value="">No patients assigned yet</option>';
+        return;
+      }
+      sel.innerHTML = patients.map(p => `<option value="${p.patient_id}">${escapeHtml(p.full_name)}</option>`).join('');
+      if (preselectPatientId) sel.value = String(preselectPatientId);
+    });
+}
+
+function openConsultationModal(consultation = null, preselectPatientId = null) {
+  const errorEl = document.getElementById('consultation-error');
+  const successEl = document.getElementById('consultation-success');
+  errorEl.classList.add('d-none');
+  successEl.classList.add('d-none');
+  populateConsultationPatientSelect(consultation ? consultation.patient_id : preselectPatientId);
+  document.getElementById('consultation-id').value = consultation ? consultation.id : '';
+  document.getElementById('consultation-reason').value = consultation ? consultation.reason : '';
+  document.getElementById('consultation-status').value = consultation ? consultation.status : 'completed';
+  document.getElementById('consultation-notes').value = consultation ? consultation.notes : '';
+  const occurredAt = consultation && consultation.occurred_at ? new Date(consultation.occurred_at) : new Date();
+  const pad = n => String(n).padStart(2, '0');
+  document.getElementById('consultation-occurred-at').value =
+    `${occurredAt.getFullYear()}-${pad(occurredAt.getMonth() + 1)}-${pad(occurredAt.getDate())}T${pad(occurredAt.getHours())}:${pad(occurredAt.getMinutes())}`;
+  document.getElementById('consultationModalLabel').innerHTML =
+    `<i class="fas fa-stethoscope me-2" style="color:var(--nd-green);"></i>${consultation ? 'Edit Consultation' : 'New Consultation'}`;
+  new bootstrap.Modal(document.getElementById('consultationModal')).show();
+}
+
+function editConsultationRow(id) {
+  const c = consultationsCache.find(x => x.id === id);
+  if (c) openConsultationModal(c);
+}
+
+function deleteConsultationRow(id) {
+  if (!confirm('Delete this consultation?')) return;
+  fetch('/dashboard/doctor/consultations/' + id, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(d => { if (!d.success) throw new Error(d.message); loadConsultations(currentConsultationPage); })
+    .catch(e => alert(e.message || 'Could not delete consultation.'));
+}
+
+document.getElementById('save-consultation-btn')?.addEventListener('click', function () {
+  const id = document.getElementById('consultation-id').value;
+  const patientId = document.getElementById('consultation-patient-id').value;
+  const reason = document.getElementById('consultation-reason').value.trim();
+  const errorEl = document.getElementById('consultation-error');
+  const successEl = document.getElementById('consultation-success');
+  errorEl.classList.add('d-none');
+  successEl.classList.add('d-none');
+  if (!patientId || !reason) { errorEl.textContent = 'Patient and reason are required.'; errorEl.classList.remove('d-none'); return; }
+
+  const occurredAtLocal = document.getElementById('consultation-occurred-at').value;
+  const payload = {
+    patient_id: Number(patientId),
+    reason,
+    status: document.getElementById('consultation-status').value,
+    notes: document.getElementById('consultation-notes').value,
+    occurred_at: occurredAtLocal ? new Date(occurredAtLocal).toISOString() : null,
+  };
+  const url = id ? '/dashboard/doctor/consultations/' + id : '/dashboard/doctor/consultations';
+  fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    .then(r => r.json())
+    .then(d => {
+      if (!d.success) throw new Error(d.message);
+      successEl.textContent = 'Saved!';
+      successEl.classList.remove('d-none');
+      setTimeout(() => {
+        bootstrap.Modal.getInstance(document.getElementById('consultationModal')).hide();
+        loadConsultations(1);
+      }, 600);
+    })
+    .catch(e => { errorEl.textContent = e.message || 'Could not save consultation.'; errorEl.classList.remove('d-none'); });
+});
+
+// ═══════════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ═══════════════════════════════════════════════════════
+function refreshNotificationBadge() {
+  fetch('/dashboard/doctor/notifications?limit=1')
+    .then(r => r.json())
+    .then(d => {
+      const badge = document.getElementById('nd-notif-badge');
+      if (!badge) return;
+      const count = d.unread_count || 0;
+      badge.textContent = count > 9 ? '9+' : String(count);
+      badge.classList.toggle('d-none', count === 0);
+    })
+    .catch(() => {});
+}
+
+function loadNotificationsPanel() {
+  const list = document.getElementById('nd-notif-panel-list');
+  list.innerHTML = '<div class="nd-loading"><i class="fas fa-spinner fa-spin me-1"></i> Loading...</div>';
+  fetch('/dashboard/doctor/notifications')
+    .then(r => r.json())
+    .then(d => {
+      const notifications = d.notifications || [];
+      if (!notifications.length) {
+        list.innerHTML = '<div class="nd-notif-empty">You\'re all caught up.</div>';
+        return;
+      }
+      list.innerHTML = notifications.map(n => `
+        <div class="nd-notif-row ${n.is_read ? '' : 'unread'}" onclick="markNotificationRead(${n.id})">
+          <div class="nd-notif-dot"></div>
+          <div>
+            <div class="nd-notif-message">${escapeHtml(n.message)}</div>
+            <div class="nd-notif-time">${fmtDateTime(n.created_at)}</div>
+          </div>
+        </div>`).join('');
+    })
+    .catch(() => { list.innerHTML = '<div class="nd-notif-empty">Could not load notifications.</div>'; });
+}
+
+function toggleNotifications(evt) {
+  evt.stopPropagation();
+  const panel = document.getElementById('nd-notif-panel');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) loadNotificationsPanel();
+}
+document.addEventListener('click', function (e) {
+  const wrap = document.querySelector('.nd-notif-wrap');
+  const panel = document.getElementById('nd-notif-panel');
+  if (wrap && panel && !wrap.contains(e.target)) panel.style.display = 'none';
+});
+
+function markNotificationRead(id) {
+  fetch('/dashboard/doctor/notifications/' + id + '/read', { method: 'POST' })
+    .then(() => { loadNotificationsPanel(); refreshNotificationBadge(); })
+    .catch(() => {});
+}
+
+function markAllNotificationsRead() {
+  fetch('/dashboard/doctor/notifications/read-all', { method: 'POST' })
+    .then(() => { loadNotificationsPanel(); refreshNotificationBadge(); })
+    .catch(() => {});
+}
+
+// ═══════════════════════════════════════════════════════
+//  ANALYTICS
+// ═══════════════════════════════════════════════════════
+let analyticsCharts = {};
+function loadAnalytics() {
+  fetch('/dashboard/doctor/analytics')
+    .then(r => r.json())
+    .then(d => {
+      const consultLabels = (d.consultations_per_day || []).map(x => x.date.slice(5));
+      const consultCounts = (d.consultations_per_day || []).map(x => x.count);
+      renderLineChart('analyticsConsultationsChart', consultLabels, consultCounts, '#2eb85c');
+
+      const patientLabels = (d.patients_per_day || []).map(x => x.date.slice(5));
+      const patientCounts = (d.patients_per_day || []).map(x => x.count);
+      renderLineChart('analyticsPatientsChart', patientLabels, patientCounts, '#3b82f6');
+
+      const statusMap = d.consultation_status_breakdown || {};
+      renderDoughnutChart('analyticsStatusChart',
+        ['Scheduled', 'Completed', 'Cancelled'],
+        [statusMap.scheduled || 0, statusMap.completed || 0, statusMap.cancelled || 0],
+        ['#3b82f6', '#2eb85c', '#9ca3af']);
+
+      const diag = d.diagnosis_breakdown || { pending: 0, completed: 0 };
+      renderDoughnutChart('analyticsDiagnosisChart',
+        ['Pending', 'Completed'], [diag.pending, diag.completed], ['#f97316', '#2eb85c']);
+    })
+    .catch(() => {});
+}
+function renderLineChart(canvasId, labels, data, color) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  if (analyticsCharts[canvasId]) analyticsCharts[canvasId].destroy();
+  analyticsCharts[canvasId] = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{ data, borderColor: color, backgroundColor: color + '22', fill: true, tension: 0.35, pointRadius: 2 }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+  });
+}
+function renderDoughnutChart(canvasId, labels, data, colors) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  if (analyticsCharts[canvasId]) analyticsCharts[canvasId].destroy();
+  analyticsCharts[canvasId] = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data, backgroundColor: colors }] },
+    options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } },
+  });
+}
+
+// ═══════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════
 if (new URLSearchParams(window.location.search).get('section') === 'food-market') { document.addEventListener('DOMContentLoaded', () => showSection('food-market')); }
 
 document.addEventListener('DOMContentLoaded', function() {
   setDate();
-  
+
   // Initialize chart first (with default data)
   initDonutChart();
-  
+
   // Then load actual data
   loadFoods();
   loadCookedFoods();
   loadRules();
-  
+  refreshNotificationBadge();
+
   // Update rule counts after short delay
   setTimeout(() => {
     updateRuleCounts();

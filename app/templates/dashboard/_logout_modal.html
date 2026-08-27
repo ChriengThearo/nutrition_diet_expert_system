@@ -13,8 +13,7 @@
     position: fixed;
     inset: 0;
     z-index: 2000;
-    background: rgba(15, 30, 45, 0.55);
-    backdrop-filter: blur(2px);
+    background: rgba(0, 0, 0, 0.45);
     align-items: center;
     justify-content: center;
     padding: 1rem;
@@ -22,11 +21,11 @@
   .ndlogout-overlay.is-open { display: flex; }
   .ndlogout-card {
     width: 100%;
-    max-width: 380px;
+    max-width: 400px;
     background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 30px 60px rgba(12, 45, 66, 0.3);
-    padding: 1.6rem 1.5rem 1.5rem;
+    border-radius: 24px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
+    padding: 2rem 1.75rem 1.75rem;
     font-family: inherit;
     animation: ndlogoutRise 0.18s ease-out;
   }
@@ -35,78 +34,74 @@
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
   .ndlogout-title {
-    margin: 0 0 1.1rem;
+    margin: 0 0 1.4rem;
     text-align: center;
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: #14293a;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #0d0d0d;
   }
   .ndlogout-user {
     display: flex;
     align-items: center;
-    gap: 0.7rem;
-    border: 1px solid rgba(16, 40, 58, 0.12);
-    border-radius: 14px;
-    padding: 0.65rem 0.8rem;
-    margin-bottom: 0.8rem;
+    gap: 0.75rem;
+    border: 1px solid #e5e5e5;
+    border-radius: 16px;
+    padding: 0.75rem 0.9rem;
+    margin-bottom: 0.75rem;
   }
   .ndlogout-avatar {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     flex: none;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #0f766e, #2d64c3);
+    background: #6e7780;
     color: #fff;
-    font-weight: 800;
+    font-weight: 700;
     font-size: 0.95rem;
   }
   .ndlogout-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .ndlogout-user-name { margin: 0; font-weight: 700; font-size: 0.92rem; color: #14293a; }
-  .ndlogout-user-email { margin: 0; font-size: 0.8rem; color: #66758b; word-break: break-word; }
+  .ndlogout-user-name { margin: 0; font-weight: 700; font-size: 0.95rem; color: #0d0d0d; }
+  .ndlogout-user-email { margin: 0; font-size: 0.82rem; color: #8e8e8e; word-break: break-word; }
   .ndlogout-note {
     display: flex;
-    gap: 0.55rem;
+    gap: 0.6rem;
     align-items: flex-start;
-    background: #f4f7f9;
-    border-radius: 12px;
-    padding: 0.65rem 0.75rem;
-    margin-bottom: 1.1rem;
-    color: #4b5c6b;
-    font-size: 0.82rem;
-    line-height: 1.4;
+    background: #f7f7f8;
+    border-radius: 14px;
+    padding: 0.75rem 0.85rem;
+    margin-bottom: 1.4rem;
+    color: #5d5d5d;
+    font-size: 0.85rem;
+    line-height: 1.45;
   }
-  .ndlogout-note i { margin-top: 0.15rem; color: #7b8aa0; }
-  .ndlogout-actions { display: grid; gap: 0.55rem; }
+  .ndlogout-note i { margin-top: 0.18rem; color: #9a9a9a; }
+  .ndlogout-actions { display: grid; gap: 0.6rem; }
   .ndlogout-btn {
-    border: none;
+    border: 1px solid transparent;
     border-radius: 999px;
-    padding: 0.65rem 1rem;
-    font-weight: 700;
-    font-size: 0.92rem;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
     text-align: center;
     text-decoration: none;
     cursor: pointer;
     display: block;
+    transition: opacity 0.15s ease, background-color 0.15s ease;
   }
-  .ndlogout-btn-primary {
-    background: linear-gradient(135deg, #dc3545, #c62828);
-    color: #fff;
-  }
-  .ndlogout-btn-primary:hover { color: #fff; opacity: 0.92; }
-  .ndlogout-btn-secondary {
-    background: #eef1f4;
-    color: #26364f;
-  }
-  .ndlogout-btn-secondary:hover { background: #e3e7eb; color: #26364f; }
+  .ndlogout-btn-primary { background: #0d0d0d; color: #fff; }
+  .ndlogout-btn-primary:hover { opacity: 0.85; color: #fff; }
+  .ndlogout-btn-secondary { background: #ffffff; color: #0d0d0d; border-color: #e5e5e5; }
+  .ndlogout-btn-secondary:hover { background: #f7f7f8; color: #0d0d0d; }
 </style>
 
 <div class="ndlogout-overlay" id="ndLogoutOverlay" onclick="if (event.target === this) closeLogoutModal();">
   <div class="ndlogout-card" role="dialog" aria-modal="true" aria-labelledby="ndLogoutTitle">
-    <p class="ndlogout-title" id="ndLogoutTitle">Are you sure you want to log out?</p>
+    <p class="ndlogout-title" id="ndLogoutTitle">Are you sure you want<br>to log out?</p>
     <div class="ndlogout-user">
       <div class="ndlogout-avatar">
         {% if not lm_guest and lm_photo_path %}
@@ -122,10 +117,10 @@
     </div>
     <div class="ndlogout-note">
       <i class="fas fa-circle-info"></i>
-      <span>You'll be signed out of Diet Expert on this device and need to log in again to continue.</span>
+      <span>This will also log you out of other Diet Expert sessions on this device.</span>
     </div>
     <div class="ndlogout-actions">
-      <a class="ndlogout-btn ndlogout-btn-primary" href="{{ url_for('auth.logout') }}">Log Out</a>
+      <a class="ndlogout-btn ndlogout-btn-primary" href="{{ url_for('auth.logout') }}">Log out</a>
       <button type="button" class="ndlogout-btn ndlogout-btn-secondary" onclick="closeLogoutModal();">Cancel</button>
     </div>
   </div>

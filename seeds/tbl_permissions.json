@@ -222,5 +222,77 @@
     "description": "Can view rules",
     "module": "Rules",
     "aliases": "[\"rule.view\", \"rule_read\"]"
+  },
+  {
+    "id": 57,
+    "code": "patient.read",
+    "name": "View Patients",
+    "description": "Permission to view assigned patients",
+    "module": "Patient",
+    "aliases": null
+  },
+  {
+    "id": 58,
+    "code": "patient.assign",
+    "name": "Assign Patients",
+    "description": "Permission to assign a patient to a doctor",
+    "module": "Patient",
+    "aliases": null
+  },
+  {
+    "id": 59,
+    "code": "patient.remove",
+    "name": "Remove Patients",
+    "description": "Permission to unassign a patient from a doctor",
+    "module": "Patient",
+    "aliases": null
+  },
+  {
+    "id": 60,
+    "code": "consultation.read",
+    "name": "View Consultations",
+    "description": "Permission to view consultations",
+    "module": "Consultation",
+    "aliases": null
+  },
+  {
+    "id": 61,
+    "code": "consultation.create",
+    "name": "Create Consultations",
+    "description": "Permission to log a new consultation",
+    "module": "Consultation",
+    "aliases": null
+  },
+  {
+    "id": 62,
+    "code": "consultation.update",
+    "name": "Update Consultations",
+    "description": "Permission to edit a consultation",
+    "module": "Consultation",
+    "aliases": null
+  },
+  {
+    "id": 63,
+    "code": "consultation.delete",
+    "name": "Delete Consultations",
+    "description": "Permission to delete a consultation",
+    "module": "Consultation",
+    "aliases": null
+  },
+  {
+    "id": 64,
+    "code": "notification.read",
+    "name": "View Notifications",
+    "description": "Permission to view notifications",
+    "module": "Notification",
+    "aliases": null
+  },
+  {
+    "id": 65,
+    "code": "notification.update",
+    "name": "Update Notifications",
+    "description": "Permission to mark notifications as read",
+    "module": "Notification",
+    "aliases": null
   }
 ]

@@ -20,13 +20,17 @@ from app.models.cooked_food import CookedFoodsTable
 from app.models.food_group import FoodGroupTable
 from app.models.rule_food_map import RuleFoodMapTable
 from app.models.user_result import UserResultsTable
+from app.models.doctor_patient import DoctorPatient
+from app.models.consultation import Consultation
+from app.models.notification import Notification
 from app.forms.dashboard_forms import UserProfileEditForm, DoctorProfileEditForm
 from app.services.dashboard_services import DashboardService
 from app.services.diet_rule_service import DietRuleService
 from app.routes.access_control import permission_required
 from extensions import db, csrf
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import selectinload
+from sqlalchemy import func, or_
 import json
 import os
 import re
@@ -544,11 +548,33 @@ def audit_log():
 def doctor_dashboard():
     """Doctor dashboard main page"""
     # Get doctor-specific statistics
-    total_patients = (
-        UserTable.query.count()
-    )  # Simplified - would filter by doctor's patients
-    consultations_today = 5  # Simplified - would count today's consultations
-    pending_diagnoses = UserResultsTable.query.filter_by(status="pending").count()
+    total_patients = DoctorPatient.query.filter_by(
+        doctor_id=current_user.id, status="active"
+    ).count()
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    consultations_today = Consultation.query.filter(
+        Consultation.doctor_id == current_user.id,
+        Consultation.occurred_at >= today_start,
+    ).count()
+    new_patients_today = DoctorPatient.query.filter(
+        DoctorPatient.doctor_id == current_user.id,
+        DoctorPatient.status == "active",
+        DoctorPatient.assigned_at >= today_start,
+    ).count()
+    patient_ids = [
+        row[0]
+        for row in db.session.query(DoctorPatient.patient_id)
+        .filter_by(doctor_id=current_user.id, status="active")
+        .all()
+    ]
+    pending_diagnoses = (
+        UserResultsTable.query.filter(
+            UserResultsTable.status == "pending",
+            UserResultsTable.user_id.in_(patient_ids),
+        ).count()
+        if patient_ids
+        else 0
+    )
     rules_authored = (
         DietRulesTable.query.count()
     )  # Simplified - would filter by doctor's rules
@@ -557,8 +583,533 @@ def doctor_dashboard():
         "dashboard/doctor_dashboard.html",
         total_patients=total_patients,
         consultations_today=consultations_today,
+        new_patients_today=new_patients_today,
         pending_diagnoses=pending_diagnoses,
         rules_authored=rules_authored,
+    )
+
+
+def _notify_doctor(doctor_id: int, message: str, link: str | None = None):
+    notification = Notification(recipient_id=doctor_id, message=message, link=link)
+    db.session.add(notification)
+
+
+def _parse_naive_utc(value: str):
+    """Parse an ISO datetime string into a naive UTC datetime, matching the
+    naive datetime.utcnow() convention used elsewhere in this module."""
+    parsed = datetime.fromisoformat(value)
+    if parsed.tzinfo is not None:
+        parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+    return parsed
+
+
+def _serialize_patient(link: DoctorPatient, pending_by_user: dict, last_consult_by_user: dict):
+    patient = link.patient
+    return {
+        "link_id": link.id,
+        "patient_id": patient.id,
+        "username": patient.username,
+        "full_name": patient.full_name,
+        "email": patient.email,
+        "photo": patient.photo,
+        "assigned_at": link.assigned_at.isoformat() if link.assigned_at else None,
+        "status": link.status,
+        "has_pending_diagnosis": pending_by_user.get(patient.id, 0) > 0,
+        "last_consultation_at": last_consult_by_user.get(patient.id),
+    }
+
+
+@dashboard_bp.route("/doctor/patients")
+@login_required
+@doctor_required
+@permission_required(
+    "patient.read", "You have no permission to view patients.", json_response=True
+)
+def doctor_patients():
+    """List this doctor's assigned patients, paginated and searchable."""
+    page = request.args.get("page", default=1, type=int)
+    per_page = request.args.get("per_page", default=10, type=int)
+    page = page if isinstance(page, int) and page > 0 else 1
+    per_page = min(per_page if isinstance(per_page, int) and per_page > 0 else 10, 100)
+    q = (request.args.get("q") or "").strip()
+
+    query = DoctorPatient.query.filter_by(
+        doctor_id=current_user.id, status="active"
+    ).join(UserTable, DoctorPatient.patient_id == UserTable.id)
+
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(UserTable.full_name.ilike(like), UserTable.email.ilike(like), UserTable.username.ilike(like))
+        )
+
+    total = query.count()
+    total_pages = (total + per_page - 1) // per_page if total else 0
+    links = (
+        query.order_by(DoctorPatient.assigned_at.desc())
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+        .all()
+    )
+
+    patient_ids = [link.patient_id for link in links]
+    pending_by_user = {}
+    last_consult_by_user = {}
+    if patient_ids:
+        pending_rows = (
+            db.session.query(UserResultsTable.user_id, func.count(UserResultsTable.id))
+            .filter(UserResultsTable.user_id.in_(patient_ids), UserResultsTable.status == "pending")
+            .group_by(UserResultsTable.user_id)
+            .all()
+        )
+        pending_by_user = {uid: cnt for uid, cnt in pending_rows}
+
+        last_consult_rows = (
+            db.session.query(Consultation.patient_id, func.max(Consultation.occurred_at))
+            .filter(Consultation.doctor_id == current_user.id, Consultation.patient_id.in_(patient_ids))
+            .group_by(Consultation.patient_id)
+            .all()
+        )
+        last_consult_by_user = {
+            pid: (dt.isoformat() if dt else None) for pid, dt in last_consult_rows
+        }
+
+    return jsonify(
+        {
+            "patients": [
+                _serialize_patient(link, pending_by_user, last_consult_by_user)
+                for link in links
+            ],
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total": total,
+                "total_pages": total_pages,
+                "has_next": page < total_pages,
+                "has_prev": page > 1,
+            },
+        }
+    )
+
+
+@dashboard_bp.route("/doctor/patients/search")
+@login_required
+@doctor_required
+@permission_required(
+    "patient.assign", "You have no permission to assign patients.", json_response=True
+)
+def doctor_patients_search():
+    """Search existing 'User'-role accounts not yet assigned to this doctor."""
+    q = (request.args.get("q") or "").strip()
+
+    assigned_ids = [
+        row[0]
+        for row in db.session.query(DoctorPatient.patient_id)
+        .filter_by(doctor_id=current_user.id, status="active")
+        .all()
+    ]
+
+    query = UserTable.query.join(UserTable.roles).filter(RoleTable.name == "User")
+    if assigned_ids:
+        query = query.filter(UserTable.id.notin_(assigned_ids))
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(UserTable.full_name.ilike(like), UserTable.email.ilike(like), UserTable.username.ilike(like))
+        )
+
+    users = query.order_by(UserTable.full_name.asc()).limit(20).all()
+    return jsonify(
+        {
+            "users": [
+                {
+                    "id": u.id,
+                    "username": u.username,
+                    "full_name": u.full_name,
+                    "email": u.email,
+                    "photo": u.photo,
+                }
+                for u in users
+            ]
+        }
+    )
+
+
+@dashboard_bp.route("/doctor/patients", methods=["POST"])
+@login_required
+@doctor_required
+@csrf.exempt
+@permission_required(
+    "patient.assign", "You have no permission to assign patients.", json_response=True
+)
+def assign_doctor_patient():
+    """Assign an existing user as this doctor's patient."""
+    payload = request.get_json(silent=True) or {}
+    user_id = payload.get("user_id")
+    if not user_id:
+        return jsonify({"success": False, "message": "user_id is required"}), 400
+
+    patient = UserTable.query.get(user_id)
+    if not patient or not patient.has_role("User"):
+        return jsonify({"success": False, "message": "Patient account not found"}), 404
+
+    existing = DoctorPatient.query.filter_by(
+        doctor_id=current_user.id, patient_id=user_id
+    ).first()
+    if existing:
+        if existing.status == "active":
+            return jsonify({"success": False, "message": "Already your patient"}), 409
+        existing.status = "active"
+        existing.assigned_at = datetime.utcnow()
+        link = existing
+    else:
+        link = DoctorPatient(doctor_id=current_user.id, patient_id=user_id)
+        db.session.add(link)
+
+    try:
+        _notify_doctor(
+            current_user.id,
+            f"{patient.full_name} was added to your patient list.",
+            link="/dashboard/doctor?section=patients",
+        )
+        db.session.commit()
+        auto_dump_seeds()
+        return jsonify(
+            {
+                "success": True,
+                "patient": _serialize_patient(link, {}, {}),
+            }
+        )
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Failed to assign patient")
+        return jsonify({"success": False, "message": "Failed to assign patient"}), 500
+
+
+@dashboard_bp.route("/doctor/patients/<int:link_id>", methods=["DELETE"])
+@login_required
+@doctor_required
+@csrf.exempt
+@permission_required(
+    "patient.remove", "You have no permission to remove patients.", json_response=True
+)
+def remove_doctor_patient(link_id: int):
+    link = DoctorPatient.query.filter_by(id=link_id, doctor_id=current_user.id).first()
+    if not link:
+        return jsonify({"success": False, "message": "Patient link not found"}), 404
+    try:
+        db.session.delete(link)
+        db.session.commit()
+        auto_dump_seeds()
+        return jsonify({"success": True})
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Failed to remove patient")
+        return jsonify({"success": False, "message": "Failed to remove patient"}), 500
+
+
+def _serialize_consultation(c: Consultation):
+    return {
+        "id": c.id,
+        "patient_id": c.patient_id,
+        "patient_name": c.patient.full_name if c.patient else "Unknown",
+        "reason": c.reason,
+        "notes": c.notes or "",
+        "status": c.status,
+        "occurred_at": c.occurred_at.isoformat() if c.occurred_at else None,
+        "created_at": c.created_at.isoformat() if c.created_at else None,
+    }
+
+
+@dashboard_bp.route("/doctor/consultations")
+@login_required
+@doctor_required
+@permission_required(
+    "consultation.read", "You have no permission to view consultations.", json_response=True
+)
+def doctor_consultations():
+    page = request.args.get("page", default=1, type=int)
+    per_page = request.args.get("per_page", default=10, type=int)
+    page = page if isinstance(page, int) and page > 0 else 1
+    per_page = min(per_page if isinstance(per_page, int) and per_page > 0 else 10, 100)
+    status_filter = (request.args.get("status") or "").strip()
+    patient_id = request.args.get("patient_id", type=int)
+
+    query = Consultation.query.filter_by(doctor_id=current_user.id)
+    if status_filter:
+        query = query.filter(Consultation.status == status_filter)
+    if patient_id:
+        query = query.filter(Consultation.patient_id == patient_id)
+
+    total = query.count()
+    total_pages = (total + per_page - 1) // per_page if total else 0
+    consultations = (
+        query.order_by(Consultation.occurred_at.desc())
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+        .all()
+    )
+
+    return jsonify(
+        {
+            "consultations": [_serialize_consultation(c) for c in consultations],
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total": total,
+                "total_pages": total_pages,
+                "has_next": page < total_pages,
+                "has_prev": page > 1,
+            },
+        }
+    )
+
+
+@dashboard_bp.route("/doctor/consultations", methods=["POST"])
+@login_required
+@doctor_required
+@csrf.exempt
+@permission_required(
+    "consultation.create", "You have no permission to create consultations.", json_response=True
+)
+def create_doctor_consultation():
+    payload = request.get_json(silent=True) or {}
+    patient_id = payload.get("patient_id")
+    reason = (payload.get("reason") or "").strip()
+    if not patient_id or not reason:
+        return jsonify({"success": False, "message": "patient_id and reason are required"}), 400
+
+    is_patient = DoctorPatient.query.filter_by(
+        doctor_id=current_user.id, patient_id=patient_id, status="active"
+    ).first()
+    if not is_patient:
+        return jsonify({"success": False, "message": "That patient is not assigned to you"}), 400
+
+    occurred_at = datetime.utcnow()
+    raw_occurred_at = payload.get("occurred_at")
+    if raw_occurred_at:
+        try:
+            occurred_at = _parse_naive_utc(raw_occurred_at)
+        except ValueError:
+            pass
+
+    consultation = Consultation(
+        doctor_id=current_user.id,
+        patient_id=patient_id,
+        reason=reason,
+        notes=(payload.get("notes") or "").strip() or None,
+        status=(payload.get("status") or "completed").strip() or "completed",
+        occurred_at=occurred_at,
+    )
+    try:
+        db.session.add(consultation)
+        db.session.commit()
+        auto_dump_seeds()
+        return jsonify({"success": True, "consultation": _serialize_consultation(consultation)})
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Failed to create consultation")
+        return jsonify({"success": False, "message": "Failed to create consultation"}), 500
+
+
+@dashboard_bp.route("/doctor/consultations/<int:consultation_id>", methods=["POST"])
+@login_required
+@doctor_required
+@csrf.exempt
+@permission_required(
+    "consultation.update", "You have no permission to edit consultations.", json_response=True
+)
+def update_doctor_consultation(consultation_id: int):
+    consultation = Consultation.query.filter_by(
+        id=consultation_id, doctor_id=current_user.id
+    ).first()
+    if not consultation:
+        return jsonify({"success": False, "message": "Consultation not found"}), 404
+
+    payload = request.get_json(silent=True) or {}
+    if "reason" in payload:
+        reason = (payload.get("reason") or "").strip()
+        if not reason:
+            return jsonify({"success": False, "message": "reason is required"}), 400
+        consultation.reason = reason
+    if "notes" in payload:
+        consultation.notes = (payload.get("notes") or "").strip() or None
+    if "status" in payload:
+        consultation.status = (payload.get("status") or "completed").strip() or "completed"
+    if payload.get("occurred_at"):
+        try:
+            consultation.occurred_at = _parse_naive_utc(payload["occurred_at"])
+        except ValueError:
+            pass
+
+    try:
+        db.session.commit()
+        auto_dump_seeds()
+        return jsonify({"success": True, "consultation": _serialize_consultation(consultation)})
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Failed to update consultation")
+        return jsonify({"success": False, "message": "Failed to update consultation"}), 500
+
+
+@dashboard_bp.route("/doctor/consultations/<int:consultation_id>", methods=["DELETE"])
+@login_required
+@doctor_required
+@csrf.exempt
+@permission_required(
+    "consultation.delete", "You have no permission to delete consultations.", json_response=True
+)
+def delete_doctor_consultation(consultation_id: int):
+    consultation = Consultation.query.filter_by(
+        id=consultation_id, doctor_id=current_user.id
+    ).first()
+    if not consultation:
+        return jsonify({"success": False, "message": "Consultation not found"}), 404
+    try:
+        db.session.delete(consultation)
+        db.session.commit()
+        auto_dump_seeds()
+        return jsonify({"success": True})
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Failed to delete consultation")
+        return jsonify({"success": False, "message": "Failed to delete consultation"}), 500
+
+
+@dashboard_bp.route("/doctor/notifications")
+@login_required
+@doctor_required
+@permission_required(
+    "notification.read", "You have no permission to view notifications.", json_response=True
+)
+def doctor_notifications():
+    limit = min(request.args.get("limit", default=20, type=int) or 20, 100)
+    notifications = (
+        Notification.query.filter_by(recipient_id=current_user.id)
+        .order_by(Notification.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    unread_count = Notification.query.filter_by(
+        recipient_id=current_user.id, is_read=False
+    ).count()
+    return jsonify(
+        {
+            "notifications": [
+                {
+                    "id": n.id,
+                    "message": n.message,
+                    "link": n.link,
+                    "is_read": n.is_read,
+                    "created_at": n.created_at.isoformat() if n.created_at else None,
+                }
+                for n in notifications
+            ],
+            "unread_count": unread_count,
+        }
+    )
+
+
+@dashboard_bp.route("/doctor/notifications/<int:notification_id>/read", methods=["POST"])
+@login_required
+@doctor_required
+@csrf.exempt
+@permission_required(
+    "notification.update", "You have no permission to update notifications.", json_response=True
+)
+def read_doctor_notification(notification_id: int):
+    notification = Notification.query.filter_by(
+        id=notification_id, recipient_id=current_user.id
+    ).first()
+    if not notification:
+        return jsonify({"success": False, "message": "Notification not found"}), 404
+    notification.is_read = True
+    db.session.commit()
+    return jsonify({"success": True})
+
+
+@dashboard_bp.route("/doctor/notifications/read-all", methods=["POST"])
+@login_required
+@doctor_required
+@csrf.exempt
+@permission_required(
+    "notification.update", "You have no permission to update notifications.", json_response=True
+)
+def read_all_doctor_notifications():
+    Notification.query.filter_by(recipient_id=current_user.id, is_read=False).update(
+        {"is_read": True}
+    )
+    db.session.commit()
+    return jsonify({"success": True})
+
+
+@dashboard_bp.route("/doctor/analytics")
+@login_required
+@doctor_required
+@permission_required(
+    "dashboard.doctor", "You have no permission to view analytics.", json_response=True
+)
+def doctor_analytics():
+    doctor_id = current_user.id
+
+    patient_ids = [
+        row[0]
+        for row in db.session.query(DoctorPatient.patient_id)
+        .filter_by(doctor_id=doctor_id, status="active")
+        .all()
+    ]
+
+    since_30 = datetime.utcnow() - timedelta(days=29)
+    patients_per_day_rows = (
+        db.session.query(func.date(DoctorPatient.assigned_at), func.count(DoctorPatient.id))
+        .filter(DoctorPatient.doctor_id == doctor_id, DoctorPatient.assigned_at >= since_30)
+        .group_by(func.date(DoctorPatient.assigned_at))
+        .all()
+    )
+    patients_per_day = {str(d): c for d, c in patients_per_day_rows}
+
+    since_14 = datetime.utcnow() - timedelta(days=13)
+    consultations_per_day_rows = (
+        db.session.query(func.date(Consultation.occurred_at), func.count(Consultation.id))
+        .filter(Consultation.doctor_id == doctor_id, Consultation.occurred_at >= since_14)
+        .group_by(func.date(Consultation.occurred_at))
+        .all()
+    )
+    consultations_per_day = {str(d): c for d, c in consultations_per_day_rows}
+
+    status_rows = (
+        db.session.query(Consultation.status, func.count(Consultation.id))
+        .filter(Consultation.doctor_id == doctor_id)
+        .group_by(Consultation.status)
+        .all()
+    )
+    status_breakdown = {status: count for status, count in status_rows}
+
+    if patient_ids:
+        pending_count = UserResultsTable.query.filter(
+            UserResultsTable.user_id.in_(patient_ids), UserResultsTable.status == "pending"
+        ).count()
+        completed_count = UserResultsTable.query.filter(
+            UserResultsTable.user_id.in_(patient_ids), UserResultsTable.status == "completed"
+        ).count()
+    else:
+        pending_count = completed_count = 0
+
+    def _fill_series(day_map: dict, days: int):
+        series = []
+        for i in range(days - 1, -1, -1):
+            d = (datetime.utcnow() - timedelta(days=i)).date()
+            series.append({"date": d.isoformat(), "count": day_map.get(str(d), 0)})
+        return series
+
+    return jsonify(
+        {
+            "patients_per_day": _fill_series(patients_per_day, 30),
+            "consultations_per_day": _fill_series(consultations_per_day, 14),
+            "consultation_status_breakdown": status_breakdown,
+            "diagnosis_breakdown": {"pending": pending_count, "completed": completed_count},
+            "total_patients": len(patient_ids),
+        }
     )
 
 

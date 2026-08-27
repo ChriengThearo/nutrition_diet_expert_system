@@ -76,6 +76,23 @@
 .nd-admin-return-btn { height:32px; padding:0 13px; border-radius:8px; background:var(--nd-green); color:#fff; display:inline-flex; align-items:center; gap:7px; font-size:0.78rem; font-weight:800; text-decoration:none; border:1px solid var(--nd-green); box-shadow:0 6px 14px rgba(46,184,92,0.18); white-space:nowrap; }
 .nd-admin-return-btn:hover { background:var(--nd-green-mid); color:#fff; border-color:var(--nd-green-mid); }
 
+/* ── Notifications ───────────────────────────────── */
+.nd-notif-badge { position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; padding:0 3px; border-radius:999px; background:#ef4444; color:#fff; font-size:0.62rem; font-weight:800; line-height:16px; text-align:center; }
+.nd-notif-panel { position:absolute; top:calc(100% + 8px); right:0; width:320px; max-width:90vw; background:#fff; border:1px solid var(--nd-border); border-radius:var(--nd-radius); box-shadow:var(--nd-shadow-lg); z-index:200; overflow:hidden; }
+.nd-notif-panel-header { display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--nd-border); font-size:0.85rem; }
+.nd-notif-mark-all { background:none; border:none; color:var(--nd-green); font-size:0.72rem; font-weight:700; cursor:pointer; padding:0; }
+.nd-notif-mark-all:hover { text-decoration:underline; }
+.nd-notif-panel-list { max-height:340px; overflow-y:auto; }
+.nd-notif-row { display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border-bottom:1px solid var(--nd-border); font-size:0.8rem; cursor:pointer; }
+.nd-notif-row:last-child { border-bottom:none; }
+.nd-notif-row:hover { background:var(--nd-sidebar-hover); }
+.nd-notif-row.unread { background:var(--nd-green-pale); }
+.nd-notif-dot { width:8px; height:8px; border-radius:50%; background:var(--nd-green); flex:none; margin-top:5px; }
+.nd-notif-row:not(.unread) .nd-notif-dot { background:transparent; }
+.nd-notif-message { color:var(--nd-ink); line-height:1.4; }
+.nd-notif-time { color:var(--nd-muted); font-size:0.68rem; margin-top:2px; }
+.nd-notif-empty { padding:24px 14px; text-align:center; color:var(--nd-muted); font-size:0.82rem; }
+
 /* ── Content Area ────────────────────────────────── */
 .nd-content { padding:20px 24px; flex:1; }
 
