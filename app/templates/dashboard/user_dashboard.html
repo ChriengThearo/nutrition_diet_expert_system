@@ -33,8 +33,11 @@
 
   <!-- SIDEBAR -->
   <aside class="nd-sidebar">
+    <div class="nd-sidebar-leaf-bg" style="background-image:url('{{ url_for('main.images', filename='public/leaf.png') }}');" aria-hidden="true"></div>
     <div class="nd-sidebar-brand">
-      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">
+      <div class="nd-sidebar-logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">
+      </div>
       <div>
         <div class="nd-sidebar-brand-text">Diet Expert</div>
         <div class="nd-sidebar-brand-sub">Personal Nutrition</div>
@@ -47,24 +50,10 @@
           <i class="fas fa-gauge-high"></i> ផ្ទាំងគ្រប់គ្រង
         </button>
       </li>
-      <li class="nd-nav-section">របស់ខ្ញុំ</li>
-      <li class="nd-nav-item">
-        <button class="nd-nav-link" id="nav-history" onclick="showSection('history')">
-          <i class="fas fa-clock-rotate-left"></i> ប្រវត្តិផែនការ
-          <i class="fas fa-chevron-right nd-nav-arrow"></i>
-        </button>
-      </li>
       <li class="nd-nav-item">
         <button class="nd-nav-link" id="nav-profile" onclick="showSection('profile')">
           <i class="fas fa-id-card"></i> ប្រវត្តិរូប
-          <i class="fas fa-chevron-right nd-nav-arrow"></i>
         </button>
-      </li>
-      <li class="nd-nav-section">ឧបករណ៍</li>
-      <li class="nd-nav-item">
-        <a class="nd-nav-link" href="{{ url_for('dashboard.user_diet_expert') }}">
-          <i class="fas fa-utensils"></i> បង្កើតផែនការ
-        </a>
       </li>
       <li class="nd-nav-item">
         <a class="nd-nav-link" href="{{ url_for('main.bmi') }}">
@@ -72,9 +61,14 @@
         </a>
       </li>
       <li class="nd-nav-item">
-        <a class="nd-nav-link" href="{{ url_for('main.home') }}">
-          <i class="fas fa-home"></i> ទំព័រដើម
+        <a class="nd-nav-link" href="{{ url_for('dashboard.user_diet_expert') }}">
+          <i class="fas fa-utensils"></i> បង្កើតផែនការ
         </a>
+      </li>
+      <li class="nd-nav-item">
+        <button class="nd-nav-link" id="nav-history" onclick="showSection('history')">
+          <i class="fas fa-clock-rotate-left"></i> ប្រវត្តិផែនការ
+        </button>
       </li>
     </ul>
 
