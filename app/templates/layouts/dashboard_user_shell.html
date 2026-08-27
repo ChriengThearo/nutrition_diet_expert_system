@@ -75,18 +75,21 @@
       </li>
     </ul>
 
-    <div class="nd-sidebar-footer">
-      <div class="nd-sidebar-user">
+    <div class="nd-sidebar-footer dropdown">
+      <button type="button" class="nd-sidebar-user" id="ndSidebarUserToggle" data-bs-toggle="dropdown" aria-expanded="false"
+              style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
         <img src="{{ avatar_url }}" alt="Avatar" class="nd-sidebar-user-avatar"
              onerror="this.onerror=null;this.src='{{ default_avatar_url }}';">
         <div>
           <div class="nd-sidebar-user-name">{{ user_display_name }}</div>
           <div class="nd-sidebar-user-role">{{ 'Guest Session' if is_guest_mode else 'Member' }}</div>
         </div>
-        <a href="{{ url_for('auth.logout') }}" class="ms-auto" style="color:rgba(255,255,255,0.5);font-size:0.85rem;" title="Logout">
-          <i class="fas fa-sign-out-alt"></i>
-        </a>
-      </div>
+      </button>
+      <ul class="dropdown-menu shadow-sm" aria-labelledby="ndSidebarUserToggle">
+        <li><a class="dropdown-item" href="{{ url_for('dashboard.user_profile_edit') }}"><i class="fas fa-user me-2"></i>My Profile</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Log out</a></li>
+      </ul>
     </div>
   </aside>
 
