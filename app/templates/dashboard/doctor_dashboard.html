@@ -109,19 +109,21 @@
       </li>
     </ul>
 
-    <div class="nd-sidebar-footer">
-      <div class="nd-sidebar-user">
+    <div class="nd-sidebar-footer dropdown">
+      <button type="button" class="nd-sidebar-user" id="ndSidebarUserToggle" data-bs-toggle="dropdown" aria-expanded="false"
+              style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
         <img src="{{ doctor_avatar_url }}" alt="Avatar" class="nd-sidebar-user-avatar"
              onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
         <div>
           <div class="nd-sidebar-user-name">{{ doctor_display_name }}</div>
           <div class="nd-sidebar-user-role">Nutrition Specialist</div>
         </div>
-        <a href="{{ url_for('auth.logout') }}" class="ms-auto" style="color:#9ca3af;font-size:0.85rem;text-decoration:none;" title="Logout"
-           onclick="openLogoutModal(event);">
-          <i class="fas fa-sign-out-alt"></i>
-        </a>
-      </div>
+      </button>
+      <ul class="dropdown-menu shadow-sm" aria-labelledby="ndSidebarUserToggle">
+        <li><a class="dropdown-item" href="{{ url_for('dashboard.doctor_profile_edit') }}"><i class="fas fa-user me-2"></i>My Profile</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}" onclick="openLogoutModal(event);"><i class="fas fa-sign-out-alt me-2"></i>Log out</a></li>
+      </ul>
     </div>
   </aside>
 
@@ -506,7 +508,8 @@
           </div>
 
           <!-- Doctor Profile (with image) -->
-          <div class="quick-action-card" onclick="window.location.href='{{ url_for('dashboard.doctor_profile') }}'">
+          {% set doctor_profile_url = url_for('dashboard.doctor_profile') %}
+          <div class="quick-action-card" onclick="window.location.href='{{ doctor_profile_url }}'">
             <div class="quick-action-icon quick-icon-profile">
               <img src="{{ doctor_avatar_url }}" alt="Doctor" class="profile-avatar" onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
             </div>
