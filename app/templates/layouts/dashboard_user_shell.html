@@ -29,12 +29,12 @@
   (1 if 'dashboard.user' in dashboard_permissions else 0) %}
 {% set show_dashboard_switcher = dashboard_option_count > 1 %}
 {% set current_section = request.args.get('section', 'overview') %}
+{% set ui_lang = session.get('ui_lang', 'km') %}
 
 <div class="nd-app">
 
   <!-- SIDEBAR -->
   <aside class="nd-sidebar">
-    <div class="nd-sidebar-leaf-bg" style="background-image:url('{{ url_for('main.images', filename='public/leaf.png') }}');" aria-hidden="true"></div>
     <div class="nd-sidebar-brand">
       <div class="nd-sidebar-logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">
@@ -53,7 +53,7 @@
         </a>
       </li>
       <li class="nd-nav-item">
-        <a class="nd-nav-link {{ 'active' if request.endpoint == 'dashboard.user_dashboard' and current_section == 'profile' else '' }}"
+        <a class="nd-nav-link {{ 'active' if (request.endpoint == 'dashboard.user_dashboard' and current_section == 'profile') or request.endpoint in ('dashboard.user_profile', 'dashboard.user_profile_edit') else '' }}"
            id="nav-profile" data-inpage="profile" href="{{ url_for('dashboard.user_dashboard', section='profile') }}">
           <i class="fas fa-id-card"></i> ប្រវត្តិរូប
         </a>
@@ -76,18 +76,21 @@
       </li>
     </ul>
 
-    <div class="nd-sidebar-footer">
-      <div class="nd-sidebar-user">
+    <div class="nd-sidebar-footer dropdown">
+      <button type="button" class="nd-sidebar-user" id="ndSidebarUserToggle" data-bs-toggle="dropdown" aria-expanded="false"
+              style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
         <img src="{{ avatar_url }}" alt="Avatar" class="nd-sidebar-user-avatar"
              onerror="this.onerror=null;this.src='{{ default_avatar_url }}';">
         <div>
           <div class="nd-sidebar-user-name">{{ user_display_name }}</div>
           <div class="nd-sidebar-user-role">{{ 'Guest Session' if is_guest_mode else 'Member' }}</div>
         </div>
-        <a href="{{ url_for('auth.logout') }}" class="ms-auto" style="color:rgba(255,255,255,0.5);font-size:0.85rem;" title="Logout">
-          <i class="fas fa-sign-out-alt"></i>
-        </a>
-      </div>
+      </button>
+      <ul class="dropdown-menu shadow-sm" aria-labelledby="ndSidebarUserToggle">
+        <li><a class="dropdown-item" href="{{ url_for('dashboard.user_profile_edit') }}"><i class="fas fa-user me-2"></i>My Profile</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Log out</a></li>
+      </ul>
     </div>
   </aside>
 
@@ -102,11 +105,29 @@
       </div>
       <div class="nd-topbar-right">
         <span class="nd-topbar-date" id="nd-today-date"></span>
-        <div class="nd-topbar-icon">
-          <a href="{{ url_for('dashboard.user_profile_edit') }}" style="color:inherit;text-decoration:none;" title="Edit Profile">
-            <img src="{{ avatar_url }}" alt="Avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"
-                 onerror="this.onerror=null;this.src='{{ default_avatar_url }}';">
+        {% set language_display_label = 'ភាសា' if ui_lang == 'km' else 'Language' %}
+        <div class="dropdown">
+          <a class="nd-topbar-icon language-mode-trigger" href="#" id="languageModeDropdown" role="button"
+             data-bs-toggle="dropdown" aria-expanded="false" title="{{ language_display_label }}" style="width:auto;padding:0 10px;gap:6px;border-radius:8px;">
+            <i class="fas fa-language"></i>
+            <span style="font-size:0.75rem;font-weight:700;">{{ 'KH' if ui_lang == 'km' else 'EN' }}</span>
           </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageModeDropdown">
+            <li>
+              <button class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'km' %}active{% endif %}"
+                type="button" data-language-option="km">
+                <span>{{ 'ខ្មែរ' if ui_lang == 'km' else 'Khmer' }}</span>
+                {% if ui_lang == 'km' %}<i class="fas fa-check text-success"></i>{% endif %}
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'en' %}active{% endif %}"
+                type="button" data-language-option="en">
+                <span>{{ 'អង់គ្លេស' if ui_lang == 'km' else 'English' }}</span>
+                {% if ui_lang == 'en' %}<i class="fas fa-check text-success"></i>{% endif %}
+              </button>
+            </li>
+          </ul>
         </div>
         {% if show_dashboard_switcher %}
         <div class="nd-topbar-icon dropdown">
@@ -125,6 +146,45 @@
 <script>
   document.getElementById('nd-today-date').textContent = new Date().toLocaleDateString('km-KH', {
     weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const languageOptions = document.querySelectorAll('[data-language-option]');
+    if (!languageOptions.length) return;
+
+    const endpoint = "{{ url_for('dashboard.set_language_mode') }}";
+    const currentLanguage = "{{ ui_lang }}";
+    const fallbackErrorMessage = currentLanguage === 'km'
+      ? 'មិនអាចប្តូរភាសាបានទេ។'
+      : 'Unable to switch language mode.';
+
+    languageOptions.forEach(function (option) {
+      option.addEventListener('click', async function (event) {
+        event.preventDefault();
+        const selectedLanguage = option.getAttribute('data-language-option');
+        if (!selectedLanguage || selectedLanguage === currentLanguage) return;
+
+        option.disabled = true;
+        try {
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ language: selectedLanguage })
+          });
+          const data = await response.json().catch(function () { return {}; });
+          if (!response.ok || data.success === false) {
+            throw new Error(data.message || fallbackErrorMessage);
+          }
+          window.location.reload();
+        } catch (error) {
+          console.error('Failed to update language mode:', error);
+          alert(error.message || fallbackErrorMessage);
+        } finally {
+          option.disabled = false;
+        }
+      });
+    });
   });
 </script>
 {% block extra_js %}{% endblock %}

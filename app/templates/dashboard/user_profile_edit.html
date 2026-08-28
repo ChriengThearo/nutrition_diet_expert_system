@@ -1,6 +1,8 @@
-{% extends "layouts/base_enhanced.html" %}
+{% extends "layouts/dashboard_user_shell.html" if (current_user.is_authenticated and current_user.has_role('user')) else "layouts/base_enhanced.html" %}
 
 {% block title %}កែប្រវត្តិរូប{% endblock %}
+{% block page_title %}កែប្រវត្តិរូប{% endblock %}
+{% block page_subtitle %}ធ្វើបច្ចុប្បន្នភាពព័ត៌មានគណនីរបស់អ្នក{% endblock %}
 
 {% set dashboard_url = dashboard_url or url_for('dashboard.user_dashboard') %}
 {% set profile_url = profile_url or url_for('dashboard.user_profile') %}

@@ -2,7 +2,7 @@
 {% block page_title %}បង្កើតផែនការអាហារ{% endblock %}
 {% block page_subtitle %}បំពេញព័ត៌មានដើម្បីទទួលបានផែនការអាហារសមស្រប{% endblock %}
 
-{% block title %}áž”áŸ’ážšáž–áŸáž“áŸ’áž’áž‡áŸ†áž“áž½áž™ážšáŸ€áž”áž…áŸ†áž¢áž¶áž áž¶ážš{% endblock %}
+{% block title %}ប្រព័ន្ធជំនួយរៀបចំអាហារ{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
@@ -582,28 +582,28 @@
 {% endblock %}
 
 {% block breadcrumb_items %}
-<li class="breadcrumb-item"><a href="{{ url_for('dashboard.user_dashboard') }}">áž•áŸ’áž‘áž¶áŸ†áž„áž‚áŸ’ážšáž”áŸ‹áž‚áŸ’ážšáž„</a></li>
-<li class="breadcrumb-item active" aria-current="page">áž”áŸ’ážšáž–áŸáž“áŸ’áž’áž‡áŸ†áž“áž½áž™ážšáŸ€áž”áž…áŸ†áž¢áž¶áž áž¶ážš</li>
+<li class="breadcrumb-item"><a href="{{ url_for('dashboard.user_dashboard') }}">ផ្ទាំងគ្រប់គ្រង</a></li>
+<li class="breadcrumb-item active" aria-current="page">ប្រព័ន្ធជំនួយរៀបចំអាហារ</li>
 {% endblock %}
 
 {% block content %}
 <div id="analystGate" class="analyst-overlay">
     <div class="analyst-modal">
-        <h2>áž‡áŸ’ážšáž¾ážŸážšáž”áŸ€áž”ážœáž·áž—áž¶áž‚</h2>
-        <p>ážŸáž¼áž˜áž‡áŸ’ážšáž¾ážŸážšáž”áŸ€áž”ážœáž·áž—áž¶áž‚ áž˜áž»áž“áž”áž“áŸ’ážáž‘áŸ…áž”áŸ’ážšáž–áŸáž“áŸ’áž’áž‡áŸ†áž“áž½áž™ážšáŸ€áž”áž…áŸ†áž¢áž¶áž áž¶ážšáŸ”</p>
+        <h2>ជ្រើសរបៀបវិភាគ</h2>
+        <p>សូមជ្រើសរបៀបវិភាគ មុនបន្តទៅប្រព័ន្ធជំនួយរៀបចំអាហារ។</p>
         <div class="analyst-actions">
             <button type="button" class="btn btn-outline-primary" id="analystExternal">
-                <i class="fas fa-file-import me-2"></i>áž“áž¶áŸ†áž…áž¼áž›áž¯áž€ážŸáž¶ážš
+                <i class="fas fa-file-import me-2"></i>នាំចូលឯកសារ
             </button>
             <input type="file" id="ocrFileInput" class="d-none"
                    accept=".png,.jpg,.jpeg,.bmp,.tiff,.tif,.pdf">
             <button type="button" class="btn btn-primary" id="analystNormal">
-                <i class="fas fa-edit me-2"></i>áž”áž‰áŸ’áž…áž¼áž›ážŠáŸ„áž™ážŠáŸƒ
+                <i class="fas fa-edit me-2"></i>បញ្ចូលដោយដៃ
             </button>
         </div>
         <div class="analyst-loading d-none" id="analystLoading">
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            <span id="analystLoadingText">áž€áŸ†áž–áž»áž„ážŠáŸ†ážŽáž¾ážšáž€áž¶ážšáž¯áž€ážŸáž¶ážš...</span>
+            <span id="analystLoadingText">កំពុងដំណើរការឯកសារ...</span>
         </div>
         <div class="alert alert-danger d-none mt-3 mb-0" id="analystError" role="alert"></div>
     </div>
@@ -1237,12 +1237,12 @@
                 }
             };
 
-            /* Manual Generate â€” same existing flow */
+            /* Manual Generate — same existing flow */
             normalBtn.addEventListener('click', () => {
                 revealContent(false);
             });
 
-            /* Import Documents â€” open file picker */
+            /* Import Documents — open file picker */
             externalBtn.addEventListener('click', () => {
                 clearError();
                 fileInput.click();
