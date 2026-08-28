@@ -959,6 +959,13 @@ select { font: inherit; }
             <a class="pdm-item" href="{{ url_for('dashboard.admin_dashboard') }}">
               <i class="fas fa-table-cells-large"></i> Dashboard
             </a>
+            <a class="pdm-item" href="{{ url_for('dashboard.admin_profile') }}">
+              <i class="fas fa-user"></i> Profile
+            </a>
+            <a class="pdm-item" href="{{ url_for('dashboard.admin_profile_edit') }}">
+              <i class="fas fa-user-pen"></i> Edit Profile
+            </a>
+            <hr class="pdm-divider">
             <button type="button" class="pdm-item pdm-danger" onclick="openLogoutModal(event);">
               <i class="fas fa-sign-out-alt"></i> Log Out
             </button>

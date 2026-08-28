@@ -634,6 +634,62 @@ def admin_analytics():
     )
 
 
+@dashboard_bp.route("/admin/profile")
+@login_required
+@admin_required
+@permission_required(
+    "dashboard.admin", "You have no permission to view the admin profile."
+)
+def admin_profile():
+    """Admin profile page."""
+    return render_template("dashboard/admin_profile.html", user=current_user)
+
+
+@dashboard_bp.route("/admin/profile/edit", methods=["GET", "POST"])
+@login_required
+@admin_required
+@permission_required(
+    "dashboard.admin", "You have no permission to edit the admin profile."
+)
+def admin_profile_edit():
+    """Edit admin profile info."""
+    form = UserProfileEditForm(current_user, obj=current_user)
+
+    if form.validate_on_submit():
+        current_user.username = (form.username.data or "").strip()
+        current_user.full_name = (form.full_name.data or "").strip()
+
+        photo_file = form.photo.data
+        if photo_file and getattr(photo_file, "filename", ""):
+            filename = secure_filename(photo_file.filename)
+            _, ext = os.path.splitext(filename)
+            safe_ext = ext.lower() if ext else ""
+            unique_name = f"user_{current_user.id}_{uuid.uuid4().hex}{safe_ext}"
+            project_root = os.path.dirname(current_app.root_path)
+            upload_dir = os.path.join(project_root, "images", "profiles")
+            os.makedirs(upload_dir, exist_ok=True)
+            photo_file.save(os.path.join(upload_dir, unique_name))
+            current_user.photo = f"images/profiles/{unique_name}"
+
+        if form.new_password.data:
+            current_user.set_password(form.new_password.data)
+
+        try:
+            db.session.commit()
+            flash("Profile updated successfully.", "success")
+            return redirect(url_for("dashboard.admin_profile"))
+        except Exception:
+            db.session.rollback()
+            current_app.logger.exception("Failed to update admin profile")
+            flash("Failed to update profile. Please try again.", "danger")
+
+    return render_template(
+        "dashboard/admin_profile_edit.html",
+        user=current_user,
+        form=form,
+    )
+
+
 @dashboard_bp.route("/admin/data")
 @login_required
 @admin_required
