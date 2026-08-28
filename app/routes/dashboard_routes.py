@@ -23,6 +23,7 @@ from app.models.user_result import UserResultsTable
 from app.models.doctor_patient import DoctorPatient
 from app.models.consultation import Consultation
 from app.models.notification import Notification
+from app.models.associations import tbl_user_goals
 from app.forms.dashboard_forms import UserProfileEditForm, DoctorProfileEditForm
 from app.services.dashboard_services import DashboardService
 from app.services.diet_rule_service import DietRuleService
@@ -478,6 +479,140 @@ def admin_dashboard():
         total_rules=total_rules,
         total_foods=total_foods,
         total_diet_plans=total_diet_plans,
+    )
+
+
+def _fill_day_series(day_map: dict, days: int):
+    series = []
+    for i in range(days - 1, -1, -1):
+        d = (datetime.utcnow() - timedelta(days=i)).date()
+        series.append({"date": d.isoformat(), "count": day_map.get(str(d), 0)})
+    return series
+
+
+@dashboard_bp.route("/admin/analytics")
+@login_required
+@admin_required
+@permission_required(
+    "dashboard.admin", "You have no permission to view analytics.", json_response=True
+)
+def admin_analytics():
+    activity_limit = min(request.args.get("activity_limit", default=8, type=int) or 8, 50)
+
+    since_7 = datetime.utcnow() - timedelta(days=6)
+    users_rows = (
+        db.session.query(func.date(UserTable.created_at), func.count(UserTable.id))
+        .filter(UserTable.created_at >= since_7)
+        .group_by(func.date(UserTable.created_at))
+        .all()
+    )
+    users_per_day = {str(d): c for d, c in users_rows}
+
+    consult_rows = (
+        db.session.query(func.date(Consultation.occurred_at), func.count(Consultation.id))
+        .filter(Consultation.occurred_at >= since_7)
+        .group_by(func.date(Consultation.occurred_at))
+        .all()
+    )
+    consultations_per_day = {str(d): c for d, c in consult_rows}
+
+    # Top diet plans: goals ranked by how many patients follow them
+    goal_rows = (
+        db.session.query(GoalsTable.name, func.count(tbl_user_goals.c.user_id))
+        .outerjoin(tbl_user_goals, tbl_user_goals.c.goal_id == GoalsTable.id)
+        .group_by(GoalsTable.id, GoalsTable.name)
+        .order_by(func.count(tbl_user_goals.c.user_id).desc())
+        .all()
+    )
+    top_diet_plans = [{"name": name, "uses": count} for name, count in goal_rows]
+
+    # Recent activity: merged real timeline from users, consultations, and food catalog changes
+    activity = []
+    for u in UserTable.query.order_by(UserTable.created_at.desc()).limit(activity_limit).all():
+        role_name = (u.roles[0].name if u.roles else "").strip().lower()
+        if role_name == "doctor":
+            title, icon, color = "New doctor registered", "user-doctor", "soft-cyan"
+        elif role_name == "admin":
+            title, icon, color = "New admin registered", "user-shield", "soft-purple"
+        else:
+            title, icon, color = "New patient registered", "user-plus", "soft-green"
+        activity.append({
+            "icon": icon, "color": color, "title": title,
+            "sub": u.full_name or u.username,
+            "timestamp": u.created_at.isoformat() if u.created_at else None,
+        })
+    for c in Consultation.query.order_by(Consultation.created_at.desc()).limit(activity_limit).all():
+        activity.append({
+            "icon": "clipboard", "color": "soft-blue", "title": "Consultation logged",
+            "sub": c.reason,
+            "timestamp": c.created_at.isoformat() if c.created_at else None,
+        })
+    for f in FoodsTable.query.order_by(FoodsTable.created_at.desc()).limit(activity_limit).all():
+        activity.append({
+            "icon": "apple-whole", "color": "soft-orange", "title": "New food added",
+            "sub": f.name,
+            "timestamp": f.created_at.isoformat() if f.created_at else None,
+        })
+    for cf in CookedFoodsTable.query.order_by(CookedFoodsTable.created_at.desc()).limit(activity_limit).all():
+        activity.append({
+            "icon": "utensils", "color": "soft-orange", "title": "New cooked food added",
+            "sub": cf.name,
+            "timestamp": cf.created_at.isoformat() if cf.created_at else None,
+        })
+    activity = [a for a in activity if a["timestamp"]]
+    activity.sort(key=lambda a: a["timestamp"], reverse=True)
+    activity = activity[:activity_limit]
+
+    # Patient overview: real, mutually exclusive breakdown of role='user' accounts
+    patients = (
+        UserTable.query.join(UserTable.roles)
+        .filter(func.lower(RoleTable.name) == "user")
+        .all()
+    )
+    week_ago = datetime.utcnow() - timedelta(days=7)
+
+    latest_bmi_rows = (
+        db.session.query(UserResultsTable.user_id, func.max(UserResultsTable.generated_at))
+        .filter(UserResultsTable.user_id.in_([p.id for p in patients]) if patients else False)
+        .group_by(UserResultsTable.user_id)
+        .all()
+    )
+    latest_generated_at = {uid: ts for uid, ts in latest_bmi_rows}
+    latest_bmi = {}
+    if latest_generated_at:
+        bmi_rows = UserResultsTable.query.filter(
+            UserResultsTable.user_id.in_(list(latest_generated_at.keys()))
+        ).all()
+        for row in bmi_rows:
+            if latest_generated_at.get(row.user_id) == row.generated_at and row.bmi is not None:
+                latest_bmi[row.user_id] = row.bmi
+
+    at_risk = inactive = new_this_week = active = 0
+    for p in patients:
+        bmi = latest_bmi.get(p.id)
+        if bmi is not None and (bmi < 18.5 or bmi >= 30):
+            at_risk += 1
+        elif p.created_at and p.created_at >= week_ago:
+            new_this_week += 1
+        elif not p.is_active:
+            inactive += 1
+        else:
+            active += 1
+
+    return jsonify(
+        {
+            "users_per_day": _fill_day_series(users_per_day, 7),
+            "consultations_per_day": _fill_day_series(consultations_per_day, 7),
+            "top_diet_plans": top_diet_plans,
+            "recent_activity": activity,
+            "patient_overview": {
+                "total": len(patients),
+                "active": active,
+                "inactive": inactive,
+                "new_this_week": new_this_week,
+                "at_risk": at_risk,
+            },
+        }
     )
 
 
