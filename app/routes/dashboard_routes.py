@@ -631,8 +631,27 @@ def _parse_naive_utc(value: str):
     return parsed
 
 
-def _serialize_patient(link: DoctorPatient, pending_by_user: dict, last_consult_by_user: dict):
+def _bmi_category(bmi):
+    if bmi is None:
+        return None
+    if bmi < 18.5:
+        return "Underweight"
+    if bmi < 25:
+        return "Normal"
+    if bmi < 30:
+        return "Overweight"
+    return "Obese"
+
+
+def _serialize_patient(
+    link: DoctorPatient,
+    pending_by_user: dict,
+    last_consult_by_user: dict,
+    latest_plan_by_user: dict | None = None,
+):
     patient = link.patient
+    plan_info = (latest_plan_by_user or {}).get(patient.id) or {}
+    bmi = plan_info.get("bmi")
     return {
         "link_id": link.id,
         "patient_id": patient.id,
@@ -644,6 +663,10 @@ def _serialize_patient(link: DoctorPatient, pending_by_user: dict, last_consult_
         "status": link.status,
         "has_pending_diagnosis": pending_by_user.get(patient.id, 0) > 0,
         "last_consultation_at": last_consult_by_user.get(patient.id),
+        "goal": patient.goals[0].name if patient.goals else None,
+        "bmi": bmi,
+        "bmi_category": _bmi_category(bmi),
+        "last_plan_generated_at": plan_info.get("generated_at"),
     }
 
 
@@ -683,6 +706,7 @@ def doctor_patients():
     patient_ids = [link.patient_id for link in links]
     pending_by_user = {}
     last_consult_by_user = {}
+    latest_plan_by_user = {}
     if patient_ids:
         pending_rows = (
             db.session.query(UserResultsTable.user_id, func.count(UserResultsTable.id))
@@ -702,10 +726,26 @@ def doctor_patients():
             pid: (dt.isoformat() if dt else None) for pid, dt in last_consult_rows
         }
 
+        plan_rows = (
+            UserResultsTable.query.filter(
+                UserResultsTable.user_id.in_(patient_ids),
+                UserResultsTable.status == "completed",
+            )
+            .order_by(UserResultsTable.generated_at.desc())
+            .all()
+        )
+        for row in plan_rows:
+            if row.user_id in latest_plan_by_user:
+                continue
+            latest_plan_by_user[row.user_id] = {
+                "bmi": row.bmi,
+                "generated_at": row.generated_at.isoformat() if row.generated_at else None,
+            }
+
     return jsonify(
         {
             "patients": [
-                _serialize_patient(link, pending_by_user, last_consult_by_user)
+                _serialize_patient(link, pending_by_user, last_consult_by_user, latest_plan_by_user)
                 for link in links
             ],
             "pagination": {
@@ -716,6 +756,81 @@ def doctor_patients():
                 "has_next": page < total_pages,
                 "has_prev": page > 1,
             },
+        }
+    )
+
+
+@dashboard_bp.route("/doctor/patients/<int:patient_id>/plan")
+@login_required
+@doctor_required
+@permission_required(
+    "patient.read", "You have no permission to view patients.", json_response=True
+)
+def doctor_patient_plan(patient_id: int):
+    """Return a patient's full health profile from their latest generated plan."""
+    link = DoctorPatient.query.filter_by(
+        doctor_id=current_user.id, patient_id=patient_id, status="active"
+    ).first()
+    if not link:
+        return jsonify({"success": False, "message": "That patient is not assigned to you"}), 404
+
+    patient = link.patient
+    latest_result = (
+        UserResultsTable.query.filter_by(user_id=patient_id, status="completed")
+        .filter(UserResultsTable.result_data.isnot(None))
+        .order_by(UserResultsTable.generated_at.desc())
+        .first()
+    )
+
+    profile = {}
+    metrics = {}
+    rule_summary = None
+    generated_at = None
+    if latest_result and latest_result.result_data:
+        try:
+            payload = json.loads(latest_result.result_data)
+        except Exception:
+            payload = {}
+        plan = payload.get("plan") or {}
+        profile = plan.get("profile") or {}
+        metrics = payload.get("metrics") or plan.get("metrics") or {}
+        rule_summary = plan.get("rule")
+        generated_at = (
+            latest_result.generated_at.isoformat() if latest_result.generated_at else None
+        )
+
+    return jsonify(
+        {
+            "success": True,
+            "has_plan": latest_result is not None,
+            "generated_at": generated_at,
+            "patient": {
+                "id": patient.id,
+                "full_name": patient.full_name,
+                "username": patient.username,
+                "email": patient.email,
+                "photo": patient.photo,
+            },
+            "goal": patient.goals[0].name if patient.goals else None,
+            "profile": {
+                "age": profile.get("age"),
+                "gender": profile.get("gender"),
+                "weight": profile.get("weight"),
+                "height": profile.get("height"),
+                "bmi": metrics.get("bmi") or profile.get("bmi"),
+                "bmi_category": _bmi_category(metrics.get("bmi") or profile.get("bmi")),
+                "diet_type": profile.get("diet_type"),
+                "allergies": profile.get("allergies") or [],
+                "meals_per_day": profile.get("meals_per_day"),
+                "blood_sugar": profile.get("blood_sugar"),
+            },
+            "metrics": {
+                "calories": metrics.get("calories"),
+                "protein": metrics.get("protein"),
+                "sugar": metrics.get("sugar"),
+                "fat": metrics.get("fat"),
+            },
+            "rule": rule_summary,
         }
     )
 
