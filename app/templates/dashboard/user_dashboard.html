@@ -68,13 +68,6 @@
           <h5 class="nd-panel-title"><i class="fas fa-chart-column" style="color:#43a047;"></i> និន្នាការ BMI</h5>
           <p class="nd-panel-subtitle">ប្រវត្តិ BMI ចុងក្រោយ ៧ ដង</p>
         </div>
-<<<<<<< HEAD
-        <a href="{{ url_for('auth.logout') }}" class="ms-auto" style="color:rgba(255,255,255,0.5);font-size:0.85rem;" title="Logout"
-           onclick="openLogoutModal(event);">
-          <i class="fas fa-sign-out-alt"></i>
-        </a>
-=======
->>>>>>> f33c8ad800c6a7f976f9e2667fb40ee3653fec70
       </div>
       {% set bmi_ns = namespace(points=[], keys=[]) %}
       {% for plan in plan_history %}
@@ -553,10 +546,4 @@
     history.replaceState(null, '', this.getAttribute('href'));
   });
 </script>
-<<<<<<< HEAD
-{% include "dashboard/_logout_modal.html" %}
-</body>
-</html>
-=======
 {% endblock %}
->>>>>>> f33c8ad800c6a7f976f9e2667fb40ee3653fec70

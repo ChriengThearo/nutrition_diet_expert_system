@@ -11,26 +11,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Noto+Sans+Khmer:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet" />
 <style>
     :root {
-        --hp-brand: #2f9e7a;
-        --hp-brand-strong: #247b60;
-        --hp-brand-soft: #dbf7ef;
-        --hp-accent: #ef6f51;
-        --hp-accent-strong: #d95435;
+        --hp-brand: #2eb85c;
+        --hp-brand-strong: #1f8a45;
+        --hp-brand-soft: #e6f7ec;
+        --hp-accent: #e53e3e;
+        --hp-accent-strong: #c53030;
         --hp-ink: #1b2531;
-        --hp-ink-soft: #576473;
-        --hp-line: #dfe7ec;
+        --hp-ink-soft: #64748b;
+        --hp-line: #e5e9ef;
         --hp-card: #ffffff;
-        --hp-bg-a: #fff9f3;
-        --hp-bg-b: #edf9f2;
-        --hp-bg-c: #fff2e8;
+        --hp-bg: #eef1f6;
+        --hp-danger-bg: #fdecec;
+        --hp-danger-line: #f6c6c6;
     }
 
     body, .dashboard-shell {
         font-family: "Khmer OS System", "Noto Sans Khmer", "Manrope", sans-serif !important;
-        background:
-            radial-gradient(circle at 5% 14%, #ffd8c8 0%, transparent 34%),
-            radial-gradient(circle at 95% 8%, #d9f4ea 0%, transparent 30%),
-            linear-gradient(130deg, var(--hp-bg-a) 0%, var(--hp-bg-b) 44%, var(--hp-bg-c) 100%) !important;
+        background: var(--hp-bg) !important;
         min-height: 100vh;
     }
 
@@ -43,120 +40,203 @@
         pointer-events: none;
     }
 
-    .diet-expert-header {
-        text-align: center;
-        margin-bottom: 2.2rem;
+    /* ── Hero header card ─────────────────────────── */
+    .diet-expert-header-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        background: var(--hp-card);
+        border: 1px solid var(--hp-line);
+        border-radius: 20px;
+        padding: 22px 26px;
+        margin-bottom: 20px;
+        box-shadow: 0 6px 20px rgba(27, 37, 49, 0.05);
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
+    }
+
+    .header-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--hp-brand-soft);
+        color: var(--hp-brand-strong);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
     }
 
     .diet-expert-title {
-        font-size: clamp(2rem, 3.4vw, 2.8rem);
+        font-size: 1.5rem;
         font-weight: 800;
-        margin-bottom: 0.6rem;
+        margin: 0 0 4px;
         color: var(--hp-ink);
         font-family: "Khmer OS System", "Noto Sans Khmer", "Sora", sans-serif;
     }
 
-    .diet-expert-title i {
-        color: var(--hp-brand);
+    .header-subtitle {
+        color: var(--hp-ink-soft);
+        font-size: 0.88rem;
+        margin: 0;
+        max-width: 48ch;
     }
 
-    .hero-chip {
-        display: inline-flex;
+    /* ── Step indicator ───────────────────────────── */
+    .step-indicator {
+        display: flex;
+        align-items: flex-start;
+        flex-shrink: 0;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
         align-items: center;
-        gap: 0.4rem;
-        background: var(--hp-brand-soft);
-        color: var(--hp-brand-strong);
-        border-radius: 999px;
-        padding: 0.38rem 0.9rem;
-        font-size: 0.83rem;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        margin-bottom: 0.85rem;
+        position: relative;
+        padding: 0 18px;
+        min-width: 74px;
     }
 
-    .progress-bar {
-        background: linear-gradient(90deg, var(--hp-brand), var(--hp-accent));
-    }
-
-    .progress {
+    .step-circle {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
         background-color: var(--hp-line);
+        color: var(--hp-ink-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 6px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        transition: background 0.3s, color 0.3s;
+        position: relative;
+        z-index: 1;
     }
 
+    .step span {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--hp-ink-soft);
+        white-space: nowrap;
+    }
+
+    .step.active .step-circle {
+        background-color: var(--hp-brand);
+        color: white;
+        box-shadow: 0 4px 12px rgba(46, 184, 92, 0.35);
+    }
+
+    .step.active span {
+        color: var(--hp-ink);
+    }
+
+    .step.completed .step-circle {
+        background-color: var(--hp-brand);
+        color: white;
+    }
+
+    .step-line {
+        position: absolute;
+        top: 17px;
+        left: 50%;
+        width: 100%;
+        height: 2px;
+        background-color: var(--hp-line);
+        z-index: 0;
+    }
+
+    .step.completed .step-line {
+        background-color: var(--hp-brand);
+    }
+
+    .step:last-child .step-line {
+        display: none;
+    }
+
+    /* ── Section cards ────────────────────────────── */
     .section-card {
         border: 1px solid var(--hp-line);
-        border-radius: 20px;
-        box-shadow: 0 8px 28px rgba(27, 37, 49, 0.08);
+        border-radius: 18px;
+        box-shadow: 0 4px 16px rgba(27, 37, 49, 0.05);
         margin-bottom: 20px;
-        transition: transform 0.3s, box-shadow 0.3s;
         background: var(--hp-card);
     }
 
-    .section-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 16px 40px rgba(27, 37, 49, 0.13);
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--hp-card);
+        color: var(--hp-ink);
+        border-bottom: 1px solid var(--hp-line);
+        border-radius: 18px 18px 0 0;
+        padding: 16px 20px;
     }
 
-    .section-header {
-        background: linear-gradient(120deg, var(--hp-brand), var(--hp-brand-strong));
-        color: white;
-        border-radius: 20px 20px 0 0;
-        padding: 16px 20px;
+    .section-header-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--hp-brand-soft);
+        color: var(--hp-brand-strong);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
     }
 
     .section-header h4 {
         font-family: "Sora", sans-serif;
         font-weight: 700;
+        font-size: 1.02rem;
+        margin: 0;
     }
 
     .required::after {
         content: " *";
-        color: var(--hp-accent-strong);
+        color: var(--hp-accent);
     }
 
     .btn-custom {
-        background: linear-gradient(120deg, var(--hp-accent), var(--hp-accent-strong));
+        background: var(--hp-brand);
         color: white;
         border: none;
-        padding: 12px 30px;
-        border-radius: 50px;
+        padding: 12px 28px;
+        border-radius: 14px;
         font-weight: 700;
-        transition: all 0.3s;
+        transition: all 0.2s;
         letter-spacing: 0.01em;
     }
 
     .btn-custom:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 24px rgba(239, 111, 81, 0.3);
+        background: var(--hp-brand-strong);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(46, 184, 92, 0.25);
         color: white;
     }
 
-    .question-icon {
-        background-color: var(--hp-brand-soft);
-        color: var(--hp-brand-strong);
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 15px;
+    #prevBtn.btn-outline-secondary {
+        border-radius: 14px;
+        border-color: var(--hp-line);
+        color: var(--hp-ink-soft);
+        background: #fff;
+        font-weight: 700;
+        padding: 12px 24px;
     }
 
-    .food-preference-tag {
-        display: inline-block;
-        padding: 5px 15px;
-        margin: 5px;
-        border-radius: 20px;
-        background-color: var(--hp-brand-soft);
-        color: var(--hp-brand-strong);
-        cursor: pointer;
-        transition: all 0.2s;
-        font-weight: 600;
-    }
-
-    .food-preference-tag.selected {
-        background-color: var(--hp-brand);
-        color: white;
+    #prevBtn.btn-outline-secondary:hover {
+        background: #f7f9fb;
+        color: var(--hp-ink);
     }
 
     .form-check-input:checked {
@@ -166,58 +246,223 @@
 
     .form-control:focus, .form-select:focus {
         border-color: var(--hp-brand);
-        box-shadow: 0 0 0 0.22rem rgba(47, 158, 122, 0.18);
+        box-shadow: 0 0 0 0.22rem rgba(46, 184, 92, 0.18);
     }
 
-    .step-indicator {
+    /* ── Review step: summary cards ───────────────── */
+    .review-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .review-card {
+        border: 1px solid var(--hp-line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .review-card-header {
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        margin-bottom: 30px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--hp-line);
+        background: #fbfdfc;
     }
 
-    .step {
-        text-align: center;
-        flex: 1;
-        position: relative;
+    .review-card-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        color: var(--hp-ink);
+        font-size: 0.95rem;
     }
 
-    .step-circle {
-        width: 40px;
-        height: 40px;
+    .review-card-icon {
+        width: 34px;
+        height: 34px;
         border-radius: 50%;
-        background-color: var(--hp-line);
-        color: var(--hp-ink-soft);
+        background: var(--hp-brand-soft);
+        color: var(--hp-brand-strong);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 10px;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+
+    .review-edit-btn {
+        border: none;
+        background: none;
+        color: var(--hp-brand-strong);
         font-weight: 700;
-        transition: background 0.3s, color 0.3s;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        padding: 5px 8px;
+        border-radius: 8px;
     }
 
-    .step.active .step-circle {
-        background-color: var(--hp-brand);
-        color: white;
-        box-shadow: 0 4px 14px rgba(47, 158, 122, 0.35);
+    .review-edit-btn:hover {
+        background: var(--hp-brand-soft);
     }
 
-    .step.completed .step-circle {
-        background-color: var(--hp-accent);
-        color: white;
+    .review-list {
+        list-style: none;
+        margin: 0;
+        padding: 6px 16px;
     }
 
-    .step-line {
+    .review-list li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 0;
+        border-bottom: 1px solid var(--hp-line);
+    }
+
+    .review-list li:last-child {
+        border-bottom: none;
+    }
+
+    .review-item-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: var(--hp-brand-soft);
+        color: var(--hp-brand-strong);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .review-item-label {
+        flex: 1;
+        font-weight: 600;
+        color: var(--hp-ink-soft);
+        font-size: 0.86rem;
+    }
+
+    .review-item-value {
+        font-weight: 700;
+        color: var(--hp-ink);
+        font-size: 0.88rem;
+        text-align: right;
+    }
+
+    /* ── Consent box ───────────────────────────────── */
+    .consent-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid var(--hp-line);
+        background: #fbfdfc;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-top: 4px;
+        cursor: pointer;
+    }
+
+    .consent-box input {
         position: absolute;
-        top: 20px;
-        left: 60%;
-        width: 80%;
-        height: 2px;
-        background-color: var(--hp-line);
-        z-index: -1;
+        opacity: 0;
+        width: 0;
+        height: 0;
     }
 
-    .step:last-child .step-line {
-        display: none;
+    .consent-check {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 2px solid var(--hp-line);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: transparent;
+        transition: all 0.15s;
+        flex-shrink: 0;
+        font-size: 0.75rem;
+        background: #fff;
+    }
+
+    .consent-box input:checked + .consent-check {
+        background: var(--hp-brand);
+        border-color: var(--hp-brand);
+        color: #fff;
+    }
+
+    .consent-box input.is-invalid + .consent-check {
+        border-color: var(--hp-accent);
+    }
+
+    .consent-text {
+        font-weight: 600;
+        color: var(--hp-ink);
+        font-size: 0.9rem;
+    }
+
+    /* ── Error banner ──────────────────────────────── */
+    .form-error-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: 14px;
+        background: var(--hp-danger-bg);
+        border: 1px solid var(--hp-danger-line);
+        border-radius: 14px;
+        padding: 16px 18px;
+    }
+
+    .form-error-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #fff;
+        color: var(--hp-accent-strong);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    .form-error-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .form-error-title {
+        color: var(--hp-accent-strong);
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .form-error-subtitle {
+        color: #9b4343;
+        font-size: 0.82rem;
+        margin-top: 2px;
+    }
+
+    .form-error-retry {
+        border: 1px solid #f3b4b4;
+        background: #fff;
+        color: var(--hp-accent-strong);
+        font-weight: 700;
+        border-radius: 10px;
+        padding: 8px 16px;
+        white-space: nowrap;
+        align-self: center;
+    }
+
+    .form-error-retry:hover {
+        background: #fdf1f1;
     }
 
     footer {
@@ -344,13 +589,28 @@
     }
 
     @media (max-width: 991.98px) {
-        .diet-expert-header {
-            margin-bottom: 1.35rem;
+        .diet-expert-header-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .step-indicator {
+            width: 100%;
+            gap: 0.25rem;
+            overflow-x: auto;
+            padding-top: 14px;
+            margin-top: 4px;
+            border-top: 1px solid var(--hp-line);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .step {
+            min-width: 90px;
+            flex: 0 0 auto;
         }
 
         .diet-expert-title {
-            font-size: clamp(1.8rem, 6.6vw, 2.35rem);
-            line-height: 1.15;
+            font-size: 1.3rem;
         }
 
         .section-card {
@@ -361,23 +621,6 @@
             border-radius: 18px 18px 0 0;
             padding: 14px 16px;
         }
-
-        .step-indicator {
-            gap: 0.5rem;
-            overflow-x: auto;
-            padding-bottom: 0.45rem;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .step {
-            min-width: 125px;
-            flex: 0 0 auto;
-        }
-
-        .step-line {
-            left: 64%;
-            width: 72%;
-        }
     }
 
     @media (max-width: 767.98px) {
@@ -385,91 +628,44 @@
             padding-bottom: 1rem;
         }
 
-        .diet-expert-shell::after {
-            opacity: 0.045;
-            background-size: 78px 78px, 84px 84px, 74px 74px, 76px 76px, 82px 82px, 72px 72px, 76px 76px, 82px 82px;
-        }
-
         .dashboard-container {
             padding: 0 0.18rem;
         }
 
-        .diet-expert-header {
-            margin-bottom: 1rem;
+        .diet-expert-header-card {
+            padding: 18px 18px;
+            border-radius: 18px;
+        }
+
+        .header-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 1.1rem;
         }
 
         .diet-expert-title {
-            font-size: clamp(1.9rem, 9vw, 2.3rem);
-            margin-bottom: 0.42rem;
-            line-height: 1.15;
+            font-size: 1.15rem;
         }
 
-        .diet-expert-header .text-muted {
-            font-size: 0.98rem;
-            line-height: 1.45;
-            max-width: 30ch;
-            margin-left: auto;
-            margin-right: auto;
+        .header-subtitle {
+            font-size: 0.82rem;
         }
 
-        .row.mb-4 {
-            margin-bottom: 1rem !important;
+        .review-grid {
+            grid-template-columns: 1fr;
         }
 
-        .progress {
-            height: 8px !important;
+        .form-error-banner {
+            flex-wrap: wrap;
         }
 
-        .progress-labels-row {
-            display: grid !important;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 0.35rem 0.65rem;
-            margin-top: 0.45rem !important;
-        }
-
-        .progress-labels-row small {
-            font-size: 0.78rem;
-            line-height: 1.3;
-            text-align: left;
-        }
-
-        .step-indicator {
-            margin-bottom: 1rem;
-            gap: 0.55rem;
-            padding-bottom: 0.3rem;
-        }
-
-        .step {
-            min-width: 108px;
-        }
-
-        .step span {
-            font-size: 0.78rem;
-            line-height: 1.2;
-            display: block;
-        }
-
-        .step-circle {
-            width: 34px;
-            height: 34px;
-            margin-bottom: 6px;
-            font-size: 0.92rem;
-        }
-
-        .step-line {
-            top: 17px;
-            left: 68%;
-            width: 64%;
+        .form-error-retry {
+            width: 100%;
         }
 
         .section-card {
             border-radius: 16px;
             margin-bottom: 12px;
-        }
-
-        .section-card:hover {
-            transform: none;
-            box-shadow: 0 8px 22px rgba(27, 37, 49, 0.1);
         }
 
         .section-header {
@@ -612,52 +808,46 @@
 <div class="dashboard-shell user-shell diet-expert-shell is-hidden">
     <div class="dashboard-container">
         <!-- Header -->
-        <div class="diet-expert-header">
-            <h1 class="diet-expert-title"><i class="fas fa-utensils me-2"></i>ប្រព័ន្ធជំនួយរៀបចំអាហារ</h1>
-            <p class="text-muted mb-0">ផ្តល់អនុសាសន៍អាហារតាមទម្រង់សុខភាពផ្ទាល់ខ្លួនរបស់អ្នក</p>
+        <div class="diet-expert-header-card">
+            <div class="header-left">
+                <div class="header-icon"><i class="fas fa-shield-halved"></i></div>
+                <div>
+                    <h1 class="diet-expert-title" id="stepTitle">ព័ត៌មានមូលដ្ឋាន</h1>
+                    <p class="header-subtitle" id="stepSubtitle">សូមបំពេញព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នក</p>
+                </div>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1">
+                    <div class="step-circle">1</div>
+                    <span>ប្រវត្តិរូប</span>
+                    <div class="step-line"></div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-circle">2</div>
+                    <span>សុខភាព</span>
+                    <div class="step-line"></div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-circle">3</div>
+                    <span>ចំណូលចិត្ត</span>
+                    <div class="step-line"></div>
+                </div>
+                <div class="step" id="step4">
+                    <div class="step-circle">4</div>
+                    <span>ពិនិត្យមុនបញ្ជូន</span>
+                    <div class="step-line"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="progress d-none" style="height: 10px;">
+            <div class="progress-bar" role="progressbar" style="width: 25%;" id="progressBar"></div>
         </div>
 
         <div class="alert alert-success d-none" id="bloodTestedAlert" role="alert">
             <i class="fas fa-check-circle me-2"></i>បាននាំចូលឯកសារដោយជោគជ័យ - ទិន្នន័យត្រូវបានបំពេញស្វ័យប្រវត្តិពីរបាយការណ៍របស់អ្នក។
-        </div>
-
-        <!-- Progress Bar -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="progress" style="height: 10px; border-radius: 999px;">
-                    <div class="progress-bar" role="progressbar" style="width: 25%;" id="progressBar"></div>
-                </div>
-                <div class="d-flex justify-content-between mt-2 progress-labels-row">
-                    <small class="text-muted">ព័ត៌មានមូលដ្ឋាន</small>
-                    <small class="text-muted">ព័ត៌មានសុខភាព</small>
-                    <small class="text-muted">ចំណូលចិត្ត</small>
-                    <small class="text-muted">ពិនិត្យមុនបញ្ជូន</small>
-                </div>
-            </div>
-        </div>
-
-        <!-- Step Indicator -->
-        <div class="step-indicator">
-            <div class="step active" id="step1">
-                <div class="step-circle">1</div>
-                <span>ប្រវត្តិរូប</span>
-                <div class="step-line"></div>
-            </div>
-            <div class="step" id="step2">
-                <div class="step-circle">2</div>
-                <span>សុខភាព</span>
-                <div class="step-line"></div>
-            </div>
-            <div class="step" id="step3">
-                <div class="step-circle">3</div>
-                <span>ចំណូលចិត្ត</span>
-                <div class="step-line"></div>
-            </div>
-            <div class="step" id="step4">
-                <div class="step-circle">4</div>
-                <span>ពិនិត្យមុនបញ្ជូន</span>
-                <div class="step-line"></div>
-            </div>
         </div>
 
         <!-- Form Container -->
@@ -666,7 +856,8 @@
             <!-- SECTION 1: BASIC PROFILE -->
             <div class="section-card" id="section1">
                 <div class="section-header">
-                    <h4 class="mb-0"><i class="fas fa-user me-2"></i>ព័ត៌មានមូលដ្ឋាន</h4>
+                    <div class="section-header-icon"><i class="fas fa-user"></i></div>
+                    <h4 class="mb-0">ព័ត៌មានមូលដ្ឋាន</h4>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -702,7 +893,8 @@
             <!-- SECTION 2: HEALTH INFORMATION -->
             <div class="section-card d-none" id="section2">
                 <div class="section-header">
-                    <h4 class="mb-0"><i class="fas fa-heartbeat me-2"></i>ព័ត៌មានសុខភាព</h4>
+                    <div class="section-header-icon"><i class="fas fa-heartbeat"></i></div>
+                    <h4 class="mb-0">ព័ត៌មានសុខភាព</h4>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
@@ -744,7 +936,8 @@
             <!-- SECTION 3: FOOD PREFERENCES -->
             <div class="section-card d-none" id="section3">
                 <div class="section-header">
-                    <h4 class="mb-0"><i class="fas fa-utensils me-2"></i>ចំណូលចិត្តអាហារ</h4>
+                    <div class="section-header-icon"><i class="fas fa-utensils"></i></div>
+                    <h4 class="mb-0">ចំណូលចិត្តអាហារ</h4>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
@@ -817,7 +1010,8 @@
             <!-- SECTION 4: REVIEW -->
             <div class="section-card d-none" id="section4">
                 <div class="section-header">
-                    <h4 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>ពិនិត្យ និង បញ្ជូន</h4>
+                    <div class="section-header-icon"><i class="fas fa-clipboard-check"></i></div>
+                    <h4 class="mb-0">ពិនិត្យ និង បញ្ជូន</h4>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info">
@@ -826,65 +1020,98 @@
                         ផ្អែកលើព័ត៌មានទាំងនេះ។
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5>ព័ត៌មានផ្ទាល់ខ្លួន</h5>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td><strong>អាយុ:</strong></td>
-                                    <td id="reviewAge"></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>ភេទ:</strong></td>
-                                    <td id="reviewGender"></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>ទម្ងន់:</strong></td>
-                                    <td id="reviewWeight"></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>កម្ពស់:</strong></td>
-                                    <td id="reviewHeight"></td>
-                                </tr>
-                            </table>
+                    <div class="review-grid">
+                        <div class="review-card">
+                            <div class="review-card-header">
+                                <div class="review-card-title">
+                                    <span class="review-card-icon"><i class="fas fa-user"></i></span>
+                                    ព័ត៌មានផ្ទាល់ខ្លួន
+                                </div>
+                                <button type="button" class="review-edit-btn" data-goto="1">
+                                    <i class="fas fa-pen"></i><span class="review-edit-label">កែសម្រួល</span>
+                                </button>
+                            </div>
+                            <ul class="review-list">
+                                <li>
+                                    <span class="review-item-icon"><i class="fas fa-calendar-days"></i></span>
+                                    <span class="review-item-label">អាយុ</span>
+                                    <span class="review-item-value" id="reviewAge"></span>
+                                </li>
+                                <li>
+                                    <span class="review-item-icon"><i class="fas fa-venus-mars"></i></span>
+                                    <span class="review-item-label">ភេទ</span>
+                                    <span class="review-item-value" id="reviewGender"></span>
+                                </li>
+                                <li>
+                                    <span class="review-item-icon"><i class="fas fa-weight-scale"></i></span>
+                                    <span class="review-item-label">ទម្ងន់</span>
+                                    <span class="review-item-value" id="reviewWeight"></span>
+                                </li>
+                                <li>
+                                    <span class="review-item-icon"><i class="fas fa-ruler-vertical"></i></span>
+                                    <span class="review-item-label">កម្ពស់</span>
+                                    <span class="review-item-value" id="reviewHeight"></span>
+                                </li>
+                            </ul>
                         </div>
-                        <div class="col-md-6">
-                            <h5>សុខភាព និង ចំណូលចិត្ត</h5>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td><strong>ប្រភេទរបបអាហារ:</strong></td>
-                                    <td id="reviewDietType"></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>អាឡែស៊ី:</strong></td>
-                                    <td id="reviewAllergies"></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>ជាតិស្ករក្នុងឈាម:</strong></td>
-                                    <td id="reviewBloodSugar"></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>ពេលអាហារ/ថ្ងៃ:</strong></td>
-                                    <td id="reviewMeals"></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>ប្រភេទអាហារដែលចូលចិត្ត:</strong></td>
-                                    <td id="reviewFoodPreference"></td>
-                                </tr>
-                            </table>
+                        <div class="review-card">
+                            <div class="review-card-header">
+                                <div class="review-card-title">
+                                    <span class="review-card-icon"><i class="fas fa-heart"></i></span>
+                                    សុខភាព និង ចំណូលចិត្ត
+                                </div>
+                                <button type="button" class="review-edit-btn" data-goto="2">
+                                    <i class="fas fa-pen"></i><span class="review-edit-label">កែសម្រួល</span>
+                                </button>
+                            </div>
+                            <ul class="review-list">
+                                <li>
+                                    <span class="review-item-icon"><i class="fas fa-utensils"></i></span>
+                                    <span class="review-item-label">ប្រភេទរបបអាហារ</span>
+                                    <span class="review-item-value" id="reviewDietType"></span>
+                                </li>
+                                <li>
+                                    <span class="review-item-icon"><i class="fas fa-bug"></i></span>
+                                    <span class="review-item-label">អាឡែស៊ី</span>
+                                    <span class="review-item-value" id="reviewAllergies"></span>
+                                </li>
+                                <li>
+                                    <span class="review-item-icon"><i class="fas fa-droplet"></i></span>
+                                    <span class="review-item-label">ជាតិស្ករក្នុងឈាម</span>
+                                    <span class="review-item-value" id="reviewBloodSugar"></span>
+                                </li>
+                                <li>
+                                    <span class="review-item-icon"><i class="fas fa-bowl-food"></i></span>
+                                    <span class="review-item-label">ពេលអាហារ/ថ្ងៃ</span>
+                                    <span class="review-item-value" id="reviewMeals"></span>
+                                </li>
+                                <li>
+                                    <span class="review-item-icon"><i class="fas fa-bowl-rice"></i></span>
+                                    <span class="review-item-label">ប្រភេទអាហារដែលចូលចិត្ត</span>
+                                    <span class="review-item-value" id="reviewFoodPreference"></span>
+                                </li>
+                            </ul>
                         </div>
                     </div>
 
-                    <div class="form-check mt-4">
+                    <label class="consent-box" for="consent">
                         <input class="form-check-input" type="checkbox" id="consent" required>
-                        <label class="form-check-label" for="consent">
-                            ខ្ញុំយល់ព្រមបង្កើតផែនការអាហារ
-                        </label>
-                    </div>
+                        <span class="consent-check"><i class="fas fa-check"></i></span>
+                        <span class="consent-text">ខ្ញុំយល់ព្រមបង្កើតផែនការអាហារ</span>
+                    </label>
                 </div>
             </div>
 
-            <div class="alert alert-danger d-none mt-4" id="dietFormError" role="alert"></div>
+            <div class="form-error-banner d-none mt-4" id="dietFormError" role="alert">
+                <div class="form-error-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                <div class="form-error-body">
+                    <div class="form-error-title" id="dietFormErrorTitle"></div>
+                    <div class="form-error-subtitle" id="dietFormErrorSubtitle"></div>
+                </div>
+                <button type="button" class="form-error-retry" id="dietFormRetryBtn">
+                    <i class="fas fa-rotate-right me-2"></i><span id="dietFormRetryLabel">ព្យាយាមម្តងទៀត</span>
+                </button>
+            </div>
 
             <!-- Navigation Buttons -->
             <div class="d-flex justify-content-between mt-4 form-nav-actions">
@@ -977,30 +1204,20 @@
             setHtml('#analystNormal', '<i class="fas fa-edit me-2"></i>Enter manually');
             setText('#analystLoadingText', 'Processing document...');
 
-            setHtml('.diet-expert-title', '<i class="fas fa-utensils me-2"></i>Diet Planning Assistant');
-            setText('.diet-expert-header .text-muted', 'Get personalized meal recommendations based on your health profile.');
             setHtml(
                 '#bloodTestedAlert',
                 '<i class="fas fa-check-circle me-2"></i>Document imported successfully. Your form has been auto-filled from the report.'
             );
-
-            const progressLabels = document.querySelectorAll('.row.mb-4 .d-flex.justify-content-between.mt-2 small');
-            const progressTexts = ['Basic Profile', 'Health Info', 'Preferences', 'Review & Submit'];
-            progressLabels.forEach((label, index) => {
-                if (progressTexts[index]) {
-                    label.textContent = progressTexts[index];
-                }
-            });
 
             setText('#step1 span', 'Profile');
             setText('#step2 span', 'Health');
             setText('#step3 span', 'Preferences');
             setText('#step4 span', 'Review');
 
-            setHtml('#section1 .section-header h4', '<i class="fas fa-user me-2"></i>Basic Profile');
-            setHtml('#section2 .section-header h4', '<i class="fas fa-heartbeat me-2"></i>Health Information');
-            setHtml('#section3 .section-header h4', '<i class="fas fa-utensils me-2"></i>Food Preferences');
-            setHtml('#section4 .section-header h4', '<i class="fas fa-clipboard-check me-2"></i>Review & Submit');
+            setText('#section1 .section-header h4', 'Basic Profile');
+            setText('#section2 .section-header h4', 'Health Information');
+            setText('#section3 .section-header h4', 'Food Preferences');
+            setText('#section4 .section-header h4', 'Review & Submit');
 
             const ageLabel = document.getElementById('age')?.closest('.col-md-6')?.querySelector('label');
             const genderLabel = document.getElementById('gender')?.closest('.col-md-6')?.querySelector('label');
@@ -1066,28 +1283,38 @@
                 '<i class="fas fa-info-circle me-2"></i>Please review your information before submitting. Your personalized meal plan will be generated from these details.'
             );
 
-            const reviewColumns = document.querySelectorAll('#section4 .row > .col-md-6');
-            if (reviewColumns[0]) {
-                const personalTitle = reviewColumns[0].querySelector('h5');
-                if (personalTitle) personalTitle.textContent = 'Personal information';
-                const personalLabels = reviewColumns[0].querySelectorAll('strong');
-                if (personalLabels[0]) personalLabels[0].textContent = 'Age:';
-                if (personalLabels[1]) personalLabels[1].textContent = 'Gender:';
-                if (personalLabels[2]) personalLabels[2].textContent = 'Weight:';
-                if (personalLabels[3]) personalLabels[3].textContent = 'Height:';
+            const reviewCards = document.querySelectorAll('#section4 .review-card');
+            if (reviewCards[0]) {
+                const personalTitle = reviewCards[0].querySelector('.review-card-title');
+                if (personalTitle) {
+                    const icon = personalTitle.querySelector('.review-card-icon');
+                    personalTitle.textContent = 'Personal Information';
+                    if (icon) personalTitle.prepend(icon);
+                }
+                const personalLabels = reviewCards[0].querySelectorAll('.review-item-label');
+                if (personalLabels[0]) personalLabels[0].textContent = 'Age';
+                if (personalLabels[1]) personalLabels[1].textContent = 'Gender';
+                if (personalLabels[2]) personalLabels[2].textContent = 'Weight';
+                if (personalLabels[3]) personalLabels[3].textContent = 'Height';
             }
-            if (reviewColumns[1]) {
-                const healthTitle = reviewColumns[1].querySelector('h5');
-                if (healthTitle) healthTitle.textContent = 'Health and preferences';
-                const healthLabels = reviewColumns[1].querySelectorAll('strong');
-                if (healthLabels[0]) healthLabels[0].textContent = 'Diet type:';
-                if (healthLabels[1]) healthLabels[1].textContent = 'Allergies:';
-                if (healthLabels[2]) healthLabels[2].textContent = 'Blood sugar:';
-                if (healthLabels[3]) healthLabels[3].textContent = 'Meals/day:';
-                if (healthLabels[4]) healthLabels[4].textContent = 'Preferred food type:';
+            if (reviewCards[1]) {
+                const healthTitle = reviewCards[1].querySelector('.review-card-title');
+                if (healthTitle) {
+                    const icon = healthTitle.querySelector('.review-card-icon');
+                    healthTitle.textContent = 'Health & Preferences';
+                    if (icon) healthTitle.prepend(icon);
+                }
+                const healthLabels = reviewCards[1].querySelectorAll('.review-item-label');
+                if (healthLabels[0]) healthLabels[0].textContent = 'Diet type';
+                if (healthLabels[1]) healthLabels[1].textContent = 'Allergies';
+                if (healthLabels[2]) healthLabels[2].textContent = 'Blood sugar';
+                if (healthLabels[3]) healthLabels[3].textContent = 'Meals per day';
+                if (healthLabels[4]) healthLabels[4].textContent = 'Preferred food type';
             }
+            document.querySelectorAll('.review-edit-label').forEach(el => { el.textContent = 'Edit'; });
 
-            setText('label[for="consent"]', 'I confirm that this information is correct and want to generate my meal plan.');
+            setText('.consent-text', 'I confirm that this information is correct and want to generate my meal plan.');
+            setText('#dietFormRetryLabel', 'Try Again');
             setHtml('#prevBtn', '<i class="fas fa-arrow-left me-2"></i>Back');
             setHtml('#nextBtn', 'Next<i class="fas fa-arrow-right ms-2"></i>');
             setHtml('#submitBtn', '<i class="fas fa-paper-plane me-2"></i>Generate Meal Plan');
@@ -1293,20 +1520,78 @@
             });
         }
 
+        const STEP_COPY = {
+            1: {
+                km: { title: 'ព័ត៌មានមូលដ្ឋាន', subtitle: 'សូមបំពេញព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នក' },
+                en: { title: 'Basic Profile', subtitle: 'Tell us a little about yourself.' }
+            },
+            2: {
+                km: { title: 'ព័ត៌មានសុខភាព', subtitle: 'ចែករំលែកព័ត៌មានសុខភាពរបស់អ្នក' },
+                en: { title: 'Health Information', subtitle: 'Share your health details with us.' }
+            },
+            3: {
+                km: { title: 'ចំណូលចិត្តអាហារ', subtitle: 'ជ្រើសរើសចំណូលចិត្តអាហាររបស់អ្នក' },
+                en: { title: 'Food Preferences', subtitle: 'Choose your food preferences.' }
+            },
+            4: {
+                km: {
+                    title: 'ពិនិត្យ និង បញ្ជូន',
+                    subtitle: 'សូមពិនិត្យព័ត៌មានរបស់អ្នកមុនពេលបញ្ជូន។ ផែនការអាហារផ្ទាល់ខ្លួនរបស់អ្នកនឹងត្រូវបានបង្កើតឡើងផ្អែកលើព័ត៌មានទាំងនេះ។'
+                },
+                en: {
+                    title: 'Review & Submit',
+                    subtitle: 'Please review your information before submitting. Your personalized meal plan will be generated from these details.'
+                }
+            }
+        };
+
+        function updateHeaderText(section) {
+            const copy = (STEP_COPY[section] || STEP_COPY[1])[isEnglishUI() ? 'en' : 'km'];
+            const titleEl = document.getElementById('stepTitle');
+            const subtitleEl = document.getElementById('stepSubtitle');
+            if (titleEl) titleEl.textContent = copy.title;
+            if (subtitleEl) subtitleEl.textContent = copy.subtitle;
+        }
+
         function updateProgressBar() {
             const progress = (currentSection / totalSections) * 100;
-            document.getElementById('progressBar').style.width = `${progress}%`;
+            const progressBar = document.getElementById('progressBar');
+            if (progressBar) progressBar.style.width = `${progress}%`;
 
             for (let i = 1; i <= totalSections; i++) {
                 const step = document.getElementById(`step${i}`);
+                const circle = step.querySelector('.step-circle');
                 step.classList.remove('active', 'completed');
                 if (i < currentSection) {
                     step.classList.add('completed');
-                } else if (i === currentSection) {
-                    step.classList.add('active');
+                    if (circle) circle.innerHTML = '<i class="fas fa-check"></i>';
+                } else {
+                    if (i === currentSection) {
+                        step.classList.add('active');
+                    }
+                    if (circle) circle.textContent = i;
                 }
             }
+
+            updateHeaderText(currentSection);
         }
+
+        function goToSection(target) {
+            if (target < 1 || target > totalSections || target === currentSection) {
+                return;
+            }
+            document.getElementById(`section${currentSection}`).classList.add('d-none');
+            currentSection = target;
+            document.getElementById(`section${currentSection}`).classList.remove('d-none');
+            updateNavigationButtons();
+            updateProgressBar();
+        }
+
+        document.querySelectorAll('.review-edit-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                goToSection(Number(btn.dataset.goto));
+            });
+        });
 
         document.getElementById('nextBtn').addEventListener('click', function () {
             if (validateSection(currentSection)) {
@@ -1452,7 +1737,15 @@
             if (!dietFormError) {
                 return;
             }
-            dietFormError.textContent = message;
+            const titleEl = document.getElementById('dietFormErrorTitle');
+            const subtitleEl = document.getElementById('dietFormErrorSubtitle');
+            if (titleEl) titleEl.textContent = message;
+            if (subtitleEl) {
+                subtitleEl.textContent = uiCopy(
+                    'សូមពិនិត្យការតភ្ជាប់អ៊ីនធឺណិត ឬព្យាយាមម្តងទៀត។',
+                    'Please check your connection or try again.'
+                );
+            }
             dietFormError.classList.remove('d-none');
             dietFormError.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -1461,9 +1754,20 @@
             if (!dietFormError) {
                 return;
             }
-            dietFormError.textContent = '';
+            const titleEl = document.getElementById('dietFormErrorTitle');
+            const subtitleEl = document.getElementById('dietFormErrorSubtitle');
+            if (titleEl) titleEl.textContent = '';
+            if (subtitleEl) subtitleEl.textContent = '';
             dietFormError.classList.add('d-none');
         }
+
+        document.getElementById('dietFormRetryBtn')?.addEventListener('click', function () {
+            if (dietForm && typeof dietForm.requestSubmit === 'function') {
+                dietForm.requestSubmit();
+            } else if (dietForm) {
+                dietForm.dispatchEvent(new Event('submit', { cancelable: true }));
+            }
+        });
 
         dietForm?.addEventListener('submit', function (e) {
             e.preventDefault();
