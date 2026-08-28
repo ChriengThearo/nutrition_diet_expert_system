@@ -89,7 +89,7 @@
       <ul class="dropdown-menu shadow-sm" aria-labelledby="ndSidebarUserToggle">
         <li><a class="dropdown-item" href="{{ url_for('dashboard.user_profile_edit') }}"><i class="fas fa-user me-2"></i>My Profile</a></li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Log out</a></li>
+        <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}" onclick="openLogoutModal(event);"><i class="fas fa-sign-out-alt me-2"></i>Log out</a></li>
       </ul>
     </div>
   </aside>
@@ -188,5 +188,6 @@
   });
 </script>
 {% block extra_js %}{% endblock %}
+{% include "dashboard/_logout_modal.html" %}
 </body>
 </html>
