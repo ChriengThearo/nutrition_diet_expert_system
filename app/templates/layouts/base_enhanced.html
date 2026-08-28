@@ -296,13 +296,6 @@
                     </li>
                     {% endif %}
 
-                    <li class="nav-item">
-                        <a class="btn btn-light btn-sm {% if request.endpoint == 'main.home' %}active{% endif %}"
-                            href="{{ url_for('main.home') }}">
-                            <i class="fas fa-home me-1"></i>{{ 'ទំព័រដើម' if ui_lang == 'km' else 'Home' }}
-                        </a>
-                    </li>
-
                     {% if current_user.is_authenticated %}
                     <li class="nav-item">
                         <a class="btn btn-light btn-sm {% if request.endpoint and 'diet_expert' in request.endpoint %}active{% endif %}"
@@ -312,13 +305,6 @@
                         </a>
                     </li>
                     {% endif %}
-
-                    <li class="nav-item">
-                        <a class="btn btn-light btn-sm {% if request.endpoint == 'main.bmi' %}active{% endif %}"
-                            href="{{ url_for('main.bmi') }}">
-                            <i class="fas fa-calculator me-1"></i>{{ 'គណនា BMI' if ui_lang == 'km' else 'BMI Calculator' }}
-                        </a>
-                    </li>
 
                     <!-- Admin Navigation -->
                     {% if current_user.is_authenticated and current_user.has_role('admin') %}

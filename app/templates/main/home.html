@@ -604,12 +604,6 @@
           </li>
           {% endif %}
 
-          <li class="nav-item">
-            <a class="btn btn-light btn-sm me-2 active" href="{{ url_for('main.home') }}">
-              <i class="fas fa-house me-1"></i>{{ 'ទំព័រដើម' if ui_lang == 'km' else 'Home' }}
-            </a>
-          </li>
-
           {% if current_user.is_authenticated %}
           <li class="nav-item">
             <a class="btn btn-light btn-sm me-2" href="{{ url_for('dashboard.user_diet_expert') }}">
@@ -617,12 +611,6 @@
             </a>
           </li>
           {% endif %}
-
-          <li class="nav-item">
-            <a class="btn btn-light btn-sm" href="{{ url_for('main.bmi') }}">
-              <i class="fas fa-calculator me-1"></i>{{ 'គណនា BMI' if ui_lang == 'km' else 'Calculate BMI' }}
-            </a>
-          </li>
 
           {% if current_user.is_authenticated and current_user.has_role('admin') %}
           <li class="nav-item dropdown">
