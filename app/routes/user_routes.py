@@ -7,6 +7,9 @@ from app.forms.user_forms import (
 )
 from app.services.user_service import UserService
 from app.models.role import RoleTable
+from app.models.user_result import UserResultsTable
+from app.models.goal import GoalsTable
+from datetime import datetime, timedelta
 from functools import wraps
 from app.routes.access_control import permission_required
 
@@ -15,6 +18,26 @@ ROLE_FILTER_LABELS = {
     "user": {"title": "Patients", "subtitle": "Manage patient accounts on your clinical nutrition platform", "singular": "patient"},
     "admin": {"title": "Administrators", "subtitle": "Manage administrator accounts", "singular": "admin"},
 }
+
+PATIENT_FILTER_LABELS = {
+    "active": "Active Patients",
+    "inactive": "Inactive Patients",
+    "new_this_week": "New This Week",
+    "at_risk": "At Risk Patients",
+}
+
+
+def _classify_patient_bucket(patient, latest_bmi):
+    """Same priority order used by the admin dashboard's Patient Overview donut,
+    so the counts shown there match what this filtered list returns."""
+    if latest_bmi is not None and (latest_bmi < 18.5 or latest_bmi >= 30):
+        return "at_risk"
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    if patient.created_at and patient.created_at >= week_ago:
+        return "new_this_week"
+    if not patient.is_active:
+        return "inactive"
+    return "active"
 
 user_bp = Blueprint("tbl_users", __name__, url_prefix="/users")
 
@@ -43,6 +66,24 @@ def index():
     if role_filter:
         users = [u for u in users if u.has_role(role_filter)]
 
+    goal_filter = (request.args.get("goal") or "").strip()
+    if goal_filter:
+        users = [u for u in users if any(g.name == goal_filter for g in u.goals)]
+
+    patient_filter = (request.args.get("patient_filter") or "").strip().lower()
+    if patient_filter in PATIENT_FILTER_LABELS:
+        bucketed = []
+        for u in users:
+            latest = (
+                UserResultsTable.query.filter_by(user_id=u.id)
+                .order_by(UserResultsTable.generated_at.desc())
+                .first()
+            )
+            latest_bmi = latest.bmi if latest else None
+            if _classify_patient_bucket(u, latest_bmi) == patient_filter:
+                bucketed.append(u)
+        users = bucketed
+
     role_meta = ROLE_FILTER_LABELS.get(role_filter)
     role_record = None
     if role_filter:
@@ -56,6 +97,9 @@ def index():
         role_filter=role_filter,
         role_meta=role_meta,
         role_record=role_record,
+        goal_filter=goal_filter,
+        patient_filter=patient_filter,
+        patient_filter_label=PATIENT_FILTER_LABELS.get(patient_filter),
     )
 
 

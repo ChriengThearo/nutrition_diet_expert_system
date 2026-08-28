@@ -284,6 +284,80 @@ select { font: inherit; }
 
 .search-box input::placeholder { color: var(--muted-2); }
 
+.search-box input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(32, 184, 93, 0.14);
+}
+
+.nav-search-results {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(15, 31, 58, 0.14);
+  padding: 6px;
+  z-index: 60;
+  max-height: 320px;
+  overflow-y: auto;
+  animation: navResultsPop 0.16s ease both;
+}
+
+.nav-search-results.is-open { display: block; }
+
+@keyframes navResultsPop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.nav-search-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: var(--nav-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.nav-search-item i {
+  width: 16px;
+  color: var(--nav-icon);
+  font-size: 14px;
+  text-align: center;
+}
+
+.nav-search-item:hover,
+.nav-search-item.is-active {
+  background: var(--green-soft);
+  color: var(--green-dark);
+}
+
+.nav-search-item:hover i,
+.nav-search-item.is-active i {
+  color: var(--green-dark);
+}
+
+.nav-search-item mark {
+  background: none;
+  color: inherit;
+  font-weight: 900;
+  padding: 0;
+}
+
+.nav-search-empty {
+  padding: 14px 10px;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
 .date-pill {
   display: flex;
   align-items: center;
@@ -502,6 +576,44 @@ select { font: inherit; }
   grid-template-columns: minmax(260px, 1fr) auto auto;
   align-items: center;
   gap: 12px;
+}
+
+.active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 8px 0 12px;
+  margin-bottom: 14px;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green-dark);
+  font-size: 12.5px;
+  font-weight: 600;
+  animation: chipPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.active-filter-chip strong { font-weight: 800; }
+
+.active-filter-chip a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: var(--green-dark);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.active-filter-chip a:hover {
+  background: rgba(18, 150, 75, 0.16);
+  transform: rotate(90deg);
+}
+
+@keyframes chipPop {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .table-search {
@@ -826,13 +938,14 @@ select { font: inherit; }
   <main class="main">
     <header class="topbar">
       <div class="page-title">
-        <h1>{{ role_meta.title if role_meta else 'Users Management' }}</h1>
+        <h1>{{ patient_filter_label if patient_filter_label else (role_meta.title if role_meta else 'Users Management') }}{{ ' — ' + goal_filter if goal_filter }}</h1>
         <p>{{ role_meta.subtitle if role_meta else 'Manage users inside your clinical nutrition platform' }}</p>
       </div>
       <div class="top-actions">
-        <div class="search-box">
+        <div class="search-box" id="navSearchBox">
           <i class="fas fa-magnifying-glass"></i>
-          <input type="search" id="topSearch" placeholder="Search users…">
+          <input type="search" id="navSearchInput" placeholder="Search sidebar… (Doctors, Users, Settings)" autocomplete="off">
+          <div class="nav-search-results" id="navSearchResults"></div>
         </div>
         <div class="date-pill"><i class="far fa-calendar-alt"></i><span id="headerDate">Aug 24, 2026</span></div>
         {% include "dashboard/_admin_notify.html" %}
@@ -914,6 +1027,16 @@ select { font: inherit; }
           </div>
         </article>
       </section>
+
+      {% if patient_filter_label or goal_filter %}
+      <div class="active-filter-chip">
+        <i class="fas fa-filter"></i>
+        Showing: <strong>{{ patient_filter_label or ('Goal: ' + goal_filter) }}</strong>
+        <a href="{{ url_for('tbl_users.index', role=role_filter) if role_filter else url_for('tbl_users.index') }}" title="Clear filter">
+          <i class="fas fa-xmark"></i>
+        </a>
+      </div>
+      {% endif %}
 
       <section class="panel controls">
         <div class="table-search">
@@ -1089,12 +1212,89 @@ function filterUsers() {
   }
 })();
 
-const topSearch = document.getElementById("topSearch");
-const userSearchInput = document.getElementById("userSearch");
-if (topSearch && userSearchInput) {
-  topSearch.addEventListener("input", () => {
-    userSearchInput.value = topSearch.value;
-    filterUsers();
+function navEscapeHtml(v) {
+  const d = document.createElement("div");
+  d.textContent = v == null ? "" : v;
+  return d.innerHTML;
+}
+
+const NAV_SEARCH_DESTINATIONS = [
+  { label: "Dashboard", icon: "fa-table-cells-large", url: "{{ url_for('dashboard.admin_dashboard') }}", keywords: "overview home" },
+  { label: "Doctors", icon: "fa-user-doctor", url: "{{ url_for('tbl_users.index', role='doctor') }}", keywords: "physicians doctor" },
+  { label: "Users", icon: "fa-users", url: "{{ url_for('tbl_users.index') }}", keywords: "accounts users" },
+  { label: "Patients", icon: "fa-hospital-user", url: "{{ url_for('tbl_users.index', role='user') }}", keywords: "patients" },
+  { label: "Permissions", icon: "fa-key", url: "{{ url_for('tbl_permissions.index') }}", keywords: "access permissions" },
+  { label: "Food Catalog", icon: "fa-apple-whole", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=foods", keywords: "food catalog foods" },
+  { label: "Cooked Foods", icon: "fa-utensils", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=cooked", keywords: "cooked foods recipes" },
+  { label: "Rule Library", icon: "fa-list-ul", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=rules", keywords: "diet rules rule library" },
+  { label: "Settings", icon: "fa-gear", url: "{{ url_for('tbl_roles.index') }}", keywords: "settings roles configuration" },
+];
+
+function navSearchHighlight(text, term) {
+  if (!term) return navEscapeHtml(text);
+  const idx = text.toLowerCase().indexOf(term.toLowerCase());
+  if (idx === -1) return navEscapeHtml(text);
+  return navEscapeHtml(text.slice(0, idx)) + "<mark>" + navEscapeHtml(text.slice(idx, idx + term.length)) + "</mark>" + navEscapeHtml(text.slice(idx + term.length));
+}
+
+function renderNavSearchResults(term) {
+  const box = document.getElementById("navSearchResults");
+  if (!box) return;
+  const q = term.trim().toLowerCase();
+  if (!q) { box.classList.remove("is-open"); box.innerHTML = ""; return; }
+  const matches = NAV_SEARCH_DESTINATIONS.filter((d) =>
+    d.label.toLowerCase().includes(q) || (d.keywords || "").toLowerCase().includes(q)
+  );
+  if (!matches.length) {
+    box.innerHTML = '<div class="nav-search-empty">No matching page found.</div>';
+    box.classList.add("is-open");
+    return;
+  }
+  box.innerHTML = matches.map((d, i) => `
+    <div class="nav-search-item${i === 0 ? " is-active" : ""}" data-url="${navEscapeHtml(d.url)}">
+      <i class="fas ${d.icon}"></i>${navSearchHighlight(d.label, q)}
+    </div>`).join("");
+  box.classList.add("is-open");
+  box.querySelectorAll(".nav-search-item").forEach((el) => {
+    el.addEventListener("click", () => { window.location.href = el.dataset.url; });
+  });
+}
+
+const navSearchInput = document.getElementById("navSearchInput");
+const navSearchBox = document.getElementById("navSearchBox");
+const navSearchResultsEl = document.getElementById("navSearchResults");
+if (navSearchInput && navSearchResultsEl) {
+  navSearchInput.addEventListener("input", () => renderNavSearchResults(navSearchInput.value));
+  navSearchInput.addEventListener("focus", () => {
+    if (navSearchInput.value.trim()) renderNavSearchResults(navSearchInput.value);
+  });
+  navSearchInput.addEventListener("keydown", (e) => {
+    const items = Array.from(navSearchResultsEl.querySelectorAll(".nav-search-item"));
+    if (!items.length) return;
+    let activeIdx = items.findIndex((el) => el.classList.contains("is-active"));
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (activeIdx >= 0) items[activeIdx].classList.remove("is-active");
+      activeIdx = (activeIdx + 1) % items.length;
+      items[activeIdx].classList.add("is-active");
+      items[activeIdx].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (activeIdx >= 0) items[activeIdx].classList.remove("is-active");
+      activeIdx = (activeIdx - 1 + items.length) % items.length;
+      items[activeIdx].classList.add("is-active");
+      items[activeIdx].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const active = items[activeIdx] || items[0];
+      if (active) window.location.href = active.dataset.url;
+    } else if (e.key === "Escape") {
+      navSearchResultsEl.classList.remove("is-open");
+      navSearchInput.blur();
+    }
+  });
+  document.addEventListener("click", (e) => {
+    if (navSearchBox && !navSearchBox.contains(e.target)) navSearchResultsEl.classList.remove("is-open");
   });
 }
 

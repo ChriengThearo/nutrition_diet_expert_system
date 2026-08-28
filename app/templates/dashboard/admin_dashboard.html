@@ -299,6 +299,80 @@ select { font: inherit; }
 
 .search-box input::placeholder { color: var(--muted-2); }
 
+.search-box input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(32, 184, 93, 0.14);
+}
+
+.nav-search-results {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(15, 31, 58, 0.14);
+  padding: 6px;
+  z-index: 60;
+  max-height: 320px;
+  overflow-y: auto;
+  animation: navResultsPop 0.16s ease both;
+}
+
+.nav-search-results.is-open { display: block; }
+
+@keyframes navResultsPop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.nav-search-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: var(--nav-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.nav-search-item i {
+  width: 16px;
+  color: var(--nav-icon);
+  font-size: 14px;
+  text-align: center;
+}
+
+.nav-search-item:hover,
+.nav-search-item.is-active {
+  background: var(--green-soft);
+  color: var(--green-dark);
+}
+
+.nav-search-item:hover i,
+.nav-search-item.is-active i {
+  color: var(--green-dark);
+}
+
+.nav-search-item mark {
+  background: none;
+  color: inherit;
+  font-weight: 900;
+  padding: 0;
+}
+
+.nav-search-empty {
+  padding: 14px 10px;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
 .date-pill {
   display: flex;
   align-items: center;
@@ -426,6 +500,26 @@ select { font: inherit; }
   border-radius: 8px;
   background: var(--card);
   box-shadow: var(--shadow);
+  animation: cardRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.stat-grid .stat-card:nth-child(1) { animation-delay: 0.02s; }
+.stat-grid .stat-card:nth-child(2) { animation-delay: 0.08s; }
+.stat-grid .stat-card:nth-child(3) { animation-delay: 0.14s; }
+.stat-grid .stat-card:nth-child(4) { animation-delay: 0.20s; }
+.stat-grid .stat-card:nth-child(5) { animation-delay: 0.26s; }
+.overview { animation-delay: 0.1s; }
+.bottom-grid .panel:nth-child(1) { animation-delay: 0.16s; }
+.bottom-grid .panel:nth-child(2) { animation-delay: 0.22s; }
+.bottom-grid .panel:nth-child(3) { animation-delay: 0.28s; }
+
+@keyframes cardRise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-card, .panel, .chart-canvas-box { animation: none !important; }
 }
 
 .stat-card {
@@ -435,6 +529,21 @@ select { font: inherit; }
   grid-template-columns: 58px minmax(0, 1fr);
   gap: 20px;
   align-items: start;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+a.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px rgba(15, 31, 58, 0.12);
+  border-color: var(--control-line);
+}
+
+.stat-icon {
+  transition: transform 0.2s ease;
+}
+
+a.stat-card:hover .stat-icon {
+  transform: scale(1.08) rotate(-4deg);
 }
 
 .stat-icon {
@@ -545,23 +654,84 @@ select { font: inherit; }
 }
 
 .chart-legend {
-  height: 27px;
+  height: 36px;
   display: flex;
   align-items: center;
-  gap: 27px;
+  gap: 8px;
   color: var(--text);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: var(--white);
+  color: var(--muted);
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
+}
+
+.legend-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--control-line);
+}
+
+.legend-chip:active { transform: translateY(0); }
+
+.legend-chip.is-active {
+  color: var(--white);
+  border-color: transparent;
+}
+
+.legend-chip.legend-key-green.is-active { background: linear-gradient(135deg, var(--green), var(--green-mid)); box-shadow: 0 6px 14px rgba(32,184,93,.28); }
+.legend-chip.legend-key-blue.is-active { background: linear-gradient(135deg, var(--blue), #1361c9); box-shadow: 0 6px 14px rgba(23,121,242,.28); }
+.legend-chip[data-series="all"].is-active { background: var(--ink); box-shadow: 0 6px 14px rgba(15,31,58,.22); }
+
+.chip-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 8px;
+}
+
+.dot-mini {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 .ring {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   margin-right: 7px;
   border: 2px solid currentColor;
   border-radius: 50%;
   display: inline-block;
-  vertical-align: -2px;
+  vertical-align: -1px;
+  transition: background-color 0.18s ease;
+}
+
+.legend-chip.is-active .ring {
+  background: var(--white);
+}
+
+.chart-canvas-box {
+  position: relative;
+  width: 100%;
+  height: 266px;
+  animation: chartFadeIn 0.5s ease both;
+}
+
+@keyframes chartFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .chart {
@@ -596,15 +766,64 @@ select { font: inherit; }
 
 .activity-item {
   min-height: 52px;
+  padding: 3px 0;
   display: grid;
   grid-template-columns: 34px minmax(0, 1fr) 58px;
   align-items: center;
   gap: 12px;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+  animation: itemSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
 }
 
-.activity-item + .activity-item,
+.activity-item:hover { background: #fafbfd; }
+
+@keyframes itemSlideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .activity-item, .plan-item { animation: none !important; }
+}
+
 .plan-item + .plan-item {
   border-top: 1px solid var(--soft-line);
+}
+
+.activity-scroll {
+  max-height: 424px;
+  overflow-y: auto;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--control-line) transparent;
+}
+
+.activity-scroll::-webkit-scrollbar { width: 6px; }
+.activity-scroll::-webkit-scrollbar-track { background: transparent; }
+.activity-scroll::-webkit-scrollbar-thumb { background: var(--control-line); border-radius: 999px; }
+.activity-scroll::-webkit-scrollbar-thumb:hover { background: var(--muted-3); }
+
+.activity-date-group {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--white);
+  padding: 12px 0 7px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted-3);
+}
+
+.activity-date-group:first-child {
+  padding-top: 0;
+}
+
+.activity-list {
+  position: relative;
 }
 
 .mini-icon {
@@ -614,6 +833,26 @@ select { font: inherit; }
   display: grid;
   place-items: center;
   font-size: 15px;
+  position: relative;
+  z-index: 1;
+}
+
+.activity-item {
+  position: relative;
+}
+
+.activity-item::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 38px;
+  bottom: -9px;
+  width: 2px;
+  background: var(--soft-line);
+}
+
+.activity-item.is-group-last::before {
+  display: none;
 }
 
 .item-title {
@@ -649,7 +888,13 @@ select { font: inherit; }
   grid-template-columns: 30px minmax(0, 1fr) 58px;
   align-items: center;
   gap: 16px;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+  animation: itemSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
 }
+
+.plan-item:hover { background: #fafbfd; }
 
 .rank {
   width: 28px;
@@ -688,10 +933,27 @@ select { font: inherit; }
   height: 146px;
   margin: 5px auto;
   border-radius: 50%;
-  background: conic-gradient(var(--green) 0 60.8%, var(--blue) 60.8% 85.7%, var(--orange) 85.7% 90.7%, var(--red) 90.7% 100%);
+  background: conic-gradient(var(--gray-soft) 0 100%);
   display: grid;
   place-items: center;
-  transform: rotate(-55deg);
+  transform: rotate(-55deg) scale(0.85);
+  opacity: 0;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+}
+
+.donut.is-ready {
+  transform: rotate(-55deg) scale(1);
+  opacity: 1;
+  cursor: pointer;
+}
+
+.donut.is-ready:hover {
+  transform: rotate(-55deg) scale(1.06);
+  transition: transform 0.2s ease;
+}
+
+.donut.is-ready:hover .donut-core {
+  box-shadow: 0 6px 18px rgba(15, 31, 58, 0.14);
 }
 
 .donut-core {
@@ -703,6 +965,7 @@ select { font: inherit; }
   place-items: center;
   text-align: center;
   transform: rotate(55deg);
+  transition: box-shadow 0.2s ease;
 }
 
 .donut-core strong {
@@ -734,12 +997,32 @@ select { font: inherit; }
   gap: 13px;
   color: var(--text);
   font-size: 12px;
+  animation: itemSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(0.2s + var(--i, 0) * 60ms);
+  padding: 5px 8px;
+  margin: 0 -8px;
+  border-radius: 7px;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.legend-row:hover {
+  background: var(--gray-soft);
+  transform: translateX(2px);
+}
+
+.legend-row:hover .dot {
+  transform: scale(1.35);
+}
+
+.legend-value {
+  transition: color 0.2s ease;
 }
 
 .dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  transition: transform 0.2s ease;
 }
 
 .legend-value {
@@ -764,14 +1047,20 @@ select { font: inherit; }
   display: flex;
   align-items: center;
   gap: 16px;
+  transition: background-color 0.15s ease;
 }
+
+.patient-stat:hover { background: rgba(255, 255, 255, 0.55); }
 
 .patient-stat + .patient-stat { border-left: 1px solid var(--control-line); }
 
 .patient-stat i {
   color: var(--green);
   font-size: 20px;
+  transition: transform 0.2s ease;
 }
+
+.patient-stat:hover i { transform: scale(1.15); }
 
 .patient-stat strong {
   display: block;
@@ -892,9 +1181,10 @@ select { font: inherit; }
         <p>Overview of your clinical nutrition platform</p>
       </div>
       <div class="top-actions">
-        <div class="search-box">
+        <div class="search-box" id="navSearchBox">
           <i class="fas fa-magnifying-glass"></i>
-          <input type="search" id="adminTopSearch" placeholder="Search users, doctors, patients…">
+          <input type="search" id="navSearchInput" placeholder="Search sidebar… (Doctors, Users, Settings)" autocomplete="off">
+          <div class="nav-search-results" id="navSearchResults"></div>
         </div>
         <div class="date-pill"><i class="far fa-calendar-alt"></i><span id="adminDate">Aug 24, 2026</span></div>
         {% include "dashboard/_admin_notify.html" %}
@@ -967,11 +1257,19 @@ select { font: inherit; }
           <span style="font-size:12px;color:var(--muted-2);font-weight:600;">Last 7 days</span>
         </div>
         <div class="chart-wrap">
-          <div class="chart-legend">
-            <span class="legend-key-green"><i class="ring"></i><span class="legend-copy">Users</span></span>
-            <span class="legend-key-blue"><i class="ring"></i><span class="legend-copy">Consultations</span></span>
+          <div class="chart-legend" id="chartLegend" role="group" aria-label="Filter chart series">
+            <button type="button" class="legend-chip is-active" data-series="all" onclick="setChartSeries('all')">
+              <span class="chip-dots"><i class="dot-mini" style="background:var(--green);"></i><i class="dot-mini" style="background:var(--blue);"></i></span>
+              All
+            </button>
+            <button type="button" class="legend-chip legend-key-green" data-series="users" onclick="setChartSeries('users')">
+              <i class="ring"></i>Users
+            </button>
+            <button type="button" class="legend-chip legend-key-blue" data-series="consultations" onclick="setChartSeries('consultations')">
+              <i class="ring"></i>Consultations
+            </button>
           </div>
-          <div style="height:266px;">
+          <div class="chart-canvas-box">
             <canvas id="systemOverviewChart"></canvas>
           </div>
         </div>
@@ -983,8 +1281,10 @@ select { font: inherit; }
             <h2 class="panel-title"><i class="fas fa-wave-square"></i>Recent Activity</h2>
             <button class="view-btn" type="button" id="activityViewAllBtn" onclick="expandRecentActivity();">View all</button>
           </div>
-          <div class="activity-list" id="recentActivityList">
-            <div class="activity-item"><div class="mini-icon soft-green"><i class="fas fa-spinner fa-spin"></i></div><div><p class="item-title">Loading…</p></div></div>
+          <div class="activity-scroll">
+            <div class="activity-list" id="recentActivityList">
+              <div class="activity-item"><div class="mini-icon soft-green"><i class="fas fa-spinner fa-spin"></i></div><div><p class="item-title">Loading…</p></div></div>
+            </div>
           </div>
         </article>
 
@@ -1002,20 +1302,20 @@ select { font: inherit; }
             <h2 class="panel-title"><i class="fas fa-users"></i>Patient Overview</h2>
           </div>
           <div class="patient-body">
-            <div class="donut" id="patientDonut">
+            <a class="donut" id="patientDonut" href="{{ url_for('tbl_users.index', role='user') }}" title="View all patients">
               <div class="donut-core">
                 <div><strong id="patientDonutTotal">–</strong><span>Total Patients</span></div>
               </div>
-            </div>
+            </a>
             <div class="patient-legend" id="patientLegend">
-              <div class="legend-row"><span class="dot dot-active"></span><span>Active</span><span class="legend-value">–</span></div>
-              <div class="legend-row"><span class="dot dot-inactive"></span><span>Inactive</span><span class="legend-value">–</span></div>
-              <div class="legend-row"><span class="dot dot-new"></span><span>New This Week</span><span class="legend-value">–</span></div>
-              <div class="legend-row"><span class="dot dot-risk"></span><span>At Risk</span><span class="legend-value">–</span></div>
+              <a class="legend-row" href="{{ url_for('tbl_users.index', role='user', patient_filter='active') }}"><span class="dot dot-active"></span><span>Active</span><span class="legend-value">–</span></a>
+              <a class="legend-row" href="{{ url_for('tbl_users.index', role='user', patient_filter='inactive') }}"><span class="dot dot-inactive"></span><span>Inactive</span><span class="legend-value">–</span></a>
+              <a class="legend-row" href="{{ url_for('tbl_users.index', role='user', patient_filter='new_this_week') }}"><span class="dot dot-new"></span><span>New This Week</span><span class="legend-value">–</span></a>
+              <a class="legend-row" href="{{ url_for('tbl_users.index', role='user', patient_filter='at_risk') }}"><span class="dot dot-risk"></span><span>At Risk</span><span class="legend-value">–</span></a>
             </div>
             <div class="patient-stats">
-              <div class="patient-stat"><i class="fas fa-user-plus"></i><div><strong id="patientStatNew">–</strong><span>new this week</span></div></div>
-              <div class="patient-stat"><i class="fas fa-users"></i><div><strong id="patientStatEngagement">–</strong><span>active rate</span></div></div>
+              <a class="patient-stat" href="{{ url_for('tbl_users.index', role='user', patient_filter='new_this_week') }}"><i class="fas fa-user-plus"></i><div><strong id="patientStatNew">–</strong><span>new this week</span></div></a>
+              <a class="patient-stat" href="{{ url_for('tbl_users.index', role='user', patient_filter='active') }}"><i class="fas fa-users"></i><div><strong id="patientStatEngagement">–</strong><span>active rate</span></div></a>
             </div>
           </div>
         </article>
@@ -1050,12 +1350,83 @@ function notifyComingSoon(featureName) {
   alert((featureName || 'This feature') + ' is coming soon.');
 }
 
-const adminTopSearch = document.getElementById("adminTopSearch");
-if (adminTopSearch) {
-  adminTopSearch.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && adminTopSearch.value.trim()) {
-      window.location.href = "{{ url_for('tbl_users.index') }}?q=" + encodeURIComponent(adminTopSearch.value.trim());
+const NAV_SEARCH_DESTINATIONS = [
+  { label: "Dashboard", icon: "fa-table-cells-large", url: "{{ url_for('dashboard.admin_dashboard') }}", keywords: "overview home" },
+  { label: "Doctors", icon: "fa-user-doctor", url: "{{ url_for('tbl_users.index', role='doctor') }}", keywords: "physicians doctor" },
+  { label: "Users", icon: "fa-users", url: "{{ url_for('tbl_users.index') }}", keywords: "accounts users" },
+  { label: "Patients", icon: "fa-hospital-user", url: "{{ url_for('tbl_users.index', role='user') }}", keywords: "patients" },
+  { label: "Permissions", icon: "fa-key", url: "{{ url_for('tbl_permissions.index') }}", keywords: "access permissions" },
+  { label: "Food Catalog", icon: "fa-apple-whole", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=foods", keywords: "food catalog foods" },
+  { label: "Cooked Foods", icon: "fa-utensils", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=cooked", keywords: "cooked foods recipes" },
+  { label: "Rule Library", icon: "fa-list-ul", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=rules", keywords: "diet rules rule library" },
+  { label: "Settings", icon: "fa-gear", url: "{{ url_for('tbl_roles.index') }}", keywords: "settings roles configuration" },
+];
+
+function navSearchHighlight(text, term) {
+  if (!term) return adminEscapeHtml(text);
+  const idx = text.toLowerCase().indexOf(term.toLowerCase());
+  if (idx === -1) return adminEscapeHtml(text);
+  return adminEscapeHtml(text.slice(0, idx)) + "<mark>" + adminEscapeHtml(text.slice(idx, idx + term.length)) + "</mark>" + adminEscapeHtml(text.slice(idx + term.length));
+}
+
+function renderNavSearchResults(term) {
+  const box = document.getElementById("navSearchResults");
+  if (!box) return;
+  const q = term.trim().toLowerCase();
+  if (!q) { box.classList.remove("is-open"); box.innerHTML = ""; return; }
+  const matches = NAV_SEARCH_DESTINATIONS.filter((d) =>
+    d.label.toLowerCase().includes(q) || (d.keywords || "").toLowerCase().includes(q)
+  );
+  if (!matches.length) {
+    box.innerHTML = '<div class="nav-search-empty">No matching page found.</div>';
+    box.classList.add("is-open");
+    return;
+  }
+  box.innerHTML = matches.map((d, i) => `
+    <div class="nav-search-item${i === 0 ? " is-active" : ""}" data-url="${adminEscapeHtml(d.url)}">
+      <i class="fas ${d.icon}"></i>${navSearchHighlight(d.label, q)}
+    </div>`).join("");
+  box.classList.add("is-open");
+  box.querySelectorAll(".nav-search-item").forEach((el) => {
+    el.addEventListener("click", () => { window.location.href = el.dataset.url; });
+  });
+}
+
+const navSearchInput = document.getElementById("navSearchInput");
+const navSearchBox = document.getElementById("navSearchBox");
+const navSearchResultsEl = document.getElementById("navSearchResults");
+if (navSearchInput && navSearchResultsEl) {
+  navSearchInput.addEventListener("input", () => renderNavSearchResults(navSearchInput.value));
+  navSearchInput.addEventListener("focus", () => {
+    if (navSearchInput.value.trim()) renderNavSearchResults(navSearchInput.value);
+  });
+  navSearchInput.addEventListener("keydown", (e) => {
+    const items = Array.from(navSearchResultsEl.querySelectorAll(".nav-search-item"));
+    if (!items.length) return;
+    let activeIdx = items.findIndex((el) => el.classList.contains("is-active"));
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (activeIdx >= 0) items[activeIdx].classList.remove("is-active");
+      activeIdx = (activeIdx + 1) % items.length;
+      items[activeIdx].classList.add("is-active");
+      items[activeIdx].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (activeIdx >= 0) items[activeIdx].classList.remove("is-active");
+      activeIdx = (activeIdx - 1 + items.length) % items.length;
+      items[activeIdx].classList.add("is-active");
+      items[activeIdx].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const active = items[activeIdx] || items[0];
+      if (active) window.location.href = active.dataset.url;
+    } else if (e.key === "Escape") {
+      navSearchResultsEl.classList.remove("is-open");
+      navSearchInput.blur();
     }
+  });
+  document.addEventListener("click", (e) => {
+    if (navSearchBox && !navSearchBox.contains(e.target)) navSearchResultsEl.classList.remove("is-open");
   });
 }
 
@@ -1106,10 +1477,13 @@ function adminTimeAgo(iso) {
 }
 
 let systemOverviewChartInstance = null;
+let activeChartSeries = "all";
+
 function renderSystemOverviewChart(usersPerDay, consultationsPerDay) {
   const canvas = document.getElementById("systemOverviewChart");
   if (!canvas || typeof Chart === "undefined") return;
   const labels = usersPerDay.map((d) => new Date(d.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }));
+
   if (systemOverviewChartInstance) systemOverviewChartInstance.destroy();
   systemOverviewChartInstance = new Chart(canvas, {
     type: "line",
@@ -1120,38 +1494,115 @@ function renderSystemOverviewChart(usersPerDay, consultationsPerDay) {
           label: "Users",
           data: usersPerDay.map((d) => d.count),
           borderColor: "#20b85d",
-          backgroundColor: "rgba(32,184,93,0.10)",
+          backgroundColor: "rgba(32,184,93,0.14)",
           fill: true,
-          tension: 0.35,
+          tension: 0.4,
+          borderWidth: 3,
           pointBackgroundColor: "#fff",
           pointBorderColor: "#20b85d",
           pointBorderWidth: 2,
           pointRadius: 4,
+          pointHoverRadius: 7,
+          pointHoverBorderWidth: 3,
+          hidden: activeChartSeries === "consultations",
         },
         {
           label: "Consultations",
           data: consultationsPerDay.map((d) => d.count),
           borderColor: "#1779f2",
-          backgroundColor: "rgba(23,121,242,0.10)",
+          backgroundColor: "rgba(23,121,242,0.14)",
           fill: true,
-          tension: 0.35,
+          tension: 0.4,
+          borderWidth: 3,
           pointBackgroundColor: "#fff",
           pointBorderColor: "#1779f2",
           pointBorderWidth: 2,
           pointRadius: 4,
+          pointHoverRadius: 7,
+          pointHoverBorderWidth: 3,
+          hidden: activeChartSeries === "users",
         },
       ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      interaction: { mode: "index", intersect: false },
+      animation: { duration: 900, easing: "easeOutQuart" },
+      transitions: {
+        active: { animation: { duration: 250 } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: "#0f1f3a",
+          titleFont: { weight: "700", size: 12 },
+          bodyFont: { size: 12 },
+          padding: 10,
+          cornerRadius: 8,
+          displayColors: true,
+          boxPadding: 4,
+        },
+      },
       scales: {
         y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "#e2e8f0", borderDash: [2, 3] } },
         x: { grid: { display: false } },
       },
     },
   });
+}
+
+function setChartSeries(kind) {
+  activeChartSeries = kind;
+  const chips = document.querySelectorAll("#chartLegend .legend-chip");
+  chips.forEach((chip) => chip.classList.toggle("is-active", chip.dataset.series === kind));
+
+  if (!systemOverviewChartInstance) return;
+  systemOverviewChartInstance.data.datasets[0].hidden = kind === "consultations";
+  systemOverviewChartInstance.data.datasets[1].hidden = kind === "users";
+  systemOverviewChartInstance.update();
+}
+
+function animateCountUp(el, target, duration) {
+  if (!el) return;
+  const startTime = performance.now();
+  const isPercent = /%$/.test(target);
+  const numericTarget = parseFloat(target);
+  if (isNaN(numericTarget)) { el.textContent = target; return; }
+  const decimals = (String(target).split(".")[1] || "").replace("%", "").length;
+
+  function tick(now) {
+    const progress = Math.min((now - startTime) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const value = numericTarget * eased;
+    el.textContent = value.toFixed(decimals) + (isPercent ? "%" : "");
+    if (progress < 1) requestAnimationFrame(tick);
+    else el.textContent = numericTarget.toFixed(decimals) + (isPercent ? "%" : "");
+  }
+  requestAnimationFrame(tick);
+}
+
+function animateStatCards() {
+  document.querySelectorAll(".stat-value").forEach((el) => {
+    const raw = el.textContent.trim();
+    if (!/^[\d.]+$/.test(raw)) return;
+    const target = raw;
+    el.textContent = "0";
+    animateCountUp(el, target, 700);
+  });
+}
+
+function activityDateBucket(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return "Earlier";
+  const now = new Date();
+  const startOfDay = (dt) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
+  const diffDays = Math.round((startOfDay(now) - startOfDay(d)) / 86400000);
+  if (diffDays <= 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays <= 6) return "This Week";
+  if (diffDays <= 30) return "This Month";
+  return "Earlier";
 }
 
 function renderRecentActivity(items) {
@@ -1161,12 +1612,35 @@ function renderRecentActivity(items) {
     list.innerHTML = '<div class="activity-item"><div class="mini-icon soft-gray"><i class="fas fa-inbox"></i></div><div><p class="item-title">No recent activity yet</p></div></div>';
     return;
   }
-  list.innerHTML = items.map((a) => `
-    <div class="activity-item">
-      <div class="mini-icon ${a.color}"><i class="${ACTIVITY_ICON[a.icon] || "fas fa-circle-info"}"></i></div>
-      <div><p class="item-title">${adminEscapeHtml(a.title)}</p>${a.sub ? `<p class="item-sub">${adminEscapeHtml(a.sub)}</p>` : ""}</div>
-      <span class="item-time">${adminTimeAgo(a.timestamp)}</span>
-    </div>`).join("");
+
+  const groupOrder = ["Today", "Yesterday", "This Week", "This Month", "Earlier"];
+  const groups = new Map();
+  items.forEach((a) => {
+    const bucket = activityDateBucket(a.timestamp);
+    if (!groups.has(bucket)) groups.set(bucket, []);
+    groups.get(bucket).push(a);
+  });
+
+  let html = "";
+  let idx = 0;
+  groupOrder.forEach((bucket) => {
+    const bucketItems = groups.get(bucket);
+    if (!bucketItems || !bucketItems.length) return;
+    html += `<div class="activity-date-group">${bucket}</div>`;
+    bucketItems.forEach((a, j) => {
+      const isLast = j === bucketItems.length - 1;
+      const tag = a.link ? "a" : "div";
+      const hrefAttr = a.link ? ` href="${adminEscapeHtml(a.link)}"` : "";
+      html += `
+        <${tag} class="activity-item${isLast ? " is-group-last" : ""}"${hrefAttr} style="--i:${idx};">
+          <div class="mini-icon ${a.color}"><i class="${ACTIVITY_ICON[a.icon] || "fas fa-circle-info"}"></i></div>
+          <div><p class="item-title">${adminEscapeHtml(a.title)}</p>${a.sub ? `<p class="item-sub">${adminEscapeHtml(a.sub)}</p>` : ""}</div>
+          <span class="item-time">${adminTimeAgo(a.timestamp)}</span>
+        </${tag}>`;
+      idx++;
+    });
+  });
+  list.innerHTML = html;
 }
 
 function renderTopDietPlans(plans) {
@@ -1176,12 +1650,16 @@ function renderTopDietPlans(plans) {
     list.innerHTML = '<div class="plan-item"><p class="item-title">No goals configured yet</p></div>';
     return;
   }
-  list.innerHTML = plans.map((p, i) => `
-    <div class="plan-item">
+  list.innerHTML = plans.map((p, i) => {
+    const tag = p.link ? "a" : "div";
+    const hrefAttr = p.link ? ` href="${adminEscapeHtml(p.link)}"` : "";
+    return `
+    <${tag} class="plan-item" style="--i:${i};"${hrefAttr}>
       <span class="rank ${i >= 3 ? "rank-muted" : ""}">${i + 1}</span>
       <p class="item-title">${adminEscapeHtml(p.name)}</p>
       <span class="use-badge">${p.uses} use${p.uses === 1 ? "" : "s"}</span>
-    </div>`).join("");
+    </${tag}>`;
+  }).join("");
 }
 
 function renderPatientOverview(ov) {
@@ -1193,7 +1671,7 @@ function renderPatientOverview(ov) {
   const riskPct = pct(ov.at_risk);
 
   const totalEl = document.getElementById("patientDonutTotal");
-  if (totalEl) totalEl.textContent = total;
+  if (totalEl) animateCountUp(totalEl, String(total), 700);
 
   const donut = document.getElementById("patientDonut");
   if (donut) {
@@ -1204,10 +1682,12 @@ function renderPatientOverview(ov) {
     } else {
       donut.style.background = "var(--gray-soft)";
     }
+    requestAnimationFrame(() => donut.classList.add("is-ready"));
   }
 
   const legend = document.getElementById("patientLegend");
   if (legend) {
+    legend.querySelectorAll(".legend-row").forEach((row, i) => row.style.setProperty("--i", i));
     const rows = legend.querySelectorAll(".legend-row .legend-value");
     const fmt = (n, p) => `${n}  (${p.toFixed(1)}%)`;
     if (rows[0]) rows[0].textContent = fmt(ov.active || 0, activePct);
@@ -1219,10 +1699,10 @@ function renderPatientOverview(ov) {
   const statNew = document.getElementById("patientStatNew");
   if (statNew) statNew.textContent = "+" + (ov.new_this_week || 0);
   const statEngagement = document.getElementById("patientStatEngagement");
-  if (statEngagement) statEngagement.textContent = activePct.toFixed(1) + "%";
+  if (statEngagement) animateCountUp(statEngagement, activePct.toFixed(1) + "%", 700);
 }
 
-let currentActivityLimit = 8;
+let currentActivityLimit = 15;
 function loadAdminAnalytics(activityLimit) {
   currentActivityLimit = activityLimit || currentActivityLimit;
   fetch("{{ url_for('dashboard.admin_analytics') }}?activity_limit=" + currentActivityLimit)
@@ -1246,10 +1726,11 @@ function loadAdminAnalytics(activityLimit) {
 function expandRecentActivity() {
   const btn = document.getElementById("activityViewAllBtn");
   if (btn) btn.style.display = "none";
-  loadAdminAnalytics(30);
+  loadAdminAnalytics(50);
 }
 
-loadAdminAnalytics(8);
+animateStatCards();
+loadAdminAnalytics(15);
 </script>
 {% include "dashboard/_logout_modal.html" %}
 </body>

@@ -524,7 +524,14 @@ def admin_analytics():
         .order_by(func.count(tbl_user_goals.c.user_id).desc())
         .all()
     )
-    top_diet_plans = [{"name": name, "uses": count} for name, count in goal_rows]
+    top_diet_plans = [
+        {
+            "name": name,
+            "uses": count,
+            "link": url_for("tbl_users.index", role="user", goal=name),
+        }
+        for name, count in goal_rows
+    ]
 
     # Recent activity: merged real timeline from users, consultations, and food catalog changes
     activity = []
@@ -540,24 +547,28 @@ def admin_analytics():
             "icon": icon, "color": color, "title": title,
             "sub": u.full_name or u.username,
             "timestamp": u.created_at.isoformat() if u.created_at else None,
+            "link": url_for("tbl_users.detail", user_id=u.id),
         })
     for c in Consultation.query.order_by(Consultation.created_at.desc()).limit(activity_limit).all():
         activity.append({
             "icon": "clipboard", "color": "soft-blue", "title": "Consultation logged",
             "sub": c.reason,
             "timestamp": c.created_at.isoformat() if c.created_at else None,
+            "link": url_for("tbl_users.detail", user_id=c.patient_id),
         })
     for f in FoodsTable.query.order_by(FoodsTable.created_at.desc()).limit(activity_limit).all():
         activity.append({
             "icon": "apple-whole", "color": "soft-orange", "title": "New food added",
             "sub": f.name,
             "timestamp": f.created_at.isoformat() if f.created_at else None,
+            "link": url_for("dashboard.doctor_dashboard", section="foods"),
         })
     for cf in CookedFoodsTable.query.order_by(CookedFoodsTable.created_at.desc()).limit(activity_limit).all():
         activity.append({
             "icon": "utensils", "color": "soft-orange", "title": "New cooked food added",
             "sub": cf.name,
             "timestamp": cf.created_at.isoformat() if cf.created_at else None,
+            "link": url_for("dashboard.doctor_dashboard", section="cooked"),
         })
     activity = [a for a in activity if a["timestamp"]]
     activity.sort(key=lambda a: a["timestamp"], reverse=True)
@@ -611,6 +622,13 @@ def admin_analytics():
                 "inactive": inactive,
                 "new_this_week": new_this_week,
                 "at_risk": at_risk,
+                "links": {
+                    "all": url_for("tbl_users.index", role="user"),
+                    "active": url_for("tbl_users.index", role="user", patient_filter="active"),
+                    "inactive": url_for("tbl_users.index", role="user", patient_filter="inactive"),
+                    "new_this_week": url_for("tbl_users.index", role="user", patient_filter="new_this_week"),
+                    "at_risk": url_for("tbl_users.index", role="user", patient_filter="at_risk"),
+                },
             },
         }
     )
