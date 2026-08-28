@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem("ndAdminTheme");
+    if (saved === "dark" || saved === "light") {
+      document.documentElement.setAttribute("data-theme", saved);
+    }
+  } catch (e) {}
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard | Diet Expert</title>
@@ -44,7 +54,48 @@
   --red: #ef3f51;
   --red-soft: #ffe7ec;
   --gray-soft: #f1f4f7;
+  --hover-bg: #fafbfd;
   --shadow: 0 10px 30px rgba(15, 31, 58, .06);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b101c;
+  --card: #141b2c;
+  --white: #141b2c;
+  --ink: #eef2fa;
+  --text: #c3cbdc;
+  --muted: #93a0b8;
+  --muted-2: #94a0b8;
+  --muted-3: #6f7b96;
+  --nav-text: #dbe1ee;
+  --nav-icon: #93a0b8;
+  --panel-title: #eef2fa;
+  --line: #232b40;
+  --soft-line: #1c2336;
+  --input-line: #2a3349;
+  --control-line: #2a3349;
+  --green: #34d17a;
+  --green-dark: #4ee08d;
+  --green-mid: #2ac46c;
+  --green-soft: rgba(52, 209, 122, 0.16);
+  --green-soft-2: rgba(52, 209, 122, 0.2);
+  --green-soft-3: rgba(52, 209, 122, 0.18);
+  --green-soft-4: rgba(52, 209, 122, 0.1);
+  --blue: #5aa3ff;
+  --blue-soft: rgba(90, 163, 255, 0.16);
+  --cyan: #2dd4c8;
+  --cyan-soft: rgba(45, 212, 200, 0.16);
+  --orange: #ffab4c;
+  --orange-soft: rgba(255, 171, 76, 0.16);
+  --purple: #b092ff;
+  --purple-soft: rgba(176, 146, 255, 0.16);
+  --red: #ff6b7a;
+  --red-soft: rgba(255, 107, 122, 0.16);
+  --gray-soft: #1a2133;
+  --hover-bg: #1a2133;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -59,6 +110,20 @@ body {
   font-family: Inter, "Segoe UI", Arial, sans-serif;
   font-size: 14px;
   letter-spacing: 0;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+.sidebar,
+.topbar,
+.search-box input,
+.nav-search-results,
+.profile-dropdown-menu,
+.pdm-item,
+.date-pill,
+.nav-link,
+.notify,
+.panel {
+  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -385,6 +450,72 @@ select { font: inherit; }
 
 .date-pill i { font-size: 18px; }
 
+.theme-toggle {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  flex: none;
+}
+
+.theme-toggle-track {
+  width: 58px;
+  height: 30px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  background: linear-gradient(135deg, #ffd76a, #ff9f43);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.18);
+  transition: background 0.45s ease, box-shadow 0.3s ease;
+}
+
+:root[data-theme="dark"] .theme-toggle-track {
+  background: linear-gradient(135deg, #2d3660, #10142a);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.theme-toggle:hover .theme-toggle-track {
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 0 4px rgba(242, 139, 34, 0.14);
+}
+
+:root[data-theme="dark"] .theme-toggle:hover .theme-toggle-track {
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(90, 163, 255, 0.16);
+}
+
+.theme-toggle-thumb {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transform: translateX(0);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease;
+}
+
+:root[data-theme="dark"] .theme-toggle-thumb {
+  transform: translateX(28px);
+  background: #141b2c;
+}
+
+.theme-toggle-thumb i {
+  position: absolute;
+  font-size: 12px;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-icon-sun { color: #f5a623; opacity: 1; transform: rotate(0deg) scale(1); }
+.theme-icon-moon { color: #a7b3ff; opacity: 0; transform: rotate(-90deg) scale(0.5); }
+
+:root[data-theme="dark"] .theme-icon-sun { opacity: 0; transform: rotate(90deg) scale(0.5); }
+:root[data-theme="dark"] .theme-icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+
+.theme-toggle:active .theme-toggle-thumb { transform: scale(0.9); }
+:root[data-theme="dark"] .theme-toggle:active .theme-toggle-thumb { transform: translateX(28px) scale(0.9); }
+
 .notify {
   position: relative;
   width: 42px;
@@ -481,7 +612,7 @@ select { font: inherit; }
 
 .pdm-item:hover { background: var(--soft-line); }
 
-.pdm-item.pdm-danger { color: #c62828; }
+.pdm-item.pdm-danger { color: var(--red); }
 
 .content {
   padding: 23px 24px 36px 29px;
@@ -529,7 +660,7 @@ select { font: inherit; }
   grid-template-columns: 58px minmax(0, 1fr);
   gap: 20px;
   align-items: start;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.35s ease, border-color 0.35s ease, background-color 0.35s ease, color 0.35s ease;
 }
 
 a.stat-card:hover {
@@ -777,7 +908,7 @@ a.stat-card:hover .stat-icon {
   animation-delay: calc(var(--i, 0) * 45ms);
 }
 
-.activity-item:hover { background: #fafbfd; }
+.activity-item:hover { background: var(--hover-bg); }
 
 @keyframes itemSlideIn {
   from { opacity: 0; transform: translateX(-8px); }
@@ -894,7 +1025,7 @@ a.stat-card:hover .stat-icon {
   animation-delay: calc(var(--i, 0) * 60ms);
 }
 
-.plan-item:hover { background: #fafbfd; }
+.plan-item:hover { background: var(--hover-bg); }
 
 .rank {
   width: 28px;
@@ -1187,6 +1318,14 @@ a.stat-card:hover .stat-icon {
           <div class="nav-search-results" id="navSearchResults"></div>
         </div>
         <div class="date-pill"><i class="far fa-calendar-alt"></i><span id="adminDate">Aug 24, 2026</span></div>
+        <button class="theme-toggle" type="button" id="themeToggle" aria-label="Toggle dark mode">
+          <span class="theme-toggle-track">
+            <span class="theme-toggle-thumb">
+              <i class="fas fa-sun theme-icon-sun"></i>
+              <i class="fas fa-moon theme-icon-moon"></i>
+            </span>
+          </span>
+        </button>
         {% include "dashboard/_admin_notify.html" %}
         <div class="profile-head" id="adminProfileHead">
           <div class="avatar">{{ admin_initial }}</div>
@@ -1450,6 +1589,29 @@ if (sidebarCollapseBtn && appShellEl) {
 }
 
 // ═══════════════════════════════════════════════════════
+//  DARK MODE / LIGHT MODE TOGGLE
+// ═══════════════════════════════════════════════════════
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  try { localStorage.setItem("ndAdminTheme", theme); } catch (e) {}
+  if (typeof lastChartData !== "undefined" && lastChartData && typeof renderSystemOverviewChart === "function") {
+    renderSystemOverviewChart(lastChartData.usersPerDay, lastChartData.consultationsPerDay);
+  }
+}
+
+const themeToggle = document.getElementById("themeToggle");
+if (themeToggle) {
+  if (!document.documentElement.getAttribute("data-theme")) {
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+  }
+  themeToggle.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    applyTheme(current === "dark" ? "light" : "dark");
+  });
+}
+
+// ═══════════════════════════════════════════════════════
 //  SYSTEM OVERVIEW / RECENT ACTIVITY / TOP DIET PLANS / PATIENT OVERVIEW
 //  — all driven by real data from /dashboard/admin/analytics
 // ═══════════════════════════════════════════════════════
@@ -1486,9 +1648,19 @@ function adminTimeAgo(iso) {
 let systemOverviewChartInstance = null;
 let activeChartSeries = "all";
 
+let lastChartData = null;
+
+function isDarkTheme() {
+  return document.documentElement.getAttribute("data-theme") === "dark";
+}
+
 function renderSystemOverviewChart(usersPerDay, consultationsPerDay) {
   const canvas = document.getElementById("systemOverviewChart");
   if (!canvas || typeof Chart === "undefined") return;
+  lastChartData = { usersPerDay, consultationsPerDay };
+  const dark = isDarkTheme();
+  const gridColor = dark ? "rgba(255,255,255,0.08)" : "#e2e8f0";
+  const tickColor = dark ? "#93a0b8" : "#66758b";
   const labels = usersPerDay.map((d) => new Date(d.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" }));
 
   if (systemOverviewChartInstance) systemOverviewChartInstance.destroy();
@@ -1552,8 +1724,8 @@ function renderSystemOverviewChart(usersPerDay, consultationsPerDay) {
         },
       },
       scales: {
-        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "#e2e8f0", borderDash: [2, 3] } },
-        x: { grid: { display: false } },
+        y: { beginAtZero: true, ticks: { precision: 0, color: tickColor }, grid: { color: gridColor, borderDash: [2, 3] } },
+        x: { ticks: { color: tickColor }, grid: { display: false } },
       },
     },
   });
