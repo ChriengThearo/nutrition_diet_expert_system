@@ -437,20 +437,20 @@ button, input, select { font: inherit; }
 
       <div class="nav-label">Management</div>
       <a class="nav-link" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}"><i class="fas fa-stethoscope"></i><span>Doctors</span></a>
-      <a class="nav-link" href="#"><i class="fas fa-hospital-user"></i><span>Patients</span></a>
+      <a class="nav-link" href="{{ url_for('tbl_users.index', role='doctor') }}"><i class="fas fa-stethoscope"></i><span>Doctors</span></a>
+      <a class="nav-link" href="{{ url_for('tbl_users.index', role='user') }}"><i class="fas fa-hospital-user"></i><span>Patients</span></a>
       <a class="nav-link active" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-shield-halved"></i><span>Roles & Permissions</span></a>
 
       <div class="nav-label">Content & Data</div>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#rules"><i class="fas fa-list-check"></i><span>Rule Library</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#builder"><i class="fas fa-calendar-days"></i><span>Diet Plans</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=rules"><i class="fas fa-list-check"></i><span>Rule Library</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=builder"><i class="fas fa-calendar-days"></i><span>Diet Plans</span></a>
 
       <div class="nav-label">System</div>
       <a class="nav-link" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span></a>
-      <a class="nav-link" href="#"><i class="fas fa-file-lines"></i><span>Audit Logs</span></a>
-      <a class="nav-link" href="#"><i class="fas fa-heart-pulse"></i><span>System Health</span></a>
+      <a class="nav-link" href="#" onclick="event.preventDefault();alert('Audit Logs is coming soon.');"><i class="fas fa-file-lines"></i><span>Audit Logs</span></a>
+      <a class="nav-link" href="#" onclick="event.preventDefault();alert('System Health is coming soon.');"><i class="fas fa-heart-pulse"></i><span>System Health</span></a>
     </nav>
 
     <div class="sidebar-footer">

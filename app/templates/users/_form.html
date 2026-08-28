@@ -75,9 +75,10 @@
   {% endif %}
 </div>
 
+{% set back_role = (user.roles[0].name|lower) if (user is defined and user and user.roles) else (request.args.get('role') or '') %}
 <div class="mt-4">
   {{ form.submit(class="btn btn-primary") }}
-  <a href="{{ url_for('tbl_users.index') }}" class="btn btn-outline-secondary">
+  <a href="{{ url_for('tbl_users.index', role=back_role) if back_role in ['doctor', 'user', 'admin'] else url_for('tbl_users.index') }}" class="btn btn-outline-secondary">
     Cancel
   </a>
 </div>

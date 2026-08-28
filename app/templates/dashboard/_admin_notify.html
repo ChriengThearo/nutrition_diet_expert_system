@@ -1,0 +1,216 @@
+<style>
+  .notify-wrap { position: relative; }
+
+  .notify-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 340px;
+    max-height: 420px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(15, 31, 58, 0.14);
+    z-index: 60;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+  }
+
+  .notify-menu.is-open { display: flex; }
+
+  .notify-menu-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .notify-menu-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .notify-mark-all {
+    border: none;
+    background: none;
+    color: var(--green-dark);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+
+  .notify-mark-all:disabled { color: var(--muted-3); cursor: default; }
+
+  .notify-list {
+    overflow-y: auto;
+    max-height: 340px;
+  }
+
+  .notify-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--soft-line);
+    cursor: pointer;
+    background: var(--white);
+  }
+
+  .notify-item:hover { background: #f9fbfd; }
+  .notify-item:last-child { border-bottom: none; }
+
+  .notify-item.is-unread { background: var(--green-soft-4); }
+
+  .notify-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    margin-top: 6px;
+    flex: none;
+  }
+
+  .notify-item:not(.is-unread) .notify-dot { background: transparent; }
+
+  .notify-msg {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .notify-time {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .notify-empty {
+    padding: 34px 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .notify-empty i { display: block; font-size: 26px; margin-bottom: 8px; color: var(--control-line); }
+</style>
+
+<div class="notify-wrap" id="adminNotifyWrap">
+  <button class="notify" type="button" id="adminNotifyBtn" aria-label="Notifications">
+    <i class="far fa-bell"></i>
+    <span id="adminNotifyBadge" style="display:none;">0</span>
+  </button>
+  <div class="notify-menu" id="adminNotifyMenu">
+    <div class="notify-menu-head">
+      <p class="notify-menu-title">Notifications</p>
+      <button class="notify-mark-all" id="adminNotifyMarkAll" type="button">Mark all read</button>
+    </div>
+    <div class="notify-list" id="adminNotifyList">
+      <div class="notify-empty"><i class="far fa-bell-slash"></i>Loading…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const NOTIFY_BASE = "{{ url_for('dashboard.admin_notifications') }}";
+  const btn = document.getElementById('adminNotifyBtn');
+  const wrap = document.getElementById('adminNotifyWrap');
+  const menu = document.getElementById('adminNotifyMenu');
+  const list = document.getElementById('adminNotifyList');
+  const badge = document.getElementById('adminNotifyBadge');
+  const markAllBtn = document.getElementById('adminNotifyMarkAll');
+  if (!btn || !menu) return;
+
+  function escapeHtml(v) {
+    const d = document.createElement('div');
+    d.textContent = v == null ? '' : v;
+    return d.innerHTML;
+  }
+
+  function timeAgo(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    const diffMs = Date.now() - d.getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return mins + 'm ago';
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return hours + 'h ago';
+    const days = Math.floor(hours / 24);
+    if (days < 7) return days + 'd ago';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function renderNotifications(data) {
+    const notifications = data.notifications || [];
+    const unread = data.unread_count || 0;
+    if (unread > 0) {
+      badge.textContent = unread > 99 ? '99+' : String(unread);
+      badge.style.display = 'grid';
+    } else {
+      badge.style.display = 'none';
+    }
+    markAllBtn.disabled = unread === 0;
+
+    if (!notifications.length) {
+      list.innerHTML = '<div class="notify-empty"><i class="far fa-bell-slash"></i>No notifications yet.</div>';
+      return;
+    }
+
+    list.innerHTML = notifications.map(n => `
+      <div class="notify-item ${n.is_read ? '' : 'is-unread'}" data-id="${n.id}" data-link="${n.link ? escapeHtml(n.link) : ''}">
+        <span class="notify-dot"></span>
+        <div>
+          <p class="notify-msg">${escapeHtml(n.message)}</p>
+          <p class="notify-time">${timeAgo(n.created_at)}</p>
+        </div>
+      </div>`).join('');
+
+    list.querySelectorAll('.notify-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const id = item.dataset.id;
+        const link = item.dataset.link;
+        if (item.classList.contains('is-unread')) {
+          fetch(NOTIFY_BASE + '/' + id + '/read', { method: 'POST' }).then(() => loadAdminNotifications());
+        }
+        if (link) window.location.href = link;
+      });
+    });
+  }
+
+  function loadAdminNotifications() {
+    fetch(NOTIFY_BASE + '?limit=20')
+      .then(r => r.json())
+      .then(renderNotifications)
+      .catch(() => {
+        list.innerHTML = '<div class="notify-empty"><i class="fas fa-triangle-exclamation"></i>Could not load notifications.</div>';
+      });
+  }
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const wasOpen = menu.classList.contains('is-open');
+    menu.classList.toggle('is-open');
+    if (!wasOpen) loadAdminNotifications();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) menu.classList.remove('is-open');
+  });
+
+  markAllBtn.addEventListener('click', () => {
+    fetch(NOTIFY_BASE + '/read-all', { method: 'POST' }).then(() => loadAdminNotifications());
+  });
+
+  loadAdminNotifications();
+})();
+</script>

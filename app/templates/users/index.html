@@ -66,6 +66,11 @@ select { font: inherit; }
   min-height: 100vh;
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);
+  transition: grid-template-columns 0.18s ease;
+}
+
+.app-shell.is-collapsed {
+  grid-template-columns: 76px minmax(0, 1fr);
 }
 
 .sidebar {
@@ -76,7 +81,22 @@ select { font: inherit; }
   background: var(--white);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
+
+.is-collapsed .brand-name,
+.is-collapsed .brand-sub,
+.is-collapsed .nav-section,
+.is-collapsed .nav-link span,
+.is-collapsed .user-name,
+.is-collapsed .user-role {
+  display: none;
+}
+
+.is-collapsed .collapse-btn i { transform: rotate(180deg); }
+.is-collapsed .brand { grid-template-columns: 36px; }
+.is-collapsed .nav-link { justify-content: center; }
+.is-collapsed .sidebar-user { grid-template-columns: 40px; justify-content: center; }
 
 .brand {
   height: 88px;
@@ -306,9 +326,11 @@ select { font: inherit; }
 }
 
 .profile-head {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 13px;
+  cursor: pointer;
 }
 
 .profile-head .avatar {
@@ -326,6 +348,61 @@ select { font: inherit; }
   color: var(--muted-2);
   font-size: 12px;
 }
+
+.profile-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 220px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(15, 31, 58, 0.14);
+  padding: 12px 14px;
+  z-index: 50;
+}
+
+.profile-dropdown-menu.is-open { display: block; }
+
+.pdm-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.pdm-email {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  word-break: break-word;
+}
+
+.pdm-divider {
+  margin: 10px 0;
+  border: none;
+  border-top: 1px solid var(--line);
+}
+
+.pdm-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 8px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.pdm-item:hover { background: var(--soft-line); }
+
+.pdm-item.pdm-danger { color: #c62828; }
 
 .content {
   padding: 23px 24px 36px 29px;
@@ -702,6 +779,8 @@ select { font: inherit; }
 </style>
 </head>
 <body>
+{% set admin_display_name = current_user.full_name or current_user.username %}
+{% set admin_initial = (admin_display_name[0]|upper) if admin_display_name else 'A' %}
 <div class="app-shell">
   <aside class="sidebar">
     <div class="brand">
@@ -710,54 +789,67 @@ select { font: inherit; }
         <p class="brand-name">Diet Expert</p>
         <p class="brand-sub">Clinical Nutrition Suite</p>
       </div>
-      <button class="collapse-btn" type="button" aria-label="Collapse sidebar"><i class="fas fa-chevron-left"></i></button>
+      <button class="collapse-btn" type="button" id="sidebarCollapseBtn" aria-label="Collapse sidebar"><i class="fas fa-chevron-left"></i></button>
     </div>
 
     <nav class="nav" aria-label="Admin navigation">
       <a class="nav-link" href="{{ url_for('dashboard.admin_dashboard') }}"><i class="fas fa-table-cells-large"></i><span>Dashboard</span></a>
+      <a class="nav-link {{ 'active' if role_filter == 'doctor' }}" href="{{ url_for('tbl_users.index', role='doctor') }}"><i class="fas fa-user-doctor"></i><span>Doctors</span></a>
 
       <div class="nav-section">Management</div>
-      <a class="nav-link active" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}"><i class="fas fa-user-doctor"></i><span>Doctors</span></a>
-      <a class="nav-link" href="#"><i class="fas fa-hospital-user"></i><span>Patients</span></a>
+      <a class="nav-link {{ 'active' if not role_filter }}" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span></a>
+      <a class="nav-link {{ 'active' if role_filter == 'user' }}" href="{{ url_for('tbl_users.index', role='user') }}"><i class="fas fa-hospital-user"></i><span>Patients</span></a>
       <a class="nav-link" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span></a>
 
       <div class="nav-section">Content & Data</div>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#rules"><i class="fas fa-list-ul"></i><span>Rule Library</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=rules"><i class="fas fa-list-ul"></i><span>Rule Library</span></a>
 
       <div class="nav-section">System</div>
       <a class="nav-link" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-gear"></i><span>Settings</span></a>
-      <a class="nav-link" href="{{ url_for('main.home') }}"><i class="fas fa-house"></i><span>Home</span></a>
     </nav>
 
     <div class="sidebar-user">
-      <div class="avatar">A</div>
+      <div class="avatar">{{ admin_initial }}</div>
       <div>
-        <p class="user-name">Admin</p>
+        <p class="user-name">{{ admin_display_name }}</p>
         <p class="user-role">Super Administrator</p>
       </div>
-      <i class="fas fa-chevron-down sidebar-chevron"></i>
+      <a href="{{ url_for('auth.logout') }}" title="Logout" onclick="openLogoutModal(event);"
+         style="color:var(--muted);font-size:0.9rem;text-decoration:none;">
+        <i class="fas fa-sign-out-alt"></i>
+      </a>
     </div>
   </aside>
 
   <main class="main">
     <header class="topbar">
       <div class="page-title">
-        <h1>Users Management</h1>
-        <p>Manage users inside your clinical nutrition platform</p>
+        <h1>{{ role_meta.title if role_meta else 'Users Management' }}</h1>
+        <p>{{ role_meta.subtitle if role_meta else 'Manage users inside your clinical nutrition platform' }}</p>
       </div>
       <div class="top-actions">
         <div class="search-box">
           <i class="fas fa-magnifying-glass"></i>
-          <input type="search" placeholder="Search patients, doctors, foods...">
+          <input type="search" id="topSearch" placeholder="Search users…">
         </div>
         <div class="date-pill"><i class="far fa-calendar-alt"></i><span id="headerDate">Aug 24, 2026</span></div>
-        <button class="notify" type="button" aria-label="Notifications"><i class="far fa-bell"></i><span>5</span></button>
-        <div class="profile-head">
-          <div class="avatar">A</div>
+        {% include "dashboard/_admin_notify.html" %}
+        <div class="profile-head" id="adminProfileHead">
+          <div class="avatar">{{ admin_initial }}</div>
           <i class="fas fa-chevron-down profile-chevron"></i>
+          <div class="profile-dropdown-menu" id="adminProfileMenu">
+            <p class="pdm-name">{{ admin_display_name }}</p>
+            <p class="pdm-email">{{ current_user.email }}</p>
+            <hr class="pdm-divider">
+            <a class="pdm-item" href="{{ url_for('dashboard.admin_dashboard') }}">
+              <i class="fas fa-table-cells-large"></i> Dashboard
+            </a>
+            <button type="button" class="pdm-item pdm-danger" onclick="openLogoutModal(event);">
+              <i class="fas fa-sign-out-alt"></i> Log Out
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -771,25 +863,32 @@ select { font: inherit; }
         {% endif %}
       {% endwith %}
 
-      <section class="stat-grid" aria-label="User statistics">
+      <section class="stat-grid" aria-label="{{ role_meta.title if role_meta else 'User' }} statistics">
         <article class="stat-card">
           <div class="stat-icon soft-green"><i class="fas fa-users"></i></div>
           <div>
-            <p class="stat-label">Total Users</p>
+            <p class="stat-label">Total {{ role_meta.title if role_meta else 'Users' }}</p>
             <p class="stat-value">{{ users|length }}</p>
-            <p class="trend"><i class="fas fa-arrow-trend-up"></i> +5 this week</p>
           </div>
         </article>
 
         <article class="stat-card">
           <div class="stat-icon soft-blue"><i class="fas fa-user-check"></i></div>
           <div>
-            <p class="stat-label">Active Users</p>
+            <p class="stat-label">Active</p>
             <p class="stat-value">{{ users|selectattr('is_active')|list|length }}</p>
-            <p class="trend"><i class="fas fa-arrow-trend-up"></i> +20%</p>
           </div>
         </article>
 
+        {% if role_filter == 'doctor' %}
+        <article class="stat-card">
+          <div class="stat-icon soft-purple"><i class="fas fa-stethoscope"></i></div>
+          <div>
+            <p class="stat-label">With Specialty Set</p>
+            <p class="stat-value">{{ users|selectattr('specialty')|list|length }}</p>
+          </div>
+        </article>
+        {% else %}
         <article class="stat-card">
           <div class="stat-icon soft-purple"><i class="fas fa-shield-halved"></i></div>
           <div>
@@ -803,16 +902,15 @@ select { font: inherit; }
               {% endfor %}
             {% endfor %}
             <p class="stat-value">{{ unique_roles|length }}</p>
-            <p class="trend"><i class="fas fa-arrow-trend-up"></i> +0%</p>
           </div>
         </article>
+        {% endif %}
 
         <article class="stat-card">
           <div class="stat-icon soft-orange"><i class="fas fa-user-clock"></i></div>
           <div>
-            <p class="stat-label">Inactive/Pending</p>
+            <p class="stat-label">Inactive</p>
             <p class="stat-value">{{ users|rejectattr('is_active')|list|length }}</p>
-            <p class="trend negative"><i class="fas fa-arrow-down"></i> -33%</p>
           </div>
         </article>
       </section>
@@ -820,22 +918,24 @@ select { font: inherit; }
       <section class="panel controls">
         <div class="table-search">
           <i class="fas fa-magnifying-glass"></i>
-          <input type="search" id="userSearch" placeholder="Search users..." onkeyup="filterUsers()">
+          <input type="search" id="userSearch" placeholder="Search {{ role_meta.singular if role_meta else 'user' }}s…" oninput="filterUsers()">
         </div>
         <div class="filter-group">
-          <select class="filter-select" aria-label="Filter by role">
-            <option>All Roles</option>
-            <option>Admin</option>
-            <option>Doctor</option>
-            <option>User</option>
+          <select class="filter-select" id="roleFilterSelect" aria-label="Filter by role" onchange="filterUsers()" {{ 'disabled' if role_filter }}>
+            <option value="">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="doctor">Doctor</option>
+            <option value="user">User</option>
           </select>
-          <select class="filter-select" aria-label="Filter by status">
-            <option>All Status</option>
-            <option>Active</option>
-            <option>Inactive</option>
+          <select class="filter-select" id="statusFilterSelect" aria-label="Filter by status" onchange="filterUsers()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
           </select>
         </div>
-        <a href="{{ url_for('tbl_users.create') }}" class="create-btn"><i class="fas fa-plus"></i>Create User</a>
+        <a href="{{ url_for('tbl_users.create', role=role_filter) if role_filter else url_for('tbl_users.create') }}" class="create-btn">
+          <i class="fas fa-plus"></i>Add {{ role_meta.singular|capitalize if role_meta else 'User' }}
+        </a>
       </section>
 
       {% if users %}
@@ -843,9 +943,13 @@ select { font: inherit; }
         <table class="data-table" id="usersTable">
           <thead>
             <tr>
-              <th>User</th>
+              <th>{{ role_meta.title[:-1] if role_meta else 'User' }}</th>
               <th>Role</th>
+              {% if role_filter == 'doctor' %}
+              <th>Specialty / License</th>
+              {% else %}
               <th>Permissions</th>
+              {% endif %}
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -855,12 +959,20 @@ select { font: inherit; }
             <tr class="user-row"
                 data-name="{{ (user.full_name or '')|lower }}"
                 data-email="{{ (user.email or '')|lower }}"
-                data-username="{{ (user.username or '')|lower }}">
+                data-username="{{ (user.username or '')|lower }}"
+                data-role="{{ user.roles|map(attribute='name')|join(' ')|lower }}"
+                data-status="{{ 'active' if user.is_active else 'inactive' }}">
               <td>
                 <div class="user-cell">
+                  {% if user.photo %}
+                  <img class="row-avatar" style="object-fit:cover;"
+                       src="{{ url_for('main.images', filename=user.photo|replace('images/', '')) }}"
+                       alt="{{ user.full_name or user.username }}">
+                  {% else %}
                   <div class="row-avatar {% if loop.index % 5 == 0 %}avatar-purple{% elif loop.index % 5 == 1 %}avatar-green{% elif loop.index % 5 == 2 %}avatar-blue{% elif loop.index % 5 == 3 %}avatar-orange{% else %}avatar-red{% endif %}">
                     {{ (user.username or user.email or 'U')[0]|upper }}
                   </div>
+                  {% endif %}
                   <div>
                     <p class="row-name">{{ user.full_name or user.username }}</p>
                     <p class="row-email">{{ user.email }}</p>
@@ -876,6 +988,16 @@ select { font: inherit; }
                   <span class="muted-empty">No role</span>
                 {% endif %}
               </td>
+              {% if role_filter == 'doctor' %}
+              <td>
+                {% if user.specialty or user.license_number %}
+                  <p class="row-name" style="font-size:12.5px;">{{ user.specialty or 'Specialty not set' }}</p>
+                  <p class="row-email">{{ user.license_number or 'No license number' }}</p>
+                {% else %}
+                  <span class="muted-empty">Not provided</span>
+                {% endif %}
+              </td>
+              {% else %}
               <td>
                 {% set user_permissions = user.get_permission_codes()|sort %}
                 {% if user_permissions %}
@@ -889,6 +1011,7 @@ select { font: inherit; }
                   <span class="muted-empty">No permissions</span>
                 {% endif %}
               </td>
+              {% endif %}
               <td>
                 {% if user.is_active %}
                   <span class="status-badge active"><span class="status-dot"></span>Active</span>
@@ -898,6 +1021,7 @@ select { font: inherit; }
               </td>
               <td>
                 <div class="action-btns">
+                  <a href="{{ url_for('tbl_users.detail', user_id=user.id) }}" class="action-btn edit-btn" title="View" style="background:var(--blue-soft);color:var(--blue);"><i class="fas fa-eye"></i></a>
                   <a href="{{ url_for('tbl_users.edit', user_id=user.id) }}" class="action-btn edit-btn" title="Edit"><i class="fas fa-pen-to-square"></i></a>
                   <a href="{{ url_for('tbl_users.delete_confirm', user_id=user.id) }}" class="action-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></a>
                 </div>
@@ -911,15 +1035,18 @@ select { font: inherit; }
       <section class="empty-state">
         <div>
           <i class="fas fa-users"></i>
-          <h2>No Users Found</h2>
-          <p>Get started by creating your first user.</p>
-          <a href="{{ url_for('tbl_users.create') }}" class="create-btn"><i class="fas fa-plus"></i>Create First User</a>
+          <h2>No {{ role_meta.title if role_meta else 'Users' }} Found</h2>
+          <p>Get started by adding your first {{ role_meta.singular if role_meta else 'user' }}.</p>
+          <a href="{{ url_for('tbl_users.create', role=role_filter) if role_filter else url_for('tbl_users.create') }}" class="create-btn">
+            <i class="fas fa-plus"></i>Add {{ role_meta.singular|capitalize if role_meta else 'User' }}
+          </a>
         </div>
       </section>
       {% endif %}
     </div>
   </main>
 </div>
+{% include "dashboard/_logout_modal.html" %}
 
 <script>
 const headerDate = document.getElementById("headerDate");
@@ -933,15 +1060,65 @@ if (headerDate) {
 
 function filterUsers() {
   const input = document.getElementById("userSearch");
+  const roleSelect = document.getElementById("roleFilterSelect");
+  const statusSelect = document.getElementById("statusFilterSelect");
   const searchTerm = (input ? input.value : "").toLowerCase();
+  const roleTerm = roleSelect ? roleSelect.value.toLowerCase() : "";
+  const statusTerm = statusSelect ? statusSelect.value.toLowerCase() : "";
   const rows = document.querySelectorAll(".user-row");
 
   rows.forEach((row) => {
     const name = row.dataset.name || "";
     const email = row.dataset.email || "";
     const username = row.dataset.username || "";
+    const role = row.dataset.role || "";
+    const status = row.dataset.status || "";
     const matchesSearch = !searchTerm || name.includes(searchTerm) || email.includes(searchTerm) || username.includes(searchTerm);
-    row.style.display = matchesSearch ? "" : "none";
+    const matchesRole = !roleTerm || role.includes(roleTerm);
+    const matchesStatus = !statusTerm || status === statusTerm;
+    row.style.display = (matchesSearch && matchesRole && matchesStatus) ? "" : "none";
+  });
+}
+
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get("q");
+  if (q) {
+    const input = document.getElementById("userSearch");
+    if (input) { input.value = q; filterUsers(); }
+  }
+})();
+
+const topSearch = document.getElementById("topSearch");
+const userSearchInput = document.getElementById("userSearch");
+if (topSearch && userSearchInput) {
+  topSearch.addEventListener("input", () => {
+    userSearchInput.value = topSearch.value;
+    filterUsers();
+  });
+}
+
+const adminProfileHead = document.getElementById("adminProfileHead");
+const adminProfileMenu = document.getElementById("adminProfileMenu");
+if (adminProfileHead && adminProfileMenu) {
+  adminProfileHead.addEventListener("click", (e) => {
+    e.stopPropagation();
+    adminProfileMenu.classList.toggle("is-open");
+  });
+  document.addEventListener("click", (e) => {
+    if (!adminProfileHead.contains(e.target)) adminProfileMenu.classList.remove("is-open");
+  });
+}
+
+const sidebarCollapseBtn = document.getElementById("sidebarCollapseBtn");
+const appShellEl = document.querySelector(".app-shell");
+if (sidebarCollapseBtn && appShellEl) {
+  if (localStorage.getItem("ndAdminSidebarCollapsed") === "1") {
+    appShellEl.classList.add("is-collapsed");
+  }
+  sidebarCollapseBtn.addEventListener("click", () => {
+    const collapsed = appShellEl.classList.toggle("is-collapsed");
+    localStorage.setItem("ndAdminSidebarCollapsed", collapsed ? "1" : "0");
   });
 }
 </script>

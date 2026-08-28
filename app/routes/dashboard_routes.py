@@ -461,13 +461,23 @@ def admin_dashboard():
     total_doctors = (
         UserTable.query.join(UserTable.roles).filter(RoleTable.name == "doctor").count()
     )
+    total_patients = (
+        UserTable.query.join(UserTable.roles)
+        .filter(func.lower(RoleTable.name) == "user")
+        .count()
+    )
     total_rules = DietRulesTable.query.count()
+    total_foods = FoodsTable.query.count() + CookedFoodsTable.query.count()
+    total_diet_plans = UserResultsTable.query.count()
 
     return render_template(
         "dashboard/admin_dashboard.html",
         total_users=total_users,
         total_doctors=total_doctors,
+        total_patients=total_patients,
         total_rules=total_rules,
+        total_foods=total_foods,
+        total_diet_plans=total_diet_plans,
     )
 
 
@@ -952,10 +962,18 @@ def remove_doctor_patient(link_id: int):
 
 
 def _serialize_consultation(c: Consultation):
+    patient = c.patient
+    doctor = c.doctor
     return {
         "id": c.id,
         "patient_id": c.patient_id,
-        "patient_name": c.patient.full_name if c.patient else "Unknown",
+        "patient_name": patient.full_name if patient else "Unknown",
+        "patient_username": patient.username if patient else "",
+        "patient_photo": patient.photo if patient else None,
+        "patient_email": patient.email if patient else "",
+        "doctor_name": doctor.full_name if doctor else "",
+        "doctor_photo": doctor.photo if doctor else None,
+        "doctor_specialty": doctor.specialty if doctor else "",
         "reason": c.reason,
         "notes": c.notes or "",
         "status": c.status,
@@ -977,12 +995,42 @@ def doctor_consultations():
     per_page = min(per_page if isinstance(per_page, int) and per_page > 0 else 10, 100)
     status_filter = (request.args.get("status") or "").strip()
     patient_id = request.args.get("patient_id", type=int)
+    reason_filter = (request.args.get("reason") or "").strip()
+    search = (request.args.get("q") or "").strip()
+    date_from = (request.args.get("date_from") or "").strip()
+    date_to = (request.args.get("date_to") or "").strip()
 
     query = Consultation.query.filter_by(doctor_id=current_user.id)
     if status_filter:
         query = query.filter(Consultation.status == status_filter)
     if patient_id:
         query = query.filter(Consultation.patient_id == patient_id)
+    if reason_filter:
+        query = query.filter(Consultation.reason == reason_filter)
+    if search:
+        like = f"%{search}%"
+        query = query.join(UserTable, Consultation.patient_id == UserTable.id).filter(
+            or_(
+                UserTable.full_name.ilike(like),
+                UserTable.username.ilike(like),
+                Consultation.reason.ilike(like),
+            )
+        )
+    if date_from:
+        try:
+            query = query.filter(
+                Consultation.occurred_at >= datetime.strptime(date_from, "%Y-%m-%d")
+            )
+        except ValueError:
+            pass
+    if date_to:
+        try:
+            query = query.filter(
+                Consultation.occurred_at
+                < datetime.strptime(date_to, "%Y-%m-%d") + timedelta(days=1)
+            )
+        except ValueError:
+            pass
 
     total = query.count()
     total_pages = (total + per_page - 1) // per_page if total else 0
@@ -993,9 +1041,20 @@ def doctor_consultations():
         .all()
     )
 
+    reason_options = [
+        r[0]
+        for r in db.session.query(Consultation.reason)
+        .filter(Consultation.doctor_id == current_user.id)
+        .distinct()
+        .order_by(Consultation.reason)
+        .all()
+        if r[0]
+    ]
+
     return jsonify(
         {
             "consultations": [_serialize_consultation(c) for c in consultations],
+            "reason_options": reason_options,
             "pagination": {
                 "page": page,
                 "per_page": per_page,
@@ -1119,14 +1178,7 @@ def delete_doctor_consultation(consultation_id: int):
         return jsonify({"success": False, "message": "Failed to delete consultation"}), 500
 
 
-@dashboard_bp.route("/doctor/notifications")
-@login_required
-@doctor_required
-@permission_required(
-    "notification.read", "You have no permission to view notifications.", json_response=True
-)
-def doctor_notifications():
-    limit = min(request.args.get("limit", default=20, type=int) or 20, 100)
+def _serialize_notifications_for_current_user(limit: int):
     notifications = (
         Notification.query.filter_by(recipient_id=current_user.id)
         .order_by(Notification.created_at.desc())
@@ -1136,21 +1188,48 @@ def doctor_notifications():
     unread_count = Notification.query.filter_by(
         recipient_id=current_user.id, is_read=False
     ).count()
-    return jsonify(
-        {
-            "notifications": [
-                {
-                    "id": n.id,
-                    "message": n.message,
-                    "link": n.link,
-                    "is_read": n.is_read,
-                    "created_at": n.created_at.isoformat() if n.created_at else None,
-                }
-                for n in notifications
-            ],
-            "unread_count": unread_count,
-        }
+    return {
+        "notifications": [
+            {
+                "id": n.id,
+                "message": n.message,
+                "link": n.link,
+                "is_read": n.is_read,
+                "created_at": n.created_at.isoformat() if n.created_at else None,
+            }
+            for n in notifications
+        ],
+        "unread_count": unread_count,
+    }
+
+
+def _mark_notification_read_for_current_user(notification_id: int):
+    notification = Notification.query.filter_by(
+        id=notification_id, recipient_id=current_user.id
+    ).first()
+    if not notification:
+        return False
+    notification.is_read = True
+    db.session.commit()
+    return True
+
+
+def _mark_all_notifications_read_for_current_user():
+    Notification.query.filter_by(recipient_id=current_user.id, is_read=False).update(
+        {"is_read": True}
     )
+    db.session.commit()
+
+
+@dashboard_bp.route("/doctor/notifications")
+@login_required
+@doctor_required
+@permission_required(
+    "notification.read", "You have no permission to view notifications.", json_response=True
+)
+def doctor_notifications():
+    limit = min(request.args.get("limit", default=20, type=int) or 20, 100)
+    return jsonify(_serialize_notifications_for_current_user(limit))
 
 
 @dashboard_bp.route("/doctor/notifications/<int:notification_id>/read", methods=["POST"])
@@ -1161,13 +1240,8 @@ def doctor_notifications():
     "notification.update", "You have no permission to update notifications.", json_response=True
 )
 def read_doctor_notification(notification_id: int):
-    notification = Notification.query.filter_by(
-        id=notification_id, recipient_id=current_user.id
-    ).first()
-    if not notification:
+    if not _mark_notification_read_for_current_user(notification_id):
         return jsonify({"success": False, "message": "Notification not found"}), 404
-    notification.is_read = True
-    db.session.commit()
     return jsonify({"success": True})
 
 
@@ -1179,10 +1253,43 @@ def read_doctor_notification(notification_id: int):
     "notification.update", "You have no permission to update notifications.", json_response=True
 )
 def read_all_doctor_notifications():
-    Notification.query.filter_by(recipient_id=current_user.id, is_read=False).update(
-        {"is_read": True}
-    )
-    db.session.commit()
+    _mark_all_notifications_read_for_current_user()
+    return jsonify({"success": True})
+
+
+@dashboard_bp.route("/admin/notifications")
+@login_required
+@admin_required
+@permission_required(
+    "notification.read", "You have no permission to view notifications.", json_response=True
+)
+def admin_notifications():
+    limit = min(request.args.get("limit", default=20, type=int) or 20, 100)
+    return jsonify(_serialize_notifications_for_current_user(limit))
+
+
+@dashboard_bp.route("/admin/notifications/<int:notification_id>/read", methods=["POST"])
+@login_required
+@admin_required
+@csrf.exempt
+@permission_required(
+    "notification.update", "You have no permission to update notifications.", json_response=True
+)
+def read_admin_notification(notification_id: int):
+    if not _mark_notification_read_for_current_user(notification_id):
+        return jsonify({"success": False, "message": "Notification not found"}), 404
+    return jsonify({"success": True})
+
+
+@dashboard_bp.route("/admin/notifications/read-all", methods=["POST"])
+@login_required
+@admin_required
+@csrf.exempt
+@permission_required(
+    "notification.update", "You have no permission to update notifications.", json_response=True
+)
+def read_all_admin_notifications():
+    _mark_all_notifications_read_for_current_user()
     return jsonify({"success": True})
 
 

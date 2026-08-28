@@ -69,6 +69,11 @@ select { font: inherit; }
   min-height: 100vh;
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);
+  transition: grid-template-columns 0.18s ease;
+}
+
+.app-shell.is-collapsed {
+  grid-template-columns: 76px minmax(0, 1fr);
 }
 
 .sidebar {
@@ -79,6 +84,32 @@ select { font: inherit; }
   background: var(--white);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.is-collapsed .brand-name,
+.is-collapsed .brand-sub,
+.is-collapsed .nav-section,
+.is-collapsed .nav-link span,
+.is-collapsed .user-name,
+.is-collapsed .user-role,
+.is-collapsed .sidebar-user > a {
+  display: none;
+}
+
+.is-collapsed .collapse-btn i { transform: rotate(180deg); }
+
+.is-collapsed .brand {
+  grid-template-columns: 36px;
+}
+
+.is-collapsed .nav-link {
+  justify-content: center;
+}
+
+.is-collapsed .sidebar-user {
+  grid-template-columns: 40px;
+  justify-content: center;
 }
 
 .brand {
@@ -817,26 +848,25 @@ select { font: inherit; }
         <p class="brand-name">Diet Expert</p>
         <p class="brand-sub">Clinical Nutrition Suite</p>
       </div>
-      <button class="collapse-btn" type="button" aria-label="Collapse sidebar"><i class="fas fa-chevron-left"></i></button>
+      <button class="collapse-btn" type="button" id="sidebarCollapseBtn" aria-label="Collapse sidebar"><i class="fas fa-chevron-left"></i></button>
     </div>
 
     <nav class="nav" aria-label="Admin navigation">
       <a class="nav-link active" href="{{ url_for('dashboard.admin_dashboard') }}"><i class="fas fa-table-cells-large"></i><span>Dashboard</span></a>
+      <a class="nav-link" href="{{ url_for('tbl_users.index', role='doctor') }}"><i class="fas fa-user-doctor"></i><span>Doctors</span></a>
 
       <div class="nav-section">Management</div>
       <a class="nav-link" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}"><i class="fas fa-user-doctor"></i><span>Doctors</span></a>
-      <a class="nav-link" href="#"><i class="fas fa-hospital-user"></i><span>Patients</span></a>
+      <a class="nav-link" href="{{ url_for('tbl_users.index', role='user') }}"><i class="fas fa-hospital-user"></i><span>Patients</span></a>
       <a class="nav-link" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span></a>
 
       <div class="nav-section">Content & Data</div>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#rules"><i class="fas fa-list-ul"></i><span>Rule Library</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=rules"><i class="fas fa-list-ul"></i><span>Rule Library</span></a>
 
       <div class="nav-section">System</div>
       <a class="nav-link" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-gear"></i><span>Settings</span></a>
-      <a class="nav-link" href="{{ url_for('main.home') }}"><i class="fas fa-house"></i><span>Home</span></a>
     </nav>
 
     {% set admin_display_name = current_user.full_name or current_user.username %}
@@ -863,10 +893,10 @@ select { font: inherit; }
       <div class="top-actions">
         <div class="search-box">
           <i class="fas fa-magnifying-glass"></i>
-          <input type="search" placeholder="Search patients, doctors, foods...">
+          <input type="search" id="adminTopSearch" placeholder="Search users, doctors, patients…">
         </div>
         <div class="date-pill"><i class="far fa-calendar-alt"></i><span id="adminDate">Aug 24, 2026</span></div>
-        <button class="notify" type="button" aria-label="Notifications"><i class="far fa-bell"></i><span>5</span></button>
+        {% include "dashboard/_admin_notify.html" %}
         <div class="profile-head" id="adminProfileHead">
           <div class="avatar">{{ admin_initial }}</div>
           <i class="fas fa-chevron-down profile-chevron"></i>
@@ -884,55 +914,50 @@ select { font: inherit; }
 
     <div class="content">
       <section class="stat-grid" aria-label="Dashboard statistics">
-        <article class="stat-card">
+        <a class="stat-card" href="{{ url_for('tbl_users.index') }}" style="text-decoration:none;">
           <div class="stat-icon soft-green"><i class="fas fa-users"></i></div>
           <div>
             <p class="stat-label">Total Users</p>
-            <p class="stat-value">{{ total_users|default(156, true) }}</p>
-            <p class="stat-caption">Active users</p>
+            <p class="stat-value">{{ total_users }}</p>
+            <p class="stat-caption">All accounts</p>
           </div>
-          <p class="trend"><i class="fas fa-arrow-trend-up"></i> +5 this week</p>
-        </article>
+        </a>
 
-        <article class="stat-card">
+        <a class="stat-card" href="{{ url_for('tbl_users.index', role='doctor') }}" style="text-decoration:none;">
           <div class="stat-icon soft-cyan"><i class="fas fa-user-doctor"></i></div>
           <div>
             <p class="stat-label">Doctors</p>
-            <p class="stat-value">{{ total_doctors|default(28, true) }}</p>
+            <p class="stat-value">{{ total_doctors }}</p>
             <p class="stat-caption">Registered</p>
           </div>
-          <p class="trend"><i class="fas fa-arrow-trend-up"></i> +3 this week</p>
-        </article>
+        </a>
 
-        <article class="stat-card">
+        <a class="stat-card" href="{{ url_for('tbl_users.index', role='user') }}" style="text-decoration:none;">
           <div class="stat-icon soft-blue"><i class="far fa-user"></i></div>
           <div>
             <p class="stat-label">Patients</p>
-            <p class="stat-value">842</p>
-            <p class="stat-caption">Active patients</p>
+            <p class="stat-value">{{ total_patients }}</p>
+            <p class="stat-caption">Registered</p>
           </div>
-          <p class="trend"><i class="fas fa-arrow-trend-up"></i> +42 this week</p>
-        </article>
+        </a>
 
-        <article class="stat-card">
+        <a class="stat-card" href="{{ url_for('dashboard.doctor_dashboard') }}?section=foods" style="text-decoration:none;">
           <div class="stat-icon soft-orange"><i class="fas fa-apple-whole"></i></div>
           <div>
             <p class="stat-label">Total Foods</p>
-            <p class="stat-value">1,246</p>
+            <p class="stat-value">{{ total_foods }}</p>
             <p class="stat-caption">In catalog</p>
           </div>
-          <p class="trend"><i class="fas fa-arrow-trend-up"></i> +22 this week</p>
-        </article>
+        </a>
 
-        <article class="stat-card">
+        <div class="stat-card">
           <div class="stat-icon soft-purple"><i class="far fa-clipboard"></i></div>
           <div>
             <p class="stat-label">Diet Plans</p>
-            <p class="stat-value">324</p>
-            <p class="stat-caption">Active plans</p>
+            <p class="stat-value">{{ total_diet_plans }}</p>
+            <p class="stat-caption">Generated results</p>
           </div>
-          <p class="trend"><i class="fas fa-arrow-trend-up"></i> +12 this week</p>
-        </article>
+        </div>
       </section>
 
       <section class="panel overview">
@@ -1010,7 +1035,7 @@ select { font: inherit; }
         <article class="panel">
           <div class="panel-head">
             <h2 class="panel-title"><i class="fas fa-wave-square"></i>Recent Activity</h2>
-            <button class="view-btn" type="button">View all</button>
+            <button class="view-btn" type="button" onclick="notifyComingSoon('Full activity log');">View all</button>
           </div>
           <div class="activity-list">
             <div class="activity-item"><div class="mini-icon soft-green"><i class="fas fa-user-plus"></i></div><div><p class="item-title">New patient registered</p><p class="item-sub">Sarah Johnson</p></div><span class="item-time">2m ago</span></div>
@@ -1024,7 +1049,7 @@ select { font: inherit; }
         <article class="panel">
           <div class="panel-head">
             <h2 class="panel-title"><i class="fas fa-trophy"></i>Top Diet Plans</h2>
-            <button class="view-btn" type="button">View all</button>
+            <button class="view-btn" type="button" onclick="notifyComingSoon('Full diet plan rankings');">View all</button>
           </div>
           <div class="plan-list">
             <div class="plan-item"><span class="rank">1</span><p class="item-title">Weight Loss Plan</p><span class="use-badge">142 uses</span></div>
@@ -1081,6 +1106,31 @@ if (adminProfileHead && adminProfileMenu) {
   });
   document.addEventListener("click", (e) => {
     if (!adminProfileHead.contains(e.target)) adminProfileMenu.classList.remove("is-open");
+  });
+}
+
+function notifyComingSoon(featureName) {
+  alert((featureName || 'This feature') + ' is coming soon.');
+}
+
+const adminTopSearch = document.getElementById("adminTopSearch");
+if (adminTopSearch) {
+  adminTopSearch.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && adminTopSearch.value.trim()) {
+      window.location.href = "{{ url_for('tbl_users.index') }}?q=" + encodeURIComponent(adminTopSearch.value.trim());
+    }
+  });
+}
+
+const sidebarCollapseBtn = document.getElementById("sidebarCollapseBtn");
+const appShellEl = document.querySelector(".app-shell");
+if (sidebarCollapseBtn && appShellEl) {
+  if (localStorage.getItem("ndAdminSidebarCollapsed") === "1") {
+    appShellEl.classList.add("is-collapsed");
+  }
+  sidebarCollapseBtn.addEventListener("click", () => {
+    const collapsed = appShellEl.classList.toggle("is-collapsed");
+    localStorage.setItem("ndAdminSidebarCollapsed", collapsed ? "1" : "0");
   });
 }
 </script>
