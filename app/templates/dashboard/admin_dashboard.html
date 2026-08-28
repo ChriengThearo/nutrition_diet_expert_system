@@ -159,12 +159,6 @@ select { font: inherit; }
   text-align: center;
 }
 
-.nav-link .chevron {
-  margin-left: auto;
-  color: var(--muted-2);
-  font-size: 12px;
-}
-
 .nav-link.active {
   height: 45px;
   background: linear-gradient(135deg, var(--green), var(--green-mid));
@@ -830,18 +824,18 @@ select { font: inherit; }
       <a class="nav-link active" href="{{ url_for('dashboard.admin_dashboard') }}"><i class="fas fa-table-cells-large"></i><span>Dashboard</span></a>
 
       <div class="nav-section">Management</div>
-      <a class="nav-link" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span><i class="fas fa-chevron-right chevron"></i></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}"><i class="fas fa-user-doctor"></i><span>Doctors</span><i class="fas fa-chevron-right chevron"></i></a>
-      <a class="nav-link" href="#"><i class="fas fa-hospital-user"></i><span>Patients</span><i class="fas fa-chevron-right chevron"></i></a>
-      <a class="nav-link" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}"><i class="fas fa-user-doctor"></i><span>Doctors</span></a>
+      <a class="nav-link" href="#"><i class="fas fa-hospital-user"></i><span>Patients</span></a>
+      <a class="nav-link" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span></a>
 
       <div class="nav-section">Content & Data</div>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span><i class="fas fa-chevron-right chevron"></i></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span><i class="fas fa-chevron-right chevron"></i></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#rules"><i class="fas fa-list-ul"></i><span>Rule Library</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#rules"><i class="fas fa-list-ul"></i><span>Rule Library</span></a>
 
       <div class="nav-section">System</div>
-      <a class="nav-link" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-gear"></i><span>Settings</span><i class="fas fa-chevron-right chevron"></i></a>
+      <a class="nav-link" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-gear"></i><span>Settings</span></a>
       <a class="nav-link" href="{{ url_for('main.home') }}"><i class="fas fa-house"></i><span>Home</span></a>
     </nav>
 

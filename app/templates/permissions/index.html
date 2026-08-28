@@ -93,7 +93,6 @@ button, input, select { font: inherit; }
   box-shadow: 0 10px 22px rgba(22, 168, 90, .24);
 }
 .nav-link i:first-child { width: 16px; text-align: center; font-size: 13px; }
-.nav-link .arrow { margin-left: auto; font-size: 9px; opacity: .48; }
 .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); }
 .back-link {
   height: 38px;
@@ -471,21 +470,21 @@ button, input, select { font: inherit; }
       <a class="nav-link" href="{{ url_for('dashboard.admin_dashboard') }}"><i class="fas fa-table-columns"></i><span>Dashboard</span></a>
 
       <div class="nav-label">Management</div>
-      <a class="nav-link" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span><i class="fas fa-chevron-right arrow"></i></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}"><i class="fas fa-stethoscope"></i><span>Doctors</span><i class="fas fa-chevron-right arrow"></i></a>
-      <a class="nav-link" href="#"><i class="fas fa-hospital-user"></i><span>Patients</span><i class="fas fa-chevron-right arrow"></i></a>
-      <a class="nav-link" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-shield-halved"></i><span>Roles & Permissions</span><i class="fas fa-chevron-right arrow"></i></a>
+      <a class="nav-link" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}"><i class="fas fa-stethoscope"></i><span>Doctors</span></a>
+      <a class="nav-link" href="#"><i class="fas fa-hospital-user"></i><span>Patients</span></a>
+      <a class="nav-link" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-shield-halved"></i><span>Roles & Permissions</span></a>
 
       <div class="nav-label">Content & Data</div>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span><i class="fas fa-chevron-right arrow"></i></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span><i class="fas fa-chevron-right arrow"></i></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#rules"><i class="fas fa-list-check"></i><span>Rule Library</span><i class="fas fa-chevron-right arrow"></i></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#builder"><i class="fas fa-calendar-days"></i><span>Diet Plans</span><i class="fas fa-chevron-right arrow"></i></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#rules"><i class="fas fa-list-check"></i><span>Rule Library</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}#builder"><i class="fas fa-calendar-days"></i><span>Diet Plans</span></a>
 
       <div class="nav-label">System</div>
       <a class="nav-link active" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span></a>
-      <a class="nav-link" href="#"><i class="fas fa-file-lines"></i><span>Audit Logs</span><i class="fas fa-chevron-right arrow"></i></a>
-      <a class="nav-link" href="#"><i class="fas fa-heart-pulse"></i><span>System Health</span><i class="fas fa-chevron-right arrow"></i></a>
+      <a class="nav-link" href="#"><i class="fas fa-file-lines"></i><span>Audit Logs</span></a>
+      <a class="nav-link" href="#"><i class="fas fa-heart-pulse"></i><span>System Health</span></a>
     </nav>
 
     <div class="sidebar-footer">

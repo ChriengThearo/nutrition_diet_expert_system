@@ -594,6 +594,34 @@ def _notify_doctor(doctor_id: int, message: str, link: str | None = None):
     db.session.add(notification)
 
 
+def _auto_link_patient_to_doctors(patient: UserTable) -> None:
+    """Ensure every doctor has this user in their active patient list.
+
+    Called right after a user finishes generating a diet plan so doctors see
+    real activity in Patients/Analytics without manually searching and
+    adding accounts one by one.
+    """
+    doctors = (
+        UserTable.query.join(UserTable.roles).filter(RoleTable.name == "doctor").all()
+    )
+    for doctor in doctors:
+        link = DoctorPatient.query.filter_by(
+            doctor_id=doctor.id, patient_id=patient.id
+        ).first()
+        if link is None:
+            db.session.add(
+                DoctorPatient(doctor_id=doctor.id, patient_id=patient.id, status="active")
+            )
+            _notify_doctor(
+                doctor.id,
+                f"{patient.full_name} generated a diet plan and was added to your patient list.",
+                link="/dashboard/doctor?section=patients",
+            )
+        elif link.status != "active":
+            link.status = "active"
+            link.assigned_at = datetime.utcnow()
+
+
 def _parse_naive_utc(value: str):
     """Parse an ISO datetime string into a naive UTC datetime, matching the
     naive datetime.utcnow() convention used elsewhere in this module."""
@@ -3335,6 +3363,14 @@ def user_dashboard_submit():
         result = DashboardService.save_user_dashboard_submission(
             current_user.id, payload, persist=not guest_mode_enabled
         )
+
+        if not guest_mode_enabled and result.get("result_id"):
+            try:
+                _auto_link_patient_to_doctors(current_user)
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+                current_app.logger.exception("Failed to auto-link patient to doctors")
 
         if guest_mode_enabled:
             profile = result.get("profile", {}) or {}

@@ -229,7 +229,7 @@
     "name": "View Patients",
     "description": "Permission to view assigned patients",
     "module": "Patient",
-    "aliases": null
+    "aliases": "[\"patient.view\", \"patient_read\"]"
   },
   {
     "id": 58,
@@ -237,7 +237,7 @@
     "name": "Assign Patients",
     "description": "Permission to assign a patient to a doctor",
     "module": "Patient",
-    "aliases": null
+    "aliases": "[\"patient_assign\"]"
   },
   {
     "id": 59,
@@ -245,7 +245,7 @@
     "name": "Remove Patients",
     "description": "Permission to unassign a patient from a doctor",
     "module": "Patient",
-    "aliases": null
+    "aliases": "[\"patient_remove\"]"
   },
   {
     "id": 60,
@@ -253,7 +253,7 @@
     "name": "View Consultations",
     "description": "Permission to view consultations",
     "module": "Consultation",
-    "aliases": null
+    "aliases": "[\"consultation.view\", \"consultation_read\"]"
   },
   {
     "id": 61,
@@ -261,7 +261,7 @@
     "name": "Create Consultations",
     "description": "Permission to log a new consultation",
     "module": "Consultation",
-    "aliases": null
+    "aliases": "[\"consultation_create\"]"
   },
   {
     "id": 62,
@@ -269,7 +269,7 @@
     "name": "Update Consultations",
     "description": "Permission to edit a consultation",
     "module": "Consultation",
-    "aliases": null
+    "aliases": "[\"consultation_update\"]"
   },
   {
     "id": 63,
@@ -277,7 +277,7 @@
     "name": "Delete Consultations",
     "description": "Permission to delete a consultation",
     "module": "Consultation",
-    "aliases": null
+    "aliases": "[\"consultation_delete\"]"
   },
   {
     "id": 64,
@@ -285,7 +285,7 @@
     "name": "View Notifications",
     "description": "Permission to view notifications",
     "module": "Notification",
-    "aliases": null
+    "aliases": "[\"notification.view\", \"notification_read\"]"
   },
   {
     "id": 65,
@@ -293,6 +293,6 @@
     "name": "Update Notifications",
     "description": "Permission to mark notifications as read",
     "module": "Notification",
-    "aliases": null
+    "aliases": "[\"notification_update\"]"
   }
 ]
