@@ -139,13 +139,18 @@
         <p>Welcome back, {{ doctor_display_name }} 👋</p>
       </div>
       <div class="nd-topbar-right">
+        <div class="nd-topbar-search" id="ndTopbarSearchBox">
+          <i class="fas fa-magnifying-glass"></i>
+          <input type="search" id="ndTopbarSearchInput" placeholder="Search sections… (Patients, Rules, Foods)" autocomplete="off">
+          <div class="nd-topbar-search-results" id="ndTopbarSearchResults"></div>
+        </div>
         {% if 'dashboard.admin' in dashboard_permissions %}
         <a class="nd-admin-return-btn" href="{{ url_for('dashboard.admin_dashboard') }}">
           <i class="fas fa-arrow-left"></i>
           <span>Back to Admin</span>
         </a>
         {% endif %}
-        <span class="nd-topbar-date" id="nd-today-date"></span>
+        <span class="nd-topbar-date"><i class="far fa-calendar-alt"></i><span id="nd-today-date"></span></span>
         <div class="nd-notif-wrap position-relative">
           <div class="nd-topbar-icon position-relative" title="Notifications" style="cursor:pointer;" onclick="toggleNotifications(event);">
             <i class="fas fa-bell"></i>
@@ -161,11 +166,19 @@
             </div>
           </div>
         </div>
-        <div class="nd-topbar-icon">
-          <a href="{{ url_for('dashboard.doctor_profile') }}" style="color:inherit;text-decoration:none;">
-            <img src="{{ doctor_avatar_url }}" alt="Avatar" style="width:32px;height:32px;border-radius:50%;object-fit:cover;"
+        <div class="dropdown">
+          <button type="button" class="nd-topbar-profile" id="ndTopbarProfileToggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ doctor_avatar_url }}" alt="{{ doctor_display_name }}" class="nd-topbar-avatar"
                  onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">
-          </a>
+            <i class="fas fa-chevron-down nd-topbar-chevron"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="ndTopbarProfileToggle">
+            <li><h6 class="dropdown-header">{{ doctor_display_name }}</h6></li>
+            <li><a class="dropdown-item" href="{{ url_for('dashboard.doctor_profile') }}"><i class="fas fa-user me-2"></i>My Profile</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('dashboard.doctor_profile_edit') }}"><i class="fas fa-user-pen me-2"></i>Edit Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}" onclick="openLogoutModal(event);"><i class="fas fa-sign-out-alt me-2"></i>Log out</a></li>
+          </ul>
         </div>
         {% if show_dashboard_switcher %}
         <div class="nd-topbar-icon dropdown">
@@ -1292,6 +1305,100 @@ function showSection(name) {
   if (name === 'consultations') loadConsultations(1);
   if (name === 'analytics') loadAnalytics();
 }
+
+// ── Topbar Section Search ────────────────────────────
+function ndTopbarEscapeHtml(v) {
+  const d = document.createElement('div');
+  d.textContent = v == null ? '' : v;
+  return d.innerHTML;
+}
+
+const NDES_SEARCH_DESTINATIONS = [
+  { label: 'Dashboard', icon: 'fa-gauge-high', section: 'overview', keywords: 'overview home' },
+  { label: 'Food Market', icon: 'fa-store', section: 'food-market', keywords: 'usda market search foods' },
+  { label: 'Food Catalog', icon: 'fa-apple-alt', section: 'foods', keywords: 'food catalog foods' },
+  { label: 'Cooked Foods', icon: 'fa-utensils', section: 'cooked', keywords: 'cooked foods recipes' },
+  { label: 'Rule Library', icon: 'fa-list-ul', section: 'rules', keywords: 'diet rules rule library' },
+  { label: 'Builder Studio', icon: 'fa-tools', section: 'builder', keywords: 'builder studio diet plan rule builder' },
+  { label: 'Simulation Lab', icon: 'fa-vial', section: 'simulation', keywords: 'simulation test' },
+  { label: 'Patients', icon: 'fa-users', section: 'patients', keywords: 'patients' },
+  { label: 'Consultations', icon: 'fa-stethoscope', section: 'consultations', keywords: 'consultations' },
+  { label: 'Analytics', icon: 'fa-chart-bar', section: 'analytics', keywords: 'analytics reports' },
+];
+
+function ndTopbarSearchHighlight(text, term) {
+  if (!term) return ndTopbarEscapeHtml(text);
+  const idx = text.toLowerCase().indexOf(term.toLowerCase());
+  if (idx === -1) return ndTopbarEscapeHtml(text);
+  return ndTopbarEscapeHtml(text.slice(0, idx)) + '<mark>' + ndTopbarEscapeHtml(text.slice(idx, idx + term.length)) + '</mark>' + ndTopbarEscapeHtml(text.slice(idx + term.length));
+}
+
+function ndRenderTopbarSearchResults(term) {
+  const box = document.getElementById('ndTopbarSearchResults');
+  if (!box) return;
+  const q = term.trim().toLowerCase();
+  if (!q) { box.classList.remove('is-open'); box.innerHTML = ''; return; }
+  const matches = NDES_SEARCH_DESTINATIONS.filter((d) =>
+    d.label.toLowerCase().includes(q) || (d.keywords || '').toLowerCase().includes(q)
+  );
+  if (!matches.length) {
+    box.innerHTML = '<div class="nd-topbar-search-empty">No matching section found.</div>';
+    box.classList.add('is-open');
+    return;
+  }
+  box.innerHTML = matches.map((d, i) => `
+    <div class="nd-topbar-search-item${i === 0 ? ' is-active' : ''}" data-section="${d.section}">
+      <i class="fas ${d.icon}"></i>${ndTopbarSearchHighlight(d.label, q)}
+    </div>`).join('');
+  box.classList.add('is-open');
+  box.querySelectorAll('.nd-topbar-search-item').forEach((el) => {
+    el.addEventListener('click', () => {
+      showSection(el.dataset.section);
+      box.classList.remove('is-open');
+      const input = document.getElementById('ndTopbarSearchInput');
+      if (input) { input.value = ''; input.blur(); }
+    });
+  });
+}
+
+(function initNdTopbarSearch() {
+  const input = document.getElementById('ndTopbarSearchInput');
+  const box = document.getElementById('ndTopbarSearchBox');
+  const results = document.getElementById('ndTopbarSearchResults');
+  if (!input || !results) return;
+  input.addEventListener('input', () => ndRenderTopbarSearchResults(input.value));
+  input.addEventListener('focus', () => {
+    if (input.value.trim()) ndRenderTopbarSearchResults(input.value);
+  });
+  input.addEventListener('keydown', (e) => {
+    const items = Array.from(results.querySelectorAll('.nd-topbar-search-item'));
+    if (!items.length) return;
+    let activeIdx = items.findIndex((el) => el.classList.contains('is-active'));
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (activeIdx >= 0) items[activeIdx].classList.remove('is-active');
+      activeIdx = (activeIdx + 1) % items.length;
+      items[activeIdx].classList.add('is-active');
+      items[activeIdx].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (activeIdx >= 0) items[activeIdx].classList.remove('is-active');
+      activeIdx = (activeIdx - 1 + items.length) % items.length;
+      items[activeIdx].classList.add('is-active');
+      items[activeIdx].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const active = items[activeIdx] || items[0];
+      if (active) active.click();
+    } else if (e.key === 'Escape') {
+      results.classList.remove('is-open');
+      input.blur();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (box && !box.contains(e.target)) results.classList.remove('is-open');
+  });
+})();
 
 // ── Date ────────────────────────────────────────────
 // FOOD MARKET: category/search browsing backed by USDA FoodData Central.

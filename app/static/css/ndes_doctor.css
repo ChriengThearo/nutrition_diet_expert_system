@@ -67,16 +67,42 @@
 .nd-sidebar-user-role { color:var(--nd-muted); font-size:0.66rem; }
 .nd-sidebar-footer .dropdown-menu { bottom:100%; top:auto; left:8px; right:8px; width:auto; margin-bottom:6px; }
 
-/* ── Top Bar ─────────────────────────────────────── */
-.nd-topbar { background:#fff; border-bottom:1px solid var(--nd-border); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
-.nd-topbar-left h1 { font-size:1.1rem; font-weight:800; color:var(--nd-ink); margin:0; }
-.nd-topbar-left p { font-size:0.78rem; color:var(--nd-muted); margin:0; }
-.nd-topbar-right { display:flex; align-items:center; gap:10px; }
-.nd-topbar-date { font-size:0.75rem; color:var(--nd-muted); font-weight:600; }
-.nd-topbar-icon { width:32px; height:32px; border-radius:50%; border:1px solid var(--nd-border); background:#fff; display:flex; align-items:center; justify-content:center; color:var(--nd-muted); cursor:pointer; transition:all 0.15s; font-size:0.85rem; text-decoration:none; }
+/* ── Top Bar (matched to admin panel topbar) ──────── */
+.nd-topbar { background:#fff; border-bottom:1px solid var(--nd-border); padding:0 24px 0 29px; height:82px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; gap:22px; }
+.nd-topbar-left h1 { font-size:22px; font-weight:900; color:var(--nd-ink); margin:0; line-height:1.1; }
+.nd-topbar-left p { font-size:13px; font-weight:500; color:var(--nd-muted); margin:8px 0 0; }
+.nd-topbar-right { display:flex; align-items:center; gap:22px; }
+
+.nd-topbar-search { position:relative; width:280px; }
+.nd-topbar-search i.fa-magnifying-glass { position:absolute; left:15px; top:50%; transform:translateY(-50%); color:var(--nd-muted); font-size:13px; pointer-events:none; }
+.nd-topbar-search input { width:100%; height:42px; border:1px solid var(--nd-border); border-radius:10px; background:#fff; outline:none; padding:0 14px 0 40px; color:var(--nd-ink); font-size:13px; box-shadow:0 7px 18px rgba(15,31,58,.035); transition:border-color 0.15s ease; }
+.nd-topbar-search input::placeholder { color:#9aa3af; }
+.nd-topbar-search input:focus { border-color:var(--nd-green); box-shadow:0 0 0 3px rgba(46,184,92,0.14); }
+.nd-topbar-search-results { display:none; position:absolute; top:calc(100% + 8px); left:0; right:0; background:#fff; border:1px solid var(--nd-border); border-radius:12px; box-shadow:var(--nd-shadow-lg); padding:6px; z-index:220; max-height:320px; overflow-y:auto; }
+.nd-topbar-search-results.is-open { display:block; }
+.nd-topbar-search-item { display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:8px; color:var(--nd-ink); font-size:13px; font-weight:600; cursor:pointer; }
+.nd-topbar-search-item i { width:16px; color:var(--nd-muted); font-size:14px; text-align:center; }
+.nd-topbar-search-item:hover, .nd-topbar-search-item.is-active { background:var(--nd-green-pale); color:var(--nd-green-mid); }
+.nd-topbar-search-item:hover i, .nd-topbar-search-item.is-active i { color:var(--nd-green-mid); }
+.nd-topbar-search-item mark { background:none; color:inherit; font-weight:900; padding:0; }
+.nd-topbar-search-empty { padding:14px 10px; color:var(--nd-muted); font-size:12.5px; text-align:center; }
+
+.nd-topbar-date { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--nd-ink); font-weight:500; white-space:nowrap; }
+.nd-topbar-date i { font-size:16px; color:var(--nd-muted); }
+.nd-topbar-icon { width:42px; height:42px; border-radius:50%; border:1px solid var(--nd-border); background:#fff; display:flex; align-items:center; justify-content:center; color:var(--nd-muted); cursor:pointer; transition:all 0.15s; font-size:16px; text-decoration:none; }
 .nd-topbar-icon:hover { background:var(--nd-green-pale); color:var(--nd-green); border-color:var(--nd-green-soft); }
-.nd-admin-return-btn { height:32px; padding:0 13px; border-radius:8px; background:var(--nd-green); color:#fff; display:inline-flex; align-items:center; gap:7px; font-size:0.78rem; font-weight:800; text-decoration:none; border:1px solid var(--nd-green); box-shadow:0 6px 14px rgba(46,184,92,0.18); white-space:nowrap; }
+.nd-admin-return-btn { height:42px; padding:0 18px; border-radius:9px; background:var(--nd-green); color:#fff; display:inline-flex; align-items:center; gap:9px; font-size:13px; font-weight:800; text-decoration:none; border:1px solid var(--nd-green); box-shadow:0 6px 14px rgba(46,184,92,0.18); white-space:nowrap; }
 .nd-admin-return-btn:hover { background:var(--nd-green-mid); color:#fff; border-color:var(--nd-green-mid); }
+
+.nd-topbar-profile { display:flex; align-items:center; gap:10px; border:none; background:none; padding:0; cursor:pointer; }
+.nd-topbar-avatar { width:42px; height:42px; border-radius:50%; object-fit:cover; border:1px solid var(--nd-border); }
+.nd-topbar-chevron { color:var(--nd-muted); font-size:11px; }
+
+@media (max-width:900px) {
+  .nd-topbar { height:auto; padding:14px 16px; flex-wrap:wrap; row-gap:12px; }
+  .nd-topbar-right { flex-wrap:wrap; gap:12px; }
+  .nd-topbar-search { width:100%; order:3; }
+}
 
 /* ── Notifications ───────────────────────────────── */
 .nd-notif-badge { position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; padding:0 3px; border-radius:999px; background:#ef4444; color:#fff; font-size:0.62rem; font-weight:800; line-height:16px; text-align:center; }
