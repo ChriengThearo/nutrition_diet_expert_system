@@ -3847,6 +3847,33 @@ def user_dashboard_submit():
         return jsonify({"success": False, "message": "មិនអាចរក្សាទុកការបញ្ជូនទិន្នន័យបានទេ។"}), 500
 
 
+@dashboard_bp.route("/user/results/<int:result_id>/active-group", methods=["PATCH"])
+@login_required
+@user_required
+@csrf.exempt
+@permission_required(
+    "user.dashboard.create",
+    "អ្នកមិនមានសិទ្ធិកែប្រែផែនការអាហារទេ។",
+    json_response=True,
+)
+def user_dashboard_update_active_group(result_id):
+    payload = request.get_json(silent=True) or {}
+    group_key = str(payload.get("group_key") or "").strip()
+    if not group_key:
+        return jsonify({"success": False, "message": "សូមផ្តល់ក្រុមអាហារ។"}), 400
+
+    try:
+        result = DashboardService.update_active_food_group(
+            current_user.id, result_id, group_key
+        )
+        return jsonify({"success": True, **result})
+    except ValueError as e:
+        return jsonify({"success": False, "message": str(e)}), 404
+    except Exception:
+        current_app.logger.exception("Failed to update active food group")
+        return jsonify({"success": False, "message": "មិនអាចរក្សាទុកការផ្លាស់ប្តូរបានទេ។"}), 500
+
+
 @dashboard_bp.route("/user/symptoms")
 @login_required
 @user_required
