@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, abort
+from flask import Blueprint, render_template, redirect, url_for, flash, abort, request
 from flask_login import login_required, current_user
 from app.forms.user_forms import (
     UserCreateForm,
@@ -6,8 +6,38 @@ from app.forms.user_forms import (
     UserConfirmDeleteForm,
 )
 from app.services.user_service import UserService
+from app.models.role import RoleTable
+from app.models.user_result import UserResultsTable
+from app.models.goal import GoalsTable
+from datetime import datetime, timedelta
 from functools import wraps
 from app.routes.access_control import permission_required
+
+ROLE_FILTER_LABELS = {
+    "doctor": {"title": "Doctors", "subtitle": "Manage doctor accounts on your clinical nutrition platform", "singular": "doctor"},
+    "user": {"title": "Patients", "subtitle": "Manage patient accounts on your clinical nutrition platform", "singular": "patient"},
+    "admin": {"title": "Administrators", "subtitle": "Manage administrator accounts", "singular": "admin"},
+}
+
+PATIENT_FILTER_LABELS = {
+    "active": "Active Patients",
+    "inactive": "Inactive Patients",
+    "new_this_week": "New This Week",
+    "at_risk": "At Risk Patients",
+}
+
+
+def _classify_patient_bucket(patient, latest_bmi):
+    """Same priority order used by the admin dashboard's Patient Overview donut,
+    so the counts shown there match what this filtered list returns."""
+    if latest_bmi is not None and (latest_bmi < 18.5 or latest_bmi >= 30):
+        return "at_risk"
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    if patient.created_at and patient.created_at >= week_ago:
+        return "new_this_week"
+    if not patient.is_active:
+        return "inactive"
+    return "active"
 
 user_bp = Blueprint("tbl_users", __name__, url_prefix="/users")
 
@@ -31,7 +61,46 @@ def admin_required(f):
 def index():
     users = UserService.get_user_all()
     UserService.ensure_default_roles_for_users(users)
-    return render_template("users/index.html", users=users)
+
+    role_filter = (request.args.get("role") or "").strip().lower()
+    if role_filter:
+        users = [u for u in users if u.has_role(role_filter)]
+
+    goal_filter = (request.args.get("goal") or "").strip()
+    if goal_filter:
+        users = [u for u in users if any(g.name == goal_filter for g in u.goals)]
+
+    patient_filter = (request.args.get("patient_filter") or "").strip().lower()
+    if patient_filter in PATIENT_FILTER_LABELS:
+        bucketed = []
+        for u in users:
+            latest = (
+                UserResultsTable.query.filter_by(user_id=u.id)
+                .order_by(UserResultsTable.generated_at.desc())
+                .first()
+            )
+            latest_bmi = latest.bmi if latest else None
+            if _classify_patient_bucket(u, latest_bmi) == patient_filter:
+                bucketed.append(u)
+        users = bucketed
+
+    role_meta = ROLE_FILTER_LABELS.get(role_filter)
+    role_record = None
+    if role_filter:
+        role_record = RoleTable.query.filter(
+            RoleTable.name.ilike(role_filter)
+        ).first()
+
+    return render_template(
+        "users/index.html",
+        users=users,
+        role_filter=role_filter,
+        role_meta=role_meta,
+        role_record=role_record,
+        goal_filter=goal_filter,
+        patient_filter=patient_filter,
+        patient_filter_label=PATIENT_FILTER_LABELS.get(patient_filter),
+    )
 
 
 @user_bp.route("/<int:user_id>")
@@ -51,6 +120,12 @@ def detail(user_id: int):
 @permission_required("user.create", "You have no permission to create users.")
 def create():
     form = UserCreateForm()
+    if request.method == "GET":
+        preselect_role = (request.args.get("role") or "").strip().lower()
+        if preselect_role:
+            role_record = RoleTable.query.filter(RoleTable.name.ilike(preselect_role)).first()
+            if role_record:
+                form.role_id.data = role_record.id
     is_valid = form.validate_on_submit()
     if is_valid:
         data = {
@@ -64,6 +139,9 @@ def create():
 
         user = UserService.create_user(data, password, role_id)
         flash(f"User '{user.username}' was created successfully.", "success")
+        created_role = (user.roles[0].name if user.roles else "").strip().lower()
+        if created_role in ROLE_FILTER_LABELS:
+            return redirect(url_for("tbl_users.index", role=created_role))
         return redirect(url_for("tbl_users.index"))
     if not is_valid and form.is_submitted():
         for field_name, errors in form.errors.items():
@@ -78,7 +156,7 @@ def create():
 @user_bp.route("/<int:user_id>/edit", methods=["GET", "POST"])
 @login_required
 @admin_required
-@permission_required("user.edit", "You have no permission to edit users.")
+@permission_required("user.update", "You have no permission to edit users.")
 def edit(user_id: int):
     user = UserService.get_user_by_id(user_id)
     if user is None:
@@ -125,6 +203,9 @@ def delete(user_id: int):
     if user is None:
         abort(404)
 
+    deleted_role = (user.roles[0].name if user.roles else "").strip().lower()
     UserService.delete_user(user)
     flash("User was deleted successfully.", "success")
+    if deleted_role in ROLE_FILTER_LABELS:
+        return redirect(url_for("tbl_users.index", role=deleted_role))
     return redirect(url_for("tbl_users.index"))

@@ -1,9 +1,11 @@
-{% extends "layouts/base.html" %} 
+{% extends "layouts/base.html" %}
 {% block title %}User {{ user.username }}{%  endblock %}
 
 {% block content %}
+{% set is_doctor = user.has_role('doctor') %}
+{% set back_role = (user.roles[0].name|lower) if user.roles else '' %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h3 mb-0">User: {{ user.username }}</h1>
+  <h1 class="h3 mb-0">{{ 'Doctor' if is_doctor else 'User' }}: {{ user.username }}</h1>
   <div>
     <a
       href="{{ url_for('tbl_users.edit', user_id=user.id) }}"
@@ -15,7 +17,7 @@
       Delete
     </a>
     <a
-      href="{{ url_for('tbl_users.index') }}"
+      href="{{ url_for('tbl_users.index', role=back_role) if back_role in ['doctor', 'user', 'admin'] else url_for('tbl_users.index') }}"
       class="btn btn-sm btn-outline-primary"
       >Back to list
       </a>
@@ -24,9 +26,18 @@
 
 <div class="card mb-3">
   <div class="card-body">
-    <p><strong>Username:</strong>{{ user.username }}</p>
-    <p><strong>Full name:</strong>{{ user.full_name }}</p>
-    <p><strong>Email:</strong>{{ user.email }}</p>
+    {% if user.photo %}
+    <img src="{{ url_for('main.images', filename=user.photo|replace('images/', '')) }}"
+         alt="{{ user.full_name }}"
+         style="width:72px;height:72px;border-radius:50%;object-fit:cover;margin-bottom:1rem;">
+    {% endif %}
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Full name:</strong> {{ user.full_name }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    {% if is_doctor %}
+    <p><strong>Specialty:</strong> {{ user.specialty or 'Not provided' }}</p>
+    <p><strong>License Number:</strong> {{ user.license_number or 'Not provided' }}</p>
+    {% endif %}
     <p>
       <strong>Status:</strong>
       {% if user.is_active %}
@@ -43,6 +54,7 @@
         <span class="text-muted">No role</span>
       {% endif %}
     </p>
+    <p><strong>Joined:</strong> {{ user.created_at.strftime('%b %d, %Y') if user.created_at else 'N/A' }}</p>
     <p>
       <strong>Permissions:</strong>
       {% set user_permissions = user.get_permission_codes() %}

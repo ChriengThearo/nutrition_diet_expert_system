@@ -23,6 +23,7 @@ from app.models.user_result import UserResultsTable
 from app.models.doctor_patient import DoctorPatient
 from app.models.consultation import Consultation
 from app.models.notification import Notification
+from app.models.associations import tbl_user_goals
 from app.forms.dashboard_forms import UserProfileEditForm, DoctorProfileEditForm
 from app.services.dashboard_services import DashboardService
 from app.services.diet_rule_service import DietRuleService
@@ -461,13 +462,231 @@ def admin_dashboard():
     total_doctors = (
         UserTable.query.join(UserTable.roles).filter(RoleTable.name == "doctor").count()
     )
+    total_patients = (
+        UserTable.query.join(UserTable.roles)
+        .filter(func.lower(RoleTable.name) == "user")
+        .count()
+    )
     total_rules = DietRulesTable.query.count()
+    total_foods = FoodsTable.query.count() + CookedFoodsTable.query.count()
+    total_diet_plans = UserResultsTable.query.count()
 
     return render_template(
         "dashboard/admin_dashboard.html",
         total_users=total_users,
         total_doctors=total_doctors,
+        total_patients=total_patients,
         total_rules=total_rules,
+        total_foods=total_foods,
+        total_diet_plans=total_diet_plans,
+    )
+
+
+def _fill_day_series(day_map: dict, days: int):
+    series = []
+    for i in range(days - 1, -1, -1):
+        d = (datetime.utcnow() - timedelta(days=i)).date()
+        series.append({"date": d.isoformat(), "count": day_map.get(str(d), 0)})
+    return series
+
+
+@dashboard_bp.route("/admin/analytics")
+@login_required
+@admin_required
+@permission_required(
+    "dashboard.admin", "You have no permission to view analytics.", json_response=True
+)
+def admin_analytics():
+    activity_limit = min(request.args.get("activity_limit", default=8, type=int) or 8, 50)
+
+    since_7 = datetime.utcnow() - timedelta(days=6)
+    users_rows = (
+        db.session.query(func.date(UserTable.created_at), func.count(UserTable.id))
+        .filter(UserTable.created_at >= since_7)
+        .group_by(func.date(UserTable.created_at))
+        .all()
+    )
+    users_per_day = {str(d): c for d, c in users_rows}
+
+    consult_rows = (
+        db.session.query(func.date(Consultation.occurred_at), func.count(Consultation.id))
+        .filter(Consultation.occurred_at >= since_7)
+        .group_by(func.date(Consultation.occurred_at))
+        .all()
+    )
+    consultations_per_day = {str(d): c for d, c in consult_rows}
+
+    # Top diet plans: goals ranked by how many patients follow them
+    goal_rows = (
+        db.session.query(GoalsTable.name, func.count(tbl_user_goals.c.user_id))
+        .outerjoin(tbl_user_goals, tbl_user_goals.c.goal_id == GoalsTable.id)
+        .group_by(GoalsTable.id, GoalsTable.name)
+        .order_by(func.count(tbl_user_goals.c.user_id).desc())
+        .all()
+    )
+    top_diet_plans = [
+        {
+            "name": name,
+            "uses": count,
+            "link": url_for("tbl_users.index", role="user", goal=name),
+        }
+        for name, count in goal_rows
+    ]
+
+    # Recent activity: merged real timeline from users, consultations, and food catalog changes
+    activity = []
+    for u in UserTable.query.order_by(UserTable.created_at.desc()).limit(activity_limit).all():
+        role_name = (u.roles[0].name if u.roles else "").strip().lower()
+        if role_name == "doctor":
+            title, icon, color = "New doctor registered", "user-doctor", "soft-cyan"
+        elif role_name == "admin":
+            title, icon, color = "New admin registered", "user-shield", "soft-purple"
+        else:
+            title, icon, color = "New patient registered", "user-plus", "soft-green"
+        activity.append({
+            "icon": icon, "color": color, "title": title,
+            "sub": u.full_name or u.username,
+            "timestamp": u.created_at.isoformat() if u.created_at else None,
+            "link": url_for("tbl_users.detail", user_id=u.id),
+        })
+    for c in Consultation.query.order_by(Consultation.created_at.desc()).limit(activity_limit).all():
+        activity.append({
+            "icon": "clipboard", "color": "soft-blue", "title": "Consultation logged",
+            "sub": c.reason,
+            "timestamp": c.created_at.isoformat() if c.created_at else None,
+            "link": url_for("tbl_users.detail", user_id=c.patient_id),
+        })
+    for f in FoodsTable.query.order_by(FoodsTable.created_at.desc()).limit(activity_limit).all():
+        activity.append({
+            "icon": "apple-whole", "color": "soft-orange", "title": "New food added",
+            "sub": f.name,
+            "timestamp": f.created_at.isoformat() if f.created_at else None,
+            "link": url_for("dashboard.doctor_dashboard", section="foods"),
+        })
+    for cf in CookedFoodsTable.query.order_by(CookedFoodsTable.created_at.desc()).limit(activity_limit).all():
+        activity.append({
+            "icon": "utensils", "color": "soft-orange", "title": "New cooked food added",
+            "sub": cf.name,
+            "timestamp": cf.created_at.isoformat() if cf.created_at else None,
+            "link": url_for("dashboard.doctor_dashboard", section="cooked"),
+        })
+    activity = [a for a in activity if a["timestamp"]]
+    activity.sort(key=lambda a: a["timestamp"], reverse=True)
+    activity = activity[:activity_limit]
+
+    # Patient overview: real, mutually exclusive breakdown of role='user' accounts
+    patients = (
+        UserTable.query.join(UserTable.roles)
+        .filter(func.lower(RoleTable.name) == "user")
+        .all()
+    )
+    week_ago = datetime.utcnow() - timedelta(days=7)
+
+    latest_bmi_rows = (
+        db.session.query(UserResultsTable.user_id, func.max(UserResultsTable.generated_at))
+        .filter(UserResultsTable.user_id.in_([p.id for p in patients]) if patients else False)
+        .group_by(UserResultsTable.user_id)
+        .all()
+    )
+    latest_generated_at = {uid: ts for uid, ts in latest_bmi_rows}
+    latest_bmi = {}
+    if latest_generated_at:
+        bmi_rows = UserResultsTable.query.filter(
+            UserResultsTable.user_id.in_(list(latest_generated_at.keys()))
+        ).all()
+        for row in bmi_rows:
+            if latest_generated_at.get(row.user_id) == row.generated_at and row.bmi is not None:
+                latest_bmi[row.user_id] = row.bmi
+
+    at_risk = inactive = new_this_week = active = 0
+    for p in patients:
+        bmi = latest_bmi.get(p.id)
+        if bmi is not None and (bmi < 18.5 or bmi >= 30):
+            at_risk += 1
+        elif p.created_at and p.created_at >= week_ago:
+            new_this_week += 1
+        elif not p.is_active:
+            inactive += 1
+        else:
+            active += 1
+
+    return jsonify(
+        {
+            "users_per_day": _fill_day_series(users_per_day, 7),
+            "consultations_per_day": _fill_day_series(consultations_per_day, 7),
+            "top_diet_plans": top_diet_plans,
+            "recent_activity": activity,
+            "patient_overview": {
+                "total": len(patients),
+                "active": active,
+                "inactive": inactive,
+                "new_this_week": new_this_week,
+                "at_risk": at_risk,
+                "links": {
+                    "all": url_for("tbl_users.index", role="user"),
+                    "active": url_for("tbl_users.index", role="user", patient_filter="active"),
+                    "inactive": url_for("tbl_users.index", role="user", patient_filter="inactive"),
+                    "new_this_week": url_for("tbl_users.index", role="user", patient_filter="new_this_week"),
+                    "at_risk": url_for("tbl_users.index", role="user", patient_filter="at_risk"),
+                },
+            },
+        }
+    )
+
+
+@dashboard_bp.route("/admin/profile")
+@login_required
+@admin_required
+@permission_required(
+    "dashboard.admin", "You have no permission to view the admin profile."
+)
+def admin_profile():
+    """Admin profile page."""
+    return render_template("dashboard/admin_profile.html", user=current_user)
+
+
+@dashboard_bp.route("/admin/profile/edit", methods=["GET", "POST"])
+@login_required
+@admin_required
+@permission_required(
+    "dashboard.admin", "You have no permission to edit the admin profile."
+)
+def admin_profile_edit():
+    """Edit admin profile info."""
+    form = UserProfileEditForm(current_user, obj=current_user)
+
+    if form.validate_on_submit():
+        current_user.username = (form.username.data or "").strip()
+        current_user.full_name = (form.full_name.data or "").strip()
+
+        photo_file = form.photo.data
+        if photo_file and getattr(photo_file, "filename", ""):
+            filename = secure_filename(photo_file.filename)
+            _, ext = os.path.splitext(filename)
+            safe_ext = ext.lower() if ext else ""
+            unique_name = f"user_{current_user.id}_{uuid.uuid4().hex}{safe_ext}"
+            project_root = os.path.dirname(current_app.root_path)
+            upload_dir = os.path.join(project_root, "images", "profiles")
+            os.makedirs(upload_dir, exist_ok=True)
+            photo_file.save(os.path.join(upload_dir, unique_name))
+            current_user.photo = f"images/profiles/{unique_name}"
+
+        if form.new_password.data:
+            current_user.set_password(form.new_password.data)
+
+        try:
+            db.session.commit()
+            flash("Profile updated successfully.", "success")
+            return redirect(url_for("dashboard.admin_profile"))
+        except Exception:
+            db.session.rollback()
+            current_app.logger.exception("Failed to update admin profile")
+            flash("Failed to update profile. Please try again.", "danger")
+
+    return render_template(
+        "dashboard/admin_profile_edit.html",
+        user=current_user,
+        form=form,
     )
 
 
@@ -952,10 +1171,18 @@ def remove_doctor_patient(link_id: int):
 
 
 def _serialize_consultation(c: Consultation):
+    patient = c.patient
+    doctor = c.doctor
     return {
         "id": c.id,
         "patient_id": c.patient_id,
-        "patient_name": c.patient.full_name if c.patient else "Unknown",
+        "patient_name": patient.full_name if patient else "Unknown",
+        "patient_username": patient.username if patient else "",
+        "patient_photo": patient.photo if patient else None,
+        "patient_email": patient.email if patient else "",
+        "doctor_name": doctor.full_name if doctor else "",
+        "doctor_photo": doctor.photo if doctor else None,
+        "doctor_specialty": doctor.specialty if doctor else "",
         "reason": c.reason,
         "notes": c.notes or "",
         "status": c.status,
@@ -977,12 +1204,42 @@ def doctor_consultations():
     per_page = min(per_page if isinstance(per_page, int) and per_page > 0 else 10, 100)
     status_filter = (request.args.get("status") or "").strip()
     patient_id = request.args.get("patient_id", type=int)
+    reason_filter = (request.args.get("reason") or "").strip()
+    search = (request.args.get("q") or "").strip()
+    date_from = (request.args.get("date_from") or "").strip()
+    date_to = (request.args.get("date_to") or "").strip()
 
     query = Consultation.query.filter_by(doctor_id=current_user.id)
     if status_filter:
         query = query.filter(Consultation.status == status_filter)
     if patient_id:
         query = query.filter(Consultation.patient_id == patient_id)
+    if reason_filter:
+        query = query.filter(Consultation.reason == reason_filter)
+    if search:
+        like = f"%{search}%"
+        query = query.join(UserTable, Consultation.patient_id == UserTable.id).filter(
+            or_(
+                UserTable.full_name.ilike(like),
+                UserTable.username.ilike(like),
+                Consultation.reason.ilike(like),
+            )
+        )
+    if date_from:
+        try:
+            query = query.filter(
+                Consultation.occurred_at >= datetime.strptime(date_from, "%Y-%m-%d")
+            )
+        except ValueError:
+            pass
+    if date_to:
+        try:
+            query = query.filter(
+                Consultation.occurred_at
+                < datetime.strptime(date_to, "%Y-%m-%d") + timedelta(days=1)
+            )
+        except ValueError:
+            pass
 
     total = query.count()
     total_pages = (total + per_page - 1) // per_page if total else 0
@@ -993,9 +1250,20 @@ def doctor_consultations():
         .all()
     )
 
+    reason_options = [
+        r[0]
+        for r in db.session.query(Consultation.reason)
+        .filter(Consultation.doctor_id == current_user.id)
+        .distinct()
+        .order_by(Consultation.reason)
+        .all()
+        if r[0]
+    ]
+
     return jsonify(
         {
             "consultations": [_serialize_consultation(c) for c in consultations],
+            "reason_options": reason_options,
             "pagination": {
                 "page": page,
                 "per_page": per_page,
@@ -1119,14 +1387,7 @@ def delete_doctor_consultation(consultation_id: int):
         return jsonify({"success": False, "message": "Failed to delete consultation"}), 500
 
 
-@dashboard_bp.route("/doctor/notifications")
-@login_required
-@doctor_required
-@permission_required(
-    "notification.read", "You have no permission to view notifications.", json_response=True
-)
-def doctor_notifications():
-    limit = min(request.args.get("limit", default=20, type=int) or 20, 100)
+def _serialize_notifications_for_current_user(limit: int):
     notifications = (
         Notification.query.filter_by(recipient_id=current_user.id)
         .order_by(Notification.created_at.desc())
@@ -1136,21 +1397,48 @@ def doctor_notifications():
     unread_count = Notification.query.filter_by(
         recipient_id=current_user.id, is_read=False
     ).count()
-    return jsonify(
-        {
-            "notifications": [
-                {
-                    "id": n.id,
-                    "message": n.message,
-                    "link": n.link,
-                    "is_read": n.is_read,
-                    "created_at": n.created_at.isoformat() if n.created_at else None,
-                }
-                for n in notifications
-            ],
-            "unread_count": unread_count,
-        }
+    return {
+        "notifications": [
+            {
+                "id": n.id,
+                "message": n.message,
+                "link": n.link,
+                "is_read": n.is_read,
+                "created_at": n.created_at.isoformat() if n.created_at else None,
+            }
+            for n in notifications
+        ],
+        "unread_count": unread_count,
+    }
+
+
+def _mark_notification_read_for_current_user(notification_id: int):
+    notification = Notification.query.filter_by(
+        id=notification_id, recipient_id=current_user.id
+    ).first()
+    if not notification:
+        return False
+    notification.is_read = True
+    db.session.commit()
+    return True
+
+
+def _mark_all_notifications_read_for_current_user():
+    Notification.query.filter_by(recipient_id=current_user.id, is_read=False).update(
+        {"is_read": True}
     )
+    db.session.commit()
+
+
+@dashboard_bp.route("/doctor/notifications")
+@login_required
+@doctor_required
+@permission_required(
+    "notification.read", "You have no permission to view notifications.", json_response=True
+)
+def doctor_notifications():
+    limit = min(request.args.get("limit", default=20, type=int) or 20, 100)
+    return jsonify(_serialize_notifications_for_current_user(limit))
 
 
 @dashboard_bp.route("/doctor/notifications/<int:notification_id>/read", methods=["POST"])
@@ -1161,13 +1449,8 @@ def doctor_notifications():
     "notification.update", "You have no permission to update notifications.", json_response=True
 )
 def read_doctor_notification(notification_id: int):
-    notification = Notification.query.filter_by(
-        id=notification_id, recipient_id=current_user.id
-    ).first()
-    if not notification:
+    if not _mark_notification_read_for_current_user(notification_id):
         return jsonify({"success": False, "message": "Notification not found"}), 404
-    notification.is_read = True
-    db.session.commit()
     return jsonify({"success": True})
 
 
@@ -1179,10 +1462,43 @@ def read_doctor_notification(notification_id: int):
     "notification.update", "You have no permission to update notifications.", json_response=True
 )
 def read_all_doctor_notifications():
-    Notification.query.filter_by(recipient_id=current_user.id, is_read=False).update(
-        {"is_read": True}
-    )
-    db.session.commit()
+    _mark_all_notifications_read_for_current_user()
+    return jsonify({"success": True})
+
+
+@dashboard_bp.route("/admin/notifications")
+@login_required
+@admin_required
+@permission_required(
+    "notification.read", "You have no permission to view notifications.", json_response=True
+)
+def admin_notifications():
+    limit = min(request.args.get("limit", default=20, type=int) or 20, 100)
+    return jsonify(_serialize_notifications_for_current_user(limit))
+
+
+@dashboard_bp.route("/admin/notifications/<int:notification_id>/read", methods=["POST"])
+@login_required
+@admin_required
+@csrf.exempt
+@permission_required(
+    "notification.update", "You have no permission to update notifications.", json_response=True
+)
+def read_admin_notification(notification_id: int):
+    if not _mark_notification_read_for_current_user(notification_id):
+        return jsonify({"success": False, "message": "Notification not found"}), 404
+    return jsonify({"success": True})
+
+
+@dashboard_bp.route("/admin/notifications/read-all", methods=["POST"])
+@login_required
+@admin_required
+@csrf.exempt
+@permission_required(
+    "notification.update", "You have no permission to update notifications.", json_response=True
+)
+def read_all_admin_notifications():
+    _mark_all_notifications_read_for_current_user()
     return jsonify({"success": True})
 
 
