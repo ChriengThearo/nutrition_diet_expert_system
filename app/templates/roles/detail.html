@@ -1,65 +1,1111 @@
-{% extends "layouts/base.html" %}
-{% block title %}Role Detail{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem("ndAdminTheme");
+    if (saved === "dark" || saved === "light") {
+      document.documentElement.setAttribute("data-theme", saved);
+    }
+  } catch (e) {}
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Role: {{ role.name }} | Diet Expert</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --bg: #f7f9fc;
+  --card: #ffffff;
+  --white: #ffffff;
+  --ink: #0f1f3a;
+  --text: #26364f;
+  --muted: #66758b;
+  --muted-2: #69768b;
+  --muted-3: #7b8aa0;
+  --nav-text: #1d2d44;
+  --nav-icon: #3f5069;
+  --panel-title: #12243e;
+  --line: #e2e8f0;
+  --soft-line: #edf1f6;
+  --input-line: #dbe3ee;
+  --control-line: #dce3ec;
+  --green: #20b85d;
+  --green-dark: #12964b;
+  --green-mid: #16a950;
+  --green-soft: #e7f8ee;
+  --green-soft-2: #dcf6e9;
+  --green-soft-3: #e6f8ee;
+  --blue: #1779f2;
+  --blue-soft: #e8f2ff;
+  --orange: #f28b22;
+  --orange-soft: #fff0df;
+  --purple: #8657e9;
+  --purple-soft: #f1e6ff;
+  --red: #ef3f51;
+  --red-soft: #ffe7ec;
+  --red-dark: #a7172a;
+  --red-border: #f8c8d0;
+  --gray-soft: #f1f4f7;
+  --hover-bg: #fafbfd;
+  --shadow: 0 10px 30px rgba(15, 31, 58, .06);
+  color-scheme: light;
+}
 
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-        <h1 class="h3 mb-0">Role: {{ role.name }}</h1>
-        <p class="text-muted mb-0">
-            Created: {{ role.create_at }}  Updated: {{ role.update_at }} 
-        </p>
-    </div>
-    <div class="text-end">
-        <a href="{{ url_for('tbl_roles.edit', role_id=role.id) }}" class="btn btn-warning">Edit</a>
-        <a href="{{ url_for('tbl_roles.delete_confirm', role_id=role.id) }}" class="btn btn-danger">Delete</a>
-        <a href="{{ url_for('tbl_roles.index') }}" class="btn btn-secondary">Back</a>
-    </div>
-</div>
+:root[data-theme="dark"] {
+  --bg: #0b101c;
+  --card: #141b2c;
+  --white: #141b2c;
+  --ink: #eef2fa;
+  --text: #c3cbdc;
+  --muted: #93a0b8;
+  --muted-2: #94a0b8;
+  --muted-3: #6f7b96;
+  --nav-text: #dbe1ee;
+  --nav-icon: #93a0b8;
+  --panel-title: #eef2fa;
+  --line: #232b40;
+  --soft-line: #1c2336;
+  --input-line: #2a3349;
+  --control-line: #2a3349;
+  --green: #34d17a;
+  --green-dark: #4ee08d;
+  --green-mid: #2ac46c;
+  --green-soft: rgba(52, 209, 122, 0.16);
+  --green-soft-2: rgba(52, 209, 122, 0.2);
+  --green-soft-3: rgba(52, 209, 122, 0.18);
+  --blue: #5aa3ff;
+  --blue-soft: rgba(90, 163, 255, 0.16);
+  --orange: #ffab4c;
+  --orange-soft: rgba(255, 171, 76, 0.16);
+  --purple: #b092ff;
+  --purple-soft: rgba(176, 146, 255, 0.16);
+  --red: #ff6b7a;
+  --red-soft: rgba(255, 107, 122, 0.16);
+  --red-dark: #ff8f9b;
+  --red-border: rgba(255, 107, 122, 0.35);
+  --gray-soft: #1a2133;
+  --hover-bg: #1a2133;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  color-scheme: dark;
+}
 
-<div class="row">
-    <!-- Basic info -->
-     <div class="col-lg-6 mb-3">
-        <div class="card">
-            <div class="card-header">
-                Role Information
-            </div>
-            <div class="card-body">
-                <p><strong>Name:</strong>{{ role.name }}</p>
-                <p><strong>Description:</strong>{{ role.description or "-" }}</p>
-            </div>
+* { box-sizing: border-box; }
+
+html,
+body { min-height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  letter-spacing: 0;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+.sidebar,
+.topbar,
+.search-box input,
+.nav-search-results,
+.profile-dropdown-menu,
+.pdm-item,
+.date-pill,
+.nav-link,
+.notify,
+.panel {
+  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
+}
+
+a { color: inherit; text-decoration: none; }
+button,
+input,
+select { font: inherit; }
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  transition: grid-template-columns 0.18s ease;
+}
+
+.app-shell.is-collapsed { grid-template-columns: 76px minmax(0, 1fr); }
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  border-right: 1px solid var(--line);
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.is-collapsed .brand-name,
+.is-collapsed .brand-sub,
+.is-collapsed .nav-section,
+.is-collapsed .nav-link span,
+.is-collapsed .user-name,
+.is-collapsed .user-role { display: none; }
+
+.is-collapsed .collapse-btn i { transform: rotate(180deg); }
+.is-collapsed .brand { grid-template-columns: 36px; }
+.is-collapsed .nav-link { justify-content: center; }
+.is-collapsed .sidebar-user { grid-template-columns: 40px; justify-content: center; }
+
+.brand {
+  height: 88px;
+  padding: 20px 15px 15px 24px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-mark { width: 36px; height: 44px; object-fit: contain; }
+.brand-name { margin: 0; color: var(--ink); font-size: 20px; font-weight: 900; line-height: 1.05; }
+.brand-sub { margin: 4px 0 0; color: var(--text); font-size: 12px; font-weight: 500; }
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--muted-2);
+  display: grid;
+  place-items: center;
+}
+
+.nav { flex: 1; padding: 15px; overflow-y: auto; }
+
+.nav-section {
+  margin: 28px 10px 12px;
+  color: var(--muted-3);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.nav-section:first-of-type { margin-top: 26px; }
+
+.nav-link {
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: var(--nav-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nav-link + .nav-link { margin-top: 7px; }
+
+.nav-link i:first-child { width: 18px; color: var(--nav-icon); font-size: 16px; text-align: center; }
+
+.nav-link.active {
+  height: 45px;
+  background: linear-gradient(135deg, var(--green), var(--green-mid));
+  color: var(--white);
+  box-shadow: 0 9px 18px rgba(22, 169, 80, .2);
+}
+
+.nav-link.active i { color: var(--white); }
+
+.sidebar-user {
+  height: 102px;
+  padding: 20px 22px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--green-soft-2);
+  color: var(--green-dark);
+  font-weight: 800;
+  overflow: hidden;
+}
+
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.user-name { margin: 0; font-size: 14px; font-weight: 800; }
+.user-role { margin: 5px 0 0; color: var(--muted); font-size: 11px; font-weight: 500; }
+
+.main { min-width: 0; display: flex; flex-direction: column; }
+
+.topbar {
+  height: 82px;
+  padding: 0 24px 0 29px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, .95);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.page-title h1 { margin: 0; font-size: 22px; line-height: 1.1; font-weight: 900; }
+.page-title p { margin: 8px 0 0; color: var(--muted); font-size: 13px; font-weight: 500; }
+
+.top-actions { display: flex; align-items: center; gap: 22px; }
+
+.search-box { position: relative; width: 342px; }
+
+.search-box i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.search-box input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid var(--input-line);
+  border-radius: 10px;
+  background: var(--white);
+  outline: none;
+  padding: 0 14px 0 43px;
+  color: var(--text);
+  box-shadow: 0 7px 18px rgba(15, 31, 58, .035);
+}
+
+.search-box input::placeholder { color: var(--muted-2); }
+
+.search-box input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(32, 184, 93, 0.14);
+}
+
+.nav-search-results {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(15, 31, 58, 0.14);
+  padding: 6px;
+  z-index: 60;
+  max-height: 320px;
+  overflow-y: auto;
+  animation: navResultsPop 0.16s ease both;
+}
+
+.nav-search-results.is-open { display: block; }
+
+@keyframes navResultsPop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.nav-search-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: var(--nav-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.nav-search-item i { width: 16px; color: var(--nav-icon); font-size: 14px; text-align: center; }
+
+.nav-search-item:hover,
+.nav-search-item.is-active { background: var(--green-soft); color: var(--green-dark); }
+
+.nav-search-item:hover i,
+.nav-search-item.is-active i { color: var(--green-dark); }
+
+.nav-search-item mark { background: none; color: inherit; font-weight: 900; padding: 0; }
+
+.nav-search-empty { padding: 14px 10px; color: var(--muted); font-size: 12.5px; text-align: center; }
+
+.date-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.date-pill i { font-size: 18px; }
+
+.theme-toggle {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  flex: none;
+}
+
+.theme-toggle-track {
+  width: 58px;
+  height: 30px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  background: linear-gradient(135deg, #ffd76a, #ff9f43);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.18);
+  transition: background 0.45s ease, box-shadow 0.3s ease;
+}
+
+:root[data-theme="dark"] .theme-toggle-track {
+  background: linear-gradient(135deg, #2d3660, #10142a);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.theme-toggle:hover .theme-toggle-track {
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 0 4px rgba(242, 139, 34, 0.14);
+}
+
+:root[data-theme="dark"] .theme-toggle:hover .theme-toggle-track {
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(90, 163, 255, 0.16);
+}
+
+.theme-toggle-thumb {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transform: translateX(0);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease;
+}
+
+:root[data-theme="dark"] .theme-toggle-thumb {
+  transform: translateX(28px);
+  background: #141b2c;
+}
+
+.theme-toggle-thumb i {
+  position: absolute;
+  font-size: 12px;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-icon-sun { color: #f5a623; opacity: 1; transform: rotate(0deg) scale(1); }
+.theme-icon-moon { color: #a7b3ff; opacity: 0; transform: rotate(-90deg) scale(0.5); }
+
+:root[data-theme="dark"] .theme-icon-sun { opacity: 0; transform: rotate(90deg) scale(0.5); }
+:root[data-theme="dark"] .theme-icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+
+.theme-toggle:active .theme-toggle-thumb { transform: scale(0.9); }
+:root[data-theme="dark"] .theme-toggle:active .theme-toggle-thumb { transform: translateX(28px) scale(0.9); }
+
+.notify {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+
+.notify span {
+  position: absolute;
+  top: -6px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--white);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.profile-head { position: relative; display: flex; align-items: center; gap: 13px; cursor: pointer; }
+.profile-head .avatar { width: 45px; height: 45px; }
+
+.profile-chevron,
+.sidebar-chevron { color: var(--text); font-size: 13px; }
+.sidebar-chevron { color: var(--muted-2); font-size: 12px; }
+
+.profile-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 220px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(15, 31, 58, 0.14);
+  padding: 12px 14px;
+  z-index: 50;
+}
+
+.profile-dropdown-menu.is-open { display: block; }
+
+.pdm-name { margin: 0; font-size: 13px; font-weight: 800; color: var(--ink); }
+.pdm-email { margin: 2px 0 0; font-size: 12px; color: var(--muted); word-break: break-word; }
+.pdm-divider { margin: 10px 0; border: none; border-top: 1px solid var(--line); }
+
+.pdm-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 8px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.pdm-item:hover { background: var(--soft-line); }
+.pdm-item.pdm-danger { color: var(--red); }
+
+.content { padding: 23px 24px 36px 29px; }
+
+.flash {
+  margin-bottom: 16px;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.flash-success { background: var(--green-soft); border-color: var(--green-soft-2); color: var(--green-dark); }
+.flash-danger { background: var(--red-soft); border-color: var(--red-border); color: var(--red-dark); }
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  animation: cardRise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cardRise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel, .detail-avatar-lg, .info-item, .role-chip-lg { animation: none !important; }
+}
+
+.detail-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 32px 30px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, var(--ink) 0%, #16305a 55%, var(--green-dark) 130%);
+  color: #fff;
+  animation-delay: 0.02s;
+}
+
+.detail-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 14% 20%, rgba(32, 184, 93, 0.28), transparent 45%),
+    radial-gradient(circle at 88% 15%, rgba(23, 121, 242, 0.22), transparent 50%);
+  pointer-events: none;
+}
+
+.detail-hero-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.detail-hero-left { display: flex; align-items: center; gap: 20px; }
+
+.detail-avatar-lg {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.14);
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  font-weight: 900;
+  color: #fff;
+  overflow: hidden;
+  flex: none;
+  animation: avatarPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.1s;
+}
+
+@keyframes avatarPop {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.detail-hero-name { margin: 0; font-size: 24px; font-weight: 900; }
+
+.detail-hero-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(32, 184, 93, 0.24);
+  border: 1px solid rgba(32, 184, 93, 0.4);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.detail-hero-role.is-privileged {
+  background: rgba(242, 139, 34, 0.24);
+  border-color: rgba(242, 139, 34, 0.4);
+}
+
+.detail-hero-sub {
+  margin: 10px 0 0;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.detail-hero-actions { position: relative; z-index: 1; display: flex; gap: 10px; flex-wrap: wrap; }
+
+.hero-btn {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 800;
+  font-size: 13px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.hero-btn-primary { background: #fff; color: var(--ink); }
+.hero-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(0, 0, 0, 0.22); }
+
+.hero-btn-outline { background: rgba(255, 255, 255, 0.12); color: #fff; border: 1px solid rgba(255, 255, 255, 0.4); }
+.hero-btn-outline:hover { background: rgba(255, 255, 255, 0.22); transform: translateY(-2px); }
+
+.hero-btn-danger { background: rgba(239, 63, 81, 0.22); color: #fff; border: 1px solid rgba(239, 63, 81, 0.55); }
+.hero-btn-danger:hover { background: rgba(239, 63, 81, 0.34); transform: translateY(-2px); }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 18px;
+}
+
+.panel-head {
+  height: 58px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.panel-head i { color: var(--green); font-size: 17px; }
+.panel-head h2 { margin: 0; font-size: 15px; font-weight: 800; color: var(--panel-title); }
+
+.panel-body { padding: 8px 20px 18px; }
+
+.info-item {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px dashed var(--soft-line);
+  animation: itemSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(0.15s + var(--i, 0) * 55ms);
+}
+
+@keyframes itemSlideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.info-item:last-child { border-bottom: none; }
+
+.info-item-label {
+  color: var(--muted);
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.info-item-value { color: var(--ink); font-size: 13.5px; font-weight: 600; word-break: break-word; }
+
+.code-text {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--gray-soft);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.role-chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+
+.role-chip-lg {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, var(--green-soft), var(--blue-soft));
+  color: var(--green-dark);
+  font-weight: 800;
+  font-size: 12.5px;
+  animation: chipPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: calc(0.1s + var(--i, 0) * 60ms);
+}
+
+a.role-chip-lg { cursor: pointer; }
+a.role-chip-lg:hover { filter: brightness(0.97); }
+
+@keyframes chipPop {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.perm-note {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--gray-soft);
+  color: var(--text);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.perm-note i { color: var(--muted-2); margin-top: 1px; }
+
+.perm-badge-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+
+.perm-badge {
+  padding: 5px 10px;
+  border-radius: 7px;
+  background: var(--green);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  animation: chipPop 0.25s ease both;
+  animation-delay: calc(0.15s + var(--i, 0) * 22ms);
+}
+
+a.perm-badge { cursor: pointer; }
+a.perm-badge:hover { filter: brightness(0.95); }
+
+.muted-empty { color: var(--muted); font-weight: 600; }
+
+@media (max-width: 1100px) {
+  .detail-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .topbar { height: auto; padding: 16px; align-items: flex-start; flex-direction: column; }
+  .top-actions { width: 100%; gap: 12px; flex-wrap: wrap; }
+  .search-box { width: 100%; order: 2; }
+  .content { padding: 16px; }
+  .info-item { grid-template-columns: 1fr; gap: 4px; }
+}
+</style>
+</head>
+<body>
+{% set privileged_names = ['admin', 'super admin', 'super_admin', 'administrator'] %}
+{% set is_privileged = role.name|lower in privileged_names %}
+{% set sorted_permissions = role.permissions|sort(attribute='code') %}
+{% set sorted_users = role.users|sort(attribute='username') %}
+{% set admin_display_name = current_user.full_name or current_user.username %}
+{% set admin_initial = (admin_display_name[0]|upper) if admin_display_name else 'A' %}
+{% set admin_photo_path = (current_user.photo or '')|trim %}
+{% set admin_avatar_url = url_for('main.images', filename=admin_photo_path|replace('images/', '')) if admin_photo_path else '' %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">
+      <div>
+        <p class="brand-name">Diet Expert</p>
+        <p class="brand-sub">Clinical Nutrition Suite</p>
+      </div>
+      <button class="collapse-btn" type="button" id="sidebarCollapseBtn" aria-label="Collapse sidebar"><i class="fas fa-chevron-left"></i></button>
+    </div>
+
+    <nav class="nav" aria-label="Admin navigation">
+      <a class="nav-link" href="{{ url_for('dashboard.admin_dashboard') }}"><i class="fas fa-table-cells-large"></i><span>Dashboard</span></a>
+      <a class="nav-link" href="{{ url_for('tbl_users.index', role='doctor') }}"><i class="fas fa-user-doctor"></i><span>Doctors</span></a>
+
+      <div class="nav-section">Management</div>
+      <a class="nav-link" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span></a>
+      <a class="nav-link" href="{{ url_for('tbl_users.index', role='user') }}"><i class="fas fa-hospital-user"></i><span>Patients</span></a>
+      <a class="nav-link" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span></a>
+
+      <div class="nav-section">Content & Data</div>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=rules"><i class="fas fa-list-ul"></i><span>Rule Library</span></a>
+
+      <div class="nav-section">System</div>
+      <a class="nav-link active" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-gear"></i><span>Settings</span></a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="avatar">
+        {% if admin_avatar_url %}<img src="{{ admin_avatar_url }}" alt="{{ admin_display_name }}">{% else %}{{ admin_initial }}{% endif %}
+      </div>
+      <div>
+        <p class="user-name">{{ admin_display_name }}</p>
+        <p class="user-role">Super Administrator</p>
+      </div>
+      <a href="{{ url_for('auth.logout') }}" title="Logout" onclick="openLogoutModal(event);"
+         style="color:var(--muted);font-size:0.9rem;text-decoration:none;">
+        <i class="fas fa-sign-out-alt"></i>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="page-title">
+        <h1>Role Details</h1>
+        <p>View permissions and users assigned to this role</p>
+      </div>
+      <div class="top-actions">
+        <div class="search-box" id="navSearchBox">
+          <i class="fas fa-magnifying-glass"></i>
+          <input type="search" id="navSearchInput" placeholder="Search sidebar… (Doctors, Users, Settings)" autocomplete="off">
+          <div class="nav-search-results" id="navSearchResults"></div>
         </div>
-     </div>
-     <!-- Permissions -->
-      <div class="col-lg-6 mb-3">
-        <div class="card">
-            <div class="card-header">
-                Permissions ({{ role.permissions|length }})
-            </div>
-            <div class="card-body">
-                {% if role.permissions %}
-                <ul class="list-group-flush">
-                    {% for perm in role.permissions %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="badge bg-secondary me-2">{{ perm.module }}</span>
-                                <strong>{{ perm.code }}</strong> - {{ perm.name }}
-                            </div>
-                                <a href="{{ url_for('tbl_permissions.detail', permission_id=perm.id) }}" class="btn btn-sm btn-outline-primary">
-                                View
-                            </a>
-                        </div>
-                        {% if perm.description %}
-                        <div class="small text-muted mt-1">{{ perm.description }}</div>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p class="text-muted mb-0">This role has no permissions yet.</p>
-                {% endif %}
-            </div>
+        <div class="date-pill"><i class="far fa-calendar-alt"></i><span id="headerDate">Aug 24, 2026</span></div>
+        <button class="theme-toggle" type="button" id="themeToggle" aria-label="Toggle dark mode">
+          <span class="theme-toggle-track">
+            <span class="theme-toggle-thumb">
+              <i class="fas fa-sun theme-icon-sun"></i>
+              <i class="fas fa-moon theme-icon-moon"></i>
+            </span>
+          </span>
+        </button>
+        {% include "dashboard/_admin_notify.html" %}
+        <div class="profile-head" id="adminProfileHead">
+          <div class="avatar">
+            {% if admin_avatar_url %}<img src="{{ admin_avatar_url }}" alt="{{ admin_display_name }}">{% else %}{{ admin_initial }}{% endif %}
+          </div>
+          <i class="fas fa-chevron-down profile-chevron"></i>
+          <div class="profile-dropdown-menu" id="adminProfileMenu">
+            <p class="pdm-name">{{ admin_display_name }}</p>
+            <p class="pdm-email">{{ current_user.email }}</p>
+            <hr class="pdm-divider">
+            <a class="pdm-item" href="{{ url_for('dashboard.admin_dashboard') }}">
+              <i class="fas fa-table-cells-large"></i> Dashboard
+            </a>
+            <a class="pdm-item" href="{{ url_for('dashboard.admin_profile') }}">
+              <i class="fas fa-user"></i> Profile
+            </a>
+            <a class="pdm-item" href="{{ url_for('dashboard.admin_profile_edit') }}">
+              <i class="fas fa-user-pen"></i> Edit Profile
+            </a>
+            <hr class="pdm-divider">
+            <button type="button" class="pdm-item pdm-danger" onclick="openLogoutModal(event);">
+              <i class="fas fa-sign-out-alt"></i> Log Out
+            </button>
+          </div>
         </div>
       </div>
+    </header>
+
+    <div class="content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <section class="panel detail-hero">
+        <div class="detail-hero-row">
+          <div class="detail-hero-left">
+            <div class="detail-avatar-lg"><i class="fas fa-user-shield"></i></div>
+            <div>
+              <h1 class="detail-hero-name">{{ role.name }}</h1>
+              <span class="detail-hero-role {{ 'is-privileged' if is_privileged }}">
+                <i class="fas {{ 'fa-crown' if is_privileged else 'fa-shield-halved' }}"></i>
+                {{ 'Privileged Role' if is_privileged else 'Standard Role' }}
+              </span>
+              <p class="detail-hero-sub"><i class="fas fa-align-left me-1"></i> {{ role.description or "No description provided." }}</p>
+            </div>
+          </div>
+          <div class="detail-hero-actions">
+            <a class="hero-btn hero-btn-primary" href="{{ url_for('tbl_roles.edit', role_id=role.id) }}">
+              <i class="fas fa-pen"></i> Edit Role
+            </a>
+            <a class="hero-btn hero-btn-danger" href="{{ url_for('tbl_roles.delete_confirm', role_id=role.id) }}">
+              <i class="fas fa-trash"></i> Delete
+            </a>
+            <a class="hero-btn hero-btn-outline" href="{{ url_for('tbl_roles.index') }}">
+              <i class="fas fa-arrow-left"></i> Back to Roles
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="detail-grid">
+        <article class="panel" style="animation-delay:0.08s;">
+          <header class="panel-head"><i class="fas fa-id-badge"></i><h2>Role Information</h2></header>
+          <div class="panel-body">
+            <div class="info-item" style="--i:0;">
+              <span class="info-item-label">Role Name</span>
+              <span class="info-item-value">{{ role.name }}</span>
+            </div>
+            <div class="info-item" style="--i:1;">
+              <span class="info-item-label">Description</span>
+              <span class="info-item-value">{{ role.description or "No description provided." }}</span>
+            </div>
+            <div class="info-item" style="--i:2;">
+              <span class="info-item-label">Access Level</span>
+              <span class="info-item-value">
+                <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:11.5px;font-weight:800;{{ 'background:var(--orange-soft);color:var(--orange);' if is_privileged else 'background:var(--green-soft-2);color:var(--green-dark);' }}">
+                  <span style="width:6px;height:6px;border-radius:50%;background:currentColor;"></span>
+                  {{ 'Privileged' if is_privileged else 'Standard' }}
+                </span>
+              </span>
+            </div>
+            <div class="info-item" style="--i:3;">
+              <span class="info-item-label">Total Permissions</span>
+              <span class="info-item-value">{{ sorted_permissions|length }}</span>
+            </div>
+            <div class="info-item" style="--i:4;">
+              <span class="info-item-label">Total Users</span>
+              <span class="info-item-value">{{ sorted_users|length }}</span>
+            </div>
+          </div>
+        </article>
+
+        <div style="display:grid;gap:18px;">
+          <article class="panel" style="animation-delay:0.14s;">
+            <header class="panel-head"><i class="fas fa-key"></i><h2>Assigned Permissions</h2></header>
+            <div class="panel-body">
+              {% if sorted_permissions %}
+              <div class="perm-badge-list">
+                {% for perm in sorted_permissions %}
+                <a class="perm-badge" style="--i:{{ loop.index0 }};" href="{{ url_for('tbl_permissions.detail', permission_id=perm.id) }}" title="{{ perm.name }}">{{ perm.code }}</a>
+                {% endfor %}
+              </div>
+              <div class="perm-note">
+                <i class="fas fa-circle-info"></i>
+                <span>This role grants {{ sorted_permissions|length }} permission{{ '' if sorted_permissions|length == 1 else 's' }} across the platform. Click a permission to view its details.</span>
+              </div>
+              {% else %}
+              <p class="muted-empty">This role has no permissions assigned yet.</p>
+              {% endif %}
+            </div>
+          </article>
+
+          <article class="panel" style="animation-delay:0.2s;">
+            <header class="panel-head"><i class="fas fa-users"></i><h2>Users with this Role</h2></header>
+            <div class="panel-body">
+              {% if sorted_users %}
+              <div class="role-chip-row">
+                {% for user in sorted_users %}
+                <a class="role-chip-lg" style="--i:{{ loop.index0 }};" href="{{ url_for('tbl_users.detail', user_id=user.id) }}">
+                  <i class="fas fa-user"></i>{{ user.full_name or user.username }}
+                </a>
+                {% endfor %}
+              </div>
+              {% else %}
+              <p class="muted-empty">No users are assigned to this role yet.</p>
+              {% endif %}
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
 </div>
-{% endblock %}
+{% include "dashboard/_logout_modal.html" %}
+
+<script>
+const headerDate = document.getElementById("headerDate");
+if (headerDate) {
+  headerDate.textContent = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function navEscapeHtml(v) {
+  const d = document.createElement("div");
+  d.textContent = v == null ? "" : v;
+  return d.innerHTML;
+}
+
+const NAV_SEARCH_DESTINATIONS = [
+  { label: "Dashboard", icon: "fa-table-cells-large", url: "{{ url_for('dashboard.admin_dashboard') }}", keywords: "overview home" },
+  { label: "Doctors", icon: "fa-user-doctor", url: "{{ url_for('tbl_users.index', role='doctor') }}", keywords: "physicians doctor" },
+  { label: "Users", icon: "fa-users", url: "{{ url_for('tbl_users.index') }}", keywords: "accounts users" },
+  { label: "Patients", icon: "fa-hospital-user", url: "{{ url_for('tbl_users.index', role='user') }}", keywords: "patients" },
+  { label: "Permissions", icon: "fa-key", url: "{{ url_for('tbl_permissions.index') }}", keywords: "access permissions" },
+  { label: "Food Catalog", icon: "fa-apple-whole", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=foods", keywords: "food catalog foods" },
+  { label: "Cooked Foods", icon: "fa-utensils", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=cooked", keywords: "cooked foods recipes" },
+  { label: "Rule Library", icon: "fa-list-ul", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=rules", keywords: "diet rules rule library" },
+  { label: "Settings", icon: "fa-gear", url: "{{ url_for('tbl_roles.index') }}", keywords: "settings roles configuration" },
+];
+
+function navSearchHighlight(text, term) {
+  if (!term) return navEscapeHtml(text);
+  const idx = text.toLowerCase().indexOf(term.toLowerCase());
+  if (idx === -1) return navEscapeHtml(text);
+  return navEscapeHtml(text.slice(0, idx)) + "<mark>" + navEscapeHtml(text.slice(idx, idx + term.length)) + "</mark>" + navEscapeHtml(text.slice(idx + term.length));
+}
+
+function renderNavSearchResults(term) {
+  const box = document.getElementById("navSearchResults");
+  if (!box) return;
+  const q = term.trim().toLowerCase();
+  if (!q) { box.classList.remove("is-open"); box.innerHTML = ""; return; }
+  const matches = NAV_SEARCH_DESTINATIONS.filter((d) =>
+    d.label.toLowerCase().includes(q) || (d.keywords || "").toLowerCase().includes(q)
+  );
+  if (!matches.length) {
+    box.innerHTML = '<div class="nav-search-empty">No matching page found.</div>';
+    box.classList.add("is-open");
+    return;
+  }
+  box.innerHTML = matches.map((d, i) => `
+    <div class="nav-search-item${i === 0 ? " is-active" : ""}" data-url="${navEscapeHtml(d.url)}">
+      <i class="fas ${d.icon}"></i>${navSearchHighlight(d.label, q)}
+    </div>`).join("");
+  box.classList.add("is-open");
+  box.querySelectorAll(".nav-search-item").forEach((el) => {
+    el.addEventListener("click", () => { window.location.href = el.dataset.url; });
+  });
+}
+
+const navSearchInput = document.getElementById("navSearchInput");
+const navSearchBox = document.getElementById("navSearchBox");
+const navSearchResultsEl = document.getElementById("navSearchResults");
+if (navSearchInput && navSearchResultsEl) {
+  navSearchInput.addEventListener("input", () => renderNavSearchResults(navSearchInput.value));
+  navSearchInput.addEventListener("focus", () => {
+    if (navSearchInput.value.trim()) renderNavSearchResults(navSearchInput.value);
+  });
+  navSearchInput.addEventListener("keydown", (e) => {
+    const items = Array.from(navSearchResultsEl.querySelectorAll(".nav-search-item"));
+    if (!items.length) return;
+    let activeIdx = items.findIndex((el) => el.classList.contains("is-active"));
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (activeIdx >= 0) items[activeIdx].classList.remove("is-active");
+      activeIdx = (activeIdx + 1) % items.length;
+      items[activeIdx].classList.add("is-active");
+      items[activeIdx].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (activeIdx >= 0) items[activeIdx].classList.remove("is-active");
+      activeIdx = (activeIdx - 1 + items.length) % items.length;
+      items[activeIdx].classList.add("is-active");
+      items[activeIdx].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const active = items[activeIdx] || items[0];
+      if (active) window.location.href = active.dataset.url;
+    } else if (e.key === "Escape") {
+      navSearchResultsEl.classList.remove("is-open");
+      navSearchInput.blur();
+    }
+  });
+  document.addEventListener("click", (e) => {
+    if (navSearchBox && !navSearchBox.contains(e.target)) navSearchResultsEl.classList.remove("is-open");
+  });
+}
+
+const adminProfileHead = document.getElementById("adminProfileHead");
+const adminProfileMenu = document.getElementById("adminProfileMenu");
+if (adminProfileHead && adminProfileMenu) {
+  adminProfileHead.addEventListener("click", (e) => {
+    e.stopPropagation();
+    adminProfileMenu.classList.toggle("is-open");
+  });
+  document.addEventListener("click", (e) => {
+    if (!adminProfileHead.contains(e.target)) adminProfileMenu.classList.remove("is-open");
+  });
+}
+
+const sidebarCollapseBtn = document.getElementById("sidebarCollapseBtn");
+const appShellEl = document.querySelector(".app-shell");
+if (sidebarCollapseBtn && appShellEl) {
+  if (localStorage.getItem("ndAdminSidebarCollapsed") === "1") {
+    appShellEl.classList.add("is-collapsed");
+  }
+  sidebarCollapseBtn.addEventListener("click", () => {
+    const collapsed = appShellEl.classList.toggle("is-collapsed");
+    localStorage.setItem("ndAdminSidebarCollapsed", collapsed ? "1" : "0");
+  });
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  try { localStorage.setItem("ndAdminTheme", theme); } catch (e) {}
+}
+
+const themeToggle = document.getElementById("themeToggle");
+if (themeToggle) {
+  if (!document.documentElement.getAttribute("data-theme")) {
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+  }
+  themeToggle.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    applyTheme(current === "dark" ? "light" : "dark");
+  });
+}
+</script>
+</body>
+</html>

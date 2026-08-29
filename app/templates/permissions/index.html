@@ -1,513 +1,1123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem("ndAdminTheme");
+    if (saved === "dark" || saved === "light") {
+      document.documentElement.setAttribute("data-theme", saved);
+    }
+  } catch (e) {}
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Permissions Management | Diet Expert</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root {
-  --bg: #f4f7fb;
-  --surface: #ffffff;
-  --ink: #111827;
-  --muted: #667085;
-  --faint: #98a2b3;
-  --border: #e5ebf3;
-  --green: #16a85a;
-  --blue: #2563eb;
-  --purple: #8b5cf6;
-  --orange: #f97316;
+  --bg: #f7f9fc;
+  --card: #ffffff;
+  --white: #ffffff;
+  --ink: #0f1f3a;
+  --text: #26364f;
+  --muted: #66758b;
+  --muted-2: #69768b;
+  --muted-3: #7b8aa0;
+  --nav-text: #1d2d44;
+  --nav-icon: #3f5069;
+  --panel-title: #12243e;
+  --line: #e2e8f0;
+  --soft-line: #edf1f6;
+  --input-line: #dbe3ee;
+  --control-line: #dce3ec;
+  --green: #20b85d;
+  --green-dark: #12964b;
+  --green-mid: #16a950;
+  --green-soft: #e7f8ee;
+  --green-soft-2: #dcf6e9;
+  --green-soft-3: #e6f8ee;
+  --blue: #1779f2;
+  --blue-soft: #e8f2ff;
+  --orange: #f28b22;
+  --orange-soft: #fff0df;
+  --purple: #8657e9;
+  --purple-soft: #f1e6ff;
   --teal: #0ea5a3;
-  --rose: #e84b74;
-  --shadow: 0 10px 28px rgba(16, 24, 40, .06);
+  --teal-soft: #e6fbfa;
+  --red: #ef3f51;
+  --red-soft: #ffe7ec;
+  --red-dark: #a7172a;
+  --red-border: #f8c8d0;
+  --gray-soft: #f1f4f7;
+  --hover-bg: #fafbfd;
+  --edit-bg: #fff4cf;
+  --edit-fg: #9b6a00;
+  --delete-bg: #f8d4db;
+  --delete-fg: #9f1230;
+  --shadow: 0 10px 30px rgba(15, 31, 58, .06);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b101c;
+  --card: #141b2c;
+  --white: #141b2c;
+  --ink: #eef2fa;
+  --text: #c3cbdc;
+  --muted: #93a0b8;
+  --muted-2: #94a0b8;
+  --muted-3: #6f7b96;
+  --nav-text: #dbe1ee;
+  --nav-icon: #93a0b8;
+  --panel-title: #eef2fa;
+  --line: #232b40;
+  --soft-line: #1c2336;
+  --input-line: #2a3349;
+  --control-line: #2a3349;
+  --green: #34d17a;
+  --green-dark: #4ee08d;
+  --green-mid: #2ac46c;
+  --green-soft: rgba(52, 209, 122, 0.16);
+  --green-soft-2: rgba(52, 209, 122, 0.2);
+  --green-soft-3: rgba(52, 209, 122, 0.18);
+  --blue: #5aa3ff;
+  --blue-soft: rgba(90, 163, 255, 0.16);
+  --orange: #ffab4c;
+  --orange-soft: rgba(255, 171, 76, 0.16);
+  --purple: #b092ff;
+  --purple-soft: rgba(176, 146, 255, 0.16);
+  --teal: #2dd4c8;
+  --teal-soft: rgba(45, 212, 200, 0.16);
+  --red: #ff6b7a;
+  --red-soft: rgba(255, 107, 122, 0.16);
+  --red-dark: #ff8f9b;
+  --red-border: rgba(255, 107, 122, 0.35);
+  --gray-soft: #1a2133;
+  --hover-bg: #1a2133;
+  --edit-bg: rgba(255, 196, 0, 0.16);
+  --edit-fg: #ffcf5c;
+  --delete-bg: rgba(255, 107, 122, 0.16);
+  --delete-fg: #ff8f9b;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
-html, body { min-height: 100%; }
+
+html,
+body { min-height: 100%; }
+
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
   font-family: Inter, "Segoe UI", Arial, sans-serif;
-  font-size: 13px;
+  font-size: 14px;
+  letter-spacing: 0;
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
-a { color: inherit; text-decoration: none; }
-button, input, select { font: inherit; }
 
-.layout {
+.sidebar,
+.topbar,
+.search-box input,
+.nav-search-results,
+.profile-dropdown-menu,
+.pdm-item,
+.date-pill,
+.nav-link,
+.notify,
+.panel,
+.table-search input,
+.filter-select,
+.data-table,
+.action-btn,
+.active-filter-chip {
+  transition: background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
+}
+
+a { color: inherit; text-decoration: none; }
+button,
+input,
+select { font: inherit; }
+
+.app-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 244px minmax(0, 1fr);
+  grid-template-columns: 250px minmax(0, 1fr);
+  transition: grid-template-columns 0.18s ease;
 }
+
+.app-shell.is-collapsed {
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+
 .sidebar {
   position: sticky;
   top: 0;
   height: 100vh;
-  background: #fff;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid var(--line);
+  background: var(--white);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.is-collapsed .brand-name,
+.is-collapsed .brand-sub,
+.is-collapsed .nav-section,
+.is-collapsed .nav-link span,
+.is-collapsed .user-name,
+.is-collapsed .user-role {
+  display: none;
+}
+
+.is-collapsed .collapse-btn i { transform: rotate(180deg); }
+.is-collapsed .brand { grid-template-columns: 36px; }
+.is-collapsed .nav-link { justify-content: center; }
+.is-collapsed .sidebar-user { grid-template-columns: 40px; justify-content: center; }
+
+.brand {
+  height: 88px;
+  padding: 20px 15px 15px 24px;
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-mark {
+  width: 36px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.brand-name {
+  margin: 0;
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.brand-sub {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.collapse-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--muted-2);
+  display: grid;
+  place-items: center;
+}
+
+.nav {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.nav-section {
+  margin: 28px 10px 12px;
+  color: var(--muted-3);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.nav-section:first-of-type { margin-top: 26px; }
+
+.nav-link {
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: var(--nav-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nav-link + .nav-link { margin-top: 7px; }
+
+.nav-link i:first-child {
+  width: 18px;
+  color: var(--nav-icon);
+  font-size: 16px;
+  text-align: center;
+}
+
+.nav-link.active {
+  height: 45px;
+  background: linear-gradient(135deg, var(--green), var(--green-mid));
+  color: var(--white);
+  box-shadow: 0 9px 18px rgba(22, 169, 80, .2);
+}
+
+.nav-link.active i { color: var(--white); }
+
+.sidebar-user {
+  height: 102px;
+  padding: 20px 22px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--green-soft-2);
+  color: var(--green-dark);
+  font-weight: 800;
+  overflow: hidden;
+}
+
+.avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+
+.user-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.user-role {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.main {
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
-.brand {
-  height: 72px;
-  padding: 16px 18px;
+
+.topbar {
+  height: 82px;
+  padding: 0 24px 0 29px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, .95);
   display: flex;
   align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--border);
+  justify-content: space-between;
+  gap: 22px;
 }
-.brand img { width: 38px; height: 38px; border-radius: 8px; object-fit: contain; }
-.brand-title { margin: 0; font-size: 15px; font-weight: 900; }
-.brand-sub { margin-top: 2px; color: var(--muted); font-size: 10px; font-weight: 700; }
-.nav {
-  flex: 1;
-  min-height: 0;
-  padding: 14px 12px;
-  overflow-y: auto;
-}
-.nav-label {
-  margin: 17px 8px 8px;
-  color: #8a95a8;
-  font-size: 10px;
+
+.page-title h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
   font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: .04em;
 }
-.nav-link {
-  height: 38px;
-  margin-bottom: 5px;
-  padding: 0 12px;
+
+.page-title p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.search-box {
+  position: relative;
+  width: 342px;
+}
+
+.search-box i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.search-box input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid var(--input-line);
+  border-radius: 10px;
+  background: var(--white);
+  outline: none;
+  padding: 0 14px 0 43px;
+  color: var(--text);
+  box-shadow: 0 7px 18px rgba(15, 31, 58, .035);
+}
+
+.search-box input::placeholder { color: var(--muted-2); }
+
+.search-box input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(32, 184, 93, 0.14);
+}
+
+.nav-search-results {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(15, 31, 58, 0.14);
+  padding: 6px;
+  z-index: 60;
+  max-height: 320px;
+  overflow-y: auto;
+  animation: navResultsPop 0.16s ease both;
+}
+
+.nav-search-results.is-open { display: block; }
+
+@keyframes navResultsPop {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.nav-search-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 10px;
   border-radius: 8px;
+  color: var(--nav-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.nav-search-item i {
+  width: 16px;
+  color: var(--nav-icon);
+  font-size: 14px;
+  text-align: center;
+}
+
+.nav-search-item:hover,
+.nav-search-item.is-active {
+  background: var(--green-soft);
+  color: var(--green-dark);
+}
+
+.nav-search-item:hover i,
+.nav-search-item.is-active i {
+  color: var(--green-dark);
+}
+
+.nav-search-item mark {
+  background: none;
+  color: inherit;
+  font-weight: 900;
+  padding: 0;
+}
+
+.nav-search-empty {
+  padding: 14px 10px;
+  color: var(--muted);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+.date-pill {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #344054;
-  font-size: 12px;
-  font-weight: 800;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
   white-space: nowrap;
 }
-.nav-link:hover { background: #eefbf4; color: var(--green); }
-.nav-link.active {
-  background: linear-gradient(135deg, #22c768, #16a85a);
-  color: #fff;
-  box-shadow: 0 10px 22px rgba(22, 168, 90, .24);
-}
-.nav-link i:first-child { width: 16px; text-align: center; font-size: 13px; }
-.sidebar-footer { padding: 12px; border-top: 1px solid var(--border); }
-.back-link {
-  height: 38px;
-  padding: 0 12px;
-  border: 1px solid #d8e1ed;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  background: #fbfcfe;
-  color: #344054;
-  font-size: 11px;
-  font-weight: 850;
+
+.date-pill i { font-size: 18px; }
+
+.theme-toggle {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  flex: none;
 }
 
-.main { min-width: 0; }
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  min-height: 70px;
-  padding: 0 22px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  background: rgba(255,255,255,.94);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(16px);
-}
-.title h1 { margin: 0; font-size: 21px; font-weight: 950; }
-.title p { margin: 2px 0 0; color: var(--muted); font-size: 12px; font-weight: 700; }
-.top-tools { display: flex; align-items: center; gap: 12px; }
-.date-pill { color: #344054; font-size: 11px; font-weight: 900; white-space: nowrap; }
-.icon-btn {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #fff;
-  color: #667085;
-}
-.icon-btn .count {
-  position: absolute;
-  top: -5px;
-  right: -3px;
-  min-width: 17px;
-  height: 17px;
-  border: 2px solid #fff;
+.theme-toggle-track {
+  width: 58px;
+  height: 30px;
   border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background: #ef4444;
-  color: #fff;
-  font-size: 9px;
-  font-weight: 900;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  background: linear-gradient(135deg, #ffd76a, #ff9f43);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.18);
+  transition: background 0.45s ease, box-shadow 0.3s ease;
 }
-.profile { display: flex; align-items: center; gap: 9px; }
-.avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #dff8e9;
-  color: var(--green);
-  font-size: 12px;
-  font-weight: 950;
-}
-.profile-name { margin: 0; font-size: 12px; font-weight: 950; line-height: 1.1; }
-.profile-role { margin: 2px 0 0; color: var(--muted); font-size: 10px; font-weight: 800; line-height: 1.1; }
 
-.content { padding: 18px 20px 24px; }
-.flash-stack { margin-bottom: 14px; display: grid; gap: 8px; }
-.flash {
-  padding: 11px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+:root[data-theme="dark"] .theme-toggle-track {
+  background: linear-gradient(135deg, #2d3660, #10142a);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.theme-toggle:hover .theme-toggle-track {
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 0 4px rgba(242, 139, 34, 0.14);
+}
+
+:root[data-theme="dark"] .theme-toggle:hover .theme-toggle-track {
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(90, 163, 255, 0.16);
+}
+
+.theme-toggle-thumb {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   background: #fff;
-  color: #344054;
-  font-weight: 750;
-}
-.flash.success { border-color: #bcebd0; background: #effbf4; color: #137a42; }
-.flash.danger { border-color: #ffd1d8; background: #fff1f3; color: #b4233f; }
-
-.hero-grid {
-  display: grid;
-  grid-template-columns: minmax(280px, 1.25fr) repeat(3, minmax(160px, .48fr));
-  gap: 14px;
-  margin-bottom: 16px;
-}
-.hero, .metric-card, .toolbar, .permission-card, .module-card, .empty-card {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
-}
-.hero {
-  min-height: 118px;
-  padding: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-}
-.hero h2 { margin: 0; font-size: 18px; font-weight: 950; }
-.hero p { max-width: 560px; margin: 5px 0 0; color: var(--muted); font-size: 12px; font-weight: 700; line-height: 1.5; }
-.hero-icon {
-  width: 82px;
-  height: 82px;
-  border-radius: 50%;
-  flex: 0 0 auto;
   display: grid;
   place-items: center;
-  background: #eef2ff;
-  color: var(--blue);
-  font-size: 30px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transform: translateX(0);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease;
 }
-.metric-card { min-height: 118px; padding: 16px; }
-.metric-label { margin: 0; color: var(--muted); font-size: 11px; font-weight: 900; }
-.metric-value { margin: 8px 0 3px; color: #111827; font-size: 27px; font-weight: 950; line-height: 1; }
-.metric-note { margin: 0; color: var(--green); font-size: 10px; font-weight: 900; }
-.meter { height: 7px; margin-top: 14px; border-radius: 999px; background: #edf2f7; overflow: hidden; }
-.meter span { display: block; height: 100%; border-radius: inherit; }
 
-.module-strip {
-  margin-bottom: 16px;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
+:root[data-theme="dark"] .theme-toggle-thumb {
+  transform: translateX(28px);
+  background: #141b2c;
 }
-.module-card {
-  min-height: 82px;
-  padding: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.module-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 9px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-}
-.module-name { margin: 0; color: #1d2939; font-size: 12px; font-weight: 950; line-height: 1.15; }
-.module-count { margin: 3px 0 0; color: var(--muted); font-size: 10px; font-weight: 800; }
 
-.toolbar {
-  min-height: 66px;
-  margin-bottom: 16px;
-  padding: 13px 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-}
-.search-wrap { position: relative; flex: 1; max-width: 460px; }
-.search-wrap i {
+.theme-toggle-thumb i {
   position: absolute;
-  left: 13px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--faint);
   font-size: 12px;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.search-input {
-  width: 100%;
-  height: 40px;
-  padding: 0 13px 0 36px;
-  border: 1px solid #d8e1ed;
-  border-radius: 8px;
-  background: #f8fafc;
-  color: #344054;
-  outline: none;
-  font-size: 12px;
-  font-weight: 750;
-}
-.search-input:focus { border-color: var(--green); background: #fff; }
-.toolbar-actions { display: flex; align-items: center; gap: 10px; }
-.select {
-  height: 40px;
-  padding: 0 34px 0 12px;
-  border: 1px solid #d8e1ed;
-  border-radius: 8px;
-  background: #fff;
-  color: #475467;
-  font-size: 12px;
-  font-weight: 800;
-}
-.create-btn {
-  height: 40px;
-  padding: 0 15px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--green);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 900;
-  box-shadow: 0 10px 22px rgba(22, 168, 90, .22);
-}
-.create-btn:hover { background: #128d4c; }
 
-.permissions-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-}
-.permission-card { min-width: 0; overflow: hidden; }
-.permission-head {
-  min-height: 78px;
-  padding: 15px;
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  border-bottom: 1px solid var(--border);
-}
-.permission-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+.theme-icon-sun { color: #f5a623; opacity: 1; transform: rotate(0deg) scale(1); }
+.theme-icon-moon { color: #a7b3ff; opacity: 0; transform: rotate(-90deg) scale(0.5); }
+
+:root[data-theme="dark"] .theme-icon-sun { opacity: 0; transform: rotate(90deg) scale(0.5); }
+:root[data-theme="dark"] .theme-icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+
+.theme-toggle:active .theme-toggle-thumb { transform: scale(0.9); }
+:root[data-theme="dark"] .theme-toggle:active .theme-toggle-thumb { transform: translateX(28px) scale(0.9); }
+
+.notify {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--text);
   display: grid;
   place-items: center;
   font-size: 18px;
 }
-.tone-green { background: #e8f8ef; color: var(--green); }
-.tone-blue { background: #eaf1ff; color: var(--blue); }
-.tone-purple { background: #f3edff; color: var(--purple); }
-.tone-orange { background: #fff2e8; color: var(--orange); }
-.tone-teal { background: #e6fbfa; color: var(--teal); }
-.tone-rose { background: #fff0f4; color: var(--rose); }
-.permission-title { margin: 0; color: #1d2939; font-size: 13px; font-weight: 950; line-height: 1.1; }
-.permission-code {
-  margin-top: 5px;
-  display: inline-flex;
-  max-width: 100%;
-  padding: 4px 8px;
-  border-radius: 7px;
-  background: #f2f4f7;
-  color: #475467;
-  font-family: Consolas, "Courier New", monospace;
-  font-size: 10px;
-  font-weight: 800;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.module-pill {
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: #eef2ff;
-  color: var(--blue);
+
+.notify span {
+  position: absolute;
+  top: -6px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  border: 2px solid var(--white);
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--white);
+  display: grid;
+  place-items: center;
   font-size: 10px;
   font-weight: 900;
-  white-space: nowrap;
 }
-.permission-body { padding: 14px 15px 15px; }
-.permission-desc {
-  min-height: 36px;
-  margin: 0 0 12px;
+
+.profile-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  cursor: pointer;
+}
+
+.profile-head .avatar {
+  width: 45px;
+  height: 45px;
+}
+
+.profile-chevron,
+.sidebar-chevron {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.sidebar-chevron {
+  color: var(--muted-2);
+  font-size: 12px;
+}
+
+.profile-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 220px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(15, 31, 58, 0.14);
+  padding: 12px 14px;
+  z-index: 50;
+}
+
+.profile-dropdown-menu.is-open { display: block; }
+
+.pdm-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.pdm-email {
+  margin: 2px 0 0;
+  font-size: 12px;
   color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.45;
+  word-break: break-word;
 }
-.meta-row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 12px;
+
+.pdm-divider {
+  margin: 10px 0;
+  border: none;
+  border-top: 1px solid var(--line);
 }
-.meta-box {
-  padding: 10px;
-  border: 1px solid #edf2f7;
-  border-radius: 8px;
-  background: #f8fafc;
-}
-.meta-label { margin: 0; color: var(--muted); font-size: 10px; font-weight: 850; }
-.meta-value { margin: 3px 0 0; color: #1d2939; font-size: 16px; font-weight: 950; line-height: 1; }
-.chip-row {
-  min-height: 32px;
+
+.pdm-item {
+  width: 100%;
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.chip {
-  max-width: 100%;
-  padding: 5px 8px;
-  border-radius: 7px;
-  background: #eefbf4;
-  color: #137a42;
-  font-size: 10px;
-  font-weight: 850;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.chip.more { background: #eef2ff; color: var(--blue); }
-.empty-text { color: var(--faint); font-size: 11px; font-weight: 800; }
-.permission-actions {
-  margin-top: 14px;
-  display: flex;
+  align-items: center;
   gap: 8px;
-}
-.action-btn {
-  height: 34px;
-  padding: 0 11px;
+  border: none;
+  background: none;
+  padding: 8px 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
   border-radius: 8px;
+  text-align: left;
+}
+
+.pdm-item:hover { background: var(--soft-line); }
+
+.pdm-item.pdm-danger { color: var(--red); }
+
+.content {
+  padding: 23px 24px 36px 29px;
+}
+
+.flash {
+  margin-bottom: 16px;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.flash-success {
+  background: var(--green-soft);
+  border-color: var(--green-soft-2);
+  color: var(--green-dark);
+}
+
+.flash-danger {
+  background: var(--red-soft);
+  border-color: var(--red-border);
+  color: var(--red-dark);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.stat-card,
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.stat-card {
+  min-height: 132px;
+  padding: 18px 19px;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+}
+
+.stat-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+}
+
+.soft-green { background: var(--green-soft); color: var(--green); }
+.soft-blue { background: var(--blue-soft); color: var(--blue); }
+.soft-orange { background: var(--orange-soft); color: var(--orange); }
+.soft-purple { background: var(--purple-soft); color: var(--purple); }
+.soft-teal { background: var(--teal-soft); color: var(--teal); }
+
+.stat-label {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.controls {
+  min-height: 76px;
+  margin-bottom: 22px;
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.table-search {
+  position: relative;
+  max-width: 520px;
+}
+
+.table-search i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.table-search input,
+.filter-select {
+  width: 100%;
+  height: 42px;
+  border: 1px solid var(--input-line);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text);
+  outline: none;
+}
+
+.table-search input {
+  padding: 0 14px 0 43px;
+}
+
+.filter-group {
+  display: flex;
+  gap: 12px;
+}
+
+.filter-select {
+  min-width: 160px;
+  padding: 0 12px;
+}
+
+.create-btn {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 8px;
+  background: var(--green);
+  color: var(--white);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 9px;
+  font-weight: 800;
+}
+
+.create-btn:hover { background: var(--green-mid); }
+
+.panel {
+  overflow: hidden;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background: #fafbfd;
+}
+
+.data-table th {
+  height: 52px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.data-table td {
+  height: 78px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--soft-line);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--hover-bg); }
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.row-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: var(--white);
+  font-weight: 900;
+  font-size: 17px;
+  flex: none;
+}
+
+.avatar-green { background: var(--green); }
+.avatar-blue { background: var(--blue); }
+.avatar-orange { background: var(--orange); }
+.avatar-red { background: var(--red); }
+.avatar-purple { background: var(--purple); }
+.avatar-teal { background: var(--teal); }
+
+.row-name {
+  margin: 0 0 5px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.row-email {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.code-text {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.role-badge,
+.permission-badge,
+.permission-more,
+.status-badge,
+.module-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.role-badge {
+  min-height: 30px;
+  padding: 0 12px;
+  background: var(--blue);
+  color: var(--white);
+  margin: 3px 4px 3px 0;
+}
+
+.permission-badge {
+  min-height: 27px;
+  padding: 0 10px;
+  margin: 3px 4px 3px 0;
+  background: var(--green);
+  color: var(--white);
   font-size: 11px;
+}
+
+.module-badge {
+  min-height: 30px;
+  padding: 0 12px;
+  background: var(--purple);
+  color: var(--white);
+}
+
+.permission-more {
+  color: var(--green-dark);
+  margin-left: 6px;
+  font-weight: 800;
+}
+
+.muted-empty {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.status-badge {
+  min-height: 36px;
+  padding: 0 14px;
+  gap: 7px;
+}
+
+.status-badge.active {
+  background: var(--green-soft-2);
+  color: var(--green-dark);
+}
+
+.status-badge.inactive {
+  background: var(--orange-soft);
+  color: var(--orange);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.action-btns {
+  display: flex;
+  gap: 9px;
+}
+
+.action-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+}
+
+.edit-btn {
+  background: var(--edit-bg);
+  color: var(--edit-fg);
+}
+
+.delete-btn {
+  background: var(--delete-bg);
+  color: var(--delete-fg);
+}
+
+.empty-state {
+  min-height: 280px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.empty-state i {
+  color: var(--control-line);
+  font-size: 56px;
+  margin-bottom: 14px;
+}
+
+.empty-state h2 {
+  margin: 0 0 8px;
+  color: var(--ink);
+  font-size: 20px;
   font-weight: 900;
 }
-.action-view { background: #eef2ff; color: var(--blue); }
-.action-edit { background: #fff7ed; color: #c05612; }
-.action-delete { margin-left: auto; width: 34px; padding: 0; background: #fff1f3; color: #b4233f; }
-.empty-card {
-  padding: 58px 20px;
-  text-align: center;
-}
-.empty-card i { color: #d0d5dd; font-size: 56px; }
-.empty-card h2 { margin: 15px 0 5px; font-size: 20px; font-weight: 950; }
-.empty-card p { margin: 0 0 20px; color: var(--muted); font-weight: 700; }
 
-@media (max-width: 1500px) {
-  .hero-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .module-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .permissions-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.empty-state p {
+  margin: 0 0 20px;
+  color: var(--muted);
 }
-@media (max-width: 920px) {
-  .layout { grid-template-columns: 1fr; }
+
+@media (max-width: 1200px) {
+  .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .controls { grid-template-columns: 1fr; }
+  .table-search { max-width: none; }
+  .filter-group { flex-wrap: wrap; }
+}
+
+@media (max-width: 900px) {
+  .app-shell { grid-template-columns: 1fr; }
   .sidebar { display: none; }
-  .topbar { align-items: flex-start; flex-direction: column; padding: 12px; }
-  .content { padding: 12px; }
-  .hero-grid, .module-strip, .permissions-grid { grid-template-columns: 1fr; }
-  .toolbar { align-items: stretch; flex-direction: column; }
-  .search-wrap { max-width: none; }
-  .toolbar-actions { flex-wrap: wrap; }
-  .profile-role, .date-pill { display: none; }
+  .topbar {
+    height: auto;
+    padding: 16px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .top-actions {
+    width: 100%;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    width: 100%;
+    order: 2;
+  }
+  .content { padding: 16px; }
+}
+
+@media (max-width: 640px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .data-table { min-width: 900px; }
+  .panel { overflow-x: auto; }
 }
 </style>
 </head>
 <body>
-{% set ns = namespace(alias_count=0, role_links=0, modules=[]) %}
+{% set ns = namespace(role_links=0, unused_permissions=0, modules=[]) %}
 {% for permission in permissions %}
-  {% set aliases = permission.get_aliases() %}
-  {% set ns.alias_count = ns.alias_count + (aliases|length) %}
-  {% set ns.role_links = ns.role_links + (permission.roles|length) %}
+  {% set sorted_roles = permission.roles %}
+  {% set ns.role_links = ns.role_links + (sorted_roles|length) %}
+  {% if sorted_roles|length == 0 %}
+    {% set ns.unused_permissions = ns.unused_permissions + 1 %}
+  {% endif %}
   {% if permission.module not in ns.modules %}
     {% set _ = ns.modules.append(permission.module) %}
   {% endif %}
 {% endfor %}
 {% set module_names = ns.modules|sort %}
-
-<div class="layout">
+{% set admin_display_name = current_user.full_name or current_user.username %}
+{% set admin_initial = (admin_display_name[0]|upper) if admin_display_name else 'A' %}
+{% set admin_photo_path = (current_user.photo or '')|trim %}
+{% set admin_avatar_url = url_for('main.images', filename=admin_photo_path|replace('images/', '')) if admin_photo_path else '' %}
+<div class="app-shell">
   <aside class="sidebar">
     <div class="brand">
-      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">
+      <img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">
       <div>
-        <p class="brand-title">Diet Expert</p>
-        <div class="brand-sub">Clinical Nutrition Suite</div>
+        <p class="brand-name">Diet Expert</p>
+        <p class="brand-sub">Clinical Nutrition Suite</p>
       </div>
+      <button class="collapse-btn" type="button" id="sidebarCollapseBtn" aria-label="Collapse sidebar"><i class="fas fa-chevron-left"></i></button>
     </div>
 
     <nav class="nav" aria-label="Admin navigation">
-      <a class="nav-link" href="{{ url_for('dashboard.admin_dashboard') }}"><i class="fas fa-table-columns"></i><span>Dashboard</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.admin_dashboard') }}"><i class="fas fa-table-cells-large"></i><span>Dashboard</span></a>
+      <a class="nav-link" href="{{ url_for('tbl_users.index', role='doctor') }}"><i class="fas fa-user-doctor"></i><span>Doctors</span></a>
 
-      <div class="nav-label">Management</div>
+      <div class="nav-section">Management</div>
       <a class="nav-link" href="{{ url_for('tbl_users.index') }}"><i class="fas fa-users"></i><span>Users</span></a>
-      <a class="nav-link" href="{{ url_for('tbl_users.index', role='doctor') }}"><i class="fas fa-stethoscope"></i><span>Doctors</span></a>
       <a class="nav-link" href="{{ url_for('tbl_users.index', role='user') }}"><i class="fas fa-hospital-user"></i><span>Patients</span></a>
-      <a class="nav-link" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-shield-halved"></i><span>Roles & Permissions</span></a>
+      <a class="nav-link active" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span></a>
 
-      <div class="nav-label">Content & Data</div>
+      <div class="nav-section">Content & Data</div>
       <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=foods"><i class="fas fa-apple-whole"></i><span>Food Catalog</span></a>
       <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=cooked"><i class="fas fa-utensils"></i><span>Cooked Foods</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=rules"><i class="fas fa-list-check"></i><span>Rule Library</span></a>
-      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=builder"><i class="fas fa-calendar-days"></i><span>Diet Plans</span></a>
+      <a class="nav-link" href="{{ url_for('dashboard.doctor_dashboard') }}?section=rules"><i class="fas fa-list-ul"></i><span>Rule Library</span></a>
 
-      <div class="nav-label">System</div>
-      <a class="nav-link active" href="{{ url_for('tbl_permissions.index') }}"><i class="fas fa-key"></i><span>Permissions</span></a>
-      <a class="nav-link" href="#" onclick="event.preventDefault();alert('Audit Logs is coming soon.');"><i class="fas fa-file-lines"></i><span>Audit Logs</span></a>
-      <a class="nav-link" href="#" onclick="event.preventDefault();alert('System Health is coming soon.');"><i class="fas fa-heart-pulse"></i><span>System Health</span></a>
+      <div class="nav-section">System</div>
+      <a class="nav-link" href="{{ url_for('tbl_roles.index') }}"><i class="fas fa-gear"></i><span>Settings</span></a>
     </nav>
 
-    <div class="sidebar-footer">
-      <a class="back-link" href="{{ url_for('main.home') }}"><i class="fas fa-arrow-up-right-from-square"></i><span>Back to Website</span></a>
+    <div class="sidebar-user">
+      <div class="avatar">
+        {% if admin_avatar_url %}<img src="{{ admin_avatar_url }}" alt="{{ admin_display_name }}">{% else %}{{ admin_initial }}{% endif %}
+      </div>
+      <div>
+        <p class="user-name">{{ admin_display_name }}</p>
+        <p class="user-role">Super Administrator</p>
+      </div>
+      <a href="{{ url_for('auth.logout') }}" title="Logout" onclick="openLogoutModal(event);"
+         style="color:var(--muted);font-size:0.9rem;text-decoration:none;">
+        <i class="fas fa-sign-out-alt"></i>
+      </a>
     </div>
   </aside>
 
   <main class="main">
     <header class="topbar">
-      <div class="title">
+      <div class="page-title">
         <h1>Permissions Management</h1>
-        <p>Maintain permission codes, aliases, modules, and role usage for access control.</p>
+        <p>Maintain permission codes, modules, and role usage for access control.</p>
       </div>
-      <div class="top-tools">
-        <span class="date-pill" id="permissionsDate">Aug 24, 2026</span>
-        <button class="icon-btn" type="button" aria-label="Notifications"><i class="fas fa-bell"></i><span class="count">3</span></button>
-        <div class="profile">
-          <div class="avatar">AD</div>
-          <div>
-            <p class="profile-name">Admin</p>
-            <p class="profile-role">Super Administrator</p>
+      <div class="top-actions">
+        <div class="search-box" id="navSearchBox">
+          <i class="fas fa-magnifying-glass"></i>
+          <input type="search" id="navSearchInput" placeholder="Search sidebar… (Doctors, Users, Settings)" autocomplete="off">
+          <div class="nav-search-results" id="navSearchResults"></div>
+        </div>
+        <div class="date-pill"><i class="far fa-calendar-alt"></i><span id="headerDate">Aug 24, 2026</span></div>
+        <button class="theme-toggle" type="button" id="themeToggle" aria-label="Toggle dark mode">
+          <span class="theme-toggle-track">
+            <span class="theme-toggle-thumb">
+              <i class="fas fa-sun theme-icon-sun"></i>
+              <i class="fas fa-moon theme-icon-moon"></i>
+            </span>
+          </span>
+        </button>
+        {% include "dashboard/_admin_notify.html" %}
+        <div class="profile-head" id="adminProfileHead">
+          <div class="avatar">
+            {% if admin_avatar_url %}<img src="{{ admin_avatar_url }}" alt="{{ admin_display_name }}">{% else %}{{ admin_initial }}{% endif %}
           </div>
-          <i class="fas fa-chevron-down" style="color:#667085;font-size:10px;"></i>
+          <i class="fas fa-chevron-down profile-chevron"></i>
+          <div class="profile-dropdown-menu" id="adminProfileMenu">
+            <p class="pdm-name">{{ admin_display_name }}</p>
+            <p class="pdm-email">{{ current_user.email }}</p>
+            <hr class="pdm-divider">
+            <a class="pdm-item" href="{{ url_for('dashboard.admin_dashboard') }}">
+              <i class="fas fa-table-cells-large"></i> Dashboard
+            </a>
+            <a class="pdm-item" href="{{ url_for('dashboard.admin_profile') }}">
+              <i class="fas fa-user"></i> Profile
+            </a>
+            <a class="pdm-item" href="{{ url_for('dashboard.admin_profile_edit') }}">
+              <i class="fas fa-user-pen"></i> Edit Profile
+            </a>
+            <hr class="pdm-divider">
+            <button type="button" class="pdm-item pdm-danger" onclick="openLogoutModal(event);">
+              <i class="fas fa-sign-out-alt"></i> Log Out
+            </button>
+          </div>
         </div>
       </div>
     </header>
@@ -515,158 +1125,148 @@ button, input, select { font: inherit; }
     <div class="content">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-          <div class="flash-stack">
-            {% for category, message in messages %}
-              <div class="flash {{ category }}">{{ message }}</div>
-            {% endfor %}
-          </div>
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
         {% endif %}
       {% endwith %}
 
-      <section class="hero-grid">
-        <article class="hero">
+      <section class="stat-grid" aria-label="Permission statistics">
+        <article class="stat-card">
+          <div class="stat-icon soft-green"><i class="fas fa-key"></i></div>
           <div>
-            <h2>Permission catalog overview</h2>
-            <p>Review every permission used by roles and dashboards. Keep codes consistent, modules organized, and aliases traceable.</p>
+            <p class="stat-label">Total Permissions</p>
+            <p class="stat-value">{{ permissions|length }}</p>
           </div>
-          <div class="hero-icon"><i class="fas fa-key"></i></div>
         </article>
-        <article class="metric-card">
-          <p class="metric-label">Total Permissions</p>
-          <p class="metric-value">{{ permissions|length }}</p>
-          <p class="metric-note"><i class="fas fa-key"></i> Registered codes</p>
-          <div class="meter"><span style="width:84%;background:var(--green);"></span></div>
+
+        <article class="stat-card">
+          <div class="stat-icon soft-blue"><i class="fas fa-layer-group"></i></div>
+          <div>
+            <p class="stat-label">Modules</p>
+            <p class="stat-value">{{ module_names|length }}</p>
+          </div>
         </article>
-        <article class="metric-card">
-          <p class="metric-label">Modules</p>
-          <p class="metric-value">{{ module_names|length }}</p>
-          <p class="metric-note"><i class="fas fa-layer-group"></i> Permission groups</p>
-          <div class="meter"><span style="width:68%;background:var(--blue);"></span></div>
+
+        <article class="stat-card">
+          <div class="stat-icon soft-purple"><i class="fas fa-user-shield"></i></div>
+          <div>
+            <p class="stat-label">Role Links</p>
+            <p class="stat-value">{{ ns.role_links }}</p>
+          </div>
         </article>
-        <article class="metric-card">
-          <p class="metric-label">Role Links</p>
-          <p class="metric-value">{{ ns.role_links }}</p>
-          <p class="metric-note"><i class="fas fa-user-shield"></i> Assigned to roles</p>
-          <div class="meter"><span style="width:76%;background:var(--purple);"></span></div>
+
+        <article class="stat-card">
+          <div class="stat-icon soft-orange"><i class="fas fa-triangle-exclamation"></i></div>
+          <div>
+            <p class="stat-label">Unused</p>
+            <p class="stat-value">{{ ns.unused_permissions }}</p>
+          </div>
         </article>
       </section>
 
-      {% if module_names %}
-        <section class="module-strip">
-          {% for module_name in module_names[:5] %}
-            {% set module_total = permissions|selectattr('module', 'equalto', module_name)|list|length %}
-            {% set tone = ['tone-green', 'tone-blue', 'tone-purple', 'tone-orange', 'tone-teal'][loop.index0 % 5] %}
-            <article class="module-card">
-              <div class="module-icon {{ tone }}"><i class="fas fa-folder-tree"></i></div>
-              <div>
-                <p class="module-name">{{ module_name or "General" }}</p>
-                <p class="module-count">{{ module_total }} permission{{ module_total != 1 and 's' or '' }}</p>
-              </div>
-            </article>
-          {% endfor %}
-        </section>
-      {% endif %}
-
-      <section class="toolbar">
-        <div class="search-wrap">
+      <section class="panel controls">
+        <div class="table-search">
           <i class="fas fa-magnifying-glass"></i>
-          <input class="search-input" id="permissionSearch" type="search" placeholder="Search code, name, module, aliases" oninput="filterPermissions()">
+          <input type="search" id="permissionSearch" placeholder="Search code, name, module, description…" oninput="filterPermissions()">
         </div>
-        <div class="toolbar-actions">
-          <select class="select" id="moduleFilter" onchange="filterPermissions()">
-            <option value="all">All modules</option>
+        <div class="filter-group">
+          <select class="filter-select" id="moduleFilter" aria-label="Filter by module" onchange="filterPermissions()">
+            <option value="">All Modules</option>
             {% for module_name in module_names %}
-              <option value="{{ module_name|lower }}">{{ module_name or "General" }}</option>
+              <option value="{{ (module_name or 'general')|lower }}">{{ module_name or "General" }}</option>
             {% endfor %}
           </select>
-          <select class="select" id="usageFilter" onchange="filterPermissions()">
-            <option value="all">All usage</option>
-            <option value="used">Used by roles</option>
+          <select class="filter-select" id="usageFilterSelect" aria-label="Filter by usage" onchange="filterPermissions()">
+            <option value="">All Usage</option>
+            <option value="used">Used by Roles</option>
             <option value="unused">Unused</option>
           </select>
-          <a class="create-btn" href="{{ url_for('tbl_permissions.create') }}"><i class="fas fa-plus"></i>Create Permission</a>
         </div>
+        <a href="{{ url_for('tbl_permissions.create') }}" class="create-btn">
+          <i class="fas fa-plus"></i>Create Permission
+        </a>
       </section>
 
       {% if permissions %}
-        <section class="permissions-grid" id="permissionsGrid">
-          {% for perm in permissions %}
-            {% set aliases = perm.get_aliases()|sort %}
+      <section class="panel">
+        <table class="data-table" id="permissionsTable">
+          <thead>
+            <tr>
+              <th>Permission</th>
+              <th>Module</th>
+              <th>Description</th>
+              <th>Roles</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for perm in permissions %}
             {% set sorted_roles = perm.roles|sort(attribute='name') %}
-            {% set tone = ['tone-green', 'tone-blue', 'tone-purple', 'tone-orange', 'tone-teal', 'tone-rose'][loop.index0 % 6] %}
-            <article class="permission-card"
-                     data-module="{{ (perm.module or 'General')|lower }}"
-                     data-usage="{{ 'used' if sorted_roles else 'unused' }}"
-                     data-search="{{ perm.code|lower }} {{ perm.name|lower }} {{ (perm.module or 'General')|lower }} {{ (perm.description or '')|lower }} {% for alias in aliases %}{{ alias|lower }} {% endfor %}">
-              <div class="permission-head">
-                <div class="permission-icon {{ tone }}"><i class="fas fa-key"></i></div>
-                <div>
-                  <h2 class="permission-title">{{ perm.name }}</h2>
-                  <span class="permission-code">{{ perm.code }}</span>
-                </div>
-                <span class="module-pill">{{ perm.module or "General" }}</span>
-              </div>
-              <div class="permission-body">
-                <p class="permission-desc">{{ perm.description or "No description provided for this permission." }}</p>
-                <div class="meta-row">
-                  <div class="meta-box">
-                    <p class="meta-label">Roles</p>
-                    <p class="meta-value">{{ sorted_roles|length }}</p>
-                  </div>
-                  <div class="meta-box">
-                    <p class="meta-label">Aliases</p>
-                    <p class="meta-value">{{ aliases|length }}</p>
+            {% set tones = ['avatar-green', 'avatar-blue', 'avatar-purple', 'avatar-orange', 'avatar-teal', 'avatar-red'] %}
+            {% set tone = tones[loop.index0 % 6] %}
+            <tr class="permission-row"
+                data-module="{{ (perm.module or 'general')|lower }}"
+                data-usage="{{ 'used' if sorted_roles else 'unused' }}"
+                data-search="{{ perm.code|lower }} {{ perm.name|lower }} {{ (perm.module or 'General')|lower }} {{ (perm.description or '')|lower }}">
+              <td>
+                <div class="user-cell">
+                  <div class="row-avatar {{ tone }}"><i class="fas fa-key"></i></div>
+                  <div>
+                    <p class="row-name">{{ perm.name }}</p>
+                    <span class="code-text">{{ perm.code }}</span>
                   </div>
                 </div>
-                <div class="chip-row">
-                  {% if sorted_roles %}
-                    {% for role in sorted_roles[:3] %}
-                      <span class="chip">{{ role.name }}</span>
-                    {% endfor %}
-                    {% if sorted_roles|length > 3 %}
-                      <span class="chip more">+{{ sorted_roles|length - 3 }} more roles</span>
-                    {% endif %}
-                  {% else %}
-                    <span class="empty-text">Not assigned to any role</span>
+              </td>
+              <td><span class="module-badge">{{ perm.module or "General" }}</span></td>
+              <td>
+                <p class="row-email">{{ perm.description or "No description provided." }}</p>
+              </td>
+              <td>
+                {% if sorted_roles %}
+                  {% for role in sorted_roles[:3] %}
+                    <span class="role-badge">{{ role.name }}</span>
+                  {% endfor %}
+                  {% if sorted_roles|length > 3 %}
+                    <a href="{{ url_for('tbl_permissions.detail', permission_id=perm.id) }}" class="permission-more">+{{ sorted_roles|length - 3 }} more</a>
                   {% endif %}
+                {% else %}
+                  <span class="muted-empty">Not assigned</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="action-btns">
+                  <a href="{{ url_for('tbl_permissions.detail', permission_id=perm.id) }}" class="action-btn edit-btn" title="View" style="background:var(--blue-soft);color:var(--blue);"><i class="fas fa-eye"></i></a>
+                  <a href="{{ url_for('tbl_permissions.edit', permission_id=perm.id) }}" class="action-btn edit-btn" title="Edit"><i class="fas fa-pen-to-square"></i></a>
+                  <a href="{{ url_for('tbl_permissions.delete_confirm', permission_id=perm.id) }}" class="action-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></a>
                 </div>
-                <div class="chip-row" style="margin-top:8px;">
-                  {% if aliases %}
-                    {% for alias in aliases[:2] %}
-                      <span class="chip more">{{ alias }}</span>
-                    {% endfor %}
-                    {% if aliases|length > 2 %}
-                      <span class="chip more">+{{ aliases|length - 2 }} aliases</span>
-                    {% endif %}
-                  {% else %}
-                    <span class="empty-text">No aliases</span>
-                  {% endif %}
-                </div>
-                <div class="permission-actions">
-                  <a class="action-btn action-view" href="{{ url_for('tbl_permissions.detail', permission_id=perm.id) }}"><i class="fas fa-eye"></i>View</a>
-                  <a class="action-btn action-edit" href="{{ url_for('tbl_permissions.edit', permission_id=perm.id) }}"><i class="fas fa-pen"></i>Edit</a>
-                  <a class="action-btn action-delete" href="{{ url_for('tbl_permissions.delete_confirm', permission_id=perm.id) }}" title="Delete permission"><i class="fas fa-trash"></i></a>
-                </div>
-              </div>
-            </article>
-          {% endfor %}
-        </section>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
       {% else %}
-        <section class="empty-card">
+      <section class="empty-state">
+        <div>
           <i class="fas fa-key"></i>
           <h2>No Permissions Found</h2>
           <p>Create your first permission code to start building access rules.</p>
-          <a class="create-btn" href="{{ url_for('tbl_permissions.create') }}"><i class="fas fa-plus"></i>Create First Permission</a>
-        </section>
+          <a href="{{ url_for('tbl_permissions.create') }}" class="create-btn">
+            <i class="fas fa-plus"></i>Create First Permission
+          </a>
+        </div>
+      </section>
       {% endif %}
     </div>
   </main>
 </div>
+{% include "dashboard/_logout_modal.html" %}
 
 <script>
-const permissionsDate = document.getElementById("permissionsDate");
-if (permissionsDate) {
-  permissionsDate.textContent = new Date().toLocaleDateString("en-US", {
+const headerDate = document.getElementById("headerDate");
+if (headerDate) {
+  headerDate.textContent = new Date().toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric"
@@ -674,15 +1274,149 @@ if (permissionsDate) {
 }
 
 function filterPermissions() {
-  const searchTerm = (document.getElementById("permissionSearch")?.value || "").toLowerCase().trim();
-  const moduleValue = document.getElementById("moduleFilter")?.value || "all";
-  const usageValue = document.getElementById("usageFilter")?.value || "all";
+  const input = document.getElementById("permissionSearch");
+  const moduleSelect = document.getElementById("moduleFilter");
+  const usageSelect = document.getElementById("usageFilterSelect");
+  const searchTerm = (input ? input.value : "").toLowerCase().trim();
+  const moduleTerm = moduleSelect ? moduleSelect.value.toLowerCase() : "";
+  const usageTerm = usageSelect ? usageSelect.value.toLowerCase() : "";
+  const rows = document.querySelectorAll(".permission-row");
 
-  document.querySelectorAll(".permission-card").forEach(card => {
-    const matchesSearch = !searchTerm || card.dataset.search.includes(searchTerm);
-    const matchesModule = moduleValue === "all" || card.dataset.module === moduleValue;
-    const matchesUsage = usageValue === "all" || card.dataset.usage === usageValue;
-    card.style.display = matchesSearch && matchesModule && matchesUsage ? "" : "none";
+  rows.forEach((row) => {
+    const search = row.dataset.search || "";
+    const module = row.dataset.module || "";
+    const usage = row.dataset.usage || "";
+    const matchesSearch = !searchTerm || search.includes(searchTerm);
+    const matchesModule = !moduleTerm || module === moduleTerm;
+    const matchesUsage = !usageTerm || usage === usageTerm;
+    row.style.display = (matchesSearch && matchesModule && matchesUsage) ? "" : "none";
+  });
+}
+
+function navEscapeHtml(v) {
+  const d = document.createElement("div");
+  d.textContent = v == null ? "" : v;
+  return d.innerHTML;
+}
+
+const NAV_SEARCH_DESTINATIONS = [
+  { label: "Dashboard", icon: "fa-table-cells-large", url: "{{ url_for('dashboard.admin_dashboard') }}", keywords: "overview home" },
+  { label: "Doctors", icon: "fa-user-doctor", url: "{{ url_for('tbl_users.index', role='doctor') }}", keywords: "physicians doctor" },
+  { label: "Users", icon: "fa-users", url: "{{ url_for('tbl_users.index') }}", keywords: "accounts users" },
+  { label: "Patients", icon: "fa-hospital-user", url: "{{ url_for('tbl_users.index', role='user') }}", keywords: "patients" },
+  { label: "Permissions", icon: "fa-key", url: "{{ url_for('tbl_permissions.index') }}", keywords: "access permissions" },
+  { label: "Food Catalog", icon: "fa-apple-whole", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=foods", keywords: "food catalog foods" },
+  { label: "Cooked Foods", icon: "fa-utensils", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=cooked", keywords: "cooked foods recipes" },
+  { label: "Rule Library", icon: "fa-list-ul", url: "{{ url_for('dashboard.doctor_dashboard') }}?section=rules", keywords: "diet rules rule library" },
+  { label: "Settings", icon: "fa-gear", url: "{{ url_for('tbl_roles.index') }}", keywords: "settings roles configuration" },
+];
+
+function navSearchHighlight(text, term) {
+  if (!term) return navEscapeHtml(text);
+  const idx = text.toLowerCase().indexOf(term.toLowerCase());
+  if (idx === -1) return navEscapeHtml(text);
+  return navEscapeHtml(text.slice(0, idx)) + "<mark>" + navEscapeHtml(text.slice(idx, idx + term.length)) + "</mark>" + navEscapeHtml(text.slice(idx + term.length));
+}
+
+function renderNavSearchResults(term) {
+  const box = document.getElementById("navSearchResults");
+  if (!box) return;
+  const q = term.trim().toLowerCase();
+  if (!q) { box.classList.remove("is-open"); box.innerHTML = ""; return; }
+  const matches = NAV_SEARCH_DESTINATIONS.filter((d) =>
+    d.label.toLowerCase().includes(q) || (d.keywords || "").toLowerCase().includes(q)
+  );
+  if (!matches.length) {
+    box.innerHTML = '<div class="nav-search-empty">No matching page found.</div>';
+    box.classList.add("is-open");
+    return;
+  }
+  box.innerHTML = matches.map((d, i) => `
+    <div class="nav-search-item${i === 0 ? " is-active" : ""}" data-url="${navEscapeHtml(d.url)}">
+      <i class="fas ${d.icon}"></i>${navSearchHighlight(d.label, q)}
+    </div>`).join("");
+  box.classList.add("is-open");
+  box.querySelectorAll(".nav-search-item").forEach((el) => {
+    el.addEventListener("click", () => { window.location.href = el.dataset.url; });
+  });
+}
+
+const navSearchInput = document.getElementById("navSearchInput");
+const navSearchBox = document.getElementById("navSearchBox");
+const navSearchResultsEl = document.getElementById("navSearchResults");
+if (navSearchInput && navSearchResultsEl) {
+  navSearchInput.addEventListener("input", () => renderNavSearchResults(navSearchInput.value));
+  navSearchInput.addEventListener("focus", () => {
+    if (navSearchInput.value.trim()) renderNavSearchResults(navSearchInput.value);
+  });
+  navSearchInput.addEventListener("keydown", (e) => {
+    const items = Array.from(navSearchResultsEl.querySelectorAll(".nav-search-item"));
+    if (!items.length) return;
+    let activeIdx = items.findIndex((el) => el.classList.contains("is-active"));
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (activeIdx >= 0) items[activeIdx].classList.remove("is-active");
+      activeIdx = (activeIdx + 1) % items.length;
+      items[activeIdx].classList.add("is-active");
+      items[activeIdx].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (activeIdx >= 0) items[activeIdx].classList.remove("is-active");
+      activeIdx = (activeIdx - 1 + items.length) % items.length;
+      items[activeIdx].classList.add("is-active");
+      items[activeIdx].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const active = items[activeIdx] || items[0];
+      if (active) window.location.href = active.dataset.url;
+    } else if (e.key === "Escape") {
+      navSearchResultsEl.classList.remove("is-open");
+      navSearchInput.blur();
+    }
+  });
+  document.addEventListener("click", (e) => {
+    if (navSearchBox && !navSearchBox.contains(e.target)) navSearchResultsEl.classList.remove("is-open");
+  });
+}
+
+const adminProfileHead = document.getElementById("adminProfileHead");
+const adminProfileMenu = document.getElementById("adminProfileMenu");
+if (adminProfileHead && adminProfileMenu) {
+  adminProfileHead.addEventListener("click", (e) => {
+    e.stopPropagation();
+    adminProfileMenu.classList.toggle("is-open");
+  });
+  document.addEventListener("click", (e) => {
+    if (!adminProfileHead.contains(e.target)) adminProfileMenu.classList.remove("is-open");
+  });
+}
+
+const sidebarCollapseBtn = document.getElementById("sidebarCollapseBtn");
+const appShellEl = document.querySelector(".app-shell");
+if (sidebarCollapseBtn && appShellEl) {
+  if (localStorage.getItem("ndAdminSidebarCollapsed") === "1") {
+    appShellEl.classList.add("is-collapsed");
+  }
+  sidebarCollapseBtn.addEventListener("click", () => {
+    const collapsed = appShellEl.classList.toggle("is-collapsed");
+    localStorage.setItem("ndAdminSidebarCollapsed", collapsed ? "1" : "0");
+  });
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  try { localStorage.setItem("ndAdminTheme", theme); } catch (e) {}
+}
+
+const themeToggle = document.getElementById("themeToggle");
+if (themeToggle) {
+  if (!document.documentElement.getAttribute("data-theme")) {
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+  }
+  themeToggle.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    applyTheme(current === "dark" ? "light" : "dark");
   });
 }
 </script>
