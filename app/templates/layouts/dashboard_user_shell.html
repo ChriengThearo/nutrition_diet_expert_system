@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="km">
 <head>
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem("ndAdminTheme");
+    if (saved === "dark" || saved === "light") {
+      document.documentElement.setAttribute("data-theme", saved);
+    }
+  } catch (e) {}
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}Diet Expert{% endblock %}</title>
@@ -104,7 +114,20 @@
         <p>{% block page_subtitle %}សូមស្វាគមន៍មកវិញ {{ user_display_name }} 👋{% endblock %}</p>
       </div>
       <div class="nd-topbar-right">
-        <span class="nd-topbar-date" id="nd-today-date"></span>
+        <div class="nd-topbar-search" id="ndTopbarSearchBox">
+          <i class="fas fa-magnifying-glass"></i>
+          <input type="search" id="ndTopbarSearchInput" placeholder="Search…" autocomplete="off">
+          <div class="nd-topbar-search-results" id="ndTopbarSearchResults"></div>
+        </div>
+        <span class="nd-topbar-date"><i class="far fa-calendar-alt"></i><span id="nd-today-date"></span></span>
+        <button class="theme-toggle" type="button" id="ndThemeToggle" aria-label="Toggle dark mode">
+          <span class="theme-toggle-track">
+            <span class="theme-toggle-thumb">
+              <i class="fas fa-sun theme-icon-sun"></i>
+              <i class="fas fa-moon theme-icon-moon"></i>
+            </span>
+          </span>
+        </button>
         {% set language_display_label = 'ភាសា' if ui_lang == 'km' else 'Language' %}
         <div class="dropdown">
           <a class="nd-topbar-icon language-mode-trigger" href="#" id="languageModeDropdown" role="button"
@@ -129,6 +152,35 @@
             </li>
           </ul>
         </div>
+        <div class="nd-notif-wrap">
+          <div class="nd-topbar-icon" title="Notifications" style="cursor:pointer;" onclick="toggleUserNotifications(event);">
+            <i class="fas fa-bell"></i>
+            <span class="nd-notif-badge d-none" id="nd-notif-badge">0</span>
+          </div>
+          <div class="nd-notif-panel" id="nd-notif-panel" style="display:none;">
+            <div class="nd-notif-panel-header">
+              <strong>{{ 'ការជូនដំណឹង' if ui_lang == 'km' else 'Notifications' }}</strong>
+              <button type="button" class="nd-notif-mark-all" id="nd-notif-mark-all" onclick="markAllUserNotificationsRead();">{{ 'អានទាំងអស់' if ui_lang == 'km' else 'Mark all read' }}</button>
+            </div>
+            <div class="nd-notif-panel-list" id="nd-notif-panel-list">
+              <div class="nd-loading"><i class="fas fa-spinner fa-spin me-1"></i> Loading…</div>
+            </div>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button type="button" class="nd-topbar-profile" id="ndTopbarProfileToggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="{{ avatar_url }}" alt="{{ user_display_name }}" class="nd-topbar-avatar"
+                 onerror="this.onerror=null;this.src='{{ default_avatar_url }}';">
+            <i class="fas fa-chevron-down nd-topbar-chevron"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="ndTopbarProfileToggle">
+            <li><h6 class="dropdown-header">{{ user_display_name }}</h6></li>
+            <li><a class="dropdown-item" href="{{ url_for('dashboard.user_profile') }}"><i class="fas fa-user me-2"></i>{{ 'ប្រវត្តិរូប' if ui_lang == 'km' else 'My Profile' }}</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('dashboard.user_profile_edit') }}"><i class="fas fa-user-pen me-2"></i>{{ 'កែប្រែប្រវត្តិរូប' if ui_lang == 'km' else 'Edit Profile' }}</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}" onclick="openLogoutModal(event);"><i class="fas fa-sign-out-alt me-2"></i>{{ 'ចាកចេញ' if ui_lang == 'km' else 'Log out' }}</a></li>
+          </ul>
+        </div>
         {% if show_dashboard_switcher %}
         <div class="nd-topbar-icon dropdown">
           {% include "dashboard/_dashboard_switcher.html" %}
@@ -147,6 +199,177 @@
   document.getElementById('nd-today-date').textContent = new Date().toLocaleDateString('km-KH', {
     weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
   });
+
+  // ── Dark Mode (Night) / Light Mode (Morning) toggle ──
+  function applyNdUserTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem('ndAdminTheme', theme); } catch (e) {}
+  }
+
+  const ndThemeToggle = document.getElementById('ndThemeToggle');
+  if (ndThemeToggle) {
+    if (!document.documentElement.getAttribute('data-theme')) {
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    }
+    ndThemeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      applyNdUserTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  }
+
+  // ── Topbar Search (built from the actual sidebar links) ──
+  function ndUserEscapeHtml(v) {
+    const d = document.createElement('div');
+    d.textContent = v == null ? '' : v;
+    return d.innerHTML;
+  }
+
+  function ndUserSearchHighlight(text, term) {
+    if (!term) return ndUserEscapeHtml(text);
+    const idx = text.toLowerCase().indexOf(term.toLowerCase());
+    if (idx === -1) return ndUserEscapeHtml(text);
+    return ndUserEscapeHtml(text.slice(0, idx)) + '<mark>' + ndUserEscapeHtml(text.slice(idx, idx + term.length)) + '</mark>' + ndUserEscapeHtml(text.slice(idx + term.length));
+  }
+
+  function ndBuildSearchDestinations() {
+    return Array.from(document.querySelectorAll('.nd-nav .nd-nav-link')).map((el) => ({
+      label: el.textContent.trim(),
+      icon: (el.querySelector('i') || {}).className || 'fas fa-circle',
+      url: el.getAttribute('href'),
+    })).filter((d) => d.url && d.url !== '#');
+  }
+
+  function ndRenderTopbarSearchResults(term) {
+    const box = document.getElementById('ndTopbarSearchResults');
+    if (!box) return;
+    const q = term.trim().toLowerCase();
+    if (!q) { box.classList.remove('is-open'); box.innerHTML = ''; return; }
+    const matches = ndBuildSearchDestinations().filter((d) => d.label.toLowerCase().includes(q));
+    if (!matches.length) {
+      box.innerHTML = '<div class="nd-topbar-search-empty">No matching page found.</div>';
+      box.classList.add('is-open');
+      return;
+    }
+    box.innerHTML = matches.map((d, i) => `
+      <div class="nd-topbar-search-item${i === 0 ? ' is-active' : ''}" data-url="${ndUserEscapeHtml(d.url)}">
+        <i class="${d.icon}"></i>${ndUserSearchHighlight(d.label, q)}
+      </div>`).join('');
+    box.classList.add('is-open');
+    box.querySelectorAll('.nd-topbar-search-item').forEach((el) => {
+      el.addEventListener('click', () => { window.location.href = el.dataset.url; });
+    });
+  }
+
+  (function initNdUserTopbarSearch() {
+    const input = document.getElementById('ndTopbarSearchInput');
+    const box = document.getElementById('ndTopbarSearchBox');
+    const results = document.getElementById('ndTopbarSearchResults');
+    if (!input || !results) return;
+    input.addEventListener('input', () => ndRenderTopbarSearchResults(input.value));
+    input.addEventListener('focus', () => {
+      if (input.value.trim()) ndRenderTopbarSearchResults(input.value);
+    });
+    input.addEventListener('keydown', (e) => {
+      const items = Array.from(results.querySelectorAll('.nd-topbar-search-item'));
+      if (!items.length) return;
+      let activeIdx = items.findIndex((el) => el.classList.contains('is-active'));
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (activeIdx >= 0) items[activeIdx].classList.remove('is-active');
+        activeIdx = (activeIdx + 1) % items.length;
+        items[activeIdx].classList.add('is-active');
+        items[activeIdx].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (activeIdx >= 0) items[activeIdx].classList.remove('is-active');
+        activeIdx = (activeIdx - 1 + items.length) % items.length;
+        items[activeIdx].classList.add('is-active');
+        items[activeIdx].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const active = items[activeIdx] || items[0];
+        if (active) window.location.href = active.dataset.url;
+      } else if (e.key === 'Escape') {
+        results.classList.remove('is-open');
+        input.blur();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (box && !box.contains(e.target)) results.classList.remove('is-open');
+    });
+  })();
+
+  // ── Notifications ──
+  function ndUserFmtDateTime(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return isNaN(d) ? '—' : d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function refreshUserNotificationBadge() {
+    fetch('/dashboard/user/notifications?limit=1')
+      .then(r => r.json())
+      .then(d => {
+        const badge = document.getElementById('nd-notif-badge');
+        if (!badge) return;
+        const count = d.unread_count || 0;
+        badge.textContent = count > 9 ? '9+' : String(count);
+        badge.classList.toggle('d-none', count === 0);
+      })
+      .catch(() => {});
+  }
+
+  function loadUserNotificationsPanel() {
+    const list = document.getElementById('nd-notif-panel-list');
+    if (!list) return;
+    list.innerHTML = '<div class="nd-loading"><i class="fas fa-spinner fa-spin me-1"></i> Loading…</div>';
+    fetch('/dashboard/user/notifications')
+      .then(r => r.json())
+      .then(d => {
+        const notifications = d.notifications || [];
+        if (!notifications.length) {
+          list.innerHTML = '<div class="nd-notif-empty">You\'re all caught up.</div>';
+          return;
+        }
+        list.innerHTML = notifications.map(n => `
+          <div class="nd-notif-row ${n.is_read ? '' : 'unread'}" onclick="markUserNotificationRead(${n.id})">
+            <div class="nd-notif-dot"></div>
+            <div>
+              <div class="nd-notif-message">${ndUserEscapeHtml(n.message)}</div>
+              <div class="nd-notif-time">${ndUserFmtDateTime(n.created_at)}</div>
+            </div>
+          </div>`).join('');
+      })
+      .catch(() => { list.innerHTML = '<div class="nd-notif-empty">Could not load notifications.</div>'; });
+  }
+
+  function toggleUserNotifications(evt) {
+    evt.stopPropagation();
+    const panel = document.getElementById('nd-notif-panel');
+    const isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) loadUserNotificationsPanel();
+  }
+  document.addEventListener('click', function (e) {
+    const wrap = document.querySelector('.nd-notif-wrap');
+    const panel = document.getElementById('nd-notif-panel');
+    if (wrap && panel && !wrap.contains(e.target)) panel.style.display = 'none';
+  });
+
+  function markUserNotificationRead(id) {
+    fetch('/dashboard/user/notifications/' + id + '/read', { method: 'POST' })
+      .then(() => { loadUserNotificationsPanel(); refreshUserNotificationBadge(); })
+      .catch(() => {});
+  }
+
+  function markAllUserNotificationsRead() {
+    fetch('/dashboard/user/notifications/read-all', { method: 'POST' })
+      .then(() => { loadUserNotificationsPanel(); refreshUserNotificationBadge(); })
+      .catch(() => {});
+  }
+
+  refreshUserNotificationBadge();
 
   document.addEventListener('DOMContentLoaded', function () {
     const languageOptions = document.querySelectorAll('[data-language-option]');

@@ -1502,6 +1502,42 @@ def read_all_admin_notifications():
     return jsonify({"success": True})
 
 
+@dashboard_bp.route("/user/notifications")
+@login_required
+@user_required
+@permission_required(
+    "notification.read", "You have no permission to view notifications.", json_response=True
+)
+def user_notifications():
+    limit = min(request.args.get("limit", default=20, type=int) or 20, 100)
+    return jsonify(_serialize_notifications_for_current_user(limit))
+
+
+@dashboard_bp.route("/user/notifications/<int:notification_id>/read", methods=["POST"])
+@login_required
+@user_required
+@csrf.exempt
+@permission_required(
+    "notification.update", "You have no permission to update notifications.", json_response=True
+)
+def read_user_notification(notification_id: int):
+    if not _mark_notification_read_for_current_user(notification_id):
+        return jsonify({"success": False, "message": "Notification not found"}), 404
+    return jsonify({"success": True})
+
+
+@dashboard_bp.route("/user/notifications/read-all", methods=["POST"])
+@login_required
+@user_required
+@csrf.exempt
+@permission_required(
+    "notification.update", "You have no permission to update notifications.", json_response=True
+)
+def read_all_user_notifications():
+    _mark_all_notifications_read_for_current_user()
+    return jsonify({"success": True})
+
+
 @dashboard_bp.route("/doctor/analytics")
 @login_required
 @doctor_required

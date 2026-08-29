@@ -258,5 +258,13 @@
   {
     "role_id": 3,
     "permission_id": 54
+  },
+  {
+    "role_id": 3,
+    "permission_id": 64
+  },
+  {
+    "role_id": 3,
+    "permission_id": 65
   }
 ]

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-28T02:02:54.456465+00:00",
+  "generated_at": "2026-08-29T04:21:17.846887+00:00",
   "database": "postgres",
   "tables": [
     "tbl_cooked_foods",
@@ -27,16 +27,16 @@
     "tbl_foods": 85,
     "tbl_permissions": 37,
     "tbl_roles": 3,
-    "tbl_users": 14,
+    "tbl_users": 16,
     "tbl_consultations": 0,
     "tbl_doctor_food_favorites": 0,
     "tbl_doctor_patients": 20,
     "tbl_goals": 3,
     "tbl_notifications": 20,
-    "tbl_role_permissions": 65,
+    "tbl_role_permissions": 67,
     "tbl_rule_food_map": 29668,
-    "tbl_user_results": 39,
-    "tbl_user_roles": 14,
+    "tbl_user_results": 42,
+    "tbl_user_roles": 16,
     "tbl_food_groups": 29668,
     "tbl_goal_diet_rules": 145,
     "tbl_user_goals": 3
