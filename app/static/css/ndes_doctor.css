@@ -1277,3 +1277,239 @@
 
 /* Food Market redesign */
 .nd-market-toolbar{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}.nd-search-input-wrap{position:relative;flex:1;min-width:0}.nd-search-input-wrap>i{position:absolute;z-index:1;left:12px;top:50%;transform:translateY(-50%);color:var(--nd-muted);font-size:.78rem;pointer-events:none}.nd-search-input-wrap .nd-search-input{width:100%;padding-left:34px;background:#fff;border-radius:999px}.nd-search-input-wrap .nd-search-input:focus{border-color:var(--nd-green);box-shadow:0 0 0 3px rgba(46,184,92,.15)}.nd-market-actions{display:flex;gap:6px;flex-shrink:0}.nd-market-count{margin:0 0 12px;color:var(--nd-muted);font-size:.72rem}.nd-market-categories{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding:2px 0 10px;margin-bottom:8px;scrollbar-width:thin}.nd-market-category{flex:0 0 auto;border:1px solid var(--nd-border);background:#fff;color:var(--nd-muted);border-radius:999px;padding:7px 12px;font-size:.74rem;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap}.nd-market-category:hover{color:var(--nd-green);border-color:var(--nd-green-soft);background:var(--nd-green-pale)}.nd-market-category.active{color:#fff;border-color:var(--nd-green);background:var(--nd-green)}.nd-market-sort{flex:0 0 150px}.nd-market-results-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}.nd-market-card{min-width:0;border:1px solid var(--nd-border);border-radius:var(--nd-radius-sm);padding:16px;cursor:pointer;transition:box-shadow .18s,border-color .18s,transform .18s;background:#fff}.nd-market-card:hover{border-color:#b9c7bc;box-shadow:var(--nd-shadow-lg);transform:translateY(-2px)}.nd-market-card-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;margin-bottom:14px}.nd-market-card-icon.fruits{color:#2f8f46;background:#eaf7ed}.nd-market-card-icon.vegetables{color:#148a61;background:#e7f8f0}.nd-market-card-icon.meat{color:#c24141;background:#fcebea}.nd-market-card-icon.poultry{color:#d97706;background:#fff4df}.nd-market-card-icon.dairy{color:#2878bd;background:#eaf4ff}.nd-market-card-icon.grains{color:#b7791f;background:#fff8df}.nd-market-card-icon.fish{color:#168b91;background:#e4f8f7}.nd-market-card-icon.eggs{color:#a16207;background:#fff8df}.nd-market-card-icon.legumes{color:#65733d;background:#f0f4df}.nd-market-card-icon.nuts{color:#8b5e3c;background:#f7efe8}.nd-market-card-icon.beverages{color:#3277a8;background:#eaf4fb}.nd-market-card-icon.snacks{color:#a45187;background:#faedf6}.nd-market-card-icon.other{color:#6b7280;background:#f1f3f5}.nd-market-card .nd-food-card-name{font-size:1.05rem;line-height:1.3;margin-bottom:8px}.nd-market-source{display:inline-flex;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:3px 7px;border-radius:999px;background:#f3f4f6;color:var(--nd-muted);font-size:.64rem;margin-bottom:16px}.nd-market-calories{display:flex;align-items:baseline;gap:5px;margin-bottom:12px}.nd-market-calories strong{font-size:1.5rem;line-height:1;color:var(--nd-ink)}.nd-market-calories span{color:var(--nd-muted);font-size:.7rem;font-weight:700}.nd-market-macros{display:flex;gap:5px;flex-wrap:wrap}.nd-market-macro{padding:4px 6px;border-radius:5px;font-size:.63rem;font-weight:700}.nd-market-macro.protein{color:#2563eb;background:#eff6ff}.nd-market-macro.carbs{color:#b7791f;background:#fff8df}.nd-market-macro.fat{color:#c24141;background:#fcebea}.nd-market-detail{background:#fff}.nd-market-empty-icon{width:58px;height:58px;margin:0 auto 12px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:var(--nd-green-pale);color:var(--nd-green);font-size:1.5rem}.nd-market-macro-summary{display:flex;align-items:center;gap:16px;margin:4px 0 18px}.nd-market-ring{width:104px;height:104px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#2563eb 0 var(--protein),#d99b27 var(--protein) var(--carbs),#c24141 var(--carbs) 100%)}.nd-market-ring::before{content:'';width:68px;height:68px;border-radius:50%;background:#fff;grid-area:1/1}.nd-market-ring-label{grid-area:1/1;z-index:1;text-align:center;font-size:.65rem;color:var(--nd-muted);font-weight:700}.nd-market-legend{display:grid;gap:5px;font-size:.68rem;color:var(--nd-muted)}.nd-market-legend span{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}.nd-market-legend .protein{background:#2563eb}.nd-market-legend .carbs{background:#d99b27}.nd-market-legend .fat{background:#c24141}.nd-market-nutrition-list{margin:0;border-top:1px solid var(--nd-border)}.nd-market-nutrition-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #f0f1f2;font-size:.76rem}.nd-market-nutrition-row dt{color:var(--nd-muted);font-weight:600}.nd-market-nutrition-row dd{margin:0;color:var(--nd-ink);font-weight:800}@media (max-width:1200px){.nd-market-results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:768px){.nd-market-results-grid{grid-template-columns:1fr;gap:16px}.nd-market-toolbar{flex-wrap:wrap}.nd-market-actions{width:100%}.nd-market-actions .nd-btn{flex:1;justify-content:center}.nd-market-sort{flex:1 1 130px}}
+
+/* ============================================================
+   DARK MODE (NIGHT) / LIGHT MODE (MORNING) TOGGLE
+   ============================================================ */
+.theme-toggle {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  flex: none;
+}
+
+.theme-toggle-track {
+  width: 58px;
+  height: 30px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  background: linear-gradient(135deg, #ffd76a, #ff9f43);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.18);
+  transition: background 0.45s ease, box-shadow 0.3s ease;
+}
+
+:root[data-theme="dark"] .theme-toggle-track {
+  background: linear-gradient(135deg, #2d3660, #10142a);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.theme-toggle:hover .theme-toggle-track {
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.18), 0 0 0 4px rgba(46, 184, 92, 0.16);
+}
+
+:root[data-theme="dark"] .theme-toggle:hover .theme-toggle-track {
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(90, 163, 255, 0.16);
+}
+
+.theme-toggle-thumb {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transform: translateX(0);
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease;
+}
+
+:root[data-theme="dark"] .theme-toggle-thumb {
+  transform: translateX(28px);
+  background: #141b2c;
+}
+
+.theme-toggle-thumb i {
+  position: absolute;
+  font-size: 12px;
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-icon-sun { color: #f5a623; opacity: 1; transform: rotate(0deg) scale(1); }
+.theme-icon-moon { color: #a7b3ff; opacity: 0; transform: rotate(-90deg) scale(0.5); }
+
+:root[data-theme="dark"] .theme-icon-sun { opacity: 0; transform: rotate(90deg) scale(0.5); }
+:root[data-theme="dark"] .theme-icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+
+.theme-toggle:active .theme-toggle-thumb { transform: scale(0.9); }
+:root[data-theme="dark"] .theme-toggle:active .theme-toggle-thumb { transform: translateX(28px) scale(0.9); }
+
+/* ============================================================
+   DARK THEME — variable + component overrides
+   ============================================================ */
+:root[data-theme="dark"] {
+  --nd-green-pale:  rgba(46, 184, 92, 0.16);
+  --nd-green-soft:  rgba(46, 184, 92, 0.30);
+  --nd-orange-pale: rgba(249, 115, 22, 0.16);
+  --nd-purple-pale: rgba(139, 92, 246, 0.18);
+
+  --nd-sidebar-bg:    #141b2c;
+  --nd-sidebar-hover: rgba(46, 184, 92, 0.14);
+
+  --nd-white: #141b2c;
+  --nd-bg:    #0b101c;
+  --nd-card:  #141b2c;
+
+  --nd-ink:   #eef2fa;
+  --nd-muted: #93a0b8;
+
+  --nd-border:    #232b40;
+  --nd-shadow:    0 1px 4px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.24);
+  --nd-shadow-lg: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] .nd-app { color-scheme: dark; }
+
+/* Sidebar / nav */
+:root[data-theme="dark"] .nd-nav-link { color: #c3cbdc; }
+:root[data-theme="dark"] .nd-nav-link.nd-admin-return { background: rgba(46,184,92,0.16); color: #4ee08d; border-color: rgba(46,184,92,0.35); }
+:root[data-theme="dark"] .nd-nav-section { color: #7b8aa0; }
+
+/* Top bar */
+:root[data-theme="dark"] .nd-topbar { background: var(--nd-card); border-bottom-color: var(--nd-border); }
+:root[data-theme="dark"] .nd-topbar-search input,
+:root[data-theme="dark"] .nd-topbar-search-results,
+:root[data-theme="dark"] .nd-topbar-icon { background-color: var(--nd-card); border-color: var(--nd-border); }
+:root[data-theme="dark"] .nd-topbar-search input::placeholder { color: #6f7b96; }
+:root[data-theme="dark"] .nd-notif-panel { background-color: var(--nd-card); border-color: var(--nd-border); }
+
+/* Stat cards / panels (legacy nd- grid) */
+:root[data-theme="dark"] .nd-stat,
+:root[data-theme="dark"] .nd-panel,
+:root[data-theme="dark"] .nd-rule-dash-card,
+:root[data-theme="dark"] .nd-workspace { background-color: var(--nd-card); border-color: var(--nd-border); }
+:root[data-theme="dark"] .nd-workspace-tabs { background-color: rgba(255,255,255,0.03); }
+:root[data-theme="dark"] .nd-workspace-tab.active { background-color: var(--nd-card); }
+:root[data-theme="dark"] .nd-table th { background-color: rgba(255,255,255,0.03); color: #7b8aa0; }
+:root[data-theme="dark"] .nd-table td { border-bottom-color: var(--nd-border); }
+:root[data-theme="dark"] .nd-table tr:hover td { background-color: rgba(255,255,255,0.03); }
+:root[data-theme="dark"] .nd-rule-dash-item,
+:root[data-theme="dark"] .nd-form-section { background-color: rgba(255,255,255,0.03); }
+:root[data-theme="dark"] .nd-btn-ghost:hover { background-color: rgba(255,255,255,0.05); }
+
+/* Badges / icon chips (pale-tint backgrounds → translucent accent) */
+:root[data-theme="dark"] .nd-stat-icon.green,  :root[data-theme="dark"] .nd-rule-dash-icon.green,  :root[data-theme="dark"] .nd-rule-dash-badge.green,  :root[data-theme="dark"] .nd-badge-green  { background: rgba(46,184,92,0.16); }
+:root[data-theme="dark"] .nd-stat-icon.blue,   :root[data-theme="dark"] .nd-badge-blue                                                                                                    { background: rgba(59,130,246,0.16); }
+:root[data-theme="dark"] .nd-stat-icon.amber,  :root[data-theme="dark"] .nd-badge-amber                                                                                                   { background: rgba(245,158,11,0.16); }
+:root[data-theme="dark"] .nd-stat-icon.teal                                                                                                                                                { background: rgba(6,182,212,0.16); }
+:root[data-theme="dark"] .nd-stat-icon.purple, :root[data-theme="dark"] .nd-rule-dash-icon.purple, :root[data-theme="dark"] .nd-rule-dash-badge.purple                                     { background: rgba(139,92,246,0.18); }
+:root[data-theme="dark"] .nd-rule-dash-icon.orange, :root[data-theme="dark"] .nd-rule-dash-badge.orange                                                                                    { background: rgba(249,115,22,0.16); }
+:root[data-theme="dark"] .nd-badge-gray  { background: rgba(255,255,255,0.08); color: #93a0b8; }
+:root[data-theme="dark"] .nd-badge-red   { background: rgba(239,68,68,0.16); color: #ff8f9b; }
+:root[data-theme="dark"] .nd-alert-danger  { background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.35); color: #ff8f9b; }
+:root[data-theme="dark"] .nd-alert-success { background: rgba(46,184,92,0.14); border-color: rgba(46,184,92,0.35); color: #4ee08d; }
+:root[data-theme="dark"] .nd-alert-info    { background: rgba(59,130,246,0.14); border-color: rgba(59,130,246,0.35); color: #8fbcff; }
+
+/* Buttons / inputs */
+:root[data-theme="dark"] .nd-search-input,
+:root[data-theme="dark"] .nd-filter-select,
+:root[data-theme="dark"] .nd-form-control,
+:root[data-theme="dark"] .nd-page-btn { background-color: var(--nd-card); border-color: var(--nd-border); color: var(--nd-ink); }
+:root[data-theme="dark"] .nd-page-btn:hover:not(.active) { background-color: rgba(46,184,92,0.14); }
+:root[data-theme="dark"] .nd-form-label { color: #c3cbdc; }
+:root[data-theme="dark"] .nd-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2393a0b8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); }
+:root[data-theme="dark"] .nd-food-card,
+:root[data-theme="dark"] .nd-rule-card { background-color: var(--nd-card); }
+:root[data-theme="dark"] .nd-rule-card.inactive { border-left-color: #3a4356; }
+:root[data-theme="dark"] .nd-rule-dash-item { border-color: var(--nd-border); }
+:root[data-theme="dark"] .nd-thumb-placeholder { border-color: rgba(46,184,92,0.35); }
+
+/* Bootstrap dropdowns / modals used throughout this page */
+:root[data-theme="dark"] .dropdown-menu { background-color: var(--nd-card); border-color: var(--nd-border); }
+:root[data-theme="dark"] .dropdown-item { color: var(--nd-ink); }
+:root[data-theme="dark"] .dropdown-item:hover,
+:root[data-theme="dark"] .dropdown-item:focus { background-color: var(--nd-sidebar-hover); color: var(--nd-ink); }
+:root[data-theme="dark"] .dropdown-header { color: #7b8aa0; }
+:root[data-theme="dark"] .dropdown-divider { border-color: var(--nd-border); }
+:root[data-theme="dark"] .modal-content { background-color: var(--nd-card); color: var(--nd-ink); }
+:root[data-theme="dark"] .modal-header,
+:root[data-theme="dark"] .modal-footer { border-color: var(--nd-border); }
+:root[data-theme="dark"] .btn-close { filter: invert(1) grayscale(1) brightness(1.8); }
+
+/* ── "New Dashboard Design" overview page (hardcoded hex, not vars) ── */
+:root[data-theme="dark"] .stat-card,
+:root[data-theme="dark"] .dashboard-section,
+:root[data-theme="dark"] .quick-action-card,
+:root[data-theme="dark"] .rule-card-count { background-color: var(--nd-card); border-color: var(--nd-border); }
+:root[data-theme="dark"] .stat-label,  :root[data-theme="dark"] .stat-subtitle,
+:root[data-theme="dark"] .rule-card-description, :root[data-theme="dark"] .rule-count-label,
+:root[data-theme="dark"] .donut-label-text, :root[data-theme="dark"] .database-desc,
+:root[data-theme="dark"] .quick-action-desc { color: #93a0b8; }
+:root[data-theme="dark"] .stat-number, :root[data-theme="dark"] .section-title,
+:root[data-theme="dark"] .rule-card-title, :root[data-theme="dark"] .rule-count-number,
+:root[data-theme="dark"] .cooked-foods-table td, :root[data-theme="dark"] .food-name,
+:root[data-theme="dark"] .donut-label-number, :root[data-theme="dark"] .legend-text,
+:root[data-theme="dark"] .legend-count, :root[data-theme="dark"] .database-title,
+:root[data-theme="dark"] .quick-action-title { color: var(--nd-ink); }
+:root[data-theme="dark"] .section-header { border-bottom-color: var(--nd-border); }
+:root[data-theme="dark"] .section-icon { background-color: rgba(255,255,255,0.06); }
+:root[data-theme="dark"] .rule-card { background-color: rgba(255,255,255,0.03); border-color: var(--nd-border); }
+:root[data-theme="dark"] .rule-card:hover { background-color: rgba(255,255,255,0.06); border-color: #3a4356; }
+:root[data-theme="dark"] .rule-arrow, :root[data-theme="dark"] .quick-action-external { color: #4a5568; }
+:root[data-theme="dark"] .manage-all-btn { background-color: var(--nd-card); }
+:root[data-theme="dark"] .cooked-foods-table thead { background-color: rgba(255,255,255,0.03); }
+:root[data-theme="dark"] .cooked-foods-table th { color: #7b8aa0; border-bottom-color: var(--nd-border); }
+:root[data-theme="dark"] .cooked-foods-table tbody tr { border-bottom-color: var(--nd-border); }
+:root[data-theme="dark"] .cooked-foods-table tbody tr:hover { background-color: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .food-thumb { border-color: var(--nd-border); background-color: rgba(255,255,255,0.04); }
+:root[data-theme="dark"] .food-database-card { background: linear-gradient(135deg, rgba(46,184,92,0.14) 0%, rgba(46,184,92,0.06) 100%); border-color: rgba(46,184,92,0.3); }
+:root[data-theme="dark"] .quick-icon-profile { border-color: var(--nd-border); }
+:root[data-theme="dark"] .badge-main  { background: rgba(59,130,246,0.16); color: #8fbcff; }
+:root[data-theme="dark"] .badge-soup  { background: rgba(249,115,22,0.16); color: #ffbd7a; }
+:root[data-theme="dark"] .badge-salad { background: rgba(46,184,92,0.16); color: #4ee08d; }
+:root[data-theme="dark"] .badge-drink { background: rgba(236,72,153,0.16); color: #ffa5cf; }
+:root[data-theme="dark"] .badge-mixed { background: rgba(139,92,246,0.18); color: #c4b0ff; }
+:root[data-theme="dark"] .badge-rice   { background: rgba(234,179,8,0.18); color: #ffd85c; }
+:root[data-theme="dark"] .badge-noodle { background: rgba(249,115,22,0.18); color: #ffab4c; }
+
+/* Consultations */
+:root[data-theme="dark"] .consult-detail-contact { color: #c3cbdc; }
+
+/* Food Market redesign */
+:root[data-theme="dark"] .nd-search-input-wrap .nd-search-input,
+:root[data-theme="dark"] .nd-market-category,
+:root[data-theme="dark"] .nd-market-card,
+:root[data-theme="dark"] .nd-market-detail { background-color: var(--nd-card); }
+:root[data-theme="dark"] .nd-market-card:hover { border-color: #3a4356; }
+:root[data-theme="dark"] .nd-market-source { background-color: rgba(255,255,255,0.06); }
+:root[data-theme="dark"] .nd-market-ring::before { background-color: var(--nd-card); }
+:root[data-theme="dark"] .nd-market-card-icon.fruits     { background: rgba(46,184,92,0.16); }
+:root[data-theme="dark"] .nd-market-card-icon.vegetables { background: rgba(20,138,97,0.18); }
+:root[data-theme="dark"] .nd-market-card-icon.meat       { background: rgba(194,65,65,0.18); }
+:root[data-theme="dark"] .nd-market-card-icon.poultry    { background: rgba(217,119,6,0.18); }
+:root[data-theme="dark"] .nd-market-card-icon.dairy      { background: rgba(40,120,189,0.18); }
+:root[data-theme="dark"] .nd-market-card-icon.grains     { background: rgba(183,121,31,0.18); }
+:root[data-theme="dark"] .nd-market-card-icon.fish       { background: rgba(22,139,145,0.18); }
+:root[data-theme="dark"] .nd-market-card-icon.eggs       { background: rgba(161,98,7,0.18); }
+:root[data-theme="dark"] .nd-market-card-icon.legumes    { background: rgba(101,115,61,0.2); }
+:root[data-theme="dark"] .nd-market-card-icon.nuts       { background: rgba(139,94,60,0.2); }
+:root[data-theme="dark"] .nd-market-card-icon.beverages  { background: rgba(50,119,168,0.18); }
+:root[data-theme="dark"] .nd-market-card-icon.snacks     { background: rgba(164,81,135,0.18); }
+:root[data-theme="dark"] .nd-market-card-icon.other      { background: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .nd-market-macro.protein { background: rgba(37,99,235,0.18); }
+:root[data-theme="dark"] .nd-market-macro.carbs   { background: rgba(217,155,39,0.2); }
+:root[data-theme="dark"] .nd-market-macro.fat     { background: rgba(194,65,65,0.2); }
+
+/* Recurring inline styles baked into the template/JS-rendered markup —
+   overridden by attribute match since editing every call site isn't practical. */
+:root[data-theme="dark"] [style*="border-bottom:1px solid #dcedc8"] { border-bottom-color: rgba(255,255,255,0.08) !important; }
+:root[data-theme="dark"] [style*="color:#607d6b"],
+:root[data-theme="dark"] [style*="color:#9e9e9e"],
+:root[data-theme="dark"] [style*="color:#9ca3af"],
+:root[data-theme="dark"] [style*="color:#374151"],
+:root[data-theme="dark"] [style*="color: #999"] { color: #93a0b8 !important; }
+:root[data-theme="dark"] [style*="background:#f8faf8"] { background-color: #1a2233 !important; }
