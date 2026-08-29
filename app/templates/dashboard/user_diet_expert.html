@@ -2138,6 +2138,24 @@
                 : uiCopy('មិនមានក្រុមអាហារបន្ថែមទៀតទេ', 'No additional food groups available');
         }
 
+        function persistActiveFoodGroup() {
+            const resultId = latestPlanResult?.result_id;
+            const activeGroup = resultFoodGroups[activeResultFoodGroupIndex];
+            const groupKey = activeGroup?.group_key;
+            if (!resultId || !groupKey) {
+                return;
+            }
+
+            fetch(`/dashboard/user/results/${resultId}/active-group`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ group_key: groupKey })
+            }).catch(error => {
+                console.error('Error saving selected food group:', error);
+            });
+        }
+
         function attachRefreshPlanHandler() {
             const refreshBtn = document.getElementById('refreshPlanBtn');
             if (!refreshBtn || refreshBtn.dataset.bound === '1') {
@@ -2152,6 +2170,7 @@
 
                 activeResultFoodGroupIndex = (activeResultFoodGroupIndex + 1) % resultFoodGroups.length;
                 renderResultsContent(latestPlanResult, false);
+                persistActiveFoodGroup();
             });
             updateRefreshPlanButton();
         }

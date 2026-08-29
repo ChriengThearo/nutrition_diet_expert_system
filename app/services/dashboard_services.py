@@ -307,6 +307,51 @@ class DashboardService:
         }
 
     @staticmethod
+    def update_active_food_group(
+        user_id: int, result_id: int, group_key: str
+    ) -> Dict[str, Any]:
+        """Persist the food group the user switched to for an existing saved plan."""
+        result = UserResultsTable.query.filter_by(
+            id=result_id, user_id=user_id
+        ).first()
+        if not result:
+            raise ValueError("រកមិនឃើញផែនការអាហារនេះទេ។")
+
+        try:
+            payload = json.loads(result.result_data or "{}")
+        except Exception:
+            raise ValueError("ទិន្នន័យផែនការអាហារមិនត្រឹមត្រូវទេ។")
+
+        plan = payload.get("plan") if isinstance(payload, dict) else None
+        food_groups = plan.get("food_groups") if isinstance(plan, dict) else None
+        if not isinstance(plan, dict) or not isinstance(food_groups, list):
+            raise ValueError("ផែនការអាហារនេះមិនមានក្រុមអាហារច្រើនទេ។")
+
+        matched_group = next(
+            (
+                group
+                for group in food_groups
+                if isinstance(group, dict)
+                and str(group.get("group_key") or "").strip() == str(group_key).strip()
+            ),
+            None,
+        )
+        if not matched_group:
+            raise ValueError("រកមិនឃើញក្រុមអាហារនេះទេ។")
+
+        plan["active_food_group_key"] = matched_group.get("group_key")
+        plan["foods"] = matched_group.get("foods", []) or []
+        plan["avoid_foods"] = matched_group.get("avoid_foods", []) or []
+
+        result.result_data = json.dumps(payload, default=str)
+        db.session.commit()
+
+        return {
+            "result_id": result.id,
+            "active_food_group_key": plan["active_food_group_key"],
+        }
+
+    @staticmethod
     def get_recent_activities(limit: int = 10) -> List[Dict[str, Any]]:
         """Get recent system activities"""
         try:
