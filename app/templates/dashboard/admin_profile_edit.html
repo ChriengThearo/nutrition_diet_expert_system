@@ -733,6 +733,33 @@ input[type="file"].form-control {
   .search-box { width: 100%; order: 2; }
   .content { padding: 16px; }
 }
+.sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--brand-leaf-bg);
+  background-repeat: no-repeat;
+  background-position: center 92%;
+  background-size: 100% auto;
+  opacity: 0.06;
+  z-index: 0;
+  pointer-events: none;
+}
+.brand, .nav, .sidebar-user { position: relative; z-index: 1; }
+.brand-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  flex: none;
+}
+.brand-badge .brand-mark { width: 100%; height: 100%; object-fit: contain; }
+.brand { grid-template-columns: 40px minmax(0, 1fr) 28px; }
+.is-collapsed .brand { grid-template-columns: 40px; }
 </style>
 </head>
 <body>
@@ -741,9 +768,9 @@ input[type="file"].form-control {
 {% set admin_photo_path = (current_user.photo or '')|trim %}
 {% set admin_avatar_url = url_for('main.images', filename=admin_photo_path|replace('images/', '')) if admin_photo_path else '' %}
 <div class="app-shell">
-  <aside class="sidebar">
+  <aside class="sidebar" style="--brand-leaf-bg:url('{{ url_for('main.images', filename='public/leaf.png') }}');">
     <div class="brand">
-      <img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">
+      <div class="brand-badge"><img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert"></div>
       <div>
         <p class="brand-name">Diet Expert</p>
         <p class="brand-sub">Clinical Nutrition Suite</p>

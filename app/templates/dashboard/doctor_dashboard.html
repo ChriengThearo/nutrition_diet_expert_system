@@ -43,9 +43,11 @@
   <!-- ═══════════════════════════════════════════════
        SIDEBAR
   ═══════════════════════════════════════════════ -->
-  <aside class="nd-sidebar">
+  <aside class="nd-sidebar" style="--nd-leaf-bg:url('{{ url_for('main.images', filename='public/leaf.png') }}');">
     <div class="nd-sidebar-brand">
-      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Nutrition and Diet">
+      <div class="nd-sidebar-logo">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Nutrition and Diet">
+      </div>
       <div>
         <div class="nd-sidebar-brand-text">Nutrition and Diet</div>
         <div class="nd-sidebar-brand-sub">Expert System</div>
@@ -66,15 +68,24 @@
       </li>
       {% endif %}
       <li class="nd-nav-section">Knowledge Base</li>
-      <li class="nd-nav-item">
-        <button class="nd-nav-link" id="nav-foods" onclick="showSection('foods')">
-          <i class="fas fa-apple-alt"></i> Food Catalog
+      <li class="nd-nav-item nd-nav-group" id="navGroupFoodTypes">
+        <button class="nd-nav-link nd-nav-group-toggle" type="button" onclick="toggleNavGroup('FoodTypes')">
+          <i class="fas fa-drumstick-bite"></i>
+          <span class="nd-nav-label">Food Types</span>
+          <i class="fas fa-chevron-down nd-nav-group-chevron"></i>
         </button>
-      </li>
-      <li class="nd-nav-item">
-        <button class="nd-nav-link" id="nav-cooked" onclick="showSection('cooked')">
-          <i class="fas fa-utensils"></i> Cooked Foods
-        </button>
+        <ul class="nd-nav-submenu" id="navSubmenuFoodTypes">
+          <li>
+            <button class="nd-nav-sublink" id="nav-foods" onclick="showSection('foods')">
+              <i class="fas fa-apple-alt"></i> Food Catalog
+            </button>
+          </li>
+          <li>
+            <button class="nd-nav-sublink" id="nav-cooked" onclick="showSection('cooked')">
+              <i class="fas fa-utensils"></i> Cooked Foods
+            </button>
+          </li>
+        </ul>
       </li>
       <li class="nd-nav-item">
         <button class="nd-nav-link" id="nav-food-market" onclick="showSection('food-market')">
@@ -1302,6 +1313,23 @@ function notifyComingSoon(featureName) {
   alert(featureName + ' is coming soon.');
 }
 const ALL_SECTIONS = ['overview','food-market','foods','cooked','rules','builder','simulation','patients','consultations','analytics'];
+const NAV_GROUPS = { FoodTypes: ['foods', 'cooked'] };
+
+function toggleNavGroup(name) {
+  const group = document.getElementById('navGroup' + name);
+  if (group) group.classList.toggle('is-open');
+}
+
+function syncNavGroups(activeSection) {
+  Object.entries(NAV_GROUPS).forEach(([name, sections]) => {
+    const group = document.getElementById('navGroup' + name);
+    if (!group) return;
+    const isActiveChild = sections.includes(activeSection);
+    group.classList.toggle('has-active-child', isActiveChild);
+    if (isActiveChild) group.classList.add('is-open');
+  });
+}
+
 function showSection(name) {
   ALL_SECTIONS.forEach(s => {
     const el = document.getElementById('section-' + s);
@@ -1309,6 +1337,7 @@ function showSection(name) {
     const nav = document.getElementById('nav-' + s);
     if (nav) nav.classList.toggle('active', s === name);
   });
+  syncNavGroups(name);
   const titles = { overview:'Doctor Dashboard', 'food-market':'Food Market', foods:'Food Catalog', cooked:'Cooked Foods',
                    rules:'Rule Library', builder:'Builder Studio', simulation:'Simulation Lab',
                    patients:'Patients', consultations:'Consultations', analytics:'Analytics' };
