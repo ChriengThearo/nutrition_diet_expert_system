@@ -37,13 +37,14 @@
   (1 if 'dashboard.doctor' in dashboard_permissions else 0) +
   (1 if 'dashboard.user' in dashboard_permissions else 0) %}
 {% set show_dashboard_switcher = dashboard_option_count > 1 %}
+{% set nd_leaf_bg_url = url_for('main.images', filename='public/leaf.png') %}
 
 <div class="nd-app">
 
   <!-- ═══════════════════════════════════════════════
        SIDEBAR
   ═══════════════════════════════════════════════ -->
-  <aside class="nd-sidebar" style="--nd-leaf-bg:url('{{ url_for('main.images', filename='public/leaf.png') }}');">
+  <aside class="nd-sidebar" style="--nd-leaf-bg:url('{{ nd_leaf_bg_url }}');">
     <div class="nd-sidebar-brand">
       <div class="nd-sidebar-logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Nutrition and Diet">

@@ -13,7 +13,7 @@
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard | Diet Expert</title>
+<title>Admin Dashboard | Nutrition and Diet</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -166,7 +166,7 @@ select { font: inherit; }
 .is-collapsed .collapse-btn i { transform: rotate(180deg); }
 
 .is-collapsed .brand {
-  grid-template-columns: 36px;
+  grid-template-columns: 40px;
 }
 
 .is-collapsed .nav-link {
@@ -182,7 +182,7 @@ select { font: inherit; }
   height: 88px;
   padding: 20px 15px 15px 24px;
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr) 28px;
+  grid-template-columns: 40px minmax(0, 1fr) 28px;
   align-items: center;
   gap: 10px;
 }
@@ -1283,18 +1283,17 @@ a.stat-card:hover .stat-icon {
   flex: none;
 }
 .brand-badge .brand-mark { width: 100%; height: 100%; object-fit: contain; }
-.brand { grid-template-columns: 40px minmax(0, 1fr) 28px; }
-.is-collapsed .brand { grid-template-columns: 40px; }
 </style>
 </head>
 <body>
+{% set brand_leaf_bg_url = url_for('main.images', filename='public/leaf.png') %}
 <div class="app-shell">
-  <aside class="sidebar" style="--brand-leaf-bg:url('{{ url_for('main.images', filename='public/leaf.png') }}');">
+  <aside class="sidebar" style="--brand-leaf-bg:url('{{ brand_leaf_bg_url }}');">
     <div class="brand">
-      <div class="brand-badge"><img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert"></div>
+      <div class="brand-badge"><img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Nutrition and Diet"></div>
       <div>
         <p class="brand-name">Diet Expert</p>
-        <p class="brand-sub">Clinical Nutrition Suite</p>
+        <p class="brand-sub">Expert System</p>
       </div>
       <button class="collapse-btn" type="button" id="sidebarCollapseBtn" aria-label="Collapse sidebar"><i class="fas fa-chevron-left"></i></button>
     </div>
@@ -1417,7 +1416,7 @@ a.stat-card:hover .stat-icon {
         <div class="stat-card">
           <div class="stat-icon soft-purple"><i class="far fa-clipboard"></i></div>
           <div>
-            <p class="stat-label">Diet Plans</p>
+            <p class="stat-label">Nutrition and Diet</p>
             <p class="stat-value">{{ total_diet_plans }}</p>
             <p class="stat-caption">Generated results</p>
           </div>

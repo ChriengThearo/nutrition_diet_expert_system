@@ -173,7 +173,7 @@ select { font: inherit; }
 }
 
 .is-collapsed .collapse-btn i { transform: rotate(180deg); }
-.is-collapsed .brand { grid-template-columns: 36px; }
+.is-collapsed .brand { grid-template-columns: 40px; }
 .is-collapsed .nav-link { justify-content: center; }
 .is-collapsed .sidebar-user { grid-template-columns: 40px; justify-content: center; }
 
@@ -181,7 +181,7 @@ select { font: inherit; }
   height: 88px;
   padding: 20px 15px 15px 24px;
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr) 28px;
+  grid-template-columns: 40px minmax(0, 1fr) 28px;
   align-items: center;
   gap: 10px;
 }
@@ -1014,8 +1014,6 @@ select { font: inherit; }
   flex: none;
 }
 .brand-badge .brand-mark { width: 100%; height: 100%; object-fit: contain; }
-.brand { grid-template-columns: 40px minmax(0, 1fr) 28px; }
-.is-collapsed .brand { grid-template-columns: 40px; }
 </style>
 </head>
 <body>
@@ -1033,8 +1031,9 @@ select { font: inherit; }
 {% set admin_initial = (admin_display_name[0]|upper) if admin_display_name else 'A' %}
 {% set admin_photo_path = (current_user.photo or '')|trim %}
 {% set admin_avatar_url = url_for('main.images', filename=admin_photo_path|replace('images/', '')) if admin_photo_path else '' %}
+{% set brand_leaf_bg_url = url_for('main.images', filename='public/leaf.png') %}
 <div class="app-shell">
-  <aside class="sidebar" style="--brand-leaf-bg:url('{{ url_for('main.images', filename='public/leaf.png') }}');">
+  <aside class="sidebar" style="--brand-leaf-bg:url('{{ brand_leaf_bg_url }}');">
     <div class="brand">
       <div class="brand-badge"><img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert"></div>
       <div>
