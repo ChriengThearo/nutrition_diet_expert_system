@@ -167,20 +167,6 @@
             </div>
           </div>
         </div>
-        <div class="dropdown">
-          <button type="button" class="nd-topbar-profile" id="ndTopbarProfileToggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="{{ avatar_url }}" alt="{{ user_display_name }}" class="nd-topbar-avatar"
-                 onerror="this.onerror=null;this.src='{{ default_avatar_url }}';">
-            <i class="fas fa-chevron-down nd-topbar-chevron"></i>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="ndTopbarProfileToggle">
-            <li><h6 class="dropdown-header">{{ user_display_name }}</h6></li>
-            <li><a class="dropdown-item" href="{{ url_for('dashboard.user_profile') }}"><i class="fas fa-user me-2"></i>{{ 'ប្រវត្តិរូប' if ui_lang == 'km' else 'My Profile' }}</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('dashboard.user_profile_edit') }}"><i class="fas fa-user-pen me-2"></i>{{ 'កែប្រែប្រវត្តិរូប' if ui_lang == 'km' else 'Edit Profile' }}</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}" onclick="openLogoutModal(event);"><i class="fas fa-sign-out-alt me-2"></i>{{ 'ចាកចេញ' if ui_lang == 'km' else 'Log out' }}</a></li>
-          </ul>
-        </div>
         {% if show_dashboard_switcher %}
         <div class="nd-topbar-icon dropdown">
           {% include "dashboard/_dashboard_switcher.html" %}

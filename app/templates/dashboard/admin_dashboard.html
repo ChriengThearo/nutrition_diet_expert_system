@@ -1356,25 +1356,6 @@ a.stat-card:hover .stat-icon {
           </span>
         </button>
         {% include "dashboard/_admin_notify.html" %}
-        <div class="profile-head" id="adminProfileHead">
-          <div class="avatar">{{ admin_initial }}</div>
-          <i class="fas fa-chevron-down profile-chevron"></i>
-          <div class="profile-dropdown-menu" id="adminProfileMenu">
-            <p class="pdm-name">{{ admin_display_name }}</p>
-            <p class="pdm-email">{{ current_user.email }}</p>
-            <hr class="pdm-divider">
-            <a class="pdm-item" href="{{ url_for('dashboard.admin_profile') }}">
-              <i class="fas fa-user"></i> Profile
-            </a>
-            <a class="pdm-item" href="{{ url_for('dashboard.admin_profile_edit') }}">
-              <i class="fas fa-user-pen"></i> Edit Profile
-            </a>
-            <hr class="pdm-divider">
-            <button type="button" class="pdm-item pdm-danger" onclick="openLogoutModal(event);">
-              <i class="fas fa-sign-out-alt"></i> Log Out
-            </button>
-          </div>
-        </div>
       </div>
     </header>
 
