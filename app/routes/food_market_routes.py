@@ -2,7 +2,7 @@ from flask import Blueprint, current_app, jsonify, request, redirect, url_for
 from flask_login import current_user, login_required
 
 from app.models.doctor_food_favorite import DoctorFoodFavorite
-from app.routes.dashboard_routes import doctor_required
+from app.routes.dashboard_routes import user_required
 from app.services.usda_service import USDAService
 from extensions import csrf, db
 
@@ -15,14 +15,16 @@ def _error(message, status=400):
 
 @food_market_bp.route("")
 @login_required
-@doctor_required
+@user_required
 def page():
-    return redirect(url_for("dashboard.doctor_dashboard", section="food-market"))
+    if current_user.has_role("doctor") or current_user.has_permission("dashboard.doctor"):
+        return redirect(url_for("dashboard.doctor_dashboard", section="food-market"))
+    return redirect(url_for("dashboard.user_dashboard", section="food-market"))
 
 
 @food_market_bp.route("/categories", methods=["GET"])
 @login_required
-@doctor_required
+@user_required
 def categories():
     return jsonify({"success": True, "categories": list(USDAService.CATEGORIES)})
 
@@ -30,7 +32,7 @@ def categories():
 @food_market_bp.route("/search", methods=["GET", "POST"])
 @csrf.exempt
 @login_required
-@doctor_required
+@user_required
 def search():
     payload = request.get_json(silent=True) or {}
     query = request.args.get("q", "") if request.method == "GET" else payload.get("query", "")
@@ -48,7 +50,7 @@ def search():
 
 @food_market_bp.route("/<int:fdc_id>")
 @login_required
-@doctor_required
+@user_required
 def detail(fdc_id):
     try:
         return jsonify({"success": True, "food": USDAService.get(fdc_id)})
@@ -61,7 +63,7 @@ def detail(fdc_id):
 @food_market_bp.route("/compare", methods=["POST"])
 @csrf.exempt
 @login_required
-@doctor_required
+@user_required
 def compare():
     foods = (request.get_json(silent=True) or {}).get("foods")
     if not isinstance(foods, list) or len(foods) < 2 or len(foods) > 5:
@@ -72,7 +74,7 @@ def compare():
 @food_market_bp.route("/ai-search", methods=["POST"])
 @csrf.exempt
 @login_required
-@doctor_required
+@user_required
 def ai_search():
     request_text = str((request.get_json(silent=True) or {}).get("query") or "").strip()
     if len(request_text) < 2:
@@ -85,7 +87,7 @@ def ai_search():
 @food_market_bp.route("/favorites", methods=["GET", "POST"])
 @csrf.exempt
 @login_required
-@doctor_required
+@user_required
 def favorites():
     if request.method == "GET":
         rows = DoctorFoodFavorite.query.filter_by(doctor_id=current_user.id).order_by(DoctorFoodFavorite.created_at.desc()).all()
@@ -108,7 +110,7 @@ def favorites():
 @food_market_bp.route("/favorites/<int:fdc_id>", methods=["DELETE"])
 @csrf.exempt
 @login_required
-@doctor_required
+@user_required
 def delete_favorite(fdc_id):
     row = DoctorFoodFavorite.query.filter_by(doctor_id=current_user.id, fdc_id=fdc_id).first()
     if not row:

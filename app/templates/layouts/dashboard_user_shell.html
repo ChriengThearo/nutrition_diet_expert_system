@@ -79,6 +79,12 @@
         </a>
       </li>
       <li class="nd-nav-item">
+        <a class="nd-nav-link {{ 'active' if request.endpoint == 'dashboard.user_dashboard' and current_section == 'food-market' else '' }}"
+           id="nav-food-market" data-inpage="food-market" href="{{ url_for('dashboard.user_dashboard', section='food-market') }}">
+          <i class="fas fa-store"></i> Food Market
+        </a>
+      </li>
+      <li class="nd-nav-item">
         <a class="nd-nav-link {{ 'active' if request.endpoint == 'dashboard.user_dashboard' and current_section == 'history' else '' }}"
            id="nav-history" data-inpage="history" href="{{ url_for('dashboard.user_dashboard', section='history') }}">
           <i class="fas fa-clock-rotate-left"></i> ប្រវត្តិផែនការ
