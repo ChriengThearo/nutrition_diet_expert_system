@@ -27,7 +27,8 @@
 </head>
 <body>
 {% set is_guest_mode = guest_mode if guest_mode is defined else session.get('user_guest_mode', False) %}
-{% set user_display_name = 'ភ្ញៀវ' if is_guest_mode else (current_user.full_name or current_user.username) %}
+{% set ui_lang = session.get('ui_lang', 'km') %}
+{% set user_display_name = ('ភ្ញៀវ' if ui_lang == 'km' else 'Guest') if is_guest_mode else (current_user.full_name or current_user.username) %}
 {% set default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
 {% set photo_path = (current_user.photo or '')|trim %}
 {% set avatar_url = default_avatar_url if is_guest_mode else
@@ -39,7 +40,6 @@
   (1 if 'dashboard.user' in dashboard_permissions else 0) %}
 {% set show_dashboard_switcher = dashboard_option_count > 1 %}
 {% set current_section = request.args.get('section', 'overview') %}
-{% set ui_lang = session.get('ui_lang', 'km') %}
 
 <div class="nd-app">
 
@@ -59,23 +59,23 @@
       <li class="nd-nav-item">
         <a class="nd-nav-link {{ 'active' if request.endpoint == 'dashboard.user_dashboard' and current_section == 'overview' else '' }}"
            id="nav-overview" href="{{ url_for('dashboard.user_dashboard') }}">
-          <i class="fas fa-gauge-high"></i> ផ្ទាំងគ្រប់គ្រង
+          <i class="fas fa-gauge-high"></i> {{ 'ផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Dashboard' }}
         </a>
       </li>
       <li class="nd-nav-item">
         <a class="nd-nav-link {{ 'active' if (request.endpoint == 'dashboard.user_dashboard' and current_section == 'profile') or request.endpoint in ('dashboard.user_profile', 'dashboard.user_profile_edit') else '' }}"
            id="nav-profile" data-inpage="profile" href="{{ url_for('dashboard.user_dashboard', section='profile') }}">
-          <i class="fas fa-id-card"></i> ប្រវត្តិរូប
+          <i class="fas fa-id-card"></i> {{ 'ប្រវត្តិរូប' if ui_lang == 'km' else 'Profile' }}
         </a>
       </li>
       <li class="nd-nav-item">
         <a class="nd-nav-link {{ 'active' if request.endpoint == 'main.bmi' else '' }}" href="{{ url_for('main.bmi') }}">
-          <i class="fas fa-weight-scale"></i> គណនា BMI
+          <i class="fas fa-weight-scale"></i> {{ 'គណនា BMI' if ui_lang == 'km' else 'BMI Calculator' }}
         </a>
       </li>
       <li class="nd-nav-item">
         <a class="nd-nav-link {{ 'active' if request.endpoint == 'dashboard.user_diet_expert' else '' }}" href="{{ url_for('dashboard.user_diet_expert') }}">
-          <i class="fas fa-utensils"></i> បង្កើតផែនការ
+          <i class="fas fa-utensils"></i> {{ 'បង្កើតផែនការ' if ui_lang == 'km' else 'Generate Plan' }}
         </a>
       </li>
       <li class="nd-nav-item">
@@ -87,7 +87,7 @@
       <li class="nd-nav-item">
         <a class="nd-nav-link {{ 'active' if request.endpoint == 'dashboard.user_dashboard' and current_section == 'history' else '' }}"
            id="nav-history" data-inpage="history" href="{{ url_for('dashboard.user_dashboard', section='history') }}">
-          <i class="fas fa-clock-rotate-left"></i> ប្រវត្តិផែនការ
+          <i class="fas fa-clock-rotate-left"></i> {{ 'ប្រវត្តិផែនការ' if ui_lang == 'km' else 'Plan History' }}
         </a>
       </li>
     </ul>
@@ -116,8 +116,8 @@
     <!-- TOP BAR -->
     <div class="nd-topbar">
       <div class="nd-topbar-left">
-        <h1 id="nd-page-title">{% block page_title %}ផ្ទាំងគ្រប់គ្រងអ្នកប្រើប្រាស់{% endblock %}</h1>
-        <p>{% block page_subtitle %}សូមស្វាគមន៍មកវិញ {{ user_display_name }} 👋{% endblock %}</p>
+        <h1 id="nd-page-title">{% block page_title %}{{ 'ផ្ទាំងគ្រប់គ្រងអ្នកប្រើប្រាស់' if ui_lang == 'km' else 'User Dashboard' }}{% endblock %}</h1>
+        <p>{% block page_subtitle %}{{ 'សូមស្វាគមន៍មកវិញ' if ui_lang == 'km' else 'Welcome back' }} {{ user_display_name }} 👋{% endblock %}</p>
       </div>
       <div class="nd-topbar-right">
         <div class="nd-topbar-search" id="ndTopbarSearchBox">
