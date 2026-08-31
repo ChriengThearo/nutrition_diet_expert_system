@@ -1469,6 +1469,17 @@
                 revealContent(false);
             });
 
+            /* Click outside the modal box (on the overlay backdrop) — go back */
+            gate.addEventListener('click', (event) => {
+                if (event.target === gate) {
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        window.location.href = "{{ url_for('dashboard.user_dashboard') }}";
+                    }
+                }
+            });
+
             /* Import Documents — open file picker */
             externalBtn.addEventListener('click', () => {
                 clearError();
