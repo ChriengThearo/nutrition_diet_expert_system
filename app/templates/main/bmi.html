@@ -8,200 +8,312 @@
 {% block breadcrumb %}{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
 <style>
-    .bmi-page { padding: 2rem 0; }
+    /* Match the flat /dashboard/user background instead of the decorative
+       admin/doctor gradient+food-image overlay that dashboard_theme.css ships. */
+    .bmi-shell { padding-bottom: 2.2rem; background: var(--nd-bg, #f5f6fa); }
+    .bmi-shell::before,
+    .bmi-shell::after { content: none; }
+    .bmi-shell .dashboard-container { padding: 20px 24px 0; overflow-x: hidden; }
 
-    .bmi-page h1 {
+    .bmi-shell h1 {
         font-size: 2rem;
         font-weight: 700;
-        color: #1a1a2e;
+        color: var(--nd-ink, #1a1a2e);
         margin-bottom: 1.5rem;
     }
 
-
-    .bmi-form-card {
-        border: 2px solid #dee2e6;
-        border-radius: 8px;
-        padding: 1.5rem; background: white;
-        height: 100%;
-    }
-
-    .form-row { display: flex; align-items: center; margin-bottom: 1rem; gap: 1rem; }
-    .form-row label { min-width: 70px; font-weight: 600; color: #333; font-size: 0.95rem; }
-    .form-row input[type="number"] {
-        width: 200px; padding: 0.5rem 0.75rem;
-        border: 1px solid #ccc; border-radius: 4px; font-size: 1rem;
-    }
-    .form-row .unit-label { color: #666; font-size: 0.9rem; }
-    .form-row .hint { color: #888; font-size: 0.85rem; }
-
-    .gender-options { display: flex; gap: 1.5rem; }
-    .gender-options label { min-width: auto; font-weight: 400; display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
-    .gender-options input[type="radio"] { accent-color: #2980b9; width: 16px; height: 16px; }
-
-    .bmi-buttons { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
-
-    .btn-calculate {
-        background: linear-gradient(135deg, #0f766e, #14b8a6);
-        color: white; border: none; padding: 0.6rem 1.5rem;
-        border-radius: 6px; font-weight: 600; font-size: 0.95rem;
-        display: flex; align-items: center; gap: 0.5rem;
-        cursor: pointer; transition: all 0.2s;
-    }
-    .btn-calculate:hover { background: linear-gradient(135deg, #0d6b64, #0f9f93); transform: translateY(-1px); }
-
-    .btn-clear {
-        background: #6c757d; color: white; border: none;
-        padding: 0.6rem 1.5rem; border-radius: 6px;
-        font-weight: 600; font-size: 0.95rem; cursor: pointer;
-    }
-    .btn-clear:hover { background: #5a6268; }
-
     .row.g-4 { align-items: stretch; }
-    .result-card { border: 2px solid #dee2e6; border-radius: 8px; background: white; overflow: hidden; height: 100%; display: flex; flex-direction: column; }
 
-    .result-header {
-        background: linear-gradient(135deg, #27ae60, #2ecc71);
-        color: white; padding: 0.75rem 1.25rem;
-        font-size: 1.25rem; font-weight: 700;
-        display: flex; justify-content: space-between; align-items: center;
+    /* ---- Shared card shell ---- */
+    .bmi-card {
+        border: 1px solid var(--nd-border, #eef1f4);
+        border-radius: 18px;
+        padding: 1.75rem;
+        background: var(--nd-card, #ffffff);
+        height: 100%;
+        box-shadow: var(--nd-shadow-lg, 0 10px 30px rgba(16, 40, 58, 0.06));
     }
 
-    .result-body { padding: 1.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; flex: 1; }
+    .card-head { display: flex; align-items: flex-start; gap: 0.85rem; margin-bottom: 1.6rem; }
+    .card-head .head-icon {
+        width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%;
+        background: rgba(15, 118, 110, 0.1); color: #0f766e;
+        display: flex; align-items: center; justify-content: center; font-size: 1.05rem;
+    }
+    .card-head .head-text { flex: 1; min-width: 0; }
+    .card-head h2 { font-size: 1.15rem; font-weight: 700; color: var(--nd-ink, #1a1a2e); margin: 0 0 0.15rem; }
+    .card-head p { font-size: 0.85rem; color: var(--nd-muted, #8a97a3); margin: 0; }
 
-    .bmi-result-text { font-size: 1.3rem; font-weight: 700; color: #1a1a2e; margin-bottom: 0.5rem; }
-    .bmi-result-text sup { font-size: 0.7em; }
+    .result-head { justify-content: space-between; }
+
+    .btn-save-result {
+        background: var(--nd-card, #fff); border: 1.5px solid var(--nd-border, #e2e8f0); color: var(--nd-ink, #334155);
+        border-radius: 8px; padding: 0.4rem 0.85rem; font-size: 0.82rem; font-weight: 600;
+        display: flex; align-items: center; gap: 0.4rem; cursor: pointer; white-space: nowrap;
+        transition: all 0.15s;
+    }
+    .btn-save-result:hover { border-color: #0f766e; color: #0f766e; background: rgba(15, 118, 110, 0.08); }
+    .btn-save-result.saved { border-color: #27ae60; color: #27ae60; background: rgba(39, 174, 96, 0.1); }
+
+    /* ---- Form fields ---- */
+    .field-group { margin-bottom: 1.15rem; }
+    .field-group > label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--nd-ink, #333); margin-bottom: 0.4rem; }
+
+    .input-icon-wrap {
+        display: flex; align-items: stretch; border: 1.5px solid var(--nd-border, #e2e8f0); border-radius: 10px;
+        overflow: hidden; background: var(--nd-card, #fff); transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-icon-wrap:focus-within { border-color: #14b8a6; box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15); }
+    .input-icon-wrap .input-icon-cell {
+        width: 44px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+        background: rgba(0, 0, 0, 0.03); color: var(--nd-muted, #64748b); border-right: 1px solid var(--nd-border, #e2e8f0); font-size: 0.95rem;
+    }
+    .input-icon-wrap input {
+        flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+        padding: 0 0.75rem; height: 46px; font-size: 1rem; font-weight: 600; color: var(--nd-ink, #1a1a2e);
+    }
+    .input-icon-wrap .unit-suffix { display: flex; align-items: center; padding-right: 0.9rem; color: var(--nd-muted, #94a3b8); font-size: 0.85rem; white-space: nowrap; }
+
+    .gender-toggle { display: flex; gap: 0.75rem; }
+    .gender-opt {
+        position: relative; flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        border: 1.5px solid var(--nd-border, #e2e8f0); border-radius: 10px; padding: 0.7rem; font-weight: 600; color: var(--nd-ink, #333);
+        cursor: pointer; transition: all 0.15s; margin: 0;
+    }
+    .gender-opt input { position: absolute; opacity: 0; pointer-events: none; }
+    .gender-opt i { color: var(--nd-muted, #94a3b8); transition: color 0.15s; }
+    .gender-opt.selected { border-color: #0f766e; background: rgba(15, 118, 110, 0.06); color: #0f766e; }
+    .gender-opt.selected i { color: #0f766e; }
+
+    .btn-calculate-full {
+        width: 100%; margin-top: 1.6rem;
+        background: linear-gradient(135deg, #0f766e, #14b8a6);
+        color: white; border: none; padding: 0.85rem 1.5rem;
+        border-radius: 10px; font-weight: 700; font-size: 1rem;
+        display: flex; align-items: center; justify-content: center; gap: 0.55rem;
+        cursor: pointer; transition: all 0.2s;
+        box-shadow: 0 10px 20px rgba(15, 118, 110, 0.25);
+    }
+    .btn-calculate-full:hover { background: linear-gradient(135deg, #0d6b64, #0f9f93); transform: translateY(-1px); }
+
+    .btn-text-clear {
+        display: block; margin: 0.7rem auto 0; background: none; border: none;
+        color: var(--nd-muted, #94a3b8); font-size: 0.82rem; font-weight: 600; cursor: pointer; padding: 0.3rem;
+    }
+    .btn-text-clear:hover { color: #0f766e; }
+
+    .privacy-note {
+        text-align: center; color: var(--nd-muted, #94a3b8); font-size: 0.8rem; margin: 0.9rem 0 0;
+        display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    }
+    .privacy-note i { color: #10b981; }
+
+    /* ---- Result: empty state ---- */
+    .empty-result { padding: 3rem 1rem; color: var(--nd-muted, #999); text-align: center; }
+
+    /* ---- Gauge ---- */
+    .gauge-outer { position: relative; width: 360px; max-width: 100%; height: 172px; margin: 0 auto; }
+    .gauge-clip { position: absolute; top: 0; left: 0; width: 360px; height: 158px; overflow: hidden; }
+    .gauge-ring {
+        position: absolute; top: 28px; left: 50px; width: 260px; height: 260px; border-radius: 50%;
+        background: conic-gradient(from 270deg,
+            #3498db 0deg, #3498db 45deg,
+            #27ae60 57deg, #27ae60 84deg,
+            #f1c40f 96deg, #f1c40f 114deg,
+            #e67e22 126deg, #e67e22 144deg,
+            #c0392b 156deg, #c0392b 180deg,
+            transparent 180deg, transparent 360deg);
+    }
+    .gauge-hole { position: absolute; top: 68px; left: 90px; width: 180px; height: 180px; border-radius: 50%; background: var(--nd-card, #ffffff); z-index: 2; }
+
+    .gauge-tick { position: absolute; transform: translate(-50%, -50%); font-size: 0.78rem; font-weight: 700; color: var(--nd-muted, #64748b); }
+
+    .gauge-needle-pivot { position: absolute; left: 180px; top: 158px; width: 0; height: 0; z-index: 1; transition: transform 0.8s ease-out; }
+    .gauge-needle-pivot .bar { position: absolute; left: -2.5px; top: -122px; width: 5px; height: 122px; background: #0f766e; border-radius: 3px 3px 0 0; }
+    .gauge-pivot-dot {
+        position: absolute; left: 180px; top: 158px; width: 11px; height: 11px; border-radius: 50%;
+        background: #0f766e; border: 2px solid #fff; box-shadow: 0 1px 5px rgba(0,0,0,0.25);
+        transform: translate(-50%, -50%); z-index: 2;
+    }
+
+    .gauge-center {
+        position: absolute; left: 0; top: 66px; width: 360px; text-align: center; z-index: 5;
+    }
+    .gauge-your-bmi { font-size: 0.85rem; color: var(--nd-muted, #8a97a3); font-weight: 600; margin-bottom: 0.1rem; }
+    .gauge-value { font-size: 2.2rem; font-weight: 800; color: var(--nd-ink, #1a1a2e); line-height: 1.1; }
+    .gauge-category { font-size: 0.95rem; font-weight: 700; margin-top: 0.15rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
 
     .category-underweight { color: #3498db; }
     .category-normal { color: #27ae60; }
-    .category-overweight { color: #f39c12; }
+    .category-overweight { color: #d68910; }
     .category-obese { color: #e74c3c; }
 
-    /* Progress bar gauge */
-    .bmi-gauge { margin: 1.5rem auto; max-width: 100%; width: 100%; }
-
-    .gauge-bar {
-        height: 42px; border-radius: 21px; overflow: hidden;
-        display: flex; position: relative;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    @media (max-width: 420px) {
+        .gauge-outer { transform: scale(0.82); transform-origin: top center; margin-bottom: -30px; }
     }
-    .gauge-bar .seg { height: 100%; }
-    .seg-uw { background: #3498db; flex: 2.5; }
-    .seg-normal { background: #27ae60; flex: 6.5; }
-    .seg-ow { background: #f1c40f; flex: 5; }
-    .seg-ob1 { background: #e67e22; flex: 5; }
-    .seg-ob2 { background: #c0392b; flex: 5; }
 
-    .gauge-pointer {
-        position: absolute; top: -10px;
-        width: 4px; height: 62px;
-        background: #1a1a2e;
+    /* ---- Spectrum bar ---- */
+    .spectrum-wrap { margin-top: 0.75rem; }
+    .spectrum-track { position: relative; display: flex; height: 10px; border-radius: 6px; overflow: hidden; }
+    .spectrum-track .seg { height: 100%; }
+    .spectrum-seg-uw { background: #3498db; flex: 8.5; }
+    .spectrum-seg-normal { background: #27ae60; flex: 6.5; }
+    .spectrum-seg-ow { background: #f1c40f; flex: 5; }
+    .spectrum-seg-ob { background: #e74c3c; flex: 10; }
+    .spectrum-marker {
+        position: absolute; top: -8px; width: 0; height: 0; transform: translateX(-50%);
+        border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 9px solid #0f766e;
         transition: left 0.8s ease-out;
-        z-index: 2;
     }
-    .gauge-pointer::after {
-        content: '';
-        position: absolute; top: -8px; left: -7px;
-        width: 0; height: 0;
-        border-left: 8px solid transparent;
-        border-right: 8px solid transparent;
-        border-top: 10px solid #1a1a2e;
-    }
+    .spectrum-labels { display: flex; margin-top: 0.6rem; gap: 0.5rem; }
+    .spectrum-labels .lbl-col { display: flex; flex-direction: column; font-size: 0.78rem; }
+    .spectrum-labels .lbl-uw { flex: 8.5; }
+    .spectrum-labels .lbl-normal { flex: 6.5; }
+    .spectrum-labels .lbl-ow { flex: 5; }
+    .spectrum-labels .lbl-ob { flex: 10; text-align: right; }
+    .lbl-name { font-weight: 700; }
+    .lbl-name.uw { color: #3498db; }
+    .lbl-name.normal { color: #27ae60; }
+    .lbl-name.ow { color: #d68910; }
+    .lbl-name.ob { color: #e74c3c; }
+    .lbl-range { color: var(--nd-muted, #94a3b8); margin-top: 0.1rem; }
 
-    .gauge-labels {
-        display: flex; justify-content: space-between;
-        font-size: 0.85rem; color: #555; margin-top: 8px; font-weight: 700;
-    }
+    /* ---- Tip box ---- */
+    .tip-box { display: flex; gap: 0.85rem; align-items: flex-start; border-radius: 12px; padding: 1rem 1.1rem; margin-top: 1.4rem; border: 1px solid; }
+    .tip-icon { width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; }
+    .tip-title { font-weight: 700; color: var(--nd-ink, #1a1a2e); font-size: 0.92rem; margin-bottom: 0.15rem; }
+    .tip-desc { color: var(--nd-muted, #5f6b76); font-size: 0.83rem; margin: 0; }
 
-    .bmi-big-number { font-size: 3rem; font-weight: 800; color: #1a1a2e; margin: 0.5rem 0; }
+    .tip-underweight { background: #eff6ff; border-color: #bfdbfe; }
+    .tip-underweight .tip-icon { background: #dbeafe; color: #2563eb; }
+    .tip-normal { background: #ecfdf5; border-color: #a7f3d0; }
+    .tip-normal .tip-icon { background: #d1fae5; color: #059669; }
+    .tip-overweight { background: #fffbeb; border-color: #fde68a; }
+    .tip-overweight .tip-icon { background: #fef3c7; color: #d97706; }
+    .tip-obese { background: #fef2f2; border-color: #fecaca; }
+    .tip-obese .tip-icon { background: #fee2e2; color: #dc2626; }
 
-
-    .row-bottom { align-items: stretch; }
-    .bmi-categories-table {
-        border-radius: 8px;
-        overflow: hidden; border: 2px solid #dee2e6;
-        height: 100%;
-    }
-    .bmi-categories-table h5 {
-        background: #f8f9fa; padding: 0.75rem 1rem;
-        margin: 0; font-size: 1rem; border-bottom: 1px solid #dee2e6;
-    }
-    .cat-row {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 0.6rem 1rem; border-bottom: 1px solid #eee; font-size: 0.9rem;
-    }
-    .cat-row:last-child { border-bottom: none; }
-    .cat-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 0.5rem; }
-    .cat-row.active-cat { background: #f0fdf4; font-weight: 600; }
-
+    /* ---- About BMI ---- */
     .about-bmi {
         background: #e8f4fd;
-        border: 1px solid #b8daff; border-radius: 8px; padding: 1rem 1.25rem;
+        border: 1px solid #b8daff; border-radius: 16px; padding: 1.25rem 1.5rem;
         height: 100%;
     }
     .about-bmi h6 { color: #2980b9; font-weight: 700; margin-bottom: 0.5rem; }
-    .about-bmi p { color: #444; font-size: 0.9rem; margin-bottom: 0; }
+    .about-bmi p { color: var(--nd-muted, #444); font-size: 0.9rem; margin-bottom: 0; }
 
+    /* ---- Dark mode (mirrors the pastel-alert convention in ndes_user.css) ---- */
+    :root[data-theme="dark"] .card-head .head-icon { background: rgba(20, 184, 166, 0.18); color: #5eead4; }
+    :root[data-theme="dark"] .gender-opt.selected { background: rgba(20, 184, 166, 0.18); }
 
-    .empty-result { padding: 3rem 1rem; color: #999; }
+    :root[data-theme="dark"] .tip-underweight { background: rgba(59, 130, 246, 0.14); border-color: rgba(59, 130, 246, 0.35); }
+    :root[data-theme="dark"] .tip-underweight .tip-icon { background: rgba(59, 130, 246, 0.25); color: #8fbcff; }
+    :root[data-theme="dark"] .tip-normal { background: rgba(46, 184, 92, 0.14); border-color: rgba(46, 184, 92, 0.35); }
+    :root[data-theme="dark"] .tip-normal .tip-icon { background: rgba(46, 184, 92, 0.25); color: #4ee08d; }
+    :root[data-theme="dark"] .tip-overweight { background: rgba(249, 115, 22, 0.14); border-color: rgba(249, 115, 22, 0.35); }
+    :root[data-theme="dark"] .tip-overweight .tip-icon { background: rgba(249, 115, 22, 0.25); color: #ffbd7a; }
+    :root[data-theme="dark"] .tip-obese { background: rgba(239, 68, 68, 0.14); border-color: rgba(239, 68, 68, 0.35); }
+    :root[data-theme="dark"] .tip-obese .tip-icon { background: rgba(239, 68, 68, 0.25); color: #ff8f9b; }
+
+    :root[data-theme="dark"] .about-bmi { background: rgba(59, 130, 246, 0.14); border-color: rgba(59, 130, 246, 0.35); }
+    :root[data-theme="dark"] .about-bmi h6 { color: #8fbcff; }
 
     @media (max-width: 768px) {
-        .form-row { flex-wrap: wrap; }
-        .form-row input[type="number"] { width: 100%; }
+        .input-icon-wrap input { width: 100%; }
+    }
+
+    @media (max-width: 480px) {
+        .result-head { flex-wrap: wrap; row-gap: 0.75rem; }
+        .result-head > div:first-child { width: 100%; }
+        .btn-save-result { margin-left: auto; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container bmi-page">
+<div class="dashboard-shell user-shell bmi-shell">
+<div class="dashboard-container">
     <h1><i class="fas fa-calculator me-2" style="color: #0f766e;"></i>BMI Calculator</h1>
 
     <div class="row g-4">
         <!-- Left: Input Form -->
         <div class="col-lg-6">
-            <div class="bmi-form-card">
-                <div class="form-row">
-                    <label for="age">Age</label>
-                    <input type="number" id="age" placeholder="25" min="2" max="120">
-                    <span class="hint">ages: 2 - 120</span>
-                </div>
-
-                <div class="form-row">
-                    <label>Gender</label>
-                    <div class="gender-options">
-                        <label><input type="radio" name="gender" value="male" checked> Male</label>
-                        <label><input type="radio" name="gender" value="female"> Female</label>
+            <div class="bmi-card">
+                <div class="card-head">
+                    <div class="head-icon"><i class="fas fa-user"></i></div>
+                    <div class="head-text">
+                        <h2>Your Information</h2>
+                        <p>Enter your details to calculate BMI</p>
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <label for="height">Height</label>
-                    <input type="number" id="height" placeholder="180" step="0.1" min="50" max="300">
-                    <span class="unit-label">cm</span>
+                <div class="field-group">
+                    <label for="weight">Weight (kg)</label>
+                    <div class="input-icon-wrap">
+                        <span class="input-icon-cell"><i class="fas fa-weight-scale"></i></span>
+                        <input type="number" id="weight" placeholder="65" step="0.1" min="10" max="500">
+                        <span class="unit-suffix">kg</span>
+                    </div>
                 </div>
 
-                <div class="form-row">
-                    <label for="weight">Weight</label>
-                    <input type="number" id="weight" placeholder="65" step="0.1" min="10" max="500">
-                    <span class="unit-label">kg</span>
+                <div class="field-group">
+                    <label for="height">Height (cm)</label>
+                    <div class="input-icon-wrap">
+                        <span class="input-icon-cell"><i class="fas fa-ruler-vertical"></i></span>
+                        <input type="number" id="height" placeholder="175" step="0.1" min="50" max="300">
+                        <span class="unit-suffix">cm</span>
+                    </div>
                 </div>
 
-                <div class="bmi-buttons">
-                    <button type="button" class="btn-calculate" id="btnCalculate">
-                        <i class="fas fa-play-circle"></i> Calculate
-                    </button>
-                    <button type="button" class="btn-clear" id="btnClear">Clear</button>
+                <div class="field-group">
+                    <label for="age">Age (years)</label>
+                    <div class="input-icon-wrap">
+                        <span class="input-icon-cell"><i class="fas fa-calendar-days"></i></span>
+                        <input type="number" id="age" placeholder="21" min="2" max="120">
+                        <span class="unit-suffix">years</span>
+                    </div>
                 </div>
+
+                <div class="field-group">
+                    <label>Gender</label>
+                    <div class="gender-toggle">
+                        <label class="gender-opt selected" id="genderMaleOpt">
+                            <input type="radio" name="gender" value="male" checked>
+                            <i class="fas fa-mars"></i> Male
+                        </label>
+                        <label class="gender-opt" id="genderFemaleOpt">
+                            <input type="radio" name="gender" value="female">
+                            <i class="fas fa-venus"></i> Female
+                        </label>
+                    </div>
+                </div>
+
+                <button type="button" class="btn-calculate-full" id="btnCalculate">
+                    <i class="fas fa-calculator"></i> Calculate BMI
+                </button>
+                <button type="button" class="btn-text-clear" id="btnClear"><i class="fas fa-rotate-left me-1"></i>Clear</button>
+
+                <p class="privacy-note"><i class="fas fa-shield-halved"></i> Your data is private and secure</p>
             </div>
         </div>
 
         <!-- Right: Result -->
         <div class="col-lg-6">
-            <div class="result-card">
-                <div class="result-header">
-                    <span>Result</span>
+            <div class="bmi-card">
+                <div class="card-head result-head">
+                    <div style="display:flex; align-items:flex-start; gap:0.85rem;">
+                        <div class="head-icon"><i class="fas fa-gauge-high"></i></div>
+                        <div class="head-text">
+                            <h2>Your Result</h2>
+                            <p>Here's your BMI and health status</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-save-result" id="btnSave"><i class="far fa-bookmark"></i> Save Result</button>
                 </div>
-                <div class="result-body" id="resultBody">
+
+                <div id="resultBody">
                     <div class="empty-result">
                         <i class="fas fa-calculator fa-3x mb-3" style="opacity: 0.3;"></i>
                         <p>Enter your details and click <strong>Calculate</strong> to see your BMI result here.</p>
@@ -211,30 +323,9 @@
         </div>
     </div>
 
-    <!-- BMI Categories -->
-    <div class="row row-bottom mt-4 g-4">
-        <div class="col-lg-6">
-            <div class="bmi-categories-table">
-                <h5><i class="fas fa-list me-2"></i>BMI Categories</h5>
-                <div class="cat-row" data-cat="underweight">
-                    <span><span class="cat-dot" style="background: #3498db;"></span>Underweight</span>
-                    <span>&lt; 18.5</span>
-                </div>
-                <div class="cat-row" data-cat="normal">
-                    <span><span class="cat-dot" style="background: #27ae60;"></span>Normal weight</span>
-                    <span>18.5 - 24.9</span>
-                </div>
-                <div class="cat-row" data-cat="overweight">
-                    <span><span class="cat-dot" style="background: #f1c40f;"></span>Overweight</span>
-                    <span>25.0 - 29.9</span>
-                </div>
-                <div class="cat-row" data-cat="obese">
-                    <span><span class="cat-dot" style="background: #e74c3c;"></span>Obese</span>
-                    <span>&ge; 30.0</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
+    <!-- About BMI -->
+    <div class="row mt-4 g-4">
+        <div class="col-12">
             <div class="about-bmi">
                 <h6><i class="fas fa-info-circle me-2"></i>About BMI</h6>
                 <p>
@@ -244,9 +335,9 @@
                     advice, consult with a healthcare professional.
                 </p>
             </div>
-
         </div>
     </div>
+</div>
 </div>
 {% endblock %}
 
@@ -257,14 +348,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('btnCalculate').addEventListener('click', calculateBMI);
     document.getElementById('btnClear').addEventListener('click', clearForm);
+    document.getElementById('btnSave').addEventListener('click', saveResult);
 
-    // Allow Enter key to trigger calculate
     ['age', 'height', 'weight'].forEach(function(id) {
         document.getElementById(id).addEventListener('keypress', function(e) {
             if (e.key === 'Enter') calculateBMI();
         });
     });
+
+    document.querySelectorAll('input[name="gender"]').forEach(function(radio) {
+        radio.addEventListener('change', updateGenderSelection);
+    });
 });
+
+function updateGenderSelection() {
+    var male = document.querySelector('input[name="gender"][value="male"]').checked;
+    document.getElementById('genderMaleOpt').classList.toggle('selected', male);
+    document.getElementById('genderFemaleOpt').classList.toggle('selected', !male);
+}
+
+var lastResult = null;
 
 function calculateBMI() {
     var heightCm = parseFloat(document.getElementById('height').value);
@@ -279,55 +382,108 @@ function calculateBMI() {
     var bmi = weight / (heightM * heightM);
     bmi = Math.round(bmi * 10) / 10;
 
-    var category, catClass, catKey;
+    var category, catClass, catKey, catIconColor;
     if (bmi < 18.5) {
         category = 'Underweight'; catClass = 'category-underweight'; catKey = 'underweight';
     } else if (bmi < 25) {
-        category = 'Normal'; catClass = 'category-normal'; catKey = 'normal';
+        category = 'Normal Weight'; catClass = 'category-normal'; catKey = 'normal';
     } else if (bmi < 30) {
         category = 'Overweight'; catClass = 'category-overweight'; catKey = 'overweight';
     } else {
         category = 'Obese'; catClass = 'category-obese'; catKey = 'obese';
     }
 
-    // Calculate pointer position (BMI 15 to 40 mapped to 0% - 100%)
-    var minBmi = 15, maxBmi = 40;
-    var pct = Math.max(0, Math.min(100, ((bmi - minBmi) / (maxBmi - minBmi)) * 100));
+    // Scale runs 10 - 40 across the gauge / spectrum bar
+    var minScale = 10, maxScale = 40;
+    var pct = Math.max(0, Math.min(1, (bmi - minScale) / (maxScale - minScale)));
+    var needleDeg = (pct * 180) - 90;
+    var markerPct = pct * 100;
+
+    var tips = {
+        underweight: { title: 'You are underweight.', desc: 'Consider a nutrient-rich diet to help reach a healthier weight, and check in with a healthcare professional for personalized advice.' },
+        normal: { title: 'You have a normal body weight. Great job!', desc: 'Keep maintaining a healthy lifestyle with a balanced diet and regular exercise.' },
+        overweight: { title: 'You are overweight.', desc: 'Consider a balanced diet and more physical activity to help reach a healthier weight.' },
+        obese: { title: 'You are in the obese range.', desc: 'It is recommended to consult a healthcare professional for personalized guidance on reaching a healthier weight.' }
+    };
+    var tip = tips[catKey];
 
     var html = '' +
-        '<div class="bmi-result-text">' +
-            'BMI = ' + bmi + ' kg/m<sup>2</sup>&nbsp;&nbsp;' +
-            '<span class="' + catClass + '">(' + category + ')</span>' +
-        '</div>' +
-        '<div class="bmi-big-number ' + catClass + '">' + bmi + '</div>' +
-        '<div class="bmi-gauge">' +
-            '<div class="gauge-bar">' +
-                '<div class="seg seg-uw"></div>' +
-                '<div class="seg seg-normal"></div>' +
-                '<div class="seg seg-ow"></div>' +
-                '<div class="seg seg-ob1"></div>' +
-                '<div class="seg seg-ob2"></div>' +
-                '<div class="gauge-pointer" id="gaugePointer" style="left: 0%;"></div>' +
+        '<div class="gauge-outer">' +
+            '<div class="gauge-clip">' +
+                '<div class="gauge-ring"></div>' +
+                '<div class="gauge-hole"></div>' +
             '</div>' +
-            '<div class="gauge-labels">' +
-                '<span>15</span><span>18.5</span><span>25</span><span>30</span><span>35</span><span>40</span>' +
+            '<span class="gauge-tick" style="left:30px; top:158px;">10</span>' +
+            '<span class="gauge-tick" style="left:58.7px; top:69.8px;">16</span>' +
+            '<span class="gauge-tick" style="left:85.7px; top:41.5px;">18.5</span>' +
+            '<span class="gauge-tick" style="left:180px; top:8px;">25</span>' +
+            '<span class="gauge-tick" style="left:255px; top:28px;">30</span>' +
+            '<span class="gauge-tick" style="left:330px; top:158px;">40</span>' +
+            '<div class="gauge-needle-pivot" id="gaugeNeedle"><div class="bar"></div></div>' +
+            '<div class="gauge-pivot-dot"></div>' +
+            '<div class="gauge-center">' +
+                '<div class="gauge-your-bmi">Your BMI</div>' +
+                '<div class="gauge-value ' + catClass + '">' + bmi + '</div>' +
+                '<div class="gauge-category ' + catClass + '"><i class="fas fa-circle-check"></i> ' + category + '</div>' +
+            '</div>' +
+        '</div>' +
+        '<div class="spectrum-wrap">' +
+            '<div class="spectrum-track">' +
+                '<div class="seg spectrum-seg-uw"></div>' +
+                '<div class="seg spectrum-seg-normal"></div>' +
+                '<div class="seg spectrum-seg-ow"></div>' +
+                '<div class="seg spectrum-seg-ob"></div>' +
+                '<div class="spectrum-marker" id="spectrumMarker" style="left:0%;"></div>' +
+            '</div>' +
+            '<div class="spectrum-labels">' +
+                '<div class="lbl-col lbl-uw"><span class="lbl-name uw">Underweight</span><span class="lbl-range">&lt; 18.5</span></div>' +
+                '<div class="lbl-col lbl-normal"><span class="lbl-name normal">Normal Weight</span><span class="lbl-range">18.5 - 24.9</span></div>' +
+                '<div class="lbl-col lbl-ow"><span class="lbl-name ow">Overweight</span><span class="lbl-range">25 - 29.9</span></div>' +
+                '<div class="lbl-col lbl-ob"><span class="lbl-name ob">Obese</span><span class="lbl-range">&ge; 30</span></div>' +
+            '</div>' +
+        '</div>' +
+        '<div class="tip-box tip-' + catKey + '">' +
+            '<div class="tip-icon"><i class="fas fa-heart"></i></div>' +
+            '<div>' +
+                '<div class="tip-title">' + tip.title + '</div>' +
+                '<p class="tip-desc">' + tip.desc + '</p>' +
             '</div>' +
         '</div>';
 
     document.getElementById('resultBody').innerHTML = html;
 
-    // Animate pointer
     setTimeout(function() {
-        document.getElementById('gaugePointer').style.left = pct + '%';
+        document.getElementById('gaugeNeedle').style.transform = 'rotate(' + needleDeg + 'deg)';
+        document.getElementById('spectrumMarker').style.left = markerPct + '%';
     }, 50);
 
-    // Highlight category row
-    document.querySelectorAll('.cat-row').forEach(function(row) {
-        row.classList.remove('active-cat');
-        if (row.getAttribute('data-cat') === catKey) {
-            row.classList.add('active-cat');
-        }
-    });
+    lastResult = {
+        bmi: bmi, category: category,
+        age: document.getElementById('age').value,
+        gender: document.querySelector('input[name="gender"]:checked').value,
+        height: heightCm, weight: weight,
+        savedAt: new Date().toISOString()
+    };
+    var saveBtn = document.getElementById('btnSave');
+    saveBtn.classList.remove('saved');
+    saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save Result';
+}
+
+function saveResult() {
+    var saveBtn = document.getElementById('btnSave');
+    if (!lastResult) {
+        alert('Calculate your BMI first, then you can save the result.');
+        return;
+    }
+    try {
+        var history = JSON.parse(localStorage.getItem('bmi_results') || '[]');
+        history.unshift(lastResult);
+        localStorage.setItem('bmi_results', JSON.stringify(history.slice(0, 20)));
+        saveBtn.classList.add('saved');
+        saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved';
+    } catch (e) {
+        alert('Could not save the result on this device.');
+    }
 }
 
 function clearForm() {
@@ -335,6 +491,12 @@ function clearForm() {
     document.getElementById('height').value = '';
     document.getElementById('weight').value = '';
     document.querySelectorAll('input[name="gender"]')[0].checked = true;
+    updateGenderSelection();
+
+    lastResult = null;
+    var saveBtn = document.getElementById('btnSave');
+    saveBtn.classList.remove('saved');
+    saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save Result';
 
     document.getElementById('resultBody').innerHTML =
         '<div class="empty-result">' +
@@ -342,7 +504,6 @@ function clearForm() {
             '<p>Enter your details and click <strong>Calculate</strong> to see your BMI result here.</p>' +
         '</div>';
 
-    document.querySelectorAll('.cat-row').forEach(function(row) { row.classList.remove('active-cat'); });
     document.getElementById('age').focus();
 }
 </script>
