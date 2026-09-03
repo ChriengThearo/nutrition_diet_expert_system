@@ -54,6 +54,16 @@
         color: var(--hp-ink);
     }
 
+    /* dashboard_theme.css's ".dashboard-container" ships with zero padding
+       (it was built for the admin/doctor navbar layout, not this sidebar
+       shell), so cards here sat flush against the topbar/sidebar. Match the
+       spacing /dashboard/user and /bmi already use via .nd-content /
+       .bmi-shell .dashboard-container. */
+    .diet-expert-shell .dashboard-container {
+        padding: 20px 24px 0;
+        overflow-x: hidden;
+    }
+
     .diet-expert-shell.is-hidden {
         visibility: hidden;
         pointer-events: none;
@@ -184,7 +194,7 @@
     /* ── Section cards ────────────────────────────── */
     .section-card {
         border: 1px solid var(--hp-line);
-        border-radius: 18px;
+        border-radius: 16px;
         box-shadow: 0 4px 16px rgba(27, 37, 49, 0.05);
         margin-bottom: 20px;
         background: var(--hp-card);
@@ -197,8 +207,15 @@
         background: var(--hp-card);
         color: var(--hp-ink);
         border-bottom: 1px solid var(--hp-line);
-        border-radius: 18px 18px 0 0;
+        border-radius: 16px 16px 0 0;
         padding: 16px 20px;
+    }
+
+    /* Match Bootstrap's default .card-body horizontal padding (1rem) to the
+       section-header's 20px so the icon/title row lines up with the fields
+       below it instead of sitting 4px further out. */
+    .section-card > .card-body {
+        padding: 20px;
     }
 
     .section-header-icon {
@@ -306,15 +323,15 @@
     }
 
     .review-card-icon {
-        width: 38px;
-        height: 38px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         background: var(--hp-brand-soft);
         color: var(--hp-brand-strong);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         flex-shrink: 0;
     }
 
@@ -339,7 +356,7 @@
     .review-list {
         list-style: none;
         margin: 0;
-        padding: 6px 16px;
+        padding: 6px 20px;
     }
 
     .review-list li {
@@ -444,14 +461,15 @@
     }
 
     .form-error-icon {
-        width: 38px;
-        height: 38px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         background: var(--hp-card);
         color: var(--hp-accent-strong);
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 0.95rem;
         flex-shrink: 0;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     }
@@ -701,12 +719,16 @@
         }
 
         .section-card {
-            border-radius: 18px;
+            border-radius: 16px;
         }
 
         .section-header {
-            border-radius: 18px 18px 0 0;
+            border-radius: 16px 16px 0 0;
             padding: 14px 16px;
+        }
+
+        .section-card > .card-body {
+            padding: 16px;
         }
     }
 
@@ -715,7 +737,7 @@
             padding-bottom: 1rem;
         }
 
-        .dashboard-container {
+        .diet-expert-shell .dashboard-container {
             padding: 0 0.18rem;
         }
 
@@ -765,7 +787,7 @@
         }
 
         .card-body {
-            padding: 0.9rem 0.85rem;
+            padding: 14px;
         }
 
         .form-label {
