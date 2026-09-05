@@ -1,12 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap');
+
 /* Base Styles */
 body {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Kantumruy Pro', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 html[lang="km"] body {
-    font-family: 'Khmer OS System', 'Noto Sans Khmer', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Kantumruy Pro', 'Khmer OS System', 'Noto Sans Khmer', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 main.container {

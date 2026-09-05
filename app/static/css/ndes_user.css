@@ -1,6 +1,8 @@
 /* ============================================================
    NDES User Dashboard — matches Doctor Dashboard design
    ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap');
+
 :root {
   --nd-green: #2eb85c;
   --nd-green-mid: #28a452;
@@ -23,7 +25,7 @@
 }
 
 /* ── Layout ─────────────────────────────────────── */
-.nd-app { display:flex; min-height:100vh; background:var(--nd-bg); font-family:'Plus Jakarta Sans','Segoe UI',sans-serif; color:var(--nd-ink); }
+.nd-app { display:flex; min-height:100vh; background:var(--nd-bg); font-family:'Kantumruy Pro','Noto Sans Khmer','Plus Jakarta Sans','Segoe UI',sans-serif; color:var(--nd-ink); }
 .nd-sidebar { width:220px; min-width:220px; background:var(--nd-sidebar-bg); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:100; overflow-y:auto; overflow-x:hidden; border-right:1px solid var(--nd-border); box-shadow:2px 0 8px rgba(0,0,0,0.04); }
 .nd-sidebar::before { content:""; position:absolute; inset:0; background-image:var(--nd-leaf-bg); background-repeat:no-repeat; background-position:center 92%; background-size:100% auto; opacity:0.09; z-index:0; pointer-events:none; }
 .nd-sidebar-brand, .nd-sidebar > .nd-nav, .nd-sidebar-footer { position:relative; z-index:1; }

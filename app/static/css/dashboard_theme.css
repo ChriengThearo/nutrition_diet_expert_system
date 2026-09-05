@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Noto+Sans+Khmer:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&family=Manrope:wght@400;500;700;800&family=Noto+Sans+Khmer:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap');
 
 :root {
     --dash-ink: #10283a;
@@ -17,13 +17,13 @@
 
 .dashboard-shell,
 .doctor-dashboard-app {
-    font-family: 'Noto Sans Khmer', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    font-family: 'Kantumruy Pro', 'Noto Sans Khmer', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
     color: var(--dash-ink);
 }
 
 html[lang="km"] .dashboard-shell,
 html[lang="km"] .doctor-dashboard-app {
-    font-family: 'Khmer OS System', 'Noto Sans Khmer', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    font-family: 'Kantumruy Pro', 'Khmer OS System', 'Noto Sans Khmer', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
 }
 
 .navbar-user-dashboard {
@@ -103,7 +103,7 @@ html[lang="km"] .doctor-dashboard-app {
 .doctor-dashboard-app h3,
 .doctor-dashboard-app h4,
 .doctor-dashboard-app h5 {
-    font-family: 'Noto Sans Khmer', 'Sora', 'Segoe UI', sans-serif;
+    font-family: 'Kantumruy Pro', 'Noto Sans Khmer', 'Sora', 'Segoe UI', sans-serif;
 }
 
 html[lang="km"] .dashboard-shell h1,
@@ -116,7 +116,7 @@ html[lang="km"] .doctor-dashboard-app h2,
 html[lang="km"] .doctor-dashboard-app h3,
 html[lang="km"] .doctor-dashboard-app h4,
 html[lang="km"] .doctor-dashboard-app h5 {
-    font-family: 'Khmer OS System', 'Noto Sans Khmer', 'Sora', 'Segoe UI', sans-serif;
+    font-family: 'Kantumruy Pro', 'Khmer OS System', 'Noto Sans Khmer', 'Sora', 'Segoe UI', sans-serif;
 }
 
 .dashboard-switcher-btn {
@@ -642,7 +642,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
         radial-gradient(circle at 92% 0%, rgba(29, 139, 104, 0.1), rgba(29, 139, 104, 0)),
         linear-gradient(180deg, var(--doc-bg-a), var(--doc-bg-b));
     min-height: 100vh;
-    font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    font-family: 'Kantumruy Pro', 'Noto Sans Khmer', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
     color: var(--doc-ink);
 }
 
