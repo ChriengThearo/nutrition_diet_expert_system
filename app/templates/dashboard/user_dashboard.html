@@ -1,8 +1,8 @@
 {% extends "layouts/dashboard_user_shell.html" %}
 {% block title %}User Dashboard | Nutrition and Diet{% endblock %}
 
-{% block page_title %}{% if current_section == 'history' %}ប្រវត្តិផែនការអាហារ{% elif current_section == 'profile' %}ព័ត៌មានប្រវត្តិរូប{% else %}ផ្ទាំងគ្រប់គ្រងអ្នកប្រើប្រាស់{% endif %}{% endblock %}
-{% block page_subtitle %}សូមស្វាគមន៍មកវិញ {{ user_display_name }} 👋{% endblock %}
+{% block page_title %}{% if current_section == 'history' %}{{ 'ប្រវត្តិផែនការអាហារ' if ui_lang == 'km' else 'Meal Plan History' }}{% elif current_section == 'profile' %}{{ 'ព័ត៌មានប្រវត្តិរូប' if ui_lang == 'km' else 'Profile Information' }}{% elif current_section == 'food-market' %}Food Market{% else %}{{ 'ផ្ទាំងគ្រប់គ្រងអ្នកប្រើប្រាស់' if ui_lang == 'km' else 'User Dashboard' }}{% endif %}{% endblock %}
+{% block page_subtitle %}{{ 'សូមស្វាគមន៍មកវិញ' if ui_lang == 'km' else 'Welcome back' }} {{ user_display_name }} 👋{% endblock %}
 
 {% block content %}
 {% set last_plan = plan_history[0] if plan_history else None %}
@@ -14,47 +14,51 @@
   <div class="nd-stats-row">
     <div class="nd-stat">
       <div class="nd-stat-header">
-        <span class="nd-stat-label">BMI ចុងក្រោយ</span>
+        <span class="nd-stat-label">{{ 'BMI ចុងក្រោយ' if ui_lang == 'km' else 'Latest BMI' }}</span>
         <div class="nd-stat-icon green"><i class="fas fa-weight-scale"></i></div>
       </div>
       <div class="nd-stat-value">
         {{ '%.1f'|format(last_plan.bmi|float) if last_plan and last_plan.bmi else '—' }}
       </div>
-      <div class="nd-stat-sub">សន្ទស្សន៍ម៉ាសរាងកាយ</div>
+      <div class="nd-stat-sub">{{ 'សន្ទស្សន៍ម៉ាសរាងកាយ' if ui_lang == 'km' else 'Body Mass Index' }}</div>
       <div class="nd-stat-trend {% if last_plan and last_plan.bmi and last_plan.bmi|float >= 18.5 and last_plan.bmi|float < 25 %}up{% else %}neutral{% endif %}">
         <i class="fas fa-circle-info"></i>
         {% if last_plan and last_plan.bmi %}
           {% set b = last_plan.bmi|float %}
-          {% if b < 18.5 %}មានទម្ងន់តិចពេក{% elif b < 25 %}ធម្មតា{% elif b < 30 %}លើស​ទម្ងន់{% else %}ធាត់{% endif %}
-        {% else %}មិនទាន់មានទិន្នន័យ{% endif %}
+          {% if ui_lang == 'km' %}
+            {% if b < 18.5 %}មានទម្ងន់តិចពេក{% elif b < 25 %}ធម្មតា{% elif b < 30 %}លើស​ទម្ងន់{% else %}ធាត់{% endif %}
+          {% else %}
+            {% if b < 18.5 %}Underweight{% elif b < 25 %}Normal{% elif b < 30 %}Overweight{% else %}Obese{% endif %}
+          {% endif %}
+        {% else %}{{ 'មិនទាន់មានទិន្នន័យ' if ui_lang == 'km' else 'No data yet' }}{% endif %}
       </div>
     </div>
     <div class="nd-stat">
       <div class="nd-stat-header">
-        <span class="nd-stat-label">កាឡូរី/ថ្ងៃ</span>
+        <span class="nd-stat-label">{{ 'កាឡូរី/ថ្ងៃ' if ui_lang == 'km' else 'Calories/day' }}</span>
         <div class="nd-stat-icon amber"><i class="fas fa-fire"></i></div>
       </div>
       <div class="nd-stat-value">{{ last_plan.calories if last_plan and last_plan.calories else '—' }}</div>
-      <div class="nd-stat-sub">គោលដៅប្រចាំថ្ងៃ (kcal)</div>
-      <div class="nd-stat-trend neutral"><i class="fas fa-bullseye"></i> គោលដៅ</div>
+      <div class="nd-stat-sub">{{ 'គោលដៅប្រចាំថ្ងៃ (kcal)' if ui_lang == 'km' else 'Daily target (kcal)' }}</div>
+      <div class="nd-stat-trend neutral"><i class="fas fa-bullseye"></i> {{ 'គោលដៅ' if ui_lang == 'km' else 'Target' }}</div>
     </div>
     <div class="nd-stat">
       <div class="nd-stat-header">
-        <span class="nd-stat-label">ពេលអាហារ/ថ្ងៃ</span>
+        <span class="nd-stat-label">{{ 'ពេលអាហារ/ថ្ងៃ' if ui_lang == 'km' else 'Meals/day' }}</span>
         <div class="nd-stat-icon blue"><i class="fas fa-bowl-rice"></i></div>
       </div>
       <div class="nd-stat-value">{{ last_plan.meals_per_day if last_plan and last_plan.meals_per_day else '—' }}</div>
-      <div class="nd-stat-sub">ផ្អែកលើផែនការចុងក្រោយ</div>
-      <div class="nd-stat-trend neutral"><i class="fas fa-utensils"></i> ពេលអាហារ</div>
+      <div class="nd-stat-sub">{{ 'ផ្អែកលើផែនការចុងក្រោយ' if ui_lang == 'km' else 'Based on latest plan' }}</div>
+      <div class="nd-stat-trend neutral"><i class="fas fa-utensils"></i> {{ 'ពេលអាហារ' if ui_lang == 'km' else 'Meals' }}</div>
     </div>
     <div class="nd-stat">
       <div class="nd-stat-header">
-        <span class="nd-stat-label">ចំនួនផែនការ</span>
+        <span class="nd-stat-label">{{ 'ចំនួនផែនការ' if ui_lang == 'km' else 'Total Plans' }}</span>
         <div class="nd-stat-icon purple"><i class="fas fa-scroll"></i></div>
       </div>
       <div class="nd-stat-value">{{ plan_history|length if plan_history else 0 }}</div>
-      <div class="nd-stat-sub">ផែនការបានបង្កើត</div>
-      <div class="nd-stat-trend up"><i class="fas fa-arrow-up"></i> ប្រវត្តិ</div>
+      <div class="nd-stat-sub">{{ 'ផែនការបានបង្កើត' if ui_lang == 'km' else 'Plans generated' }}</div>
+      <div class="nd-stat-trend up"><i class="fas fa-arrow-up"></i> {{ 'ប្រវត្តិ' if ui_lang == 'km' else 'History' }}</div>
     </div>
   </div>
 
@@ -65,8 +69,8 @@
     <div class="nd-panel">
       <div class="nd-panel-header">
         <div>
-          <h5 class="nd-panel-title"><i class="fas fa-chart-column" style="color:#43a047;"></i> និន្នាការ BMI</h5>
-          <p class="nd-panel-subtitle">ប្រវត្តិ BMI ចុងក្រោយ ៧ ដង</p>
+          <h5 class="nd-panel-title"><i class="fas fa-chart-column" style="color:#43a047;"></i> {{ 'និន្នាការ BMI' if ui_lang == 'km' else 'BMI Trend' }}</h5>
+          <p class="nd-panel-subtitle">{{ 'ប្រវត្តិ BMI ចុងក្រោយ ៧ ដង' if ui_lang == 'km' else 'Last 7 BMI records' }}</p>
         </div>
       </div>
       {% set bmi_ns = namespace(points=[], keys=[]) %}
@@ -99,7 +103,7 @@
       {% else %}
         <div class="nd-empty" style="padding:20px 0;">
           <i class="fas fa-chart-bar"></i>
-          <p>មិនទាន់មានទិន្នន័យ BMI ។ សូមបង្កើតផែនការដំបូង។</p>
+          <p>{{ 'មិនទាន់មានទិន្នន័យ BMI ។ សូមបង្កើតផែនការដំបូង។' if ui_lang == 'km' else 'No BMI data yet. Please generate your first plan.' }}</p>
         </div>
       {% endif %}
     </div>
@@ -108,18 +112,18 @@
     <div class="nd-panel">
       <div class="nd-panel-header">
         <div>
-          <h5 class="nd-panel-title"><i class="fas fa-star" style="color:#ffd600;"></i> ផែនការចុងក្រោយ</h5>
+          <h5 class="nd-panel-title"><i class="fas fa-star" style="color:#ffd600;"></i> {{ 'ផែនការចុងក្រោយ' if ui_lang == 'km' else 'Latest Plan' }}</h5>
           <p class="nd-panel-subtitle">
-            {% if last_plan and last_plan.generated_at %}{{ last_plan.generated_at.strftime('%d/%m/%Y') }}{% else %}មិនទាន់មាន{% endif %}
+            {% if last_plan and last_plan.generated_at %}{{ last_plan.generated_at.strftime('%d/%m/%Y') }}{% else %}{{ 'មិនទាន់មាន' if ui_lang == 'km' else 'None yet' }}{% endif %}
           </p>
         </div>
-        <a class="nd-panel-action" href="{{ url_for('dashboard.user_diet_expert') }}">បង្កើតថ្មី</a>
+        <a class="nd-panel-action" href="{{ url_for('dashboard.user_diet_expert') }}">{{ 'បង្កើតថ្មី' if ui_lang == 'km' else 'Generate New' }}</a>
       </div>
       {% if last_plan %}
         <div style="display:flex;flex-direction:column;gap:10px;">
           <div>
             <div class="nd-nutrition-item">
-              <span class="nd-nutrition-label"><span class="nd-nutrition-icon fire"><i class="fas fa-fire"></i></span> កាឡូរី</span>
+              <span class="nd-nutrition-label"><span class="nd-nutrition-icon fire"><i class="fas fa-fire"></i></span> {{ 'កាឡូរី' if ui_lang == 'km' else 'Calories' }}</span>
               <span class="nd-nutrition-stat">{{ last_plan.calories or '—' }} kcal</span>
             </div>
             {% if last_plan.calories %}
@@ -128,7 +132,7 @@
           </div>
           <div>
             <div class="nd-nutrition-item">
-              <span class="nd-nutrition-label"><span class="nd-nutrition-icon prot"><i class="fas fa-dumbbell"></i></span> ប្រូតេអ៊ីន</span>
+              <span class="nd-nutrition-label"><span class="nd-nutrition-icon prot"><i class="fas fa-dumbbell"></i></span> {{ 'ប្រូតេអ៊ីន' if ui_lang == 'km' else 'Protein' }}</span>
               <span class="nd-nutrition-stat">{{ last_plan.protein or '—' }} g</span>
             </div>
             {% if last_plan.protein %}
@@ -137,7 +141,7 @@
           </div>
           <div>
             <div class="nd-nutrition-item">
-              <span class="nd-nutrition-label"><span class="nd-nutrition-icon veg"><i class="fas fa-leaf"></i></span> ជាតិស្ករ</span>
+              <span class="nd-nutrition-label"><span class="nd-nutrition-icon veg"><i class="fas fa-leaf"></i></span> {{ 'ជាតិស្ករ' if ui_lang == 'km' else 'Sugar' }}</span>
               <span class="nd-nutrition-stat">{{ last_plan.sugar or '—' }} g</span>
             </div>
             {% if last_plan.sugar %}
@@ -146,7 +150,7 @@
           </div>
           <div>
             <div class="nd-nutrition-item">
-              <span class="nd-nutrition-label"><span class="nd-nutrition-icon water"><i class="fas fa-droplet"></i></span> ជាតិខ្លាញ់</span>
+              <span class="nd-nutrition-label"><span class="nd-nutrition-icon water"><i class="fas fa-droplet"></i></span> {{ 'ជាតិខ្លាញ់' if ui_lang == 'km' else 'Fat' }}</span>
               <span class="nd-nutrition-stat">{{ last_plan.fat or '—' }} g</span>
             </div>
             {% if last_plan.fat %}
@@ -157,9 +161,9 @@
       {% else %}
         <div class="nd-empty" style="padding:20px 0;">
           <i class="fas fa-utensils"></i>
-          <p>មិនទាន់មានផែនការ។</p>
+          <p>{{ 'មិនទាន់មានផែនការ។' if ui_lang == 'km' else 'No plan yet.' }}</p>
           <a class="nd-btn nd-btn-primary nd-btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}">
-            <i class="fas fa-plus"></i> បង្កើតផែនការ
+            <i class="fas fa-plus"></i> {{ 'បង្កើតផែនការ' if ui_lang == 'km' else 'Generate Plan' }}
           </a>
         </div>
       {% endif %}
@@ -169,46 +173,46 @@
     <div class="nd-panel">
       <div class="nd-panel-header">
         <div>
-          <h5 class="nd-panel-title"><i class="fas fa-id-card" style="color:#1e88e5;"></i> ប្រវត្តិរូប</h5>
+          <h5 class="nd-panel-title"><i class="fas fa-id-card" style="color:#1e88e5;"></i> {{ 'ប្រវត្តិរូប' if ui_lang == 'km' else 'Profile' }}</h5>
         </div>
-        <a class="nd-panel-action" href="{{ url_for('dashboard.user_profile_edit') }}">កែប្រែ</a>
+        <a class="nd-panel-action" href="{{ url_for('dashboard.user_profile_edit') }}">{{ 'កែប្រែ' if ui_lang == 'km' else 'Edit' }}</a>
       </div>
       <ul class="nd-profile-list">
         <li>
-          <span class="nd-profile-label">ឈ្មោះ</span>
-          <span class="nd-profile-value">{{ 'បានលាក់' if is_guest_mode else (user.full_name or 'មិនទាន់កំណត់') }}</span>
+          <span class="nd-profile-label">{{ 'ឈ្មោះ' if ui_lang == 'km' else 'Name' }}</span>
+          <span class="nd-profile-value">{{ ('បានលាក់' if ui_lang == 'km' else 'Hidden') if is_guest_mode else (user.full_name or ('មិនទាន់កំណត់' if ui_lang == 'km' else 'Not set')) }}</span>
         </li>
         <li>
-          <span class="nd-profile-label">អ៊ីមែល</span>
-          <span class="nd-profile-value">{{ 'បានលាក់' if is_guest_mode else user.email }}</span>
+          <span class="nd-profile-label">{{ 'អ៊ីមែល' if ui_lang == 'km' else 'Email' }}</span>
+          <span class="nd-profile-value">{{ ('បានលាក់' if ui_lang == 'km' else 'Hidden') if is_guest_mode else user.email }}</span>
         </li>
         <li>
-          <span class="nd-profile-label">ឈ្មោះអ្នកប្រើ</span>
-          <span class="nd-profile-value">{{ 'ភ្ញៀវ' if is_guest_mode else user.username }}</span>
+          <span class="nd-profile-label">{{ 'ឈ្មោះអ្នកប្រើ' if ui_lang == 'km' else 'Username' }}</span>
+          <span class="nd-profile-value">{{ ('ភ្ញៀវ' if ui_lang == 'km' else 'Guest') if is_guest_mode else user.username }}</span>
         </li>
         <li>
-          <span class="nd-profile-label">គោលដៅ</span>
+          <span class="nd-profile-label">{{ 'គោលដៅ' if ui_lang == 'km' else 'Goal' }}</span>
           <span class="nd-profile-value">
-            {% if is_guest_mode %}មិនទាន់ជ្រើស
+            {% if is_guest_mode %}{{ 'មិនទាន់ជ្រើស' if ui_lang == 'km' else 'Not selected' }}
             {% elif localized_user_goals %}{{ localized_user_goals|join(', ') }}
-            {% else %}មិនទាន់ជ្រើស{% endif %}
+            {% else %}{{ 'មិនទាន់ជ្រើស' if ui_lang == 'km' else 'Not selected' }}{% endif %}
           </span>
         </li>
         <li>
-          <span class="nd-profile-label">អាឡែស៊ី</span>
-          <span class="nd-profile-value">{{ last_plan.allergies if last_plan and last_plan.allergies else 'មិនមាន' }}</span>
+          <span class="nd-profile-label">{{ 'អាឡែស៊ី' if ui_lang == 'km' else 'Allergies' }}</span>
+          <span class="nd-profile-value">{{ last_plan.allergies if last_plan and last_plan.allergies else ('មិនមាន' if ui_lang == 'km' else 'None') }}</span>
         </li>
         <li>
-          <span class="nd-profile-label">តួនាទី</span>
+          <span class="nd-profile-label">{{ 'តួនាទី' if ui_lang == 'km' else 'Role' }}</span>
           <span class="nd-profile-value">
-            {% if is_guest_mode %}<span class="nd-pill nd-pill-gray">ភ្ញៀវ</span>
-            {% else %}{% for role in user.roles %}<span class="nd-pill nd-pill-green">{{ 'អ្នកគ្រប់គ្រង' if role.name|lower=='admin' else 'វេជ្ជបណ្ឌិត' if role.name|lower=='doctor' else 'អ្នកប្រើប្រាស់' if role.name|lower=='user' else role.name }}</span>{% endfor %}{% endif %}
+            {% if is_guest_mode %}<span class="nd-pill nd-pill-gray">{{ 'ភ្ញៀវ' if ui_lang == 'km' else 'Guest' }}</span>
+            {% else %}{% for role in user.roles %}<span class="nd-pill nd-pill-green">{% if ui_lang == 'km' %}{{ 'អ្នកគ្រប់គ្រង' if role.name|lower=='admin' else 'វេជ្ជបណ្ឌិត' if role.name|lower=='doctor' else 'អ្នកប្រើប្រាស់' if role.name|lower=='user' else role.name }}{% else %}{{ role.name|title }}{% endif %}</span>{% endfor %}{% endif %}
           </span>
         </li>
       </ul>
       {% if not is_guest_mode and user.created_at %}
       <div class="nd-alert nd-alert-success mt-3 mb-0" style="font-size:0.77rem;">
-        <i class="fas fa-calendar-check me-1"></i> សមាជិកតាំងពីឆ្នាំ {{ user.created_at.strftime('%Y') }}
+        <i class="fas fa-calendar-check me-1"></i> {{ 'សមាជិកតាំងពីឆ្នាំ' if ui_lang == 'km' else 'Member since' }} {{ user.created_at.strftime('%Y') }}
       </div>
       {% endif %}
     </div>
@@ -220,17 +224,17 @@
     <div class="nd-workspace-header">
       <div>
         <h4 class="nd-workspace-title">
-          <i class="fas fa-bowl-food me-2" style="color:#43a047;"></i>អាហារពីផែនការចុងក្រោយ
+          <i class="fas fa-bowl-food me-2" style="color:#43a047;"></i>{{ 'អាហារពីផែនការចុងក្រោយ' if ui_lang == 'km' else 'Foods From Latest Plan' }}
         </h4>
         <p class="nd-workspace-sub">
           {% if latest_plan_rule_name %}
-            ច្បាប់: <strong>{{ latest_plan_rule_name }}</strong> &mdash;
+            {{ 'ច្បាប់' if ui_lang == 'km' else 'Rule' }}: <strong>{{ latest_plan_rule_name }}</strong> &mdash;
           {% endif %}
-          អាហារដែលបានណែនាំ និងអាហារដែលត្រូវជៀសវាង
+          {{ 'អាហារដែលបានណែនាំ និងអាហារដែលត្រូវជៀសវាង' if ui_lang == 'km' else 'Recommended foods and foods to avoid' }}
         </p>
       </div>
       <a class="nd-btn nd-btn-primary nd-btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}">
-        <i class="fas fa-utensils"></i> បង្កើតផែនការ
+        <i class="fas fa-utensils"></i> {{ 'បង្កើតផែនការ' if ui_lang == 'km' else 'Generate Plan' }}
       </a>
     </div>
 
@@ -243,8 +247,8 @@
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
             <span style="width:10px;height:10px;border-radius:50%;background:#43a047;display:inline-block;"></span>
             <h6 style="margin:0;font-weight:800;font-size:0.88rem;color:#2e7d32;">
-              អាហារដែលបានណែនាំ
-              <span style="font-weight:400;color:#607d6b;font-size:0.78rem;">({{ latest_plan_foods|length }} មុខ)</span>
+              {{ 'អាហារដែលបានណែនាំ' if ui_lang == 'km' else 'Recommended Foods' }}
+              <span style="font-weight:400;color:#607d6b;font-size:0.78rem;">({{ latest_plan_foods|length }} {{ 'មុខ' if ui_lang == 'km' else 'items' }})</span>
             </h6>
           </div>
           {% if latest_plan_foods %}
@@ -275,19 +279,19 @@
               <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:4px;">
                 {% if food.protein %}
                 <div style="text-align:center;background:#e3f2fd;border-radius:6px;padding:4px 2px;">
-                  <div style="font-size:0.68rem;color:#1565c0;font-weight:600;">ប្រូតេអ៊ីន</div>
+                  <div style="font-size:0.68rem;color:#1565c0;font-weight:600;">{{ 'ប្រូតេអ៊ីន' if ui_lang == 'km' else 'Protein' }}</div>
                   <div style="font-size:0.78rem;font-weight:800;color:#1565c0;">{{ food.protein }}g</div>
                 </div>
                 {% endif %}
                 {% if food.sugar %}
                 <div style="text-align:center;background:#fff8e1;border-radius:6px;padding:4px 2px;">
-                  <div style="font-size:0.68rem;color:#e65100;font-weight:600;">ស្ករ</div>
+                  <div style="font-size:0.68rem;color:#e65100;font-weight:600;">{{ 'ស្ករ' if ui_lang == 'km' else 'Sugar' }}</div>
                   <div style="font-size:0.78rem;font-weight:800;color:#e65100;">{{ food.sugar }}g</div>
                 </div>
                 {% endif %}
                 {% if food.fat %}
                 <div style="text-align:center;background:#fce4ec;border-radius:6px;padding:4px 2px;">
-                  <div style="font-size:0.68rem;color:#c62828;font-weight:600;">ខ្លាញ់</div>
+                  <div style="font-size:0.68rem;color:#c62828;font-weight:600;">{{ 'ខ្លាញ់' if ui_lang == 'km' else 'Fat' }}</div>
                   <div style="font-size:0.78rem;font-weight:800;color:#c62828;">{{ food.fat }}g</div>
                 </div>
                 {% endif %}
@@ -298,7 +302,7 @@
           {% else %}
           <div class="nd-empty" style="padding:20px 0;">
             <i class="fas fa-circle-info"></i>
-            <p>មិនមានអាហារណែនាំសម្រាប់ផែនការនេះ។</p>
+            <p>{{ 'មិនមានអាហារណែនាំសម្រាប់ផែនការនេះ។' if ui_lang == 'km' else 'No recommended foods for this plan.' }}</p>
           </div>
           {% endif %}
         </div>
@@ -308,8 +312,8 @@
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
             <span style="width:10px;height:10px;border-radius:50%;background:#e53935;display:inline-block;"></span>
             <h6 style="margin:0;font-weight:800;font-size:0.88rem;color:#c62828;">
-              អាហារដែលត្រូវជៀសវាង
-              <span style="font-weight:400;color:#607d6b;font-size:0.78rem;">({{ latest_plan_avoid_foods|length }} មុខ)</span>
+              {{ 'អាហារដែលត្រូវជៀសវាង' if ui_lang == 'km' else 'Foods to Avoid' }}
+              <span style="font-weight:400;color:#607d6b;font-size:0.78rem;">({{ latest_plan_avoid_foods|length }} {{ 'មុខ' if ui_lang == 'km' else 'items' }})</span>
             </h6>
           </div>
           {% if latest_plan_avoid_foods %}
@@ -337,14 +341,14 @@
                   {% if food.fat %}<span>F: {{ food.fat }}g</span>{% endif %}
                 </div>
               </div>
-              <span class="nd-pill nd-pill-red" style="flex-shrink:0;">ជៀសវាង</span>
+              <span class="nd-pill nd-pill-red" style="flex-shrink:0;">{{ 'ជៀសវាង' if ui_lang == 'km' else 'Avoid' }}</span>
             </div>
             {% endfor %}
           </div>
           {% else %}
           <div class="nd-empty" style="padding:20px 0;">
             <i class="fas fa-circle-check" style="color:#43a047;"></i>
-            <p style="color:#43a047;">គ្មានអាហារត្រូវជៀសវាងទេ!</p>
+            <p style="color:#43a047;">{{ 'គ្មានអាហារត្រូវជៀសវាងទេ!' if ui_lang == 'km' else 'No foods to avoid!' }}</p>
           </div>
           {% endif %}
         </div>
@@ -354,10 +358,10 @@
     {% else %}
     <div class="nd-empty" style="padding:40px;">
       <i class="fas fa-utensils"></i>
-      <h6>មិនទាន់មានអាហារពីផែនការ</h6>
-      <p>សូមបង្កើតផែនការអាហារមួយ ដើម្បីឃើញអាហារដែលបានណែនាំ។</p>
+      <h6>{{ 'មិនទាន់មានអាហារពីផែនការ' if ui_lang == 'km' else 'No Foods From a Plan Yet' }}</h6>
+      <p>{{ 'សូមបង្កើតផែនការអាហារមួយ ដើម្បីឃើញអាហារដែលបានណែនាំ។' if ui_lang == 'km' else 'Generate a meal plan to see recommended foods.' }}</p>
       <a class="nd-btn nd-btn-primary" href="{{ url_for('dashboard.user_diet_expert') }}">
-        <i class="fas fa-utensils me-1"></i> បង្កើតផែនការ
+        <i class="fas fa-utensils me-1"></i> {{ 'បង្កើតផែនការ' if ui_lang == 'km' else 'Generate Plan' }}
       </a>
     </div>
     {% endif %}
@@ -370,11 +374,11 @@
   <div class="nd-workspace">
     <div class="nd-workspace-header">
       <div>
-        <h4 class="nd-workspace-title"><i class="fas fa-clock-rotate-left me-2" style="color:#43a047;"></i>ប្រវត្តិផែនការអាហារ</h4>
-        <p class="nd-workspace-sub">ផែនការអាហារដែលបានបង្កើតទាំងអស់របស់អ្នក</p>
+        <h4 class="nd-workspace-title"><i class="fas fa-clock-rotate-left me-2" style="color:#43a047;"></i>{{ 'ប្រវត្តិផែនការអាហារ' if ui_lang == 'km' else 'Meal Plan History' }}</h4>
+        <p class="nd-workspace-sub">{{ 'ផែនការអាហារដែលបានបង្កើតទាំងអស់របស់អ្នក' if ui_lang == 'km' else 'All meal plans you have generated' }}</p>
       </div>
       <a class="nd-btn nd-btn-primary nd-btn-sm" href="{{ url_for('dashboard.user_diet_expert') }}">
-        <i class="fas fa-utensils"></i> បង្កើតផែនការ
+        <i class="fas fa-utensils"></i> {{ 'បង្កើតផែនការ' if ui_lang == 'km' else 'Generate Plan' }}
       </a>
     </div>
     <div style="padding:0 0 4px;">
@@ -383,22 +387,22 @@
         <table class="nd-table">
           <thead>
             <tr>
-              <th>កាលបរិច្ឆេទ</th>
-              <th>ប្រភេទរបបអាហារ</th>
-              <th>ពេលអាហារ/ថ្ងៃ</th>
+              <th>{{ 'កាលបរិច្ឆេទ' if ui_lang == 'km' else 'Date' }}</th>
+              <th>{{ 'ប្រភេទរបបអាហារ' if ui_lang == 'km' else 'Diet Type' }}</th>
+              <th>{{ 'ពេលអាហារ/ថ្ងៃ' if ui_lang == 'km' else 'Meals/day' }}</th>
               <th>BMI</th>
-              <th>កាឡូរី</th>
-              <th>ប្រូតេអ៊ីន</th>
-              <th>អាឡែស៊ី</th>
+              <th>{{ 'កាឡូរី' if ui_lang == 'km' else 'Calories' }}</th>
+              <th>{{ 'ប្រូតេអ៊ីន' if ui_lang == 'km' else 'Protein' }}</th>
+              <th>{{ 'អាឡែស៊ី' if ui_lang == 'km' else 'Allergies' }}</th>
             </tr>
           </thead>
           <tbody>
             {% for plan in plan_history %}
             <tr>
-              <td>{{ plan.generated_at.strftime('%d/%m/%Y') if plan.generated_at else 'មិនស្គាល់' }}</td>
+              <td>{{ plan.generated_at.strftime('%d/%m/%Y') if plan.generated_at else ('មិនស្គាល់' if ui_lang == 'km' else 'Unknown') }}</td>
               <td>
                 <span class="nd-pill nd-pill-green">
-                  {{ plan.diet_type_label if plan.diet_type_label else (plan.diet_type|replace('_',' ')|title if plan.diet_type else 'មិនទាន់កំណត់') }}
+                  {{ plan.diet_type_label if plan.diet_type_label else (plan.diet_type|replace('_',' ')|title if plan.diet_type else ('មិនទាន់កំណត់' if ui_lang == 'km' else 'Not set')) }}
                 </span>
               </td>
               <td>{{ plan.meals_per_day or '—' }}</td>
@@ -412,7 +416,7 @@
               </td>
               <td>{{ plan.calories or '—' }}</td>
               <td>{{ plan.protein or '—' }}</td>
-              <td>{{ plan.allergies if plan.allergies else 'មិនមាន' }}</td>
+              <td>{{ plan.allergies if plan.allergies else ('មិនមាន' if ui_lang == 'km' else 'None') }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -421,10 +425,10 @@
       {% else %}
       <div class="nd-empty">
         <i class="fas fa-clipboard-list"></i>
-        <h6>មិនទាន់មានផែនការអាហារ</h6>
-        <p>សូមបង្កើតផែនការដំបូង ដើម្បីមើលប្រវត្តិ។</p>
+        <h6>{{ 'មិនទាន់មានផែនការអាហារ' if ui_lang == 'km' else 'No Meal Plans Yet' }}</h6>
+        <p>{{ 'សូមបង្កើតផែនការដំបូង ដើម្បីមើលប្រវត្តិ។' if ui_lang == 'km' else 'Generate your first plan to see history.' }}</p>
         <a class="nd-btn nd-btn-primary" href="{{ url_for('dashboard.user_diet_expert') }}">
-          <i class="fas fa-utensils me-1"></i> បង្កើតផែនការដំបូង
+          <i class="fas fa-utensils me-1"></i> {{ 'បង្កើតផែនការដំបូង' if ui_lang == 'km' else 'Generate First Plan' }}
         </a>
       </div>
       {% endif %}
@@ -437,11 +441,11 @@
   <div class="nd-workspace">
     <div class="nd-workspace-header">
       <div>
-        <h4 class="nd-workspace-title"><i class="fas fa-id-card me-2" style="color:#1e88e5;"></i>ព័ត៌មានប្រវត្តិរូប</h4>
-        <p class="nd-workspace-sub">ព័ត៌មានស្នូលគណនី និងគោលដៅ</p>
+        <h4 class="nd-workspace-title"><i class="fas fa-id-card me-2" style="color:#1e88e5;"></i>{{ 'ព័ត៌មានប្រវត្តិរូប' if ui_lang == 'km' else 'Profile Information' }}</h4>
+        <p class="nd-workspace-sub">{{ 'ព័ត៌មានស្នូលគណនី និងគោលដៅ' if ui_lang == 'km' else 'Core account information and goals' }}</p>
       </div>
       <a class="nd-btn nd-btn-outline nd-btn-sm" href="{{ url_for('dashboard.user_profile_edit') }}">
-        <i class="fas fa-user-edit"></i> កែប្រែ
+        <i class="fas fa-user-edit"></i> {{ 'កែប្រែ' if ui_lang == 'km' else 'Edit' }}
       </a>
     </div>
     <div style="padding:20px 24px;">
@@ -449,22 +453,22 @@
         <div class="col-md-6">
           <ul class="nd-profile-list">
             <li>
-              <span class="nd-profile-label">ឈ្មោះពេញ</span>
-              <span class="nd-profile-value">{{ 'បានលាក់' if is_guest_mode else (user.full_name or 'មិនទាន់កំណត់') }}</span>
+              <span class="nd-profile-label">{{ 'ឈ្មោះពេញ' if ui_lang == 'km' else 'Full Name' }}</span>
+              <span class="nd-profile-value">{{ ('បានលាក់' if ui_lang == 'km' else 'Hidden') if is_guest_mode else (user.full_name or ('មិនទាន់កំណត់' if ui_lang == 'km' else 'Not set')) }}</span>
             </li>
             <li>
-              <span class="nd-profile-label">អ៊ីមែល</span>
-              <span class="nd-profile-value">{{ 'បានលាក់' if is_guest_mode else user.email }}</span>
+              <span class="nd-profile-label">{{ 'អ៊ីមែល' if ui_lang == 'km' else 'Email' }}</span>
+              <span class="nd-profile-value">{{ ('បានលាក់' if ui_lang == 'km' else 'Hidden') if is_guest_mode else user.email }}</span>
             </li>
             <li>
-              <span class="nd-profile-label">ឈ្មោះអ្នកប្រើប្រាស់</span>
-              <span class="nd-profile-value">{{ 'ភ្ញៀវ' if is_guest_mode else user.username }}</span>
+              <span class="nd-profile-label">{{ 'ឈ្មោះអ្នកប្រើប្រាស់' if ui_lang == 'km' else 'Username' }}</span>
+              <span class="nd-profile-value">{{ ('ភ្ញៀវ' if ui_lang == 'km' else 'Guest') if is_guest_mode else user.username }}</span>
             </li>
             <li>
-              <span class="nd-profile-label">តួនាទី</span>
+              <span class="nd-profile-label">{{ 'តួនាទី' if ui_lang == 'km' else 'Role' }}</span>
               <span class="nd-profile-value">
-                {% if is_guest_mode %}<span class="nd-pill nd-pill-gray">ភ្ញៀវ</span>
-                {% else %}{% for role in user.roles %}<span class="nd-pill nd-pill-green">{{ 'អ្នកគ្រប់គ្រង' if role.name|lower=='admin' else 'វេជ្ជបណ្ឌិត' if role.name|lower=='doctor' else 'អ្នកប្រើប្រាស់' if role.name|lower=='user' else role.name }}</span>{% endfor %}
+                {% if is_guest_mode %}<span class="nd-pill nd-pill-gray">{{ 'ភ្ញៀវ' if ui_lang == 'km' else 'Guest' }}</span>
+                {% else %}{% for role in user.roles %}<span class="nd-pill nd-pill-green">{% if ui_lang == 'km' %}{{ 'អ្នកគ្រប់គ្រង' if role.name|lower=='admin' else 'វេជ្ជបណ្ឌិត' if role.name|lower=='doctor' else 'អ្នកប្រើប្រាស់' if role.name|lower=='user' else role.name }}{% else %}{{ role.name|title }}{% endif %}</span>{% endfor %}
                 {% endif %}
               </span>
             </li>
@@ -473,24 +477,24 @@
         <div class="col-md-6">
           <ul class="nd-profile-list">
             <li>
-              <span class="nd-profile-label">គោលដៅ</span>
+              <span class="nd-profile-label">{{ 'គោលដៅ' if ui_lang == 'km' else 'Goal' }}</span>
               <span class="nd-profile-value">
-                {% if is_guest_mode %}មិនទាន់ជ្រើស
+                {% if is_guest_mode %}{{ 'មិនទាន់ជ្រើស' if ui_lang == 'km' else 'Not selected' }}
                 {% elif localized_user_goals %}{{ localized_user_goals|join(', ') }}
-                {% else %}មិនទាន់ជ្រើស{% endif %}
+                {% else %}{{ 'មិនទាន់ជ្រើស' if ui_lang == 'km' else 'Not selected' }}{% endif %}
               </span>
             </li>
             <li>
-              <span class="nd-profile-label">ប្រភេទរបបអាហារ</span>
+              <span class="nd-profile-label">{{ 'ប្រភេទរបបអាហារ' if ui_lang == 'km' else 'Diet Type' }}</span>
               <span class="nd-profile-value">{{ last_plan.diet_type_label if last_plan and last_plan.diet_type_label else '—' }}</span>
             </li>
             <li>
-              <span class="nd-profile-label">BMI ចុងក្រោយ</span>
+              <span class="nd-profile-label">{{ 'BMI ចុងក្រោយ' if ui_lang == 'km' else 'Latest BMI' }}</span>
               <span class="nd-profile-value">{{ '%.1f'|format(last_plan.bmi|float) if last_plan and last_plan.bmi else '—' }}</span>
             </li>
             <li>
-              <span class="nd-profile-label">ចុះឈ្មោះ</span>
-              <span class="nd-profile-value">{{ 'ភ្ញៀវ' if is_guest_mode else (user.created_at.strftime('%d/%m/%Y') if user.created_at else '—') }}</span>
+              <span class="nd-profile-label">{{ 'ចុះឈ្មោះ' if ui_lang == 'km' else 'Registered' }}</span>
+              <span class="nd-profile-value">{{ ('ភ្ញៀវ' if ui_lang == 'km' else 'Guest') if is_guest_mode else (user.created_at.strftime('%d/%m/%Y') if user.created_at else '—') }}</span>
             </li>
           </ul>
         </div>
@@ -498,12 +502,12 @@
       {% if not is_guest_mode %}
       <div class="nd-alert nd-alert-info mt-4">
         <i class="fas fa-lightbulb me-2"></i>
-        សូមរក្សាប្រវត្តិផ្ទាល់ខ្លួនឱ្យទាន់សម័យ ដើម្បីទទួលបានផែនការអាហារដែលត្រឹមត្រូវ។
+        {{ 'សូមរក្សាប្រវត្តិផ្ទាល់ខ្លួនឱ្យទាន់សម័យ ដើម្បីទទួលបានផែនការអាហារដែលត្រឹមត្រូវ។' if ui_lang == 'km' else 'Keep your profile up to date to get accurate meal plans.' }}
       </div>
       {% else %}
       <div class="nd-alert nd-alert-warn mt-4">
         <i class="fas fa-user-clock me-2"></i>
-        របៀបភ្ញៀវ — ព័ត៌មានគណនីត្រូវបានលាក់ជាបណ្តោះអាសន្ន។
+        {{ 'របៀបភ្ញៀវ — ព័ត៌មានគណនីត្រូវបានលាក់ជាបណ្តោះអាសន្ន។' if ui_lang == 'km' else 'Guest mode — account information is temporarily hidden.' }}
       </div>
       {% endif %}
     </div>
@@ -539,12 +543,17 @@
 {% block extra_js %}
 <script>
   const sections = ['overview', 'history', 'profile', 'food-market'];
-  const titles = {
+  const titles = {% if ui_lang == 'km' %}{
     overview: 'ផ្ទាំងគ្រប់គ្រងអ្នកប្រើប្រាស់',
     history:  'ប្រវត្តិផែនការអាហារ',
     profile:  'ព័ត៌មានប្រវត្តិរូប',
     'food-market': 'Food Market'
-  };
+  }{% else %}{
+    overview: 'User Dashboard',
+    history:  'Meal Plan History',
+    profile:  'Profile Information',
+    'food-market': 'Food Market'
+  }{% endif %};
 
   function showSection(name) {
     sections.forEach(s => {
