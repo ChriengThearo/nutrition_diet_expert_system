@@ -166,6 +166,18 @@
       </div>
     </div>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="nd-content" style="padding-bottom:0;">
+      {% for category, message in messages %}
+      <div class="nd-alert nd-alert-{{ 'danger' if category in ('danger', 'error') else category }} mb-3">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
     {% block content %}{% endblock %}
 
   </div><!-- /nd-main -->
