@@ -729,7 +729,7 @@
 
       <div class="collapse navbar-collapse" id="homeNavbarNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
-          {% if current_user.is_authenticated %}
+          {% if current_user.is_authenticated and not current_user.has_role('doctor') %}
           <li class="nav-item">
             <a class="btn btn-light btn-sm me-2" href="{{ url_for('dashboard.dashboard_home') }}">
               <i class="fas fa-gauge-high me-1"></i>{{ 'ផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Dashboard' }}
@@ -737,7 +737,7 @@
           </li>
           {% endif %}
 
-          {% if current_user.is_authenticated %}
+          {% if current_user.is_authenticated and 'user.dashboard.create' in current_user.get_permission_codes() %}
           <li class="nav-item">
             <a class="btn btn-light btn-sm me-2" href="{{ url_for('dashboard.user_diet_expert') }}">
               <i class="fas fa-utensils me-1"></i>{{ 'បង្កើតផែនការ' if ui_lang == 'km' else 'Generate Plan' }}
