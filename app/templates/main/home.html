@@ -307,6 +307,71 @@
       line-height: 1.5;
     }
 
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.4rem;
+      align-items: center;
+    }
+
+    .about-copy p {
+      margin: 0 0 1rem;
+      color: var(--ink-soft);
+      line-height: 1.7;
+      font-size: 1rem;
+    }
+
+    .about-copy p:last-child {
+      margin-bottom: 0;
+    }
+
+    .about-highlights {
+      list-style: none;
+      margin: 0;
+      padding: 1.3rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.95rem;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 12px 26px rgba(27, 37, 49, 0.06);
+    }
+
+    .about-highlights li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+    }
+
+    .about-highlights i {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--brand-soft);
+      color: var(--brand-strong);
+      font-size: 0.92rem;
+    }
+
+    .about-highlights strong {
+      display: block;
+      font-size: 0.94rem;
+      color: #162835;
+      font-family: "Kantumruy Pro", "Sora", sans-serif;
+    }
+
+    .about-highlights span {
+      display: block;
+      margin-top: 0.15rem;
+      font-size: 0.84rem;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+
     .hero-panel {
       position: relative;
       overflow: hidden;
@@ -404,59 +469,23 @@
       max-width: 65ch;
     }
 
-    .tool-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 0.85rem;
+    .section-panel {
+      margin-top: 2.4rem;
+      padding: clamp(1.5rem, 4vw, 2.5rem);
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.74);
+      border-radius: 28px;
+      box-shadow: 0 20px 44px rgba(27, 37, 49, 0.1);
+      backdrop-filter: blur(6px);
     }
 
-    .tool-card {
-      text-decoration: none;
-      color: inherit;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 1rem;
-      box-shadow: 0 12px 22px rgba(27, 37, 49, 0.08);
-      transform: translateY(14px);
-      opacity: 0;
-      transition: transform 0.45s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.45s ease;
+    .section-panel .section-title {
+      margin-top: 0;
     }
 
-    .tool-card.is-visible {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    .tool-card:hover {
-      border-color: #bcd1db;
-      box-shadow: 0 16px 26px rgba(27, 37, 49, 0.13);
-    }
-
-    .tool-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--brand-soft);
-      color: var(--brand-strong);
-      margin-bottom: 0.7rem;
-    }
-
-    .tool-card h3 {
-      margin: 0 0 0.45rem;
-      font-size: 1.02rem;
-      font-family: "Kantumruy Pro", "Sora", sans-serif;
-      color: #162835;
-    }
-
-    .tool-card p {
-      margin: 0;
-      font-size: 0.92rem;
-      color: var(--ink-soft);
-      line-height: 1.55;
+    .icon-accent {
+      background: #ffe7dd !important;
+      color: var(--accent-strong) !important;
     }
 
     .steps {
@@ -498,6 +527,18 @@
       font-size: 0.92rem;
       color: var(--ink-soft);
       line-height: 1.55;
+    }
+
+    .cta-eyebrow {
+      display: inline-block;
+      margin-bottom: 0.55rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
     }
 
     .bottom-cta {
@@ -705,8 +746,8 @@
         min-height: 430px;
       }
 
-      .tool-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .about-grid {
+        grid-template-columns: 1fr;
       }
 
       .steps {
@@ -748,8 +789,7 @@
         display: none;
       }
 
-      .trust-grid,
-      .tool-grid {
+      .trust-grid {
         grid-template-columns: 1fr;
       }
 
@@ -967,11 +1007,57 @@
               <span>{{ 'អនុសាសន៍ផ្តោតលើអាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Nutrition-first recommendations' }}</span>
             </div>
           </div>
+          <div class="hero-floating float-b">
+            <i class="fas fa-chart-line"></i>
+            <div>
+              <strong>{{ 'តាមដានវឌ្ឍនភាព' if ui_lang == 'km' else 'Progress Tracking' }}</strong>
+              <span>{{ 'មើលនិន្នាការសុខភាពរបស់អ្នកតាមពេលវេលា' if ui_lang == 'km' else 'See your health trend over time' }}</span>
+            </div>
+          </div>
         </div>
       </section>
 
+      <section id="about" class="section-panel">
+        <h2 class="section-title">{{ 'អំពីប្រព័ន្ធរបស់យើង' if ui_lang == 'km' else 'About Our System' }}</h2>
+        <p class="section-subtitle">
+          {{ 'មូលហេតុដែលប្រព័ន្ធជំនួយអាហារូបត្ថម្ភនេះកើតមាន និងសម្រាប់អ្នកណា។' if ui_lang == 'km' else 'Why Nutrition and Diet Expert System exists, and who it is built for.' }}
+        </p>
+        <div class="about-grid">
+          <div class="about-copy">
+            <p>
+              {{ 'ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភ គឺជាវេទិកាផ្អែកលើច្បាប់ ដែលបំប្លែង BMI និងគោលដៅសុខភាពរបស់អ្នក ទៅជាការណែនាំអាហារច្បាស់លាស់ និងមានរចនាសម្ព័ន្ធ ដោយអ្នកមិនចាំបាច់ជាអ្នកជំនាញផ្នែកអាហារូបត្ថម្ភទេ។' if ui_lang == 'km' else 'Nutrition and Diet Expert System is a rule-based platform that turns your BMI and health goals into clear, structured diet guidance — without requiring you to be a nutrition expert yourself.' }}
+            </p>
+            <p>
+              {{ 'ប្រព័ន្ធនេះគាំទ្រតួនាទីចំនួនបី៖ អ្នកប្រើប្រាស់តាមដានសុខភាព និងផែនការអាហាររបស់ខ្លួន វេជ្ជបណ្ឌិតត្រួតពិនិត្យ និងគ្រប់គ្រងច្បាប់អាហារសម្រាប់អ្នកជំងឺ ហើយអ្នកគ្រប់គ្រងត្រួតពិនិត្យគណនី តួនាទី និងសិទ្ធិនានាទូទាំងប្រព័ន្ធ។' if ui_lang == 'km' else 'It supports three roles — Users track their own health and diet plans, Doctors review and manage diet rules for patients, and Admins oversee accounts, roles, and permissions across the whole system.' }}
+            </p>
+          </div>
+          <ul class="about-highlights">
+            <li>
+              <i class="fas fa-diagram-project"></i>
+              <div>
+                <strong>{{ 'ម៉ាស៊ីនផ្អែកលើច្បាប់' if ui_lang == 'km' else 'Rule-Based Engine' }}</strong>
+                <span>{{ 'អនុសាសន៍នីមួយៗត្រូវបានផ្អែកលើច្បាប់អាហារដែលបានផ្ទៀងផ្ទាត់ មិនមែនការទាយទេ។' if ui_lang == 'km' else 'Every recommendation traces back to a validated diet rule, not guesswork.' }}</span>
+              </div>
+            </li>
+            <li>
+              <i class="fas fa-users-gear icon-accent"></i>
+              <div>
+                <strong>{{ 'សាងសង់សម្រាប់គ្រប់តួនាទី' if ui_lang == 'km' else 'Built for Every Role' }}</strong>
+                <span>{{ 'ផ្ទាំងគ្រប់គ្រងដាច់ដោយឡែក និងផ្តោតលើគោលដៅ សម្រាប់អ្នកប្រើប្រាស់ វេជ្ជបណ្ឌិត និងអ្នកគ្រប់គ្រង។' if ui_lang == 'km' else 'Separate, focused dashboards for Users, Doctors, and Admins.' }}</span>
+              </div>
+            </li>
+            <li>
+              <i class="fas fa-shield-heart"></i>
+              <div>
+                <strong>{{ 'រចនាបញ្ចេញសុខភាពជាមុន' if ui_lang == 'km' else 'Health-First Design' }}</strong>
+                <span>{{ 'BMI និងគោលដៅរបស់អ្នក នៅតែជាចំណុចកណ្តាលនៃរាល់អនុសាសន៍របស់ប្រព័ន្ធ។' if ui_lang == 'km' else 'BMI and goals stay at the center of every suggestion the system makes.' }}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </section>
 
-      <section id="usage-process">
+      <section id="usage-process" class="section-panel">
         <h2 class="section-title">{{ 'ដំណើរការប្រើប្រាស់' if ui_lang == 'km' else 'How It Works' }}</h2>
         <p class="section-subtitle">
           {{ 'ចាប់ផ្តើមពីការចុះឈ្មោះ រហូតដល់ការទទួលបានផែនការផ្ទាល់ខ្លួន — ត្រឹម ៤ ជំហានសាមញ្ញ។' if ui_lang == 'km' else 'From creating your account to getting a personalized plan — four simple steps.' }}
@@ -1000,8 +1086,9 @@
         </div>
       </section>
 
-      <section class="bottom-cta">
+      <section id="get-started" class="bottom-cta">
         <div>
+          <span class="cta-eyebrow">{{ 'ចាប់ផ្តើម' if ui_lang == 'km' else 'Get Started' }}</span>
           <h3>{{ 'រួចរាល់សម្រាប់ផែនការអាហារផ្ទាល់ខ្លួនរបស់អ្នកហើយឬនៅ?' if ui_lang == 'km' else 'Ready to personalize your nutrition plan?' }}</h3>
           <p>{{ 'ចូលរួមឥឡូវនេះ ដើម្បីផ្លាស់ប្តូរពីដំបូន្មានទូទៅ ទៅជាអនុសាសន៍ជាក់លាក់ដែលអាចអនុវត្តបាន។' if ui_lang == 'km' else 'Join now and move from generic advice to role-based, actionable recommendations.' }}</p>
         </div>
@@ -1129,30 +1216,6 @@
           }
         }, 3000);
       }
-    })();
-
-    (function () {
-      const cards = document.querySelectorAll(".tool-card");
-      if (!cards.length || !("IntersectionObserver" in window)) {
-        cards.forEach((card) => card.classList.add("is-visible"));
-        return;
-      }
-
-      const io = new IntersectionObserver(
-        (entries, observer) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          });
-        },
-        { threshold: 0.2 }
-      );
-
-      cards.forEach((card, idx) => {
-        card.style.transitionDelay = `${Math.min(idx * 80, 240)}ms`;
-        io.observe(card);
-      });
     })();
   </script>
   {% if current_user.is_authenticated %}

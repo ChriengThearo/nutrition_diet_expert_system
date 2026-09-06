@@ -252,9 +252,10 @@
             </h6>
           </div>
           {% if latest_plan_foods %}
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+          {% set total_recommended = latest_plan_foods|length %}
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
             {% for food in latest_plan_foods %}
-            <div style="background:#f9fdf9;border:1px solid #dcedc8;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:box-shadow 0.18s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(46,125,50,0.12)'" onmouseout="this.style.boxShadow='none'">
+            <div style="background:#f9fdf9;border:1px solid #dcedc8;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:box-shadow 0.18s;{% if loop.last and total_recommended is odd %}grid-column:1 / -1;{% endif %}" onmouseover="this.style.boxShadow='0 4px 16px rgba(46,125,50,0.12)'" onmouseout="this.style.boxShadow='none'">
               <div style="display:flex;align-items:center;gap:10px;">
                 <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;">
                   {% if food.photo %}
