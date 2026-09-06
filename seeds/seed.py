@@ -145,11 +145,14 @@ def restore_all():
             print("No matching seed tables found in current database schema.")
             return
 
+    is_postgres = db.engine.dialect.name == "postgresql"
+    is_mysql = db.engine.dialect.name in {"mysql", "mariadb"}
+
     with db.engine.begin() as conn:
-        try:
+        if is_mysql:
             conn.execute(text("SET FOREIGN_KEY_CHECKS=0;"))
-        except Exception:
-            pass
+        elif is_postgres:
+            conn.execute(text("SET CONSTRAINTS ALL DEFERRED;"))
 
         for table_name in reversed(table_order):
             table = metadata.tables[table_name]
@@ -175,10 +178,22 @@ def restore_all():
                 payload.append(converted)
             conn.execute(table.insert(), payload)
 
-        try:
+        if is_mysql:
             conn.execute(text("SET FOREIGN_KEY_CHECKS=1;"))
-        except Exception:
-            pass
+
+        if is_postgres:
+            for table_name in table_order:
+                table = metadata.tables[table_name]
+                if "id" not in table.columns:
+                    continue
+                conn.execute(
+                    text(
+                        f'SELECT setval(pg_get_serial_sequence(:tbl, \'id\'), '
+                        f"COALESCE((SELECT MAX(id) FROM \"{table_name}\"), 1)) "
+                        f"WHERE pg_get_serial_sequence(:tbl, 'id') IS NOT NULL"
+                    ),
+                    {"tbl": table_name},
+                )
 
     print(f"Restored data for {len(table_order)} tables from {SEEDS_DIR}")
 

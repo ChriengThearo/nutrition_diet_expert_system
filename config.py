@@ -35,6 +35,14 @@ class Config:
         "pool_recycle": 1800,
         "pool_pre_ping": True,
     }
+    if SQLALCHEMY_DATABASE_URI.startswith("postgresql+psycopg://"):
+        # The DB runs behind a PgBouncer transaction pooler (e.g. Supabase's
+        # pooler on port 6543), which hands out a different physical
+        # connection per transaction. psycopg3's server-side prepared
+        # statements don't survive that, causing intermittent
+        # "prepared statement already exists" errors on repeated/batched
+        # queries. Disabling prepare_threshold keeps every query unprepared.
+        SQLALCHEMY_ENGINE_OPTIONS["connect_args"] = {"prepare_threshold": None}
 
     # Security
     SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS

@@ -28,6 +28,12 @@ ROLE_GRANTS = {
 
 
 def upgrade():
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    permissions_columns = {col["name"] for col in inspector.get_columns("tbl_permissions")}
+    if "aliases" not in permissions_columns:
+        op.add_column("tbl_permissions", sa.Column("aliases", sa.Text(), nullable=True))
+
     op.create_table(
         "tbl_doctor_patients",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -125,8 +131,16 @@ def upgrade():
     existing_grants = set(
         bind.execute(sa.select(role_permissions_table.c.role_id, role_permissions_table.c.permission_id)).fetchall()
     )
+    roles_table = sa.table("tbl_roles", sa.column("id", sa.Integer))
+    existing_role_ids = {
+        row[0] for row in bind.execute(sa.select(roles_table.c.id)).fetchall()
+    }
     grant_rows = []
     for role_id, codes in ROLE_GRANTS.items():
+        if role_id not in existing_role_ids:
+            # Roles table isn't populated yet (e.g. fresh DB migrated before
+            # seed data is loaded) - nothing to attach these grants to yet.
+            continue
         for code in codes:
             permission_id = code_to_id.get(code)
             if permission_id is None:
