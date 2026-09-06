@@ -394,23 +394,23 @@
 }
 
 .stat-card.stat-green .stat-icon {
-  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+  background: #4caf50;
 }
 
 .stat-card.stat-blue .stat-icon {
-  background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
+  background: #2196f3;
 }
 
 .stat-card.stat-orange .stat-icon {
-  background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+  background: #ff9800;
 }
 
 .stat-card.stat-teal .stat-icon {
-  background: linear-gradient(135deg, #00bcd4 0%, #006064 100%);
+  background: #00bcd4;
 }
 
 .stat-card.stat-purple .stat-icon {
-  background: linear-gradient(135deg, #9c27b0 0%, #6a1b9a 100%);
+  background: #9c27b0;
 }
 
 .stat-number {
@@ -565,23 +565,23 @@
 }
 
 .rule-icon-green {
-  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+  background: #4caf50;
 }
 
 .rule-icon-blue {
-  background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
+  background: #2196f3;
 }
 
 .rule-icon-purple {
-  background: linear-gradient(135deg, #9c27b0 0%, #6a1b9a 100%);
+  background: #9c27b0;
 }
 
 .rule-icon-orange {
-  background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+  background: #ff9800;
 }
 
 .rule-icon-cyan {
-  background: linear-gradient(135deg, #00bcd4 0%, #006064 100%);
+  background: #00bcd4;
 }
 
 .rule-card-content {
@@ -873,7 +873,7 @@
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
+  background: #e8f5e9;
   border-radius: 12px;
   border: 1px solid #c8e6c9;
   position: relative;
@@ -1003,23 +1003,23 @@
 }
 
 .quick-icon-green {
-  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+  background: #4caf50;
 }
 
 .quick-icon-blue {
-  background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
+  background: #2196f3;
 }
 
 .quick-icon-purple {
-  background: linear-gradient(135deg, #9c27b0 0%, #6a1b9a 100%);
+  background: #9c27b0;
 }
 
 .quick-icon-orange {
-  background: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+  background: #ff9800;
 }
 
 .quick-icon-cyan {
-  background: linear-gradient(135deg, #00bcd4 0%, #006064 100%);
+  background: #00bcd4;
 }
 
 .quick-icon-profile {
@@ -1360,13 +1360,13 @@
   display: flex;
   align-items: center;
   padding: 3px;
-  background: linear-gradient(135deg, #ffd76a, #ff9f43);
+  background: #ffd76a;
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.18);
   transition: background 0.45s ease, box-shadow 0.3s ease;
 }
 
 :root[data-theme="dark"] .theme-toggle-track {
-  background: linear-gradient(135deg, #2d3660, #10142a);
+  background: #2d3660;
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
@@ -1533,7 +1533,7 @@
 :root[data-theme="dark"] .cooked-foods-table tbody tr { border-bottom-color: var(--nd-border); }
 :root[data-theme="dark"] .cooked-foods-table tbody tr:hover { background-color: rgba(255,255,255,0.04); }
 :root[data-theme="dark"] .food-thumb { border-color: var(--nd-border); background-color: rgba(255,255,255,0.04); }
-:root[data-theme="dark"] .food-database-card { background: linear-gradient(135deg, rgba(46,184,92,0.14) 0%, rgba(46,184,92,0.06) 100%); border-color: rgba(46,184,92,0.3); }
+:root[data-theme="dark"] .food-database-card { background: rgba(46,184,92,0.14); border-color: rgba(46,184,92,0.3); }
 :root[data-theme="dark"] .quick-icon-profile { border-color: var(--nd-border); }
 :root[data-theme="dark"] .badge-main  { background: rgba(59,130,246,0.16); color: #8fbcff; }
 :root[data-theme="dark"] .badge-soup  { background: rgba(249,115,22,0.16); color: #ffbd7a; }

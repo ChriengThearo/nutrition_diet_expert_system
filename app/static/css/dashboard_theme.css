@@ -140,10 +140,10 @@ html[lang="km"] .doctor-dashboard-app h5 {
     z-index: 0;
     pointer-events: none;
     background:
-        radial-gradient(circle at 12% 8%, rgba(15, 118, 110, 0.16), rgba(15, 118, 110, 0)),
-        radial-gradient(circle at 90% 4%, rgba(59, 130, 246, 0.14), rgba(59, 130, 246, 0)),
-        radial-gradient(circle at 92% 0%, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0)),
-        linear-gradient(180deg, #f3f7fb, var(--dash-bg-soft));
+        rgba(15, 118, 110, 0.16),
+        rgba(59, 130, 246, 0.14),
+        rgba(245, 158, 11, 0.1),
+        #f3f7fb;
 }
 
 .dashboard-shell::after {
@@ -189,11 +189,11 @@ html[lang="km"] .doctor-dashboard-app h5 {
 }
 
 .admin-shell .role-hero {
-    background: linear-gradient(135deg, #0a5c63, #0f766e 52%, #2f6cd1);
+    background: #0a5c63;
 }
 
 .user-shell .role-hero {
-    background: linear-gradient(135deg, #1d8b68, #2f9e7a 52%, #2baa7e);
+    background: #1d8b68;
 }
 
 .role-hero::after {
@@ -202,8 +202,8 @@ html[lang="km"] .doctor-dashboard-app h5 {
     inset: 0;
     pointer-events: none;
     background:
-        radial-gradient(circle at 12% 15%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 45%),
-        radial-gradient(circle at 88% 25%, rgba(59, 130, 246, 0.28), rgba(59, 130, 246, 0) 50%);
+        rgba(255, 255, 255, 0.2),
+        rgba(59, 130, 246, 0.28);
 }
 
 .hero-chip {
@@ -293,7 +293,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
     width: 160px;
     height: 160px;
     border-radius: 999px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0) 70%);
+    background: rgba(59, 130, 246, 0.12);
     pointer-events: none;
 }
 
@@ -347,7 +347,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
     align-items: center;
     justify-content: center;
     color: #fff;
-    background: linear-gradient(135deg, var(--metric-accent), var(--dash-secondary));
+    background: var(--metric-accent);
 }
 
 .metric-chart-card {
@@ -387,23 +387,23 @@ html[lang="km"] .doctor-dashboard-app h5 {
     min-width: 6px;
     border-radius: 999px;
     transition: width 0.4s ease;
-    background: linear-gradient(90deg, #34d399, #059669);
+    background: #34d399;
 }
 
 .bmi-row-under {
-    background: linear-gradient(90deg, #60a5fa, #2563eb);
+    background: #60a5fa;
 }
 
 .bmi-row-normal {
-    background: linear-gradient(90deg, #34d399, #059669);
+    background: #34d399;
 }
 
 .bmi-row-over {
-    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+    background: #fbbf24;
 }
 
 .bmi-row-obese {
-    background: linear-gradient(90deg, #f87171, #dc2626);
+    background: #f87171;
 }
 
 .bmi-row-date,
@@ -444,7 +444,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
     left: 0;
     right: 0;
     height: 3px;
-    background: linear-gradient(90deg, rgba(15, 118, 110, 0.8), rgba(59, 130, 246, 0.5), rgba(245, 158, 11, 0.4));
+    background: rgba(15, 118, 110, 0.8);
 }
 
 .panel-head {
@@ -454,7 +454,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
     justify-content: space-between;
     align-items: center;
     gap: 0.6rem;
-    background: linear-gradient(180deg, rgba(248, 251, 255, 0.92), rgba(240, 247, 252, 0.92));
+    background: rgba(248, 251, 255, 0.92);
 }
 
 .panel-title {
@@ -487,7 +487,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
     border-radius: 13px;
     padding: 0.75rem;
     color: var(--dash-ink);
-    background: linear-gradient(180deg, #fff, rgba(15, 118, 110, 0.06));
+    background: #fff;
     font-weight: 700;
     font-size: 0.86rem;
     display: flex;
@@ -513,7 +513,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #0f766e, #3b82f6);
+    background: #0f766e;
 }
 
 .activity-stream {
@@ -591,7 +591,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
     gap: 0.3rem;
     border-radius: 999px;
     padding: 0.23rem 0.62rem;
-    background: linear-gradient(120deg, rgba(15, 118, 110, 0.16), rgba(59, 130, 246, 0.12));
+    background: rgba(15, 118, 110, 0.16);
     color: #0c6259;
     font-size: 0.74rem;
     font-weight: 700;
@@ -637,10 +637,10 @@ html[lang="km"] .doctor-dashboard-app h5 {
     --doc-bg-a: #f4fbf8;
     --doc-bg-b: #eaf5f1;
     background:
-        radial-gradient(circle at 12% 8%, rgba(47, 158, 122, 0.16), rgba(47, 158, 122, 0)),
-        radial-gradient(circle at 90% 4%, rgba(43, 170, 126, 0.14), rgba(43, 170, 126, 0)),
-        radial-gradient(circle at 92% 0%, rgba(29, 139, 104, 0.1), rgba(29, 139, 104, 0)),
-        linear-gradient(180deg, var(--doc-bg-a), var(--doc-bg-b));
+        rgba(47, 158, 122, 0.16),
+        rgba(43, 170, 126, 0.14),
+        rgba(29, 139, 104, 0.1),
+        var(--doc-bg-a);
     min-height: 100vh;
     font-family: 'Kantumruy Pro', 'Noto Sans Khmer', 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
     color: var(--doc-ink);
@@ -751,7 +751,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
     position: relative;
     overflow: hidden;
     border-radius: 22px;
-    background: linear-gradient(135deg, var(--doc-brand-strong), var(--doc-brand) 52%, var(--doc-secondary));
+    background: var(--doc-brand-strong);
     color: #f6fffb;
     padding: clamp(1.2rem, 2.2vw, 1.9rem);
     box-shadow: 0 26px 60px rgba(12, 45, 66, 0.24);
@@ -764,8 +764,8 @@ html[lang="km"] .doctor-dashboard-app h5 {
     inset: 0;
     pointer-events: none;
     background:
-        radial-gradient(circle at 12% 15%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 45%),
-        radial-gradient(circle at 88% 25%, rgba(59, 130, 246, 0.28), rgba(59, 130, 246, 0) 50%);
+        rgba(255, 255, 255, 0.2),
+        rgba(59, 130, 246, 0.28);
     animation: heroPulse 7.5s ease-in-out infinite;
 }
 
@@ -895,7 +895,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
     color: rgba(248, 253, 255, 0.96);
     font-size: 1.44rem;
     border: 1px solid rgba(255, 255, 255, 0.3);
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.2));
+    background: rgba(255, 255, 255, 0.34);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.2),
         0 12px 24px rgba(7, 28, 41, 0.2);
@@ -1006,7 +1006,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
 }
 
 .doctor-dashboard-app .stats-sidebar .stat-card {
-    background: linear-gradient(135deg, #ffffff, #f5fcf8);
+    background: #ffffff;
     border: 1px solid var(--doc-line);
     color: #17384f;
     border-radius: 13px;
@@ -1059,7 +1059,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
 .doctor-dashboard-app .workspace-tabs .nav-link.active {
     color: #f4fbff;
     border-color: transparent;
-    background: linear-gradient(135deg, var(--doc-brand-strong), var(--doc-brand) 52%, var(--doc-secondary));
+    background: var(--doc-brand-strong);
     box-shadow: 0 10px 20px rgba(47, 158, 122, 0.28);
 }
 
@@ -1111,7 +1111,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
 
 .doctor-dashboard-app .builder-intro {
     border: 1px solid rgba(47, 158, 122, 0.28);
-    background: linear-gradient(120deg, rgba(219, 247, 239, 0.82), rgba(255, 255, 255, 0.92));
+    background: rgba(219, 247, 239, 0.82);
     color: #1f5f4a;
 }
 
@@ -1186,7 +1186,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
 }
 
 .doctor-dashboard-app .rule-chip.subtle {
-    background: linear-gradient(120deg, rgba(15, 118, 110, 0.16), rgba(59, 130, 246, 0.12));
+    background: rgba(15, 118, 110, 0.16);
     color: #1f5f4a;
 }
 
@@ -1257,20 +1257,20 @@ html[lang="km"] .doctor-dashboard-app h5 {
 }
 
 .doctor-dashboard-app .pagination .page-item.active .page-link {
-    background: linear-gradient(135deg, var(--doc-brand-strong), var(--doc-brand) 52%, var(--doc-secondary));
+    background: var(--doc-brand-strong);
     border-color: transparent;
 }
 
 .doctor-dashboard-app .btn-custom {
     border-radius: 999px;
     font-weight: 700;
-    background: linear-gradient(135deg, var(--doc-brand-strong), var(--doc-brand) 52%, var(--doc-secondary));
+    background: var(--doc-brand-strong);
     border-color: transparent;
     color: #ffffff;
 }
 
 .doctor-dashboard-app .btn-custom:hover {
-    background: linear-gradient(135deg, #0b5a4b, #146f5f 52%, #2656a8);
+    background: #0b5a4b;
     color: #ffffff;
 }
 
@@ -1288,7 +1288,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
 }
 
 .doctor-dashboard-app .btn-primary {
-    background: linear-gradient(135deg, var(--doc-brand-strong), var(--doc-brand) 52%, var(--doc-secondary));
+    background: var(--doc-brand-strong);
     border-color: transparent;
 }
 
@@ -1328,7 +1328,7 @@ html[lang="km"] .doctor-dashboard-app h5 {
     width: 110%;
     height: 100%;
     pointer-events: none;
-    background: linear-gradient(110deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0));
+    background: rgba(255, 255, 255, 0);
     animation: doctorCtaSweep 3.8s ease-in-out infinite;
 }
 
