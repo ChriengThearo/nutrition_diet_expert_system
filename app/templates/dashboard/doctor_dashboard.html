@@ -504,7 +504,7 @@
           </div>
 
           <!-- Create Diet Plan -->
-          <div class="quick-action-card" onclick="showSection('builder')">
+          <div class="quick-action-card" onclick="resetRuleBuilderForm();showSection('builder')">
             <div class="quick-action-icon quick-icon-purple">
               <i class="fas fa-clipboard-list"></i>
             </div>
@@ -654,7 +654,7 @@
             <button class="nd-btn nd-btn-ghost nd-btn-sm" id="activate-selected"><i class="fas fa-toggle-on"></i> Activate</button>
             <button class="nd-btn nd-btn-ghost nd-btn-sm" id="deactivate-selected"><i class="fas fa-toggle-off"></i> Deactivate</button>
             <button class="nd-btn nd-btn-ghost nd-btn-sm" style="color:#c62828;border-color:#ffcdd2;" id="delete-selected"><i class="fas fa-trash"></i> Delete</button>
-            <button class="nd-btn nd-btn-primary nd-btn-sm" id="new-rule-btn" onclick="showSection('builder')"><i class="fas fa-plus"></i> Create Rule</button>
+            <button class="nd-btn nd-btn-primary nd-btn-sm" id="new-rule-btn" onclick="resetRuleBuilderForm();showSection('builder')"><i class="fas fa-plus"></i> Create Rule</button>
           </div>
         </div>
         <div style="padding:16px 20px;">
@@ -1872,13 +1872,125 @@ function viewRule(id) {
   new bootstrap.Modal(document.getElementById('ruleDetailsModal')).show();
 }
 
+function resetRuleBuilderForm() {
+  document.getElementById('rule-id').value = '';
+  document.getElementById('rule-name').value = '';
+  document.getElementById('rule-description').value = '';
+  document.getElementById('goal-rule-type').value = 'maintain';
+  document.getElementById('goal-bmi-min').value = '';
+  document.getElementById('goal-bmi-max').value = '';
+  document.getElementById('goal-gender').value = 'any';
+  document.getElementById('goal-diet-type').value = 'any';
+  document.getElementById('goal-blood-sugar-mode').value = 'not_specified';
+  document.getElementById('goal-blood-sugar-min').value = '';
+  document.getElementById('goal-blood-sugar-max').value = '';
+  document.getElementById('goal-blood-sugar-range-row').style.display = 'none';
+  document.getElementById('goal-blood-sugar-range-row2').style.display = 'none';
+  document.querySelectorAll('.goal-allergy').forEach(cb => { cb.checked = false; });
+  document.getElementById('goal-calories').value = '';
+  document.getElementById('goal-protein').value = '';
+  document.getElementById('goal-sugar').value = '';
+  document.getElementById('goal-fat').value = '';
+  foodGroupsState = [];
+  activeFoodGroupKey = null;
+  updateFoodGroupBuilderVisibility();
+  renderFoodGroupSelector();
+  refreshFoodGroupBuilderUI();
+}
+
+function applyRuleConditionsToBuilderForm(r) {
+  let bsMin = null, bsMax = null;
+  (r.conditions || []).forEach(cond => {
+    const text = String(cond).trim();
+    const lower = text.toLowerCase();
+    const parts = text.split(/\s+/);
+    if (lower.startsWith('bmi ') && parts.length >= 3) {
+      const op = parts[1].toLowerCase();
+      const val = parseFloat(parts[2]);
+      if (!isNaN(val)) {
+        if (op.includes('greater')) document.getElementById('goal-bmi-min').value = val;
+        else if (op.includes('less')) document.getElementById('goal-bmi-max').value = val;
+      }
+    } else if (lower.startsWith('gender equals')) {
+      const val = (parts[2] || '').toLowerCase();
+      if (val === 'male' || val === 'female') document.getElementById('goal-gender').value = val;
+    } else if (lower.startsWith('diet_type equals')) {
+      const val = (parts[2] || '').toLowerCase();
+      if (val === 'normal' || val === 'vegan') document.getElementById('goal-diet-type').value = val;
+    } else if (lower.startsWith('allergy contains') || lower.startsWith('allergies contains')) {
+      const val = (parts[2] || '').toLowerCase();
+      const cb = document.querySelector(`.goal-allergy[value="${val}"]`);
+      if (cb) cb.checked = true;
+    } else if (lower.startsWith('blood_sugar') && parts.length >= 3) {
+      const op = parts[1].toLowerCase();
+      const val = parseFloat(parts[2]);
+      if (!isNaN(val)) {
+        if (op.includes('greater')) bsMin = val;
+        else if (op.includes('less')) bsMax = val;
+      }
+    } else if (lower.startsWith('goal =')) {
+      const goalText = text.split('=')[1]?.trim().toLowerCase() || '';
+      if (goalText.includes('gain')) document.getElementById('goal-rule-type').value = 'gain';
+      else if (goalText.includes('lose')) document.getElementById('goal-rule-type').value = 'lose';
+      else if (goalText.includes('maintain')) document.getElementById('goal-rule-type').value = 'maintain';
+    }
+  });
+
+  const bsMode = document.getElementById('goal-blood-sugar-mode');
+  if (bsMin !== null || bsMax !== null) {
+    bsMode.value = 'specify';
+    document.getElementById('goal-blood-sugar-range-row').style.display = '';
+    document.getElementById('goal-blood-sugar-range-row2').style.display = '';
+    if (bsMin !== null) document.getElementById('goal-blood-sugar-min').value = bsMin;
+    if (bsMax !== null) document.getElementById('goal-blood-sugar-max').value = bsMax;
+  } else {
+    bsMode.value = 'not_specified';
+    document.getElementById('goal-blood-sugar-range-row').style.display = 'none';
+    document.getElementById('goal-blood-sugar-range-row2').style.display = 'none';
+  }
+
+  (r.actions || []).forEach(action => {
+    const text = String(action).toLowerCase();
+    if (text.includes('set_calories')) {
+      const m = text.match(/calories\s*=\s*(-?\d+(?:\.\d+)?)/);
+      if (m) document.getElementById('goal-calories').value = m[1];
+    }
+    if (text.includes('set_macros')) {
+      const protM = text.match(/protein\s*=\s*(-?\d+(?:\.\d+)?)/);
+      const sugarM = text.match(/sugar\s*=\s*(-?\d+(?:\.\d+)?)/);
+      const fatM = text.match(/fat\s*=\s*(-?\d+(?:\.\d+)?)/);
+      if (protM) document.getElementById('goal-protein').value = protM[1];
+      if (sugarM) document.getElementById('goal-sugar').value = sugarM[1];
+      if (fatM) document.getElementById('goal-fat').value = fatM[1];
+    }
+  });
+}
+
 function editRule(id) {
   const r = sampleRules.find(x => x.id === id);
   if (!r) return;
+  resetRuleBuilderForm();
   showSection('builder');
   document.getElementById('rule-id').value = r.id;
   document.getElementById('rule-name').value = r.name;
   document.getElementById('rule-description').value = r.description || '';
+
+  applyRuleConditionsToBuilderForm(r);
+
+  const sourceGroups = Array.isArray(r.food_groups) && r.food_groups.length
+    ? r.food_groups
+    : [{ group_key: 'group_1', recommended_food_ids: [], excluded_food_ids: [], recommended_cooked_food_ids: [], excluded_cooked_food_ids: [] }];
+  foodGroupsState = sourceGroups.map(g => ({
+    group_key: g.group_key || 'group_1',
+    recommended_food_ids: Array.isArray(g.recommended_food_ids) ? g.recommended_food_ids.slice() : [],
+    excluded_food_ids: Array.isArray(g.excluded_food_ids) ? g.excluded_food_ids.slice() : [],
+    recommended_cooked_food_ids: Array.isArray(g.recommended_cooked_food_ids) ? g.recommended_cooked_food_ids.slice() : [],
+    excluded_cooked_food_ids: Array.isArray(g.excluded_cooked_food_ids) ? g.excluded_cooked_food_ids.slice() : [],
+  }));
+  activeFoodGroupKey = foodGroupsState[0].group_key;
+  updateFoodGroupBuilderVisibility();
+  renderFoodGroupSelector();
+  refreshFoodGroupBuilderUI();
 }
 
 function deleteRule(id) {
@@ -1897,16 +2009,44 @@ document.getElementById('save-rule')?.addEventListener('click', function() {
   const name = document.getElementById('rule-name').value.trim();
   if (!name) { alert('Rule name is required.'); return; }
   const allergies = Array.from(document.querySelectorAll('.goal-allergy:checked')).map(x => x.value);
+
+  const bmiMin = document.getElementById('goal-bmi-min').value;
+  const bmiMax = document.getElementById('goal-bmi-max').value;
+  const gender = document.getElementById('goal-gender').value;
+  const dietType = document.getElementById('goal-diet-type').value;
+  const bsMode = document.getElementById('goal-blood-sugar-mode').value;
+  const bsMin = document.getElementById('goal-blood-sugar-min').value;
+  const bsMax = document.getElementById('goal-blood-sugar-max').value;
+  const goalType = document.getElementById('goal-rule-type').value;
+  const calories = document.getElementById('goal-calories').value;
+  const protein = document.getElementById('goal-protein').value;
+  const sugar = document.getElementById('goal-sugar').value;
+  const fat = document.getElementById('goal-fat').value;
+
+  const conditions = [];
+  if (bmiMin !== '') conditions.push(`bmi greater_than_or_equals ${bmiMin}`);
+  if (bmiMax !== '') conditions.push(`bmi less_than ${bmiMax}`);
+  if (gender && gender !== 'any') conditions.push(`gender equals ${gender}`);
+  if (dietType && dietType !== 'any') conditions.push(`diet_type equals ${dietType}`);
+  allergies.forEach(a => conditions.push(`allergy contains ${a}`));
+  if (bsMode === 'specify') {
+    if (bsMin !== '') conditions.push(`blood_sugar greater_than_or_equals ${bsMin}`);
+    if (bsMax !== '') conditions.push(`blood_sugar less_than ${bsMax}`);
+  }
+
+  const actions = [];
+  if (calories !== '') actions.push(`set_calories: calories=${calories} kcal/day`);
+  const macroParts = [];
+  if (protein !== '') macroParts.push(`protein=${protein}g`);
+  if (sugar !== '') macroParts.push(`sugar=${sugar}g`);
+  if (fat !== '') macroParts.push(`fat=${fat}g`);
+  if (macroParts.length) actions.push(`set_macros: ${macroParts.join(', ')}`);
+
   const payload = {
     name, description: document.getElementById('rule-description').value,
-    goal: document.getElementById('goal-rule-type').value,
-    bmi_min: document.getElementById('goal-bmi-min').value || null,
-    bmi_max: document.getElementById('goal-bmi-max').value || null,
-    gender: document.getElementById('goal-gender').value,
-    diet_type: document.getElementById('goal-diet-type').value,
-    allergies,
-    calories: document.getElementById('goal-calories').value || null,
-    protein: document.getElementById('goal-protein').value || null,
+    goal_type: goalType,
+    conditions,
+    actions,
     food_groups: foodGroupsState
   };
   const url = id ? `/dashboard/doctor/rules/${id}` : '/dashboard/doctor/rules';
@@ -1927,6 +2067,7 @@ document.getElementById('add-food-group')?.addEventListener('click', function() 
   foodGroupsState.push({ group_key: key, recommended_food_ids:[], excluded_food_ids:[], recommended_cooked_food_ids:[], excluded_cooked_food_ids:[] });
   activeFoodGroupKey = key;
   renderFoodGroupSelector();
+  refreshFoodGroupBuilderUI();
 });
 
 document.getElementById('apply-weight-rule')?.addEventListener('click', function() {
@@ -1979,6 +2120,7 @@ function populateFoodSelects() {
     if (!sel) return;
     sel.innerHTML = foodsCache.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
   });
+  refreshFoodGroupBuilderUI();
 }
 
 function populateCookedFoodSelects() {
@@ -1987,7 +2129,80 @@ function populateCookedFoodSelects() {
     if (!sel) return;
     sel.innerHTML = cookedFoodsCache.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
   });
+  refreshFoodGroupBuilderUI();
 }
+
+function getActiveFoodGroup() {
+  return foodGroupsState.find(g => g.group_key === activeFoodGroupKey) || null;
+}
+
+function renderFoodDetailsTable(ids, cache, detailsElId, totalElId) {
+  const tbody = document.getElementById(detailsElId);
+  const totalRow = document.getElementById(totalElId);
+  if (!tbody || !totalRow) return;
+  const items = (ids || []).map(id => cache.find(f => f.id === id)).filter(Boolean);
+  if (!items.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:#9e9e9e;text-align:center;">None selected</td></tr>';
+    totalRow.innerHTML = '<td>Total</td><td>—</td><td>0</td><td>0</td><td>0</td><td>0</td>';
+    return;
+  }
+  let cal = 0, prot = 0, sugar = 0, fat = 0;
+  tbody.innerHTML = items.map(f => {
+    cal += Number(f.calories) || 0;
+    prot += Number(f.protein) || 0;
+    sugar += Number(f.sugar) || 0;
+    fat += Number(f.fat) || 0;
+    return `<tr><td>${f.name}</td><td>${f.is_vegan ? 'Yes' : 'No'}</td><td>${f.calories ?? '—'}</td><td>${f.protein ?? '—'}</td><td>${f.sugar ?? '—'}</td><td>${f.fat ?? '—'}</td></tr>`;
+  }).join('');
+  totalRow.innerHTML = `<td>Total</td><td>—</td><td>${cal}</td><td>${prot}</td><td>${sugar}</td><td>${fat}</td>`;
+}
+
+function refreshFoodGroupBuilderUI() {
+  const group = getActiveFoodGroup();
+  const idsFor = key => new Set((group ? group[key] : []) || []);
+
+  const recIds = idsFor('recommended_food_ids');
+  const excIds = idsFor('excluded_food_ids');
+  const recCookedIds = idsFor('recommended_cooked_food_ids');
+  const excCookedIds = idsFor('excluded_cooked_food_ids');
+
+  const applySelection = (selectId, idSet) => {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    Array.from(sel.options).forEach(opt => { opt.selected = idSet.has(Number(opt.value)); });
+  };
+  applySelection('rule-recommended-foods', recIds);
+  applySelection('rule-excluded-foods', excIds);
+  applySelection('rule-recommended-cooked-foods', recCookedIds);
+  applySelection('rule-excluded-cooked-foods', excCookedIds);
+
+  renderFoodDetailsTable(Array.from(recIds), foodsCache, 'recommended-foods-details', 'recommended-foods-total');
+  renderFoodDetailsTable(Array.from(excIds), foodsCache, 'excluded-foods-details', 'excluded-foods-total');
+  renderFoodDetailsTable(Array.from(recCookedIds), cookedFoodsCache, 'recommended-cooked-foods-details', 'recommended-cooked-foods-total');
+  renderFoodDetailsTable(Array.from(excCookedIds), cookedFoodsCache, 'excluded-cooked-foods-details', 'excluded-cooked-foods-total');
+}
+
+function captureFoodSelectionChanges(selectId, groupField) {
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  sel.addEventListener('change', function() {
+    const group = getActiveFoodGroup();
+    if (!group) return;
+    group[groupField] = Array.from(sel.selectedOptions).map(o => Number(o.value));
+    refreshFoodGroupBuilderUI();
+  });
+}
+captureFoodSelectionChanges('rule-recommended-foods', 'recommended_food_ids');
+captureFoodSelectionChanges('rule-excluded-foods', 'excluded_food_ids');
+captureFoodSelectionChanges('rule-recommended-cooked-foods', 'recommended_cooked_food_ids');
+captureFoodSelectionChanges('rule-excluded-cooked-foods', 'excluded_cooked_food_ids');
+
+document.getElementById('food-group-selector')?.addEventListener('change', function() {
+  activeFoodGroupKey = this.value;
+  const label = document.getElementById('active-food-group-label');
+  if (label) label.textContent = activeFoodGroupKey;
+  refreshFoodGroupBuilderUI();
+});
 
 // ═══════════════════════════════════════════════════════
 //  SIMULATION

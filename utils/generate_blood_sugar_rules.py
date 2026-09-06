@@ -698,9 +698,20 @@ def generate_rules(*, dry_run: bool = False) -> Dict[str, int]:
             "maps_inserted": expected_maps,
         }
 
-    for template_index, (base_rule, base_meta, axes) in enumerate(templates, start=1):
+    # Snapshot the plain fields we need from each base rule up front. The
+    # loop below periodically closes the session to force a fresh DB
+    # connection (see the "idle in transaction" note near the commit call),
+    # which detaches any live ORM instances - so nothing past this point may
+    # touch base_rule's attributes directly.
+    template_snapshots = [
+        (int(base_rule.id), _to_text(base_rule.rule_name), _to_text(base_rule.description), base_meta, axes)
+        for base_rule, base_meta, axes in templates
+    ]
+
+    for template_index, (base_rule_id, base_rule_name, base_description, base_meta, axes) in enumerate(
+        template_snapshots, start=1
+    ):
         base_actions = base_meta.get("actions") or []
-        base_description = _to_text(base_rule.description)
         base_category = _to_text(base_meta.get("category")) or "health"
         goal_type = _to_text(base_meta.get("goal_type"))
 
@@ -724,7 +735,7 @@ def generate_rules(*, dry_run: bool = False) -> Dict[str, int]:
             all_avoid_raw: List[Dict[str, Any]] = []
 
             for group_index in range(1, GROUP_COUNT + 1):
-                rng = random.Random(f"{int(base_rule.id)}:{band.code}:{group_index}")
+                rng = random.Random(f"{base_rule_id}:{band.code}:{group_index}")
 
                 rec_raw = _weighted_sample_items(
                     pool=filtered_raw,
@@ -783,8 +794,8 @@ def generate_rules(*, dry_run: bool = False) -> Dict[str, int]:
                 "active": True,
                 "source": GENERATOR_SOURCE,
                 "generator_version": GENERATOR_VERSION,
-                "base_rule_id": int(base_rule.id),
-                "base_rule_name": _to_text(base_rule.rule_name),
+                "base_rule_id": base_rule_id,
+                "base_rule_name": base_rule_name,
                 "blood_sugar_band": band.code,
                 "blood_sugar_label": band.label,
                 "conditions": generated_conditions,
@@ -823,7 +834,7 @@ def generate_rules(*, dry_run: bool = False) -> Dict[str, int]:
                 meta["goal_type"] = goal_type
 
             rule = DietRulesTable(
-                rule_name=_build_rule_name(base_rule.rule_name, band.label),
+                rule_name=_build_rule_name(base_rule_name, band.label),
                 description=_build_rule_description(base_description, band.label),
                 is_active=True,
                 conditions=json.dumps(meta, ensure_ascii=False),
@@ -845,10 +856,18 @@ def generate_rules(*, dry_run: bool = False) -> Dict[str, int]:
                 inserted_maps += created
                 inserted_groups += created
 
-        if template_index % 12 == 0:
+        if template_index % 4 == 0:
             db.session.commit()
+            # Release the connection back to the pool instead of holding one
+            # open across the whole run. Behind a PgBouncer transaction-mode
+            # pooler, a long-lived client connection can silently wedge
+            # ("idle in transaction" with no further progress); closing here
+            # forces a fresh checkout (with pool_pre_ping) for the next batch.
+            db.session.close()
+            print(f"  ...committed through template {template_index}/{len(templates)}", flush=True)
 
     db.session.commit()
+    db.session.close()
 
     return {
         "base_templates": len(templates),
