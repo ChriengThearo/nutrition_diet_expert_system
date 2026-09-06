@@ -1856,19 +1856,64 @@ document.getElementById('save-cooked-food-btn')?.addEventListener('click', funct
 function viewRule(id) {
   const r = sampleRules.find(x => x.id === id);
   if (!r) return;
+
+  const filterConditions = [];
+  let recommendFoodsText = '';
+  let avoidFoodsText = '';
+  (r.conditions || []).forEach(c => {
+    const text = String(c);
+    const lower = text.toLowerCase();
+    if (lower.startsWith('recommend foods:')) {
+      recommendFoodsText = text.slice(text.indexOf(':') + 1).trim();
+    } else if (lower.startsWith('avoid foods:')) {
+      avoidFoodsText = text.slice(text.indexOf(':') + 1).trim();
+    } else {
+      filterConditions.push(text);
+    }
+  });
+
+  const groupsHtml = (r.food_groups || []).map(g => {
+    const recCount = (g.recommended_food_ids?.length || 0) + (g.recommended_cooked_food_ids?.length || 0);
+    const avoidCount = (g.excluded_food_ids?.length || 0) + (g.excluded_cooked_food_ids?.length || 0);
+    return `<div class="nd-rule-detail-group">
+      <span class="nd-rule-detail-group-name">${g.group_key}</span>
+      <span class="nd-rule-detail-group-stats">${recCount} recommended &middot; ${avoidCount} avoid</span>
+    </div>`;
+  }).join('');
+
   document.getElementById('ruleDetailsContent').innerHTML = `
-    <h5 style="font-weight:800;">${r.name}</h5>
-    <p style="color:#607d6b;">${r.description || ''}</p>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+    <h5 class="nd-rule-detail-title">${r.name}</h5>
+    ${r.description ? `<p class="nd-rule-detail-desc">${r.description}</p>` : ''}
+
+    <div class="nd-rule-detail-badges">
       <span class="nd-badge nd-badge-${r.active ? 'green' : 'gray'}">${r.active ? 'Active' : 'Inactive'}</span>
       <span class="nd-badge nd-badge-amber">${r.priority}</span>
       <span class="nd-badge nd-badge-gray">${r.category}</span>
     </div>
-    ${r.conditions?.length ? `<div><strong style="font-size:0.8rem;">Conditions:</strong><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">${r.conditions.map(c=>`<span class="nd-badge nd-badge-blue">${c}</span>`).join('')}</div></div>` : ''}
-    <div style="margin-top:10px;font-size:0.82rem;">
-      <strong>Recommended Foods:</strong> ${r.recommended_food_ids?.length || 0} &nbsp;|&nbsp;
-      <strong>Avoid Foods:</strong> ${r.excluded_food_ids?.length || 0}
-    </div>`;
+
+    ${filterConditions.length ? `
+    <div class="nd-rule-detail-section">
+      <div class="nd-rule-detail-label">Conditions</div>
+      <div class="nd-rule-detail-chips">${filterConditions.map(c => `<span class="nd-badge nd-badge-blue">${c}</span>`).join('')}</div>
+    </div>` : ''}
+
+    <div class="nd-rule-detail-food-grid">
+      <div class="nd-rule-detail-food-box nd-rule-detail-food-rec">
+        <div class="nd-rule-detail-food-label"><i class="fas fa-check-circle"></i> Recommended<span class="nd-rule-detail-food-count">${r.recommended_food_ids?.length || 0}</span></div>
+        <div class="nd-rule-detail-food-text">${recommendFoodsText || '<span class="nd-rule-detail-empty">None specified</span>'}</div>
+      </div>
+      <div class="nd-rule-detail-food-box nd-rule-detail-food-avoid">
+        <div class="nd-rule-detail-food-label"><i class="fas fa-ban"></i> Avoid<span class="nd-rule-detail-food-count">${r.excluded_food_ids?.length || 0}</span></div>
+        <div class="nd-rule-detail-food-text">${avoidFoodsText || '<span class="nd-rule-detail-empty">None specified</span>'}</div>
+      </div>
+    </div>
+
+    ${groupsHtml ? `
+    <div class="nd-rule-detail-section">
+      <div class="nd-rule-detail-label">Food Groups (${r.food_groups.length})</div>
+      <div class="nd-rule-detail-groups">${groupsHtml}</div>
+    </div>` : ''}
+  `;
   new bootstrap.Modal(document.getElementById('ruleDetailsModal')).show();
 }
 

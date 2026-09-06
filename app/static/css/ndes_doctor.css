@@ -271,6 +271,28 @@
 .nd-badge-red    { background:#fef2f2; color:#dc2626; }
 .nd-rule-actions { display:flex; gap:5px; flex-shrink:0; }
 
+/* ── Rule details modal ──────────────────────────── */
+.nd-rule-detail-title { font-weight:800; font-size:1.05rem; margin:0 0 2px; color:var(--nd-ink); }
+.nd-rule-detail-desc { color:var(--nd-muted); font-size:0.83rem; margin:0 0 14px; }
+.nd-rule-detail-badges { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+.nd-rule-detail-section { margin-bottom:16px; }
+.nd-rule-detail-label { font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.04em; color:var(--nd-muted); margin-bottom:8px; }
+.nd-rule-detail-chips { display:flex; gap:6px; flex-wrap:wrap; }
+.nd-rule-detail-food-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+@media (max-width: 576px) { .nd-rule-detail-food-grid { grid-template-columns:1fr; } }
+.nd-rule-detail-food-box { border-radius:10px; padding:12px 14px; background:var(--nd-bg); border:1px solid var(--nd-border); }
+.nd-rule-detail-food-label { display:flex; align-items:center; gap:6px; font-size:0.76rem; font-weight:800; margin-bottom:8px; }
+.nd-rule-detail-food-rec .nd-rule-detail-food-label { color:#2eb85c; }
+.nd-rule-detail-food-avoid .nd-rule-detail-food-label { color:#dc2626; }
+.nd-rule-detail-food-count { margin-left:auto; background:rgba(0,0,0,0.06); border-radius:999px; padding:1px 8px; font-size:0.68rem; font-weight:700; color:var(--nd-muted); }
+.nd-rule-detail-food-text { font-size:0.79rem; line-height:1.55; color:var(--nd-ink); }
+.nd-rule-detail-empty { color:var(--nd-muted); font-style:italic; }
+.nd-rule-detail-groups { display:flex; flex-direction:column; gap:6px; }
+.nd-rule-detail-group { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; border-radius:8px; background:var(--nd-bg); border:1px solid var(--nd-border); font-size:0.78rem; }
+.nd-rule-detail-group-name { font-weight:700; color:var(--nd-ink); text-transform:capitalize; }
+.nd-rule-detail-group-stats { color:var(--nd-muted); }
+:root[data-theme="dark"] .nd-rule-detail-food-count { background:rgba(255,255,255,0.08); }
+
 /* ── Pagination ──────────────────────────────────── */
 .nd-pagination { display:flex; gap:4px; justify-content:center; margin-top:14px; }
 .nd-page-btn { width:30px; height:30px; border-radius:6px; border:1px solid var(--nd-border); background:#fff; color:var(--nd-muted); font-size:0.76rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; }
