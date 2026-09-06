@@ -5,152 +5,7 @@
 {% block page_subtitle %}ព័ត៌មានគណនីរបស់អ្នក{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}">
-<style>
-    .profile-shell {
-        padding-bottom: 2.5rem;
-    }
-
-    .profile-wrapper {
-        max-width: 980px;
-        margin: 0 auto;
-    }
-
-    .profile-card {
-        background: var(--dash-glass);
-        border-radius: 24px;
-        border: 1px solid var(--dash-line);
-        box-shadow: var(--dash-shadow);
-        overflow: hidden;
-    }
-
-    .profile-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        padding: 1.6rem 1.9rem;
-        background: linear-gradient(135deg, rgba(15, 118, 110, 0.16), rgba(59, 130, 246, 0.12));
-        border-bottom: 1px solid var(--dash-line);
-        flex-wrap: wrap;
-    }
-
-    .profile-title {
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: var(--dash-ink);
-        margin-bottom: 0.25rem;
-    }
-
-    .profile-subtitle {
-        color: var(--dash-muted);
-        margin: 0;
-    }
-
-    .profile-meta {
-        color: var(--dash-muted);
-        font-size: 0.85rem;
-        margin-top: 0.35rem;
-    }
-
-    .profile-avatar {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        background: rgba(15, 118, 110, 0.18);
-        border: 2px solid rgba(255, 255, 255, 0.7);
-        box-shadow: 0 12px 20px rgba(15, 118, 110, 0.18);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: #0f5132;
-        font-size: 1.4rem;
-        overflow: hidden;
-    }
-
-    .profile-avatar img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .profile-info {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 1.25rem;
-        margin: 2rem 2.2rem 1.6rem;
-    }
-
-    .profile-info-item {
-        background: rgba(255, 255, 255, 0.88);
-        border: 1px solid var(--dash-line);
-        border-radius: 18px;
-        padding: 1rem 1.25rem;
-        box-shadow: 0 16px 28px rgba(12, 35, 52, 0.08);
-    }
-
-    .profile-info-item span {
-        display: block;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--dash-muted);
-        margin-bottom: 0.35rem;
-    }
-
-    .profile-info-item strong {
-        color: var(--dash-ink);
-        font-size: 1rem;
-    }
-
-    .profile-content {
-        padding: 0 2.2rem 2rem;
-    }
-
-    .profile-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .profile-list li {
-        padding: 0.55rem 0;
-        border-bottom: 1px solid var(--dash-line);
-        color: #3f6f5d;
-    }
-
-    .profile-list li:last-child {
-        border-bottom: none;
-    }
-
-    .action-row {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        flex-wrap: wrap;
-        margin-top: 2rem;
-    }
-
-    .profile-actions .btn {
-        border-radius: 999px;
-        font-weight: 700;
-    }
-
-    .profile-actions .btn-success {
-        background: linear-gradient(135deg, #0f766e, #2d64c3);
-        border: none;
-        box-shadow: 0 12px 24px rgba(15, 118, 110, 0.2);
-    }
-
-    .profile-actions .btn-outline-success {
-        border-color: rgba(15, 118, 110, 0.3);
-        color: #0f5132;
-    }
-
-    .profile-actions .btn-outline-success:hover {
-        background: rgba(15, 118, 110, 0.12);
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ndes_user.css') }}">
 {% endblock %}
 
 {% block breadcrumb_items %}
@@ -160,96 +15,121 @@
 
 {% block content %}
 {% set is_guest_mode = guest_mode if guest_mode is defined else session.get('user_guest_mode', False) %}
-<div class="dashboard-shell user-shell profile-shell">
-    <div class="dashboard-container">
-        <div class="profile-wrapper">
-            {% set login_role = 'ភ្ញៀវ' if is_guest_mode else ('អ្នកគ្រប់គ្រង' if current_user.has_role('admin') else 'វេជ្ជបណ្ឌិត' if
-            current_user.has_role('doctor') else
-            'អ្នកប្រើប្រាស់') %}
-            <div class="profile-card">
-                <div class="profile-header">
-                    <div class="d-flex align-items-center gap-3">
-                        {% set default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
-                        {% set photo_path = (user.photo or '')|trim %}
-                        {% set avatar_url = default_avatar_url if is_guest_mode else (url_for('main.images', filename=photo_path|replace('images/', '')) if photo_path else default_avatar_url) %}
-                        <div class="profile-avatar">
-                            <img src="{{ avatar_url }}" alt="រូបប្រវត្តិរូប"
-                                onerror="this.onerror=null;this.src='{{ default_avatar_url }}';">
-                        </div>
-                        <div>
-                            <span class="hero-chip"><i class="fas fa-user-check me-1"></i>ទិដ្ឋភាពប្រវត្តិរូប</span>
-                            <div class="profile-title">{{ 'ភ្ញៀវ' if is_guest_mode else (user.full_name or user.username) }}</div>
-                            <p class="profile-subtitle">{{ 'សម័យភ្ញៀវ' if is_guest_mode else ('ជាសមាជិកតាំងពី ' ~ user.created_at.strftime('%d/%m/%Y')) }}</p>
-                            <div class="profile-meta">
-                                <i class="fas fa-user-check me-1"></i>បានចូលប្រើជា {{ login_role }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-info">
-                    <div class="profile-info-item">
-                        <span>ឈ្មោះពេញ</span>
-                        <strong>{{ 'បានលាក់នៅក្នុងរបៀបភ្ញៀវ' if is_guest_mode else (user.full_name or 'មិនទាន់ផ្តល់') }}</strong>
-                    </div>
-                    <div class="profile-info-item">
-                        <span>អ៊ីមែល</span>
-                        <strong>{{ 'បានលាក់នៅក្នុងរបៀបភ្ញៀវ' if is_guest_mode else (user.email or 'មិនទាន់ផ្តល់') }}</strong>
-                    </div>
-                    <div class="profile-info-item">
-                        <span>ឈ្មោះអ្នកប្រើប្រាស់</span>
-                        <strong>{{ 'ភ្ញៀវ' if is_guest_mode else user.username }}</strong>
-                    </div>
-                    <div class="profile-info-item">
-                        <span>ស្ថានភាព</span>
-                        <strong>{{ 'សម័យភ្ញៀវ' if is_guest_mode else ('សកម្ម' if user.is_active else 'អសកម្ម') }}</strong>
-                    </div>
-                </div>
-
-                <div class="profile-content">
-                    <div class="row g-4">
-                        <div class="col-lg-6">
-                            <h6 class="text-uppercase text-muted">គោលដៅ</h6>
-                            <ul class="profile-list">
-                                {% if is_guest_mode %}
-                                <li>មិនមានគោលដៅនៅក្នុងរបៀបភ្ញៀវទេ។</li>
-                                {% elif localized_user_goals %}
-                                {% for goal_name in localized_user_goals %}
-                                <li>{{ goal_name }}</li>
-                                {% endfor %}
-                                {% elif localized_rule_goals %}
-                                {% for goal_name in localized_rule_goals %}
-                                <li>{{ goal_name }}</li>
-                                {% endfor %}
-                                {% elif localized_derived_goal %}
-                                <li>{{ localized_derived_goal }}</li>
-                                {% else %}
-                                <li>មិនទាន់ជ្រើសរើសគោលដៅ។</li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="action-row profile-actions">
-                        {% if not is_guest_mode %}
-                        <a class="btn btn-success" href="{{ url_for('dashboard.user_profile_edit') }}"
-                            data-permission="user.dashboard.update" data-action="ធ្វើបច្ចុប្បន្នភាពប្រវត្តិរូបរបស់អ្នក">
-                            <i class="fas fa-pen me-2"></i>កែព័ត៌មាន
-                        </a>
-                        {% else %}
-                        <button class="btn btn-secondary" type="button" disabled>
-                            <i class="fas fa-eye-slash me-2"></i>បានលាក់នៅក្នុងរបៀបភ្ញៀវ
-                        </button>
-                        {% endif %}
-                        <a class="btn btn-outline-success" href="{{ url_for('dashboard.user_dashboard') }}">
-                            <i class="fas fa-arrow-left me-2"></i>ត្រឡប់ក្រោយ
-                        </a>
-                        <a class="btn btn-danger" href="{{ url_for('auth.logout') }}" onclick="openLogoutModal(event);">
-                            <i class="fas fa-sign-out-alt me-2"></i>ចាកចេញ
-                        </a>
-                    </div>
-                </div>
-            </div>
+<div class="nd-content">
+  <div class="nd-workspace">
+    <div class="nd-workspace-header">
+      <div class="d-flex align-items-center gap-3">
+        {% set default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
+        {% set photo_path = (user.photo or '')|trim %}
+        {% set avatar_url = default_avatar_url if is_guest_mode else (url_for('main.images', filename=photo_path|replace('images/', '')) if photo_path else default_avatar_url) %}
+        <img class="nd-profile-avatar" src="{{ avatar_url }}" alt="រូបប្រវត្តិរូប"
+             onerror="this.onerror=null;this.src='{{ default_avatar_url }}';">
+        <div>
+          <h4 class="nd-workspace-title">{{ 'ភ្ញៀវ' if is_guest_mode else (user.full_name or user.username) }}</h4>
+          <p class="nd-workspace-sub">
+            {{ 'សម័យភ្ញៀវ' if is_guest_mode else ('ជាសមាជិកតាំងពី ' ~ user.created_at.strftime('%d/%m/%Y')) }}
+          </p>
         </div>
+      </div>
+      <div class="d-flex gap-2">
+        {% if not is_guest_mode %}
+        <a class="nd-btn nd-btn-primary nd-btn-sm" href="{{ url_for('dashboard.user_profile_edit') }}"
+           data-permission="user.dashboard.update" data-action="ធ្វើបច្ចុប្បន្នភាពប្រវត្តិរូបរបស់អ្នក">
+          <i class="fas fa-pen"></i> កែព័ត៌មាន
+        </a>
+        {% endif %}
+        <a class="nd-btn nd-btn-outline nd-btn-sm" href="{{ url_for('dashboard.user_dashboard') }}">
+          <i class="fas fa-arrow-left"></i> ត្រឡប់ក្រោយ
+        </a>
+      </div>
     </div>
-    {% endblock %}
+
+    <div style="padding:20px 24px;">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <ul class="nd-profile-list">
+            <li>
+              <span class="nd-profile-label">ឈ្មោះពេញ</span>
+              <span class="nd-profile-value">{{ 'បានលាក់នៅក្នុងរបៀបភ្ញៀវ' if is_guest_mode else (user.full_name or 'មិនទាន់ផ្តល់') }}</span>
+            </li>
+            <li>
+              <span class="nd-profile-label">អ៊ីមែល</span>
+              <span class="nd-profile-value">{{ 'បានលាក់នៅក្នុងរបៀបភ្ញៀវ' if is_guest_mode else (user.email or 'មិនទាន់ផ្តល់') }}</span>
+            </li>
+            <li>
+              <span class="nd-profile-label">ឈ្មោះអ្នកប្រើប្រាស់</span>
+              <span class="nd-profile-value">{{ 'ភ្ញៀវ' if is_guest_mode else user.username }}</span>
+            </li>
+            <li>
+              <span class="nd-profile-label">ស្ថានភាព</span>
+              <span class="nd-profile-value">
+                {% if is_guest_mode %}<span class="nd-pill nd-pill-gray">សម័យភ្ញៀវ</span>
+                {% else %}<span class="nd-pill {{ 'nd-pill-green' if user.is_active else 'nd-pill-red' }}">{{ 'សកម្ម' if user.is_active else 'អសកម្ម' }}</span>
+                {% endif %}
+              </span>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <ul class="nd-profile-list">
+            <li>
+              <span class="nd-profile-label">គោលដៅ</span>
+              <span class="nd-profile-value">
+                {% if is_guest_mode %}មិនមានក្នុងរបៀបភ្ញៀវ
+                {% elif localized_user_goals %}{{ localized_user_goals|join(', ') }}
+                {% elif localized_rule_goals %}{{ localized_rule_goals|join(', ') }}
+                {% elif localized_derived_goal %}{{ localized_derived_goal }}
+                {% else %}មិនទាន់ជ្រើសរើសគោលដៅ
+                {% endif %}
+              </span>
+            </li>
+            <li>
+              <span class="nd-profile-label">តួនាទី</span>
+              <span class="nd-profile-value">
+                {% if is_guest_mode %}<span class="nd-pill nd-pill-gray">ភ្ញៀវ</span>
+                {% else %}{% for role in user.roles %}<span class="nd-pill nd-pill-green">{{ 'អ្នកគ្រប់គ្រង' if role.name|lower=='admin' else 'វេជ្ជបណ្ឌិត' if role.name|lower=='doctor' else 'អ្នកប្រើប្រាស់' if role.name|lower=='user' else role.name }}</span>{% endfor %}
+                {% endif %}
+              </span>
+            </li>
+            <li>
+              <span class="nd-profile-label">ចុះឈ្មោះ</span>
+              <span class="nd-profile-value">{{ 'ភ្ញៀវ' if is_guest_mode else (user.created_at.strftime('%d/%m/%Y') if user.created_at else '—') }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      {% if is_guest_mode %}
+      <div class="nd-alert nd-alert-warn mt-4">
+        <i class="fas fa-user-clock me-2"></i>
+        របៀបភ្ញៀវ — ព័ត៌មានគណនីត្រូវបានលាក់ជាបណ្តោះអាសន្ន។
+      </div>
+      {% else %}
+      <div class="nd-alert nd-alert-info mt-4">
+        <i class="fas fa-lightbulb me-2"></i>
+        សូមរក្សាប្រវត្តិផ្ទាល់ខ្លួនឱ្យទាន់សម័យ ដើម្បីទទួលបានផែនការអាហារដែលត្រឹមត្រូវ។
+      </div>
+      {% endif %}
+
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        {% if not is_guest_mode %}
+        <a class="nd-btn nd-btn-primary" href="{{ url_for('dashboard.user_profile_edit') }}"
+           data-permission="user.dashboard.update" data-action="ធ្វើបច្ចុប្បន្នភាពប្រវត្តិរូបរបស់អ្នក">
+          <i class="fas fa-pen"></i> កែព័ត៌មាន
+        </a>
+        {% else %}
+        <button class="nd-btn" style="background:var(--nd-border);color:var(--nd-muted);" type="button" disabled>
+          <i class="fas fa-eye-slash"></i> បានលាក់នៅក្នុងរបៀបភ្ញៀវ
+        </button>
+        {% endif %}
+        <a class="nd-btn nd-btn-outline" href="{{ url_for('dashboard.user_dashboard') }}">
+          <i class="fas fa-arrow-left"></i> ត្រឡប់ក្រោយ
+        </a>
+        <a class="nd-btn" style="background:#e53935;color:#fff;" href="{{ url_for('auth.logout') }}" onclick="openLogoutModal(event);">
+          <i class="fas fa-sign-out-alt"></i> ចាកចេញ
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

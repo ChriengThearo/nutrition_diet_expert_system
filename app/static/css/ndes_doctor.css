@@ -1,6 +1,8 @@
 ﻿/* ============================================================
    NDES Doctor Dashboard — Matched to Reference Design Image
    ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&display=swap');
+
 :root {
   /* ── Brand Green (exact from image) */
   --nd-green:       #2eb85c;
@@ -40,7 +42,7 @@
 }
 
 /* ── Layout ─────────────────────────────────────── */
-.nd-app { display:flex; min-height:100vh; background:var(--nd-bg); font-family:'Inter','Segoe UI',sans-serif; color:var(--nd-ink); }
+.nd-app { display:flex; min-height:100vh; background:var(--nd-bg); font-family:'Kantumruy Pro','Noto Sans Khmer','Inter','Segoe UI',sans-serif; color:var(--nd-ink); }
 .nd-sidebar { width:252px; min-width:252px; background:var(--nd-sidebar-bg); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:100; border-right:1px solid var(--nd-border); box-shadow:2px 0 8px rgba(0,0,0,0.04); }
 .nd-sidebar::before { content:""; position:absolute; inset:0; background-image:var(--nd-leaf-bg); background-repeat:no-repeat; background-position:center 92%; background-size:100% auto; opacity:0.09; z-index:0; pointer-events:none; }
 .nd-sidebar-brand, .nd-sidebar > .nd-nav, .nd-sidebar-footer { position:relative; z-index:1; }
@@ -48,8 +50,8 @@
 
 /* ── Sidebar ─────────────────────────────────────── */
 .nd-sidebar-brand { height:78px; padding:0 18px; display:flex; align-items:center; gap:11px; border-bottom:1px solid var(--nd-border); flex-shrink:0; }
-.nd-sidebar-logo { width:40px; height:40px; border-radius:9px; background:#ffffff; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
-.nd-sidebar-logo img { width:100%; height:100%; object-fit:contain; }
+.nd-sidebar-logo { width:95px; height:auto; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.nd-sidebar-logo img { width:100%; height:auto; object-fit:contain; }
 .nd-sidebar-brand-text { color:var(--nd-ink); font-weight:800; font-size:1rem; line-height:1.15; }
 .nd-sidebar-brand-sub { color:var(--nd-muted); font-size:0.7rem; margin-top:2px; }
 

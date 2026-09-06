@@ -181,6 +181,21 @@
             </span>
           </span>
         </button>
+        <div class="nd-notif-wrap" style="position:relative;">
+          <a href="#" class="nd-topbar-icon" style="position:relative;" onclick="toggleNotifications(event)" title="Notifications" aria-label="Notifications">
+            <i class="fas fa-bell"></i>
+            <span id="nd-notif-badge" class="nd-notif-badge d-none">0</span>
+          </a>
+          <div id="nd-notif-panel" class="nd-notif-panel" style="display:none;">
+            <div class="nd-notif-panel-header">
+              <strong>Notifications</strong>
+              <button type="button" class="nd-notif-mark-all" onclick="markAllNotificationsRead()">Mark all read</button>
+            </div>
+            <div id="nd-notif-panel-list" class="nd-notif-panel-list">
+              <div class="nd-notif-empty">You're all caught up.</div>
+            </div>
+          </div>
+        </div>
         {% if show_dashboard_switcher %}
         <div class="nd-topbar-icon dropdown">
           {% include "dashboard/_dashboard_switcher.html" %}
