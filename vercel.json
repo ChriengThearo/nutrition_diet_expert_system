@@ -1,8 +1,7 @@
 {
   "functions": {
     "run.py": {
-      "maxDuration": 30,
-      "includeFiles": "images/**"
+      "maxDuration": 30
     }
   }
 }

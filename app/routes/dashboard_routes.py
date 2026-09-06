@@ -665,7 +665,7 @@ def admin_profile_edit():
             _, ext = os.path.splitext(filename)
             safe_ext = ext.lower() if ext else ""
             unique_name = f"user_{current_user.id}_{uuid.uuid4().hex}{safe_ext}"
-            project_root = os.path.dirname(current_app.root_path)
+            project_root = current_app.static_folder
             upload_dir = os.path.join(project_root, "images", "profiles")
             os.makedirs(upload_dir, exist_ok=True)
             photo_file.save(os.path.join(upload_dir, unique_name))
@@ -1893,7 +1893,7 @@ def create_doctor_food():
         _, ext = os.path.splitext(filename)
         safe_ext = ext if ext else ""
         unique_name = f"food_{uuid.uuid4().hex}{safe_ext}"
-        project_root = os.path.dirname(current_app.root_path)
+        project_root = current_app.static_folder
         upload_dir = os.path.join(project_root, "images", "foods")
         os.makedirs(upload_dir, exist_ok=True)
         photo_file.save(os.path.join(upload_dir, unique_name))
@@ -1987,7 +1987,7 @@ def update_or_delete_doctor_food(food_id: int):
                     RuleFoodMapTable.id.in_(set(mapping_ids))
                 ).delete(synchronize_session=False)
             if food.photo:
-                project_root = os.path.dirname(current_app.root_path)
+                project_root = current_app.static_folder
                 photo_path = os.path.join(project_root, food.photo)
                 if os.path.isfile(photo_path):
                     os.remove(photo_path)
@@ -2035,7 +2035,7 @@ def update_or_delete_doctor_food(food_id: int):
         _, ext = os.path.splitext(filename)
         safe_ext = ext if ext else ""
         unique_name = f"food_{uuid.uuid4().hex}{safe_ext}"
-        project_root = os.path.dirname(current_app.root_path)
+        project_root = current_app.static_folder
         upload_dir = os.path.join(project_root, "images", "foods")
         os.makedirs(upload_dir, exist_ok=True)
         photo_file.save(os.path.join(upload_dir, unique_name))
@@ -2157,7 +2157,7 @@ def create_doctor_cooked_food():
         _, ext = os.path.splitext(filename)
         safe_ext = ext if ext else ""
         unique_name = f"cooked_food_{uuid.uuid4().hex}{safe_ext}"
-        project_root = os.path.dirname(current_app.root_path)
+        project_root = current_app.static_folder
         upload_dir = os.path.join(project_root, "images", "cooked_foods")
         os.makedirs(upload_dir, exist_ok=True)
         photo_file.save(os.path.join(upload_dir, unique_name))
@@ -2254,7 +2254,7 @@ def update_or_delete_doctor_cooked_food(cooked_food_id: int):
                     RuleFoodMapTable.id.in_(set(mapping_ids))
                 ).delete(synchronize_session=False)
             if cooked_food.photo:
-                project_root = os.path.dirname(current_app.root_path)
+                project_root = current_app.static_folder
                 photo_path = os.path.join(project_root, cooked_food.photo)
                 if os.path.isfile(photo_path):
                     os.remove(photo_path)
@@ -2304,7 +2304,7 @@ def update_or_delete_doctor_cooked_food(cooked_food_id: int):
         _, ext = os.path.splitext(filename)
         safe_ext = ext if ext else ""
         unique_name = f"cooked_food_{uuid.uuid4().hex}{safe_ext}"
-        project_root = os.path.dirname(current_app.root_path)
+        project_root = current_app.static_folder
         upload_dir = os.path.join(project_root, "images", "cooked_foods")
         os.makedirs(upload_dir, exist_ok=True)
         photo_file.save(os.path.join(upload_dir, unique_name))
@@ -2387,7 +2387,7 @@ def doctor_profile_edit():
             _, ext = os.path.splitext(filename)
             safe_ext = ext.lower() if ext else ""
             unique_name = f"user_{current_user.id}_{uuid.uuid4().hex}{safe_ext}"
-            project_root = os.path.dirname(current_app.root_path)
+            project_root = current_app.static_folder
             upload_dir = os.path.join(project_root, "images", "profiles")
             os.makedirs(upload_dir, exist_ok=True)
             photo_file.save(os.path.join(upload_dir, unique_name))
@@ -3095,7 +3095,7 @@ def user_profile_edit():
             _, ext = os.path.splitext(filename)
             safe_ext = ext.lower() if ext else ""
             unique_name = f"user_{current_user.id}_{uuid.uuid4().hex}{safe_ext}"
-            project_root = os.path.dirname(current_app.root_path)
+            project_root = current_app.static_folder
             upload_dir = os.path.join(project_root, "images", "profiles")
             os.makedirs(upload_dir, exist_ok=True)
             photo_file.save(os.path.join(upload_dir, unique_name))
