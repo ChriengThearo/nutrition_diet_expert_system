@@ -667,11 +667,8 @@
               <input type="checkbox" id="filter-inactive" onchange="filterRules()"> Inactive
             </label>
           </div>
-          <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:8px;">
-            <button class="nd-btn nd-btn-ghost nd-btn-sm" id="expand-all-rule-groups"><i class="fas fa-angles-down"></i> Expand all</button>
-            <button class="nd-btn nd-btn-ghost nd-btn-sm" id="collapse-all-rule-groups"><i class="fas fa-angles-up"></i> Collapse all</button>
-          </div>
           <div id="rules-list"></div>
+          <div class="nd-pagination" id="nd-rules-pagination"></div>
         </div>
       </div>
     </div>
@@ -1290,7 +1287,8 @@
 // ═══════════════════════════════════════════════════════
 let foodsCache = [], cookedFoodsCache = [], sampleRules = [];
 let currentFoodPage = 1, currentCookedPage = 1;
-const FOODS_PER_PAGE = 12, COOKED_PER_PAGE = 12;
+let currentRulePage = 1;
+const FOODS_PER_PAGE = 12, COOKED_PER_PAGE = 12, RULES_PER_PAGE = 8;
 let currentPatientPage = 1, currentConsultationPage = 1;
 const PATIENTS_PER_PAGE = 10, CONSULTATIONS_PER_PAGE = 10;
 let assignedPatientsCache = [];
@@ -1642,36 +1640,8 @@ function loadRules(page = 1) {
 }
 
 function filterRules() {
+  currentRulePage = 1;
   renderRules();
-}
-
-const BMI_CATEGORIES = [
-  { key: 'severe_thinness', label: 'Severe Thinness', min: 0 },
-  { key: 'moderate_thinness', label: 'Moderate Thinness', min: 16 },
-  { key: 'mild_thinness', label: 'Mild Thinness', min: 17 },
-  { key: 'normal', label: 'Normal', min: 18.5 },
-  { key: 'overweight', label: 'Overweight', min: 25 },
-  { key: 'obese_1', label: 'Obese Class I', min: 30 },
-  { key: 'obese_2', label: 'Obese Class II', min: 35 },
-  { key: 'obese_3', label: 'Obese Class III', min: 40 },
-];
-const expandedRuleGroups = new Set();
-
-function bmiCategoryForRule(r) {
-  let bmiMin = null;
-  (r.conditions || []).forEach(c => {
-    const parts = String(c).trim().split(/\s+/);
-    if (parts[0] === 'bmi' && parts.length >= 3 && parts[1].toLowerCase().includes('greater')) {
-      const val = parseFloat(parts[2]);
-      if (!isNaN(val)) bmiMin = val;
-    }
-  });
-  if (bmiMin === null) return { key: 'other', label: 'Other / No BMI condition' };
-  let match = BMI_CATEGORIES[0];
-  for (const cat of BMI_CATEGORIES) {
-    if (bmiMin >= cat.min) match = cat;
-  }
-  return match;
 }
 
 function renderRules() {
@@ -1685,21 +1655,16 @@ function renderRules() {
     return true;
   });
   const list = document.getElementById('rules-list');
+  const pag = document.getElementById('nd-rules-pagination');
   if (!list) return;
   if (!filtered.length) {
     list.innerHTML = '<div class="nd-empty"><i class="fas fa-list-ul"></i><p>No rules found.</p></div>';
-    return;
+    if (pag) pag.innerHTML = ''; return;
   }
-
-  const groups = new Map();
-  filtered.forEach(r => {
-    const cat = bmiCategoryForRule(r);
-    if (!groups.has(cat.key)) groups.set(cat.key, { label: cat.label, rules: [] });
-    groups.get(cat.key).rules.push(r);
-  });
-  const orderedKeys = [...BMI_CATEGORIES.map(c => c.key), 'other'].filter(k => groups.has(k));
-
-  const renderRuleCard = r => {
+  const total = Math.ceil(filtered.length / RULES_PER_PAGE);
+  currentRulePage = Math.min(currentRulePage, total);
+  const page = filtered.slice((currentRulePage - 1) * RULES_PER_PAGE, currentRulePage * RULES_PER_PAGE);
+  list.innerHTML = page.map(r => {
     const priorityColor = r.priority === 'high' ? 'nd-badge-red' : r.priority === 'medium' ? 'nd-badge-amber' : 'nd-badge-blue';
     const conditions = (r.conditions || []).slice(0, 3).map(c => `<span class="nd-badge nd-badge-blue">${c}</span>`).join('');
     return `<div class="nd-rule-card ${r.active ? '' : 'inactive'}">
@@ -1721,39 +1686,9 @@ function renderRules() {
         </div>
       </div>
     </div>`;
-  };
-
-  list.innerHTML = orderedKeys.map(key => {
-    const group = groups.get(key);
-    const isOpen = expandedRuleGroups.has(key);
-    return `<div class="nd-rule-group">
-      <button class="nd-rule-group-header" onclick="toggleRuleGroup('${key}')">
-        <i class="fas fa-chevron-${isOpen ? 'down' : 'right'}"></i>
-        <span class="nd-rule-group-label">${group.label}</span>
-        <span class="nd-badge nd-badge-gray">${group.rules.length}</span>
-      </button>
-      <div class="nd-rule-group-body" style="${isOpen ? '' : 'display:none;'}">
-        ${group.rules.map(renderRuleCard).join('')}
-      </div>
-    </div>`;
   }).join('');
+  renderPagination(pag, total, currentRulePage, p => { currentRulePage = p; renderRules(); });
 }
-
-function toggleRuleGroup(key) {
-  if (expandedRuleGroups.has(key)) expandedRuleGroups.delete(key);
-  else expandedRuleGroups.add(key);
-  renderRules();
-}
-
-document.getElementById('expand-all-rule-groups')?.addEventListener('click', function() {
-  BMI_CATEGORIES.forEach(c => expandedRuleGroups.add(c.key));
-  expandedRuleGroups.add('other');
-  renderRules();
-});
-document.getElementById('collapse-all-rule-groups')?.addEventListener('click', function() {
-  expandedRuleGroups.clear();
-  renderRules();
-});
 
 // ═══════════════════════════════════════════════════════
 //  PAGINATION HELPER
