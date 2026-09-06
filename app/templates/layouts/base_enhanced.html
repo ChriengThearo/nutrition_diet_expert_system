@@ -391,7 +391,7 @@
                         </ul>
                     </li>
                     {% set nav_display_name = 'ភ្ញៀវ' if session.get('user_guest_mode') else current_user.username %}
-                    {% set nav_default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
+                    {% set nav_default_avatar_url = url_for('main.images', filename='brand/avatar.png') %}
                     {% set nav_photo_path = (current_user.photo or '')|trim %}
                     {% set nav_avatar_url = nav_default_avatar_url if session.get('user_guest_mode') else
                     (url_for('main.images', filename=nav_photo_path|replace('images/', '')) if nav_photo_path else

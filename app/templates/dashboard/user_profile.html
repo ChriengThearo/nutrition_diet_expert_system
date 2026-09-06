@@ -19,7 +19,7 @@
   <div class="nd-workspace">
     <div class="nd-workspace-header">
       <div class="d-flex align-items-center gap-3">
-        {% set default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
+        {% set default_avatar_url = url_for('main.images', filename='brand/avatar.png') %}
         {% set photo_path = (user.photo or '')|trim %}
         {% set avatar_url = default_avatar_url if is_guest_mode else (url_for('main.images', filename=photo_path|replace('images/', '')) if photo_path else default_avatar_url) %}
         <img class="nd-profile-avatar" src="{{ avatar_url }}" alt="រូបប្រវត្តិរូប"

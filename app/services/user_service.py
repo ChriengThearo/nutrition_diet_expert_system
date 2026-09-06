@@ -4,7 +4,7 @@ from app.models.role import RoleTable
 from extensions import db
 from sqlalchemy import func
 
-DEFAULT_AVATAR_PATH = "images/public/avatar.png"
+DEFAULT_AVATAR_PATH = "images/brand/avatar.png"
 
 
 class UserService:

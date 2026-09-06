@@ -1060,7 +1060,7 @@ select { font: inherit; }
 <body>
 {% set admin_display_name = current_user.full_name or current_user.username %}
 {% set admin_initial = (admin_display_name[0]|upper) if admin_display_name else 'A' %}
-{% set brand_leaf_bg_url = url_for('main.images', filename='public/leaf.png') %}
+{% set brand_leaf_bg_url = url_for('main.images', filename='brand/leaf.png') %}
 <div class="app-shell">
   <aside class="sidebar" style="--brand-leaf-bg:url('{{ brand_leaf_bg_url }}');">
     <div class="brand">
