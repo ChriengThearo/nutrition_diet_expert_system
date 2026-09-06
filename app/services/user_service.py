@@ -4,6 +4,9 @@ from app.models.role import RoleTable
 from extensions import db
 from sqlalchemy import func
 
+DEFAULT_AVATAR_PATH = "images/public/avatar.png"
+
+
 class UserService:
     @staticmethod
     def _get_role_by_name(role_name: str) -> Optional[RoleTable]:
@@ -39,6 +42,7 @@ class UserService:
             email = data["email"],
             full_name = data["full_name"],
             is_active = data.get("is_active", True),
+            photo = (data.get("photo") or "").strip() or DEFAULT_AVATAR_PATH,
         )
         user.set_password(password)
 
