@@ -165,8 +165,20 @@ select { font: inherit; }
 
 .is-collapsed .collapse-btn i { transform: rotate(180deg); }
 
+.is-collapsed .brand > div:not(.brand-badge) {
+  display: none;
+}
+
 .is-collapsed .brand {
-  grid-template-columns: 40px;
+  height: auto;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  row-gap: 10px;
+  padding: 16px 0 14px;
+}
+
+.is-collapsed .brand-badge {
+  width: 42px;
 }
 
 .is-collapsed .nav-link {
