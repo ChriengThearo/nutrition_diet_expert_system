@@ -6,9 +6,11 @@ from app.models.role import RoleTable
 from app.models.goal import GoalsTable
 from app.models.diet_rule import DietRulesTable
 from app.models.food_group import FoodGroupTable
+from app.models.rule_food_map import RuleFoodMapTable
 from app.models.user_result import UserResultsTable
 from app.models.food import FoodsTable
 from extensions import db
+from sqlalchemy.orm import joinedload
 import json
 import re
 import logging
@@ -1114,7 +1116,18 @@ class DashboardService:
         if not rule_id:
             return []
         try:
-            group_rows = FoodGroupTable.query.filter_by(diet_rule_id=rule_id).all()
+            group_rows = (
+                FoodGroupTable.query.filter_by(diet_rule_id=rule_id)
+                .options(
+                    joinedload(FoodGroupTable.rule_food_map).joinedload(
+                        RuleFoodMapTable.food
+                    ),
+                    joinedload(FoodGroupTable.rule_food_map).joinedload(
+                        RuleFoodMapTable.cooked_food
+                    ),
+                )
+                .all()
+            )
         except Exception:
             return []
 

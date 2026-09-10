@@ -27,7 +27,7 @@
 </head>
 <body>
 {% set doctor_display_name = current_user.full_name or current_user.username %}
-{% set doctor_default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
+{% set doctor_default_avatar_url = url_for('main.images', filename='brand/avatar.png') %}
 {% set doctor_photo_path = (current_user.photo or '')|trim %}
 {% set doctor_avatar_url = doctor_default_avatar_url if session.get('user_guest_mode') else
   (url_for('main.images', filename=doctor_photo_path|replace('images/', '')) if doctor_photo_path else doctor_default_avatar_url) %}
@@ -37,7 +37,7 @@
   (1 if 'dashboard.doctor' in dashboard_permissions else 0) +
   (1 if 'dashboard.user' in dashboard_permissions else 0) %}
 {% set show_dashboard_switcher = dashboard_option_count > 1 %}
-{% set nd_leaf_bg_url = url_for('main.images', filename='public/leaf.png') %}
+{% set nd_leaf_bg_url = url_for('main.images', filename='brand/leaf.png') %}
 
 <div class="nd-app">
 

@@ -2,7 +2,7 @@
 {% set lm_name = 'Guest' if lm_guest else (current_user.full_name or current_user.username) %}
 {% set lm_email = '' if lm_guest else (current_user.email or '') %}
 {% set lm_initial = (lm_name[0]|upper) if lm_name else '?' %}
-{% set lm_default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
+{% set lm_default_avatar_url = url_for('main.images', filename='brand/avatar.png') %}
 {% set lm_photo_path = (current_user.photo or '')|trim %}
 {% set lm_avatar_url = lm_default_avatar_url if lm_guest else
   (url_for('main.images', filename=lm_photo_path|replace('images/', '')) if lm_photo_path else lm_default_avatar_url) %}

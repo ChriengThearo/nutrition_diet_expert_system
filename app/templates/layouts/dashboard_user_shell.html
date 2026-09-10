@@ -29,7 +29,7 @@
 {% set is_guest_mode = guest_mode if guest_mode is defined else session.get('user_guest_mode', False) %}
 {% set ui_lang = session.get('ui_lang', 'km') %}
 {% set user_display_name = ('ភ្ញៀវ' if ui_lang == 'km' else 'Guest') if is_guest_mode else (current_user.full_name or current_user.username) %}
-{% set default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
+{% set default_avatar_url = url_for('main.images', filename='brand/avatar.png') %}
 {% set photo_path = (current_user.photo or '')|trim %}
 {% set avatar_url = default_avatar_url if is_guest_mode else
   (url_for('main.images', filename=photo_path|replace('images/', '')) if photo_path else default_avatar_url) %}
@@ -44,7 +44,7 @@
 <div class="nd-app">
 
   <!-- SIDEBAR -->
-  <aside class="nd-sidebar" style="--nd-leaf-bg:url('{{ url_for('main.images', filename='public/leaf.png') }}');">
+  <aside class="nd-sidebar" style="--nd-leaf-bg:url('{{ url_for('main.images', filename='brand/leaf.png') }}');">
     <div class="nd-sidebar-brand">
       <div class="nd-sidebar-logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert">

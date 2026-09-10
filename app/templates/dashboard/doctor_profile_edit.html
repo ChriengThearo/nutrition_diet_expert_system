@@ -311,7 +311,7 @@
     %}
     {% set show_dashboard_switcher = dashboard_option_count > 1 %}
     {% set display_name = user.full_name or user.username %}
-    {% set doctor_default_avatar_url = url_for('main.images', filename='public/avatar.png') %}
+    {% set doctor_default_avatar_url = url_for('main.images', filename='brand/avatar.png') %}
     {% set doctor_photo_path = (current_user.photo or '')|trim %}
     {% set doctor_avatar_url = doctor_default_avatar_url if session.get('user_guest_mode') else
     (url_for('main.images', filename=doctor_photo_path|replace('images/', '')) if doctor_photo_path else

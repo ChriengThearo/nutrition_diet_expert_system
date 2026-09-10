@@ -134,8 +134,7 @@ def create_rule():
 
 @main_bp.route("/images/<path:filename>")
 def images(filename):
-    project_root = os.path.dirname(current_app.root_path)
-    images_dir = os.path.join(project_root, "images")
+    images_dir = os.path.join(current_app.static_folder, "images")
     return send_from_directory(images_dir, filename)
 
 
