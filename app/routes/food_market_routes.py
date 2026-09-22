@@ -91,6 +91,10 @@ def ai_search():
 @user_required
 def scan():
     try:
+        state = LocalFoodScanner.prepare(current_app.instance_path)
+        if not state["ready"]:
+            message = state["error"] or "Preparing the local food model. Keep this page open; your photo will be scanned automatically when preparation finishes."
+            return jsonify({"success": False, "preparing": state["preparing"], "message": message}), 202
         matches = LocalFoodScanner.scan(request.files.get("image"), current_app.instance_path)
         foods = []
         for match in matches:
@@ -103,6 +107,13 @@ def scan():
         return _error(str(exc), exc.status)
     except ValueError as exc:
         return _error(str(exc), 404)
+
+
+@food_market_bp.route("/scan/status", methods=["GET"])
+@login_required
+@user_required
+def scan_status():
+    return jsonify({"success": True, **LocalFoodScanner.preparation_status()})
 
 
 @food_market_bp.route("/favorites", methods=["GET", "POST"])

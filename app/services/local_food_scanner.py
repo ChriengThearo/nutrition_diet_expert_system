@@ -22,8 +22,11 @@ class LocalFoodScanner:
     MAX_BYTES = 8 * 1024 * 1024
     ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
     _lock = threading.Lock()
+    _preparation_lock = threading.Lock()
     _model = _processor = _text_features = _device = None
     _food_ids = ()
+    _preparing = False
+    _preparation_error = None
 
     @classmethod
     def _image(cls, file_storage):
@@ -105,6 +108,44 @@ class LocalFoodScanner:
                 raise
             except Exception as exc:
                 raise ScannerError("The local food model is unavailable. Keep this computer online while its public model downloads for the first time.", 503) from exc
+
+    @classmethod
+    def prepare(cls, instance_path):
+        """Start the expensive one-time CLIP/index setup without holding an HTTP request open."""
+        catalog = cls._catalog()
+        food_ids = tuple(item[0] for item in catalog)
+        with cls._preparation_lock:
+            if cls._model is not None and cls._food_ids == food_ids:
+                return {"ready": True, "preparing": False, "error": None}
+            if cls._preparing:
+                return {"ready": False, "preparing": True, "error": None}
+            cls._preparing = True
+            cls._preparation_error = None
+
+        def load_in_background():
+            try:
+                cls._load(catalog, instance_path)
+            except ScannerError as exc:
+                with cls._preparation_lock:
+                    cls._preparation_error = str(exc)
+            except Exception:
+                with cls._preparation_lock:
+                    cls._preparation_error = "The local food model could not be prepared. Try scanning again."
+            finally:
+                with cls._preparation_lock:
+                    cls._preparing = False
+
+        threading.Thread(target=load_in_background, name="usda-clip-preparation", daemon=True).start()
+        return {"ready": False, "preparing": True, "error": None}
+
+    @classmethod
+    def preparation_status(cls):
+        with cls._preparation_lock:
+            return {
+                "ready": cls._model is not None and not cls._preparing,
+                "preparing": cls._preparing,
+                "error": cls._preparation_error,
+            }
 
     @classmethod
     def scan(cls, file_storage, instance_path):
