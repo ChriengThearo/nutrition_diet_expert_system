@@ -59,4 +59,15 @@ def create_app(config_class: type[Config] = Config):
                 pass
         except Exception:
             pass
+        try:
+            # Load CLIP and the bundled USDA text index as soon as the worker
+            # starts. This keeps the first user's scan from paying the model
+            # startup cost while still allowing the web server to boot first.
+            if app.config.get("USDA_SCANNER_WARMUP", True) and not app.config.get("TESTING", False):
+                from app.services.local_food_scanner import LocalFoodScanner
+                LocalFoodScanner.prepare(app.instance_path)
+        except Exception:
+            # Scanner readiness is reported by its status endpoint. A scanner
+            # failure must not prevent the rest of the dashboard from starting.
+            pass
     return app

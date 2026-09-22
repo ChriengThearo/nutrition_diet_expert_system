@@ -9,6 +9,7 @@ load_dotenv()
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-this")
     SKIP_DB_CREATE_ALL = os.getenv("SKIP_DB_CREATE_ALL", "0") == "1"
+    USDA_SCANNER_WARMUP = os.getenv("USDA_SCANNER_WARMUP", "1") == "1"
 
     # Database configuration from .env
     DATABASE_URL = os.getenv("DATABASE_URL")
