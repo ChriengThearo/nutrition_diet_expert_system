@@ -14,6 +14,8 @@ dependencies = [
     "python-dotenv",
     "psycopg[binary]",
     "requests",
+    "gunicorn>=23,<24",
+    "easyocr>=1.7,<2",
     "Pillow>=11,<12",
     "torch>=2.7,<3",
     "transformers>=4.52,<6"
