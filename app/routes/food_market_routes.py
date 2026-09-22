@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 from app.models.doctor_food_favorite import DoctorFoodFavorite
 from app.routes.dashboard_routes import user_required
 from app.services.usda_service import USDAService
+from app.services.local_food_scanner import LocalFoodScanner, ScannerError
 from extensions import csrf, db
 
 food_market_bp = Blueprint("food_market", __name__, url_prefix="/dashboard/doctor/food-market")
@@ -82,6 +83,26 @@ def ai_search():
     terms = {"protein": "protein", "sodium": "sodium", "fiber": "fiber", "calorie": "calorie", "calories": "calorie", "calcium": "calcium", "iron": "iron"}
     query = next((value for key, value in terms.items() if key in request_text.lower()), request_text)
     return jsonify({"success": True, "query": query, "message": "Search intent prepared. Nutrition values will come from USDA results.", "ai_provider": "not configured"})
+
+
+@food_market_bp.route("/scan", methods=["POST"])
+@csrf.exempt
+@login_required
+@user_required
+def scan():
+    try:
+        matches = LocalFoodScanner.scan(request.files.get("image"), current_app.instance_path)
+        foods = []
+        for match in matches:
+            food = USDAService.get(match["fdc_id"])
+            food["scan_score"] = match["score"]
+            food["recognized_as"] = match["recognized_as"]
+            foods.append(food)
+        return jsonify({"success": True, "foods": foods, "message": "Choose the USDA food that best matches your photo."})
+    except ScannerError as exc:
+        return _error(str(exc), exc.status)
+    except ValueError as exc:
+        return _error(str(exc), 404)
 
 
 @food_market_bp.route("/favorites", methods=["GET", "POST"])

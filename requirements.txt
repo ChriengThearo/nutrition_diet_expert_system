@@ -9,6 +9,9 @@ Flask-Migrate == 4.0.5
 python-dotenv
 pymysql
 easyocr
+Pillow>=11,<12
+torch>=2.7,<3
+transformers>=4.52,<6
 psycopg
 fastapi
 uvicorn

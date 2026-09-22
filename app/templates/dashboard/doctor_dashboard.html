@@ -1437,7 +1437,7 @@ function ndRenderTopbarSearchResults(term) {
 // ── Date ────────────────────────────────────────────
 // FOOD MARKET: category/search browsing backed by USDA FoodData Central.
 let marketFoods = [], marketPage = 1, marketCategory = 'all', marketSearchToken = 0;
-const marketCategories = [['all','All Foods'],['fruits','Fruits'],['vegetables','Vegetables'],['grains','Grains'],['meat','Meat'],['poultry','Poultry'],['fish','Fish & Seafood'],['eggs','Eggs'],['dairy','Dairy'],['legumes','Legumes'],['nuts','Nuts & Seeds'],['beverages','Beverages'],['snacks','Snacks'],['other','Other']];
+const marketCategories = [['all','All Foods'],['fruits','Fruits'],['vegetables','Vegetables'],['grains','Grains'],['meat','Meat'],['poultry','Poultry'],['fish','Fish & Seafood'],['eggs','Eggs'],['dairy','Dairy'],['legumes','Legumes'],['nuts','Nuts & Seeds'],['beverages','Beverages'],['snacks','Snacks']];
 const marketCategoryVisuals = {fruits:['fa-apple-whole','fruits'],vegetables:['fa-carrot','vegetables'],meat:['fa-drumstick-bite','meat'],poultry:['fa-drumstick-bite','poultry'],dairy:['fa-cheese','dairy'],grains:['fa-wheat-awn','grains'],fish:['fa-fish','fish'],eggs:['fa-egg','eggs'],legumes:['fa-seedling','legumes'],nuts:['fa-seedling','nuts'],beverages:['fa-glass-water','beverages'],snacks:['fa-cookie-bite','snacks'],other:['fa-bowl-food','other'],all:['fa-utensils','other']};
 function marketMessage(text,danger){const el=document.getElementById('market-status');if(el){el.textContent=text;el.className='nd-alert '+(danger?'nd-alert-danger':'nd-alert-info');}}
 function marketCount(text){const el=document.getElementById('market-count');if(el)el.textContent=text;}

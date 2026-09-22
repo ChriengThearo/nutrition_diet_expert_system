@@ -13,7 +13,10 @@ dependencies = [
     "flask-migrate>=4.0.5",
     "python-dotenv",
     "psycopg[binary]",
-    "requests"
+    "requests",
+    "Pillow>=11,<12",
+    "torch>=2.7,<3",
+    "transformers>=4.52,<6"
 ]
 
 [tool.vercel]
