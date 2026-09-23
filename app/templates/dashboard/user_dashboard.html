@@ -586,6 +586,11 @@
       const section = this.dataset.inpage;
       showSection(section);
       history.replaceState(null, '', this.getAttribute('href'));
+      if (this.dataset.openScan) {
+        document.getElementById('nav-food-market')?.classList.remove('active');
+        this.classList.add('active');
+        window.openMarketScanner?.();
+      }
     });
   });
 
@@ -636,6 +641,9 @@
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!marketScanModal.hidden)closeMarketScanner();});
   document.getElementById('market-sort')?.addEventListener('change',()=>{sortMarketFoods();renderMarketResults();});
 
-  if ('{{ current_section }}' === 'food-market') { renderMarketCategories(); loadMarketFavorites(); marketSearch(1); }
+  if ('{{ current_section }}' === 'food-market') {
+    renderMarketCategories(); loadMarketFavorites(); marketSearch(1);
+    if ({{ 'true' if request.args.get('scan') else 'false' }}) { window.openMarketScanner?.(); }
+  }
 </script>
 {% endblock %}
