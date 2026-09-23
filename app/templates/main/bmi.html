@@ -150,8 +150,30 @@
     .category-overweight { color: #d68910; }
     .category-obese { color: #e74c3c; }
 
-    @media (max-width: 420px) {
-        .gauge-outer { transform: scale(0.82); transform-origin: top center; margin-bottom: -30px; }
+    /* The gauge is drawn on a fixed 360x172 canvas (ticks/needle/ring are all
+       absolutely positioned with hardcoded px offsets). Letting it shrink via
+       max-width:100% alone (as on tablet) desyncs those child offsets from the
+       smaller box. Below ~460px we instead keep the true 360px canvas intact
+       and uniformly scale it down from the left edge — the ancestor
+       .dashboard-container already has overflow-x:hidden, so the unscaled
+       layout width never causes page-level horizontal scroll. */
+    @media (max-width: 460px) {
+        .gauge-outer { max-width: none; transform-origin: left top; }
+    }
+    @media (max-width: 430px) {
+        .gauge-outer { transform: scale(0.91); margin-bottom: -16px; }
+    }
+    @media (max-width: 390px) {
+        .gauge-outer { transform: scale(0.79); margin-bottom: -36px; }
+    }
+    @media (max-width: 375px) {
+        .gauge-outer { transform: scale(0.75); margin-bottom: -43px; }
+    }
+    @media (max-width: 340px) {
+        .gauge-outer { transform: scale(0.65); margin-bottom: -60px; }
+    }
+    @media (max-width: 320px) {
+        .gauge-outer { transform: scale(0.60); margin-bottom: -69px; }
     }
 
     /* ---- Spectrum bar ---- */

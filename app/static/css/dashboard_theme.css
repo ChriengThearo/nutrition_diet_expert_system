@@ -1525,6 +1525,10 @@ html[lang="km"] .doctor-dashboard-app h5 {
 }
 
 @media (max-width: 767px) {
+    .role-hero .hero-actions .btn {
+        width: 100%;
+    }
+
     .doctor-dashboard-app .hero-actions .btn {
         width: 100%;
     }
@@ -1557,6 +1561,34 @@ html[lang="km"] .doctor-dashboard-app h5 {
         display: grid;
         grid-template-columns: 1fr;
         gap: 0.45rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .role-hero {
+        padding: 1.1rem 1.05rem;
+        border-radius: 20px;
+    }
+
+    .metric-card {
+        padding: 0.85rem 0.9rem;
+    }
+
+    .panel-head {
+        padding: 0.85rem 0.9rem;
+    }
+
+    .panel-body {
+        padding: 0.85rem 0.9rem 1rem;
+    }
+
+    .metric-grid,
+    .command-grid {
+        gap: 0.65rem;
     }
 }
 

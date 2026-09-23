@@ -53,12 +53,14 @@
     background: #e3f2fd;
     border-radius: 8px;
     border-left: 4px solid #2196f3;
+    overflow-wrap: break-word;
 }
 
 .answer-text {
     color: #495057;
     line-height: 1.6;
     margin-bottom: 1rem;
+    overflow-wrap: break-word;
 }
 
 .disclaimer {
@@ -142,6 +144,25 @@
     33% { content: '..'; }
     66% { content: '...'; }
 }
+
+@media (max-width: 576px) {
+    .qa-container {
+        margin: 1rem auto;
+    }
+
+    .qa-form,
+    .answer-section {
+        padding: 1.25rem;
+    }
+
+    .answer-card {
+        padding: 1rem;
+    }
+
+    .answer-card .d-flex.gap-2 .btn {
+        padding: 0.5rem 0.9rem;
+    }
+}
 </style>
 {% endblock %}
 
@@ -195,7 +216,7 @@
                     {{ answer }}
                 </div>
                 
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap">
                     <button class="btn btn-outline-primary btn-sm" onclick="copyAnswer()">
                         <i class="fas fa-copy me-1"></i>Copy
                     </button>
@@ -277,17 +298,17 @@
         <div class="mt-5">
             <h5>Related Resources</h5>
             <div class="row">
-                <div class="col-md-4 mb-3">
+                <div class="col-12 col-sm-6 col-md-4 mb-3">
                     <a href="{{ url_for('main.bmi') }}" class="btn btn-outline-primary w-100">
                         <i class="fas fa-calculator me-2"></i>BMI Calculator
                     </a>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-12 col-sm-6 col-md-4 mb-3">
                     <a href="{{ url_for('main.match') }}" class="btn btn-outline-primary w-100">
                         <i class="fas fa-search me-2"></i>Find Diet Plans
                     </a>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-12 col-sm-6 col-md-4 mb-3">
                     <a href="{{ url_for('main.rules') }}" class="btn btn-outline-primary w-100">
                         <i class="fas fa-book me-2"></i>Browse Rules
                     </a>

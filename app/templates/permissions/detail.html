@@ -561,7 +561,9 @@ select { font: inherit; }
   flex-wrap: wrap;
 }
 
-.detail-hero-left { display: flex; align-items: center; gap: 20px; }
+.detail-hero-left { display: flex; align-items: center; gap: 20px; min-width: 0; flex: 1 1 260px; }
+
+.detail-hero-info { min-width: 0; }
 
 .detail-avatar-lg {
   width: 92px;
@@ -585,7 +587,7 @@ select { font: inherit; }
   to { opacity: 1; transform: scale(1); }
 }
 
-.detail-hero-name { margin: 0; font-size: 24px; font-weight: 900; }
+.detail-hero-name { margin: 0; font-size: 24px; font-weight: 900; word-break: break-word; overflow-wrap: anywhere; }
 
 .detail-hero-role {
   display: inline-flex;
@@ -609,12 +611,16 @@ select { font: inherit; }
 }
 
 .detail-hero-sub code {
+  display: inline-block;
+  max-width: 100%;
   background: rgba(255, 255, 255, 0.18);
   padding: 2px 8px;
   border-radius: 6px;
   font-family: Consolas, "Courier New", monospace;
   font-size: 12.5px;
   color: #fff;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .detail-hero-actions { position: relative; z-index: 1; display: flex; gap: 10px; flex-wrap: wrap; }
@@ -695,6 +701,8 @@ select { font: inherit; }
   background: var(--gray-soft);
   padding: 3px 8px;
   border-radius: 6px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .module-badge {
@@ -720,6 +728,8 @@ select { font: inherit; }
   color: var(--green-dark);
   font-weight: 800;
   font-size: 12.5px;
+  max-width: 100%;
+  word-break: break-word;
   animation: chipPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   animation-delay: calc(0.1s + var(--i, 0) * 60ms);
 }
@@ -754,6 +764,8 @@ a.role-chip-lg:hover { filter: brightness(0.97); }
   color: #fff;
   font-size: 11px;
   font-weight: 800;
+  max-width: 100%;
+  word-break: break-word;
   animation: chipPop 0.25s ease both;
   animation-delay: calc(0.15s + var(--i, 0) * 22ms);
 }
@@ -762,18 +774,68 @@ a.role-chip-lg:hover { filter: brightness(0.97); }
 
 .muted-empty { color: var(--muted); font-weight: 600; }
 
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 17px;
+  flex: none;
+  cursor: pointer;
+}
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 999;
+}
+
+.app-shell.sidebar-open .sidebar-backdrop { display: block; }
+
 @media (max-width: 1100px) {
   .detail-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 900px) {
   .app-shell { grid-template-columns: 1fr; }
-  .sidebar { display: none; }
-  .topbar { height: auto; padding: 16px; align-items: flex-start; flex-direction: column; }
+  .mobile-menu-btn { display: inline-flex; }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    width: 270px;
+    max-width: 82vw;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+  }
+  .app-shell.sidebar-open .sidebar { transform: translateX(0); }
+  .collapse-btn { display: none; }
+  .topbar { height: auto; padding: 16px; align-items: flex-start; flex-direction: column; gap: 12px; }
+  .page-title { display: flex; align-items: center; gap: 12px; min-width: 0; width: 100%; }
+  .page-title > div { min-width: 0; }
+  .page-title h1 { font-size: 18px; }
   .top-actions { width: 100%; gap: 12px; flex-wrap: wrap; }
   .search-box { width: 100%; order: 2; }
   .content { padding: 16px; }
   .info-item { grid-template-columns: 1fr; gap: 4px; }
+  .detail-hero { padding: 22px 18px; }
+  .detail-hero-name { font-size: 19px; }
+}
+
+@media (max-width: 480px) {
+  .sidebar { width: 240px; }
+  .detail-hero-actions { flex-direction: column; width: 100%; }
+  .hero-btn { width: 100%; justify-content: center; }
 }
 .sidebar::before {
   content: "";
@@ -808,7 +870,8 @@ a.role-chip-lg:hover { filter: brightness(0.97); }
 {% set admin_avatar_url = url_for('main.images', filename=admin_photo_path|replace('images/', '')) if admin_photo_path else '' %}
 {% set brand_leaf_bg_url = url_for('main.images', filename='brand/leaf.png') %}
 <div class="app-shell">
-  <aside class="sidebar" style="--brand-leaf-bg:url('{{ brand_leaf_bg_url }}');">
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <aside class="sidebar" id="permSidebar" style="--brand-leaf-bg:url('{{ brand_leaf_bg_url }}');">
     <div class="brand">
       <div class="brand-badge"><img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert"></div>
       <div>
@@ -854,8 +917,13 @@ a.role-chip-lg:hover { filter: brightness(0.97); }
   <main class="main">
     <header class="topbar">
       <div class="page-title">
-        <h1>Permission Details</h1>
-        <p>View permission configuration and role usage</p>
+        <button class="mobile-menu-btn" type="button" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="permSidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div>
+          <h1>Permission Details</h1>
+          <p>View permission configuration and role usage</p>
+        </div>
       </div>
       <div class="top-actions">
         <div class="search-box" id="navSearchBox">
@@ -912,7 +980,7 @@ a.role-chip-lg:hover { filter: brightness(0.97); }
         <div class="detail-hero-row">
           <div class="detail-hero-left">
             <div class="detail-avatar-lg"><i class="fas fa-key"></i></div>
-            <div>
+            <div class="detail-hero-info">
               <h1 class="detail-hero-name">{{ permission.name }}</h1>
               <span class="detail-hero-role"><i class="fas fa-layer-group"></i> {{ permission.module or "General" }} Module</span>
               <p class="detail-hero-sub"><code>{{ permission.code }}</code></p>
@@ -1115,6 +1183,32 @@ if (sidebarCollapseBtn && appShellEl) {
   sidebarCollapseBtn.addEventListener("click", () => {
     const collapsed = appShellEl.classList.toggle("is-collapsed");
     localStorage.setItem("ndAdminSidebarCollapsed", collapsed ? "1" : "0");
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  MOBILE SIDEBAR (off-canvas drawer below 900px)
+// ═══════════════════════════════════════════════════════
+const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+if (mobileMenuBtn && appShellEl) {
+  const openMobileSidebar = () => {
+    appShellEl.classList.add("sidebar-open");
+    document.body.style.overflow = "hidden";
+    mobileMenuBtn.setAttribute("aria-expanded", "true");
+  };
+  const closeMobileSidebar = () => {
+    appShellEl.classList.remove("sidebar-open");
+    document.body.style.overflow = "";
+    mobileMenuBtn.setAttribute("aria-expanded", "false");
+  };
+  mobileMenuBtn.addEventListener("click", openMobileSidebar);
+  sidebarBackdrop?.addEventListener("click", closeMobileSidebar);
+  document.querySelectorAll(".sidebar .nav-link").forEach((link) => {
+    link.addEventListener("click", closeMobileSidebar);
+  });
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) closeMobileSidebar();
   });
 }
 

@@ -397,6 +397,21 @@
             text-align: center;
         }
     }
+
+    @media (max-width: 380px) {
+        .poster-shell {
+            padding: 2.5rem 1rem 3rem;
+        }
+
+        .poster-page {
+            padding: 1.75rem 1.1rem 2.2rem;
+        }
+
+        .poster-feature-grid,
+        .poster-users {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 {% endblock %}
 

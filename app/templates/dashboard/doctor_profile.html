@@ -52,6 +52,7 @@
         .profile-avatar {
             width: 86px;
             height: 86px;
+            flex-shrink: 0;
             border-radius: 50%;
             border: 2px solid rgba(255, 255, 255, 0.6);
             background: rgba(255, 255, 255, 0.2);
@@ -63,6 +64,15 @@
             font-size: 1.6rem;
             font-weight: 800;
             letter-spacing: 0.04em;
+        }
+
+        .profile-hero-identity {
+            flex-wrap: wrap;
+            min-width: 0;
+        }
+
+        .profile-hero-identity > div {
+            min-width: 0;
         }
 
         .profile-avatar img {
@@ -83,6 +93,8 @@
             margin: 0;
             font-size: clamp(1.45rem, 3vw, 2.1rem);
             line-height: 1.15;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
 
         .profile-email {
@@ -282,6 +294,14 @@
             }
         }
 
+        @media (max-width: 420px) {
+            .profile-avatar {
+                width: 64px;
+                height: 64px;
+                font-size: 1.2rem;
+            }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .profile-anim,
             .shortcut-list a {
@@ -389,7 +409,7 @@
             <div class="profile-hero-content">
                 <div class="row align-items-center g-3">
                     <div class="col-lg-8">
-                        <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-3 profile-hero-identity">
                             <div class="profile-avatar">
                                 <img src="{{ doctor_avatar_url }}" alt="Doctor avatar"
                                     onerror="this.onerror=null;this.src='{{ doctor_default_avatar_url }}';">

@@ -15,6 +15,36 @@
   {% if request.endpoint == 'main.home' %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_theme.css') }}" />
   {% endif %}
+  <style>
+    .site-brand-logo {
+      width: 95px;
+      height: auto;
+      flex-shrink: 0;
+    }
+
+    .site-brand-title {
+      font-weight: 800;
+      letter-spacing: 0.015em;
+      font-size: 1.6rem;
+      line-height: 1.2;
+    }
+
+    @media (max-width: 480px) {
+      .site-brand-logo {
+        width: 72px;
+      }
+
+      .site-brand-title {
+        font-size: clamp(1.05rem, 4.6vw, 1.15rem);
+      }
+    }
+
+    @media (max-width: 380px) {
+      .site-brand-logo {
+        width: 60px;
+      }
+    }
+  </style>
   {% block extra_css %}{% endblock %}
 </head>
 
@@ -24,8 +54,8 @@
   <header class="navbar navbar-light bg-white border-bottom mb-3 py-3">
     <div class="container">
       <a class="navbar-brand d-flex align-items-center gap-3 flex-wrap" href="{{ url_for('main.home') }}">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Nutrition and Diet Expert System logo" style="width:95px;height:auto;flex-shrink:0;">
-        <span style="font-weight:800;letter-spacing:0.015em;font-size:1.6rem;line-height:1.2;">Nutrition and Diet Expert System</span>
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Nutrition and Diet Expert System logo" class="site-brand-logo">
+        <span class="site-brand-title">Nutrition and Diet Expert System</span>
       </a>
     </div>
   </header>

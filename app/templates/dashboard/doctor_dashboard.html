@@ -41,10 +41,12 @@
 
 <div class="nd-app">
 
+  <div class="nd-sidebar-backdrop" id="ndDoctorSidebarBackdrop"></div>
+
   <!-- ═══════════════════════════════════════════════
        SIDEBAR
   ═══════════════════════════════════════════════ -->
-  <aside class="nd-sidebar" style="--nd-leaf-bg:url('{{ nd_leaf_bg_url }}');">
+  <aside class="nd-sidebar" id="ndDoctorSidebar" style="--nd-leaf-bg:url('{{ nd_leaf_bg_url }}');">
     <div class="nd-sidebar-brand">
       <div class="nd-sidebar-logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Nutrition and Diet">
@@ -157,7 +159,12 @@
     <!-- TOP BAR -->
     <div class="nd-topbar">
       <div class="nd-topbar-left">
-        <h1 id="nd-page-title">Doctor Dashboard</h1>
+        <div class="nd-topbar-title-row">
+          <button class="nd-mobile-menu-btn" type="button" id="ndDoctorSidebarToggle" aria-label="Open menu" aria-expanded="false" aria-controls="ndDoctorSidebar">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 id="nd-page-title">Doctor Dashboard</h1>
+        </div>
         <p>Welcome back, {{ doctor_display_name }} 👋</p>
       </div>
       <div class="nd-topbar-right">
@@ -3189,6 +3196,38 @@ if (ndThemeToggle) {
   ndThemeToggle.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     applyNdTheme(current === 'dark' ? 'light' : 'dark');
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  MOBILE SIDEBAR (off-canvas drawer below 992px)
+// ═══════════════════════════════════════════════════════
+const ndAppShellEl = document.querySelector('.nd-app');
+const ndSidebarToggleBtn = document.getElementById('ndDoctorSidebarToggle');
+const ndSidebarBackdropEl = document.getElementById('ndDoctorSidebarBackdrop');
+function openNdMobileSidebar() {
+  if (!ndAppShellEl) return;
+  ndAppShellEl.classList.add('sidebar-open');
+  document.body.style.overflow = 'hidden';
+  ndSidebarToggleBtn?.setAttribute('aria-expanded', 'true');
+}
+function closeNdMobileSidebar() {
+  if (!ndAppShellEl) return;
+  ndAppShellEl.classList.remove('sidebar-open');
+  document.body.style.overflow = '';
+  ndSidebarToggleBtn?.setAttribute('aria-expanded', 'false');
+}
+if (ndSidebarToggleBtn && ndAppShellEl) {
+  ndSidebarToggleBtn.addEventListener('click', () => {
+    if (ndAppShellEl.classList.contains('sidebar-open')) closeNdMobileSidebar();
+    else openNdMobileSidebar();
+  });
+  ndSidebarBackdropEl?.addEventListener('click', closeNdMobileSidebar);
+  document.querySelectorAll('.nd-sidebar .nd-nav-link:not(.nd-nav-group-toggle), .nd-sidebar .nd-nav-sublink').forEach((link) => {
+    link.addEventListener('click', closeNdMobileSidebar);
+  });
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 992) closeNdMobileSidebar();
   });
 }
 

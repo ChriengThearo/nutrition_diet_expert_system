@@ -4,9 +4,9 @@
 {% block content %}
 {% set is_doctor = user.has_role('doctor') %}
 {% set back_role = (user.roles[0].name|lower) if user.roles else '' %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h3 mb-0">{{ 'Doctor' if is_doctor else 'User' }}: {{ user.username }}</h1>
-  <div>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0 text-break">{{ 'Doctor' if is_doctor else 'User' }}: {{ user.username }}</h1>
+  <div class="d-flex flex-wrap gap-2">
     <a
       href="{{ url_for('tbl_users.edit', user_id=user.id) }}"
       class="btn btn-sm btn-outline-secondary"
@@ -60,7 +60,7 @@
       {% set user_permissions = user.get_permission_codes() %}
       {% if user_permissions %}
         {% for permission in user_permissions %}
-          <span class="badge text-bg-info me-1">{{ permission }}</span>
+          <span class="badge text-bg-info me-1 mb-1">{{ permission }}</span>
         {% endfor %}
       {% else %}
         <span class="text-muted">No permissions</span>

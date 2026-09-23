@@ -76,6 +76,24 @@
     padding: 3rem;
     color: #6c757d;
 }
+
+@media (max-width: 576px) {
+    .matcher-container {
+        margin: 1rem auto;
+    }
+
+    .selection-form {
+        padding: 1.25rem;
+    }
+
+    .rule-content .btn-sm {
+        padding: 0.5rem 0.9rem;
+    }
+
+    .no-results {
+        padding: 2rem 1rem;
+    }
+}
 </style>
 {% endblock %}
 
@@ -90,7 +108,7 @@
         <div class="selection-form">
             <form method="POST">
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-12 col-md-6 mb-3">
                         <label for="goal" class="form-label">Health Goal</label>
                         <select class="form-select form-select-lg" id="goal" name="goal" required>
                             <option value="">Select a goal...</option>
@@ -102,7 +120,7 @@
                         </select>
                     </div>
                     
-                    <div class="col-md-6 mb-3">
+                    <div class="col-12 col-md-6 mb-3">
                         <label for="bmi" class="form-label">BMI (optional)</label>
                         <input type="number" 
                                class="form-control form-control-lg" 
@@ -162,7 +180,7 @@
                     </div>
                     {% endif %}
                     
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-wrap gap-2">
                         <a href="{{ url_for('main.foods', rule_id=rule.id) }}" class="btn btn-primary btn-sm">
                             <i class="fas fa-utensils me-1"></i>View Meal Plan
                         </a>
