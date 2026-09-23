@@ -24,17 +24,21 @@
   --nd-radius-sm: 8px;
 }
 
+/* Keep explicit widths inclusive of padding/borders even if the Bootstrap CDN
+   is slow or unavailable inside an in-app browser. */
+.nd-app, .nd-app *, .nd-app *::before, .nd-app *::after { box-sizing:border-box; }
+
 /* ── Layout ─────────────────────────────────────── */
 /* Guards against any child (dropdown, full-bleed scroller, wide grid) pushing
    the document wider than the viewport — that's what makes mobile browsers
    shrink the whole page to fit, so all the text reads tiny. */
-html, body { max-width:100%; overflow-x:hidden; }
-.nd-app { display:flex; min-height:100vh; max-width:100%; overflow-x:hidden; background:var(--nd-bg); font-family:'Kantumruy Pro','Noto Sans Khmer','Plus Jakarta Sans','Segoe UI',sans-serif; color:var(--nd-ink); }
+html, body { width:100%; max-width:100%; overflow-x:hidden; }
+.nd-app { display:flex; width:100%; min-height:100vh; max-width:100%; overflow-x:hidden; background:var(--nd-bg); font-family:'Kantumruy Pro','Noto Sans Khmer','Plus Jakarta Sans','Segoe UI',sans-serif; color:var(--nd-ink); }
 .nd-sidebar { width:264px; min-width:264px; background:var(--nd-sidebar-bg); display:flex; flex-direction:column; position:fixed; inset:0 auto 0 0; height:auto; box-sizing:border-box; z-index:100; overflow:hidden; border-right:1px solid var(--nd-border); box-shadow:2px 0 8px rgba(0,0,0,0.04); }
 .nd-sidebar::before { content:""; position:absolute; inset:0; background-image:var(--nd-leaf-bg); background-repeat:no-repeat; background-position:center 92%; background-size:100% auto; opacity:0.09; z-index:0; pointer-events:none; }
 .nd-sidebar-brand, .nd-sidebar > .nd-nav, .nd-sidebar-footer { position:relative; z-index:1; }
 .nd-sidebar-leaf-bg { display:none; }
-.nd-main { margin-left:264px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
+.nd-main { margin-left:264px; width:calc(100% - 264px); min-width:0; max-width:calc(100% - 264px); flex:1 1 auto; display:flex; flex-direction:column; min-height:100vh; }
 
 /* ── Mobile Sidebar Backdrop (off-canvas drawer, see @media 768px) ── */
 .nd-sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.45); z-index:999; }
@@ -300,12 +304,12 @@ html, body { max-width:100%; overflow-x:hidden; }
 :root[data-theme="dark"] .theme-toggle:active .theme-toggle-thumb { transform: translateX(28px) scale(0.9); }
 
 /* ── Content Area ────────────────────────────────── */
-.nd-content { padding:20px 24px; flex:1; }
+.nd-content { width:100%; min-width:0; max-width:100%; padding:20px 24px; flex:1; }
 .nd-section { display:block; }
 
 /* ── Stat Cards ──────────────────────────────────── */
-.nd-stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
-.nd-stat { background:#fff; border-radius:var(--nd-radius); padding:14px 16px; box-shadow:var(--nd-shadow); border:1px solid var(--nd-border); position:relative; overflow:hidden; }
+.nd-stats-row { display:grid; width:100%; min-width:0; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-bottom:20px; }
+.nd-stat { width:100%; min-width:0; max-width:100%; background:#fff; border-radius:var(--nd-radius); padding:14px 16px; box-shadow:var(--nd-shadow); border:1px solid var(--nd-border); position:relative; overflow:hidden; }
 .nd-stat-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
 .nd-stat-label { font-size:0.72rem; color:var(--nd-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.06em; }
 .nd-stat-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; color:#fff; }
@@ -322,8 +326,8 @@ html, body { max-width:100%; overflow-x:hidden; }
 .nd-stat-trend.neutral { color:var(--nd-muted); }
 
 /* ── Panels ──────────────────────────────────────── */
-.nd-panels { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:18px; margin-bottom:20px; }
-.nd-panel { background:#fff; border-radius:var(--nd-radius); box-shadow:var(--nd-shadow); border:1px solid var(--nd-border); padding:18px; }
+.nd-panels { display:grid; width:100%; min-width:0; grid-template-columns:minmax(0,1.2fr) repeat(2,minmax(0,1fr)); gap:18px; margin-bottom:20px; }
+.nd-panel { width:100%; min-width:0; max-width:100%; background:#fff; border-radius:var(--nd-radius); box-shadow:var(--nd-shadow); border:1px solid var(--nd-border); padding:18px; overflow-wrap:anywhere; }
 .nd-panel-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; }
 .nd-panel-title { font-size:0.9rem; font-weight:800; color:var(--nd-ink); margin:0; display:flex; align-items:center; gap:8px; }
 .nd-panel-subtitle { font-size:0.72rem; color:var(--nd-muted); margin:4px 0 0; }
@@ -334,7 +338,7 @@ html, body { max-width:100%; overflow-x:hidden; }
 .bmi-row-chart { display:flex; flex-direction:column; gap:7px; margin-top:10px; }
 .bmi-row-item { display:flex; align-items:center; gap:8px; font-size:0.75rem; }
 .bmi-row-date { width:38px; color:var(--nd-muted); font-weight:600; flex-shrink:0; }
-.bmi-row-track { flex:1; height:8px; background:#f1f8f2; border-radius:99px; overflow:hidden; }
+.bmi-row-track { flex:1 1 auto; min-width:0; height:8px; background:#f1f8f2; border-radius:99px; overflow:hidden; }
 .bmi-row-fill { height:100%; border-radius:99px; transition:width 0.4s; }
 .bmi-row-normal { background:#43a047; }
 .bmi-row-under  { background:#1e88e5; }
@@ -422,8 +426,8 @@ html, body { max-width:100%; overflow-x:hidden; }
 
 /* ── Responsive ──────────────────────────────────── */
 @media (max-width:1100px) {
-  .nd-stats-row { grid-template-columns:repeat(2,1fr); }
-  .nd-panels { grid-template-columns:1fr 1fr; }
+  .nd-stats-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .nd-panels { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 @media (max-width:768px) {
   .nd-mobile-menu-btn { display:inline-flex; }
@@ -440,12 +444,14 @@ html, body { max-width:100%; overflow-x:hidden; }
     box-shadow: 0 20px 50px rgba(15,23,42,0.3);
   }
   .nd-app.sidebar-open .nd-sidebar { transform: translateX(0); }
-  .nd-main { margin-left:0; }
-  .nd-stats-row { grid-template-columns:1fr 1fr; }
-  .nd-panels { grid-template-columns:1fr; }
+  .nd-main { margin-left:0; width:100%; max-width:100%; }
+  .nd-content { padding:16px; }
+  .nd-stats-row { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .nd-panels { grid-template-columns:minmax(0,1fr); }
 }
 @media (max-width:420px) {
-  .nd-stats-row { grid-template-columns:1fr; }
+  .nd-content { padding:14px; }
+  .nd-stats-row { grid-template-columns:minmax(0,1fr); }
 }
 
 /* ============================================================
