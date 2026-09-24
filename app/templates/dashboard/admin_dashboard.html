@@ -1273,18 +1273,6 @@ a.stat-card:hover .stat-icon {
   .patient-legend { gap: 12px; }
   .chart { height: 230px; }
 }
-.sidebar::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: var(--brand-leaf-bg);
-  background-repeat: no-repeat;
-  background-position: center 92%;
-  background-size: 100% auto;
-  opacity: 0.06;
-  z-index: 0;
-  pointer-events: none;
-}
 .brand, .nav, .sidebar-user { position: relative; z-index: 1; }
 .brand-badge {
   width: 95px;
@@ -1298,9 +1286,8 @@ a.stat-card:hover .stat-icon {
 </style>
 </head>
 <body>
-{% set brand_leaf_bg_url = url_for('main.images', filename='brand/leaf.png') %}
 <div class="app-shell">
-  <aside class="sidebar" style="--brand-leaf-bg:url('{{ brand_leaf_bg_url }}');">
+  <aside class="sidebar">
     <div class="brand">
       <div class="brand-badge"><img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Nutrition and Diet"></div>
       <div>
