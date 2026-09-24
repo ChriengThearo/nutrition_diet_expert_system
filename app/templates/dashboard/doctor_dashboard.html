@@ -37,7 +37,6 @@
   (1 if 'dashboard.doctor' in dashboard_permissions else 0) +
   (1 if 'dashboard.user' in dashboard_permissions else 0) %}
 {% set show_dashboard_switcher = dashboard_option_count > 1 %}
-{% set nd_leaf_bg_url = url_for('main.images', filename='brand/leaf.png') %}
 
 <div class="nd-app">
 

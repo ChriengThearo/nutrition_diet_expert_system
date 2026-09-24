@@ -827,52 +827,6 @@ textarea.form-control {
   .content { padding: 16px; }
   .perm-check-grid { grid-template-columns: 1fr; }
 }
-
-@media (max-width: 480px) {
-  .content { padding: 12px; }
-  .panel-body { padding: 14px; }
-  .panel-head { padding: 12px 14px; }
-  .form-actions { flex-direction: column; }
-  .btn-save, .btn-cancel { width: 100%; justify-content: center; }
-  .perm-search-wrap { min-width: 100%; }
-  .perm-count-badge { white-space: normal; }
-  .module-group-head { row-gap: 6px; }
-  .perm-check-name { word-break: break-word; }
-  .module-group-title { word-break: break-word; }
-}
-.sidebar::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: var(--brand-leaf-bg);
-  background-repeat: no-repeat;
-  background-position: center 92%;
-  background-size: 100% auto;
-  opacity: 0.06;
-  z-index: 0;
-  pointer-events: none;
-}
-.brand, .nav, .sidebar-user { position: relative; z-index: 1; }
-.brand-badge {
-  width: 95px;
-  height: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-}
-.brand-badge .brand-mark { width: 100%; height: auto; object-fit: contain; }
-</style>
-</head>
-<body>
-{% set admin_display_name = current_user.full_name or current_user.username %}
-{% set admin_initial = (admin_display_name[0]|upper) if admin_display_name else 'A' %}
-{% set admin_photo_path = (current_user.photo or '')|trim %}
-{% set admin_avatar_url = url_for('main.images', filename=admin_photo_path|replace('images/', '')) if admin_photo_path else '' %}
-{% set permissions_by_module = form.permissions_by_module %}
-{% set total_permissions = permissions_by_module.values()|map('length')|sum %}
-{% set brand_leaf_bg_url = url_for('main.images', filename='brand/leaf.png') %}
-<div class="app-shell">
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
   <aside class="sidebar" id="rolesSidebar" style="--brand-leaf-bg:url('{{ brand_leaf_bg_url }}');">
     <div class="brand">

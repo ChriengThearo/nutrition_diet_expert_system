@@ -48,7 +48,6 @@
 html, body { max-width:100%; overflow-x:hidden; }
 .nd-app { display:flex; min-height:100vh; max-width:100%; overflow-x:hidden; background:var(--nd-bg); font-family:'Kantumruy Pro','Noto Sans Khmer','Inter','Segoe UI',sans-serif; color:var(--nd-ink); position:relative; }
 .nd-sidebar { width:252px; min-width:252px; background:var(--nd-sidebar-bg); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:100; border-right:1px solid var(--nd-border); box-shadow:2px 0 8px rgba(0,0,0,0.04); }
-.nd-sidebar::before { content:""; position:absolute; inset:0; background-image:var(--nd-leaf-bg); background-repeat:no-repeat; background-position:center 92%; background-size:100% auto; opacity:0.09; z-index:0; pointer-events:none; }
 .nd-sidebar-brand, .nd-sidebar > .nd-nav, .nd-sidebar-footer { position:relative; z-index:1; }
 .nd-main { margin-left:252px; flex:1; display:flex; flex-direction:column; min-height:100vh; min-width:0; }
 

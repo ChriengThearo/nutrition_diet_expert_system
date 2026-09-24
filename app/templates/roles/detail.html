@@ -817,18 +817,6 @@ a.perm-badge:hover { filter: brightness(0.95); }
   .panel-head { padding: 0 14px; }
   .role-chip-lg, .perm-badge { word-break: break-word; }
 }
-.sidebar::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: var(--brand-leaf-bg);
-  background-repeat: no-repeat;
-  background-position: center 92%;
-  background-size: 100% auto;
-  opacity: 0.06;
-  z-index: 0;
-  pointer-events: none;
-}
 .brand, .nav, .sidebar-user { position: relative; z-index: 1; }
 .brand-badge {
   width: 95px;
@@ -850,7 +838,6 @@ a.perm-badge:hover { filter: brightness(0.95); }
 {% set admin_initial = (admin_display_name[0]|upper) if admin_display_name else 'A' %}
 {% set admin_photo_path = (current_user.photo or '')|trim %}
 {% set admin_avatar_url = url_for('main.images', filename=admin_photo_path|replace('images/', '')) if admin_photo_path else '' %}
-{% set brand_leaf_bg_url = url_for('main.images', filename='brand/leaf.png') %}
 <div class="app-shell">
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
   <aside class="sidebar" id="rolesSidebar" style="--brand-leaf-bg:url('{{ brand_leaf_bg_url }}');">
