@@ -2127,6 +2127,18 @@
             return titleCase(value);
         }
 
+        const GOAL_STYLES = {
+            'Lose Weight': { icon: 'fa-arrow-trend-down', badgeClass: 'bg-warning-subtle text-warning-emphasis', km: 'បញ្ចុះទម្ងន់', rgb: [217, 119, 6], rgbBg: [255, 251, 235] },
+            'Gain Weight': { icon: 'fa-arrow-trend-up', badgeClass: 'bg-primary-subtle text-primary-emphasis', km: 'បង្កើនទម្ងន់', rgb: [59, 130, 246], rgbBg: [239, 246, 255] },
+            'Maintain Weight': { icon: 'fa-check', badgeClass: 'bg-success-subtle text-success-emphasis', km: 'រក្សាទម្ងន់', rgb: [46, 184, 92], rgbBg: [237, 251, 242] },
+        };
+
+        function localizeGoal(value) {
+            const style = GOAL_STYLES[value];
+            if (!style) return value || '';
+            return isEnglishUI() ? value : style.km;
+        }
+
         function localizeAllergy(value) {
             const token = String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
             if (isEnglishUI()) {
@@ -2446,6 +2458,8 @@
             const data = latestPlanResult;
             const profile = data.profile || {};
             const metrics = data.metrics || {};
+            const goal = data.goal || null;
+            const goalStyle = GOAL_STYLES[goal];
             const activeGroup = resultFoodGroups[activeResultFoodGroupIndex] || { foods: [], avoid_foods: [] };
             const foods = Array.isArray(activeGroup.foods) ? activeGroup.foods : [];
             const avoidFoods = Array.isArray(activeGroup.avoid_foods) ? activeGroup.avoid_foods : [];
@@ -2489,6 +2503,19 @@
             doc.text(`Generated: ${generatedDate}`, pageWidth - margin, 19, { align: 'right' });
 
             let y = 40;
+
+            if (goalStyle) {
+                const badgeText = `GOAL: ${goal.toUpperCase()}`;
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(10);
+                const badgeWidth = doc.getTextWidth(badgeText) + 12;
+                const badgeHeight = 8;
+                doc.setFillColor(goalStyle.rgbBg[0], goalStyle.rgbBg[1], goalStyle.rgbBg[2]);
+                doc.roundedRect(margin, y, badgeWidth, badgeHeight, 4, 4, 'F');
+                doc.setTextColor(goalStyle.rgb[0], goalStyle.rgb[1], goalStyle.rgb[2]);
+                doc.text(badgeText, margin + 6, y + 5.5);
+                y += badgeHeight + 8;
+            }
 
             function sectionTitle(title) {
                 if (y > 265) {
@@ -2629,6 +2656,7 @@
 
             const profile = data.profile || {};
             const metrics = data.metrics || {};
+            const goal = data.goal || null;
             const activeGroup = resultFoodGroups[activeResultFoodGroupIndex] || {
                 group_key: 'group_1',
                 foods: [],
@@ -2692,11 +2720,17 @@
             const avoidFoodsTitle = uiCopy('អាហារគួរជៀសវាង', 'Foods to avoid');
             const importantNoteTitle = uiCopy('ចំណាំសំខាន់', 'Important notes');
             const calorieUnit = isEnglishUI() ? 'kcal/day' : 'kcal/ថ្ងៃ';
+            const goalTitle = uiCopy('គោលដៅរបស់អ្នក', 'Your goal');
+            const goalStyle = GOAL_STYLES[goal];
 
             let html = `
             <div class="alert alert-success">
                 <h4><i class="fas fa-check-circle me-2"></i>${resultTitle}</h4>
-                <p>${resultSubtitle}</p>
+                <p class="mb-${goalStyle ? '2' : '0'}">${resultSubtitle}</p>
+                ${goalStyle ? `
+                <span class="badge ${goalStyle.badgeClass}" style="font-size:0.95rem;padding:8px 14px;border-radius:50px;">
+                    <i class="fas ${goalStyle.icon} me-2"></i>${goalTitle}: ${localizeGoal(goal)}
+                </span>` : ''}
             </div>
 
             <div class="row">

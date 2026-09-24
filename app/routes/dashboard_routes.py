@@ -2878,6 +2878,11 @@ def user_dashboard():
             preferences = form_data.get("preferences") or {}
             allergies = profile.get("allergies") or health.get("allergies") or []
             diet_type_raw = profile.get("diet_type") or health.get("dietType")
+            goal_raw = payload.get("plan", {}).get("goal") or (
+                DashboardService._infer_goal_label(None, [], profile)
+                if profile.get("bmi") is not None
+                else None
+            )
 
             plan_history.append(
                 {
@@ -2896,6 +2901,8 @@ def user_dashboard():
                     "meals_per_day": profile.get("meals_per_day")
                     or preferences.get("mealsPerDay"),
                     "allergies": _localize_allergies(allergies),
+                    "goal": goal_raw,
+                    "goal_label": _localize_goal_name(goal_raw) if goal_raw else None,
                 }
             )
             if len(plan_history) >= 8:
@@ -2914,6 +2921,7 @@ def user_dashboard():
                 except Exception:
                     generated_at = None
             diet_type_raw = entry.get("diet_type")
+            goal_raw = entry.get("goal")
             guest_plan_history.append(
                 {
                     "id": entry.get("id") or f"guest-{uuid.uuid4().hex[:8]}",
@@ -2928,6 +2936,8 @@ def user_dashboard():
                     "diet_type_label": _localize_diet_type(diet_type_raw),
                     "meals_per_day": entry.get("meals_per_day"),
                     "allergies": _localize_allergies(entry.get("allergies")),
+                    "goal": goal_raw,
+                    "goal_label": _localize_goal_name(goal_raw) if goal_raw else None,
                 }
             )
 
@@ -3860,6 +3870,7 @@ def user_dashboard_submit():
                 "meals_per_day": profile.get("meals_per_day")
                 or preferences.get("mealsPerDay"),
                 "allergies": _localize_allergies(allergies),
+                "goal": result.get("goal"),
             }
 
             guest_plan_history = session.get("guest_plan_history", [])

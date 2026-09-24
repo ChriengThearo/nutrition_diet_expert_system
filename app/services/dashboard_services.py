@@ -635,11 +635,17 @@ class DashboardService:
 
         action_metrics = DashboardService._extract_action_metrics(actions)
         metrics = DashboardService._calculate_user_metrics(personal, action_metrics)
+        goal_label = DashboardService._infer_goal_label(
+            rule_summary.get("name") if rule_summary else None,
+            rule_summary.get("conditions") if rule_summary else [],
+            profile,
+        )
 
         return {
             "profile": profile,
             "metrics": metrics,
             "rule": rule_summary,
+            "goal": goal_label,
             "foods": foods,
             "avoid_foods": avoid_foods,
             "food_groups": food_groups,

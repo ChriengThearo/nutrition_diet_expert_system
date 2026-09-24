@@ -6,6 +6,9 @@
 
 {% block content %}
 {% set last_plan = plan_history[0] if plan_history else None %}
+{% set goal_pill_class = {'Lose Weight': 'nd-pill-amber', 'Gain Weight': 'nd-pill-blue', 'Maintain Weight': 'nd-pill-green'} %}
+{% set goal_label_km = {'Lose Weight': 'បញ្ចុះទម្ងន់', 'Gain Weight': 'បង្កើនទម្ងន់', 'Maintain Weight': 'រក្សាទម្ងន់'} %}
+{% set goal_icon = {'Lose Weight': 'fa-arrow-trend-down', 'Gain Weight': 'fa-arrow-trend-up', 'Maintain Weight': 'fa-check'} %}
 
 <!-- ═══ SECTION: OVERVIEW ═══ -->
 <div id="section-overview" class="nd-content nd-section" {{ '' if current_section == 'overview' else 'style="display:none;"' }}>
@@ -121,6 +124,14 @@
       </div>
       {% if last_plan %}
         <div style="display:flex;flex-direction:column;gap:10px;">
+          {% if last_plan.goal %}
+          <div>
+            <span class="nd-pill {{ goal_pill_class.get(last_plan.goal, 'nd-pill-gray') }}" style="font-weight:700;">
+              <i class="fas {{ goal_icon.get(last_plan.goal, 'fa-bullseye') }} me-1"></i>
+              {{ 'គោលដៅ:' if ui_lang == 'km' else 'Goal:' }} {{ goal_label_km.get(last_plan.goal, last_plan.goal) if ui_lang == 'km' else last_plan.goal }}
+            </span>
+          </div>
+          {% endif %}
           <div>
             <div class="nd-nutrition-item">
               <span class="nd-nutrition-label"><span class="nd-nutrition-icon fire"><i class="fas fa-fire"></i></span> {{ 'កាឡូរី' if ui_lang == 'km' else 'Calories' }}</span>
@@ -392,6 +403,7 @@
               <th>{{ 'ប្រភេទរបបអាហារ' if ui_lang == 'km' else 'Diet Type' }}</th>
               <th>{{ 'ពេលអាហារ/ថ្ងៃ' if ui_lang == 'km' else 'Meals/day' }}</th>
               <th>BMI</th>
+              <th>{{ 'គោលដៅ' if ui_lang == 'km' else 'Goal' }}</th>
               <th>{{ 'កាឡូរី' if ui_lang == 'km' else 'Calories' }}</th>
               <th>{{ 'ប្រូតេអ៊ីន' if ui_lang == 'km' else 'Protein' }}</th>
               <th>{{ 'អាឡែស៊ី' if ui_lang == 'km' else 'Allergies' }}</th>
@@ -412,6 +424,13 @@
                   {% set bv = plan.bmi|float %}
                   <span class="nd-pill {% if bv < 18.5 %}nd-pill-blue{% elif bv < 25 %}nd-pill-green{% elif bv < 30 %}nd-pill-amber{% else %}nd-pill-red{% endif %}">
                     {{ '%.1f'|format(bv) }}
+                  </span>
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                {% if plan.goal %}
+                  <span class="nd-pill {{ goal_pill_class.get(plan.goal, 'nd-pill-gray') }}">
+                    {{ goal_label_km.get(plan.goal, plan.goal) if ui_lang == 'km' else plan.goal }}
                   </span>
                 {% else %}—{% endif %}
               </td>
