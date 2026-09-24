@@ -512,6 +512,10 @@ html, body { width:100%; max-width:100%; overflow-x:hidden; }
 :root[data-theme="dark"] .dropdown-item:focus { background-color: var(--nd-sidebar-hover); color: var(--nd-ink); }
 :root[data-theme="dark"] .dropdown-divider { border-color: var(--nd-border); }
 
+:root[data-theme="dark"] #guestModeNoticeModal .modal-content { background-color: var(--nd-card); color: var(--nd-ink); }
+:root[data-theme="dark"] #guestModeNoticeModal .bg-warning-subtle { background-color: rgba(249,115,22,0.16) !important; }
+:root[data-theme="dark"] #guestModeNoticeModal .bg-info-subtle { background-color: rgba(59,130,246,0.16) !important; }
+
 /* Recurring inline styles baked into user_dashboard.html — overridden by
    attribute match since editing every call site isn't practical. */
 :root[data-theme="dark"] [style*="color:#607d6b"] { color: #93a0b8 !important; }

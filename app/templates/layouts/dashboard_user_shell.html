@@ -113,6 +113,17 @@
       </button>
       <ul class="dropdown-menu shadow-sm" aria-labelledby="ndSidebarUserToggle">
         <li><a class="dropdown-item" href="{{ url_for('dashboard.user_profile_edit') }}"><i class="fas fa-user me-2"></i>My Profile</a></li>
+        {% if 'user.dashboard.create' in dashboard_permissions %}
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <button class="dropdown-item d-flex align-items-center gap-2" type="button"
+                  id="guestModeToggle" data-endpoint="{{ url_for('dashboard.user_guest_mode') }}"
+                  data-guest-mode="{{ 'true' if is_guest_mode else 'false' }}">
+            <i class="fas {{ 'fa-user' if is_guest_mode else 'fa-user-secret' }}" data-guest-icon></i>
+            <span data-guest-label>{{ 'Exit Guest Mode' if is_guest_mode else 'Switch to Guest Mode' }}</span>
+          </button>
+        </li>
+        {% endif %}
         <li><hr class="dropdown-divider"></li>
         <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}" onclick="openLogoutModal(event);"><i class="fas fa-sign-out-alt me-2"></i>Log out</a></li>
       </ul>
@@ -443,6 +454,110 @@
   });
 </script>
 {% block extra_js %}{% endblock %}
+{% if 'user.dashboard.create' in dashboard_permissions %}
+<div class="modal fade" id="guestModeNoticeModal" tabindex="-1" aria-labelledby="guestModeNoticeTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-warning-subtle" id="guestModeNoticeHeader">
+        <h5 class="modal-title" id="guestModeNoticeTitle">
+          <i class="fas fa-triangle-exclamation text-warning me-2" id="guestModeNoticeIcon"></i>
+          <span id="guestModeNoticeTitleText">Notice</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0" id="guestModeNoticeMessage">Data from generated plans will not be saved.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-warning fw-semibold" data-bs-dismiss="modal" id="guestModeNoticeButton">Got it</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const guestModeToggle = document.getElementById('guestModeToggle');
+    if (!guestModeToggle) { return; }
+
+    const guestLabel = guestModeToggle.querySelector('[data-guest-label]');
+    const guestIcon = guestModeToggle.querySelector('[data-guest-icon]');
+    const endpoint = guestModeToggle.dataset.endpoint;
+    const guestNoticeModalEl = document.getElementById('guestModeNoticeModal');
+    const guestNoticeModal = guestNoticeModalEl ? new bootstrap.Modal(guestNoticeModalEl) : null;
+    const guestNoticeHeader = document.getElementById('guestModeNoticeHeader');
+    const guestNoticeIcon = document.getElementById('guestModeNoticeIcon');
+    const guestNoticeTitleText = document.getElementById('guestModeNoticeTitleText');
+    const guestNoticeMessage = document.getElementById('guestModeNoticeMessage');
+    const guestNoticeButton = document.getElementById('guestModeNoticeButton');
+
+    function showGuestModeModal(message, isWarning, onClose) {
+        if (!guestNoticeModal || !guestNoticeModalEl || !guestNoticeMessage) {
+            alert(message);
+            if (typeof onClose === 'function') onClose();
+            return;
+        }
+        guestNoticeMessage.textContent = message;
+        if (guestNoticeTitleText) guestNoticeTitleText.textContent = isWarning ? 'Notice' : 'Info';
+        if (guestNoticeHeader) {
+            guestNoticeHeader.classList.remove('bg-warning-subtle', 'bg-info-subtle');
+            guestNoticeHeader.classList.add(isWarning ? 'bg-warning-subtle' : 'bg-info-subtle');
+        }
+        if (guestNoticeIcon) {
+            guestNoticeIcon.classList.remove('fa-triangle-exclamation', 'fa-circle-info', 'text-warning', 'text-info');
+            guestNoticeIcon.classList.add(isWarning ? 'fa-triangle-exclamation' : 'fa-circle-info');
+            guestNoticeIcon.classList.add(isWarning ? 'text-warning' : 'text-info');
+        }
+        if (guestNoticeButton) {
+            guestNoticeButton.classList.remove('btn-warning', 'btn-info');
+            guestNoticeButton.classList.add(isWarning ? 'btn-warning' : 'btn-info');
+            guestNoticeButton.textContent = isWarning ? 'Got it' : 'OK';
+        }
+        guestNoticeModalEl.addEventListener('hidden.bs.modal', () => { if (typeof onClose === 'function') onClose(); }, { once: true });
+        guestNoticeModal.show();
+    }
+
+    function updateGuestUi(isGuestMode) {
+        guestModeToggle.dataset.guestMode = isGuestMode ? 'true' : 'false';
+        if (guestLabel) guestLabel.textContent = isGuestMode ? 'Exit Guest Mode' : 'Switch to Guest Mode';
+        if (guestIcon) {
+            guestIcon.classList.remove('fa-user', 'fa-user-secret');
+            guestIcon.classList.add(isGuestMode ? 'fa-user' : 'fa-user-secret');
+        }
+    }
+
+    guestModeToggle.addEventListener('click', async function (event) {
+        event.preventDefault();
+        const currentMode = guestModeToggle.dataset.guestMode === 'true';
+        const nextMode = !currentMode;
+        guestModeToggle.disabled = true;
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ enabled: nextMode })
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || data.success === false) {
+                throw new Error(data.message || 'Could not switch guest mode.');
+            }
+            const active = Boolean(data.guest_mode);
+            updateGuestUi(active);
+            if (active) {
+                showGuestModeModal('Notice: data from generated plans will not be saved.', true, () => window.location.reload());
+            } else {
+                showGuestModeModal('Guest mode is off. Saving to your account is restored.', false, () => window.location.reload());
+            }
+        } catch (error) {
+            console.error('Failed to toggle guest mode:', error);
+            alert(error.message || 'Could not switch guest mode.');
+        } finally {
+            guestModeToggle.disabled = false;
+        }
+    });
+});
+</script>
+{% endif %}
 {% include "dashboard/_logout_modal.html" %}
 </body>
 </html>
