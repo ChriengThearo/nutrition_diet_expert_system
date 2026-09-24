@@ -49,7 +49,7 @@ def search():
         return _error(str(exc), 503)
 
 
-@food_market_bp.route("/<int:fdc_id>")
+@food_market_bp.route("/<fdc_id>")
 @login_required
 @user_required
 def detail(fdc_id):
@@ -139,14 +139,87 @@ def favorites():
     return jsonify({"success": True})
 
 
-@food_market_bp.route("/favorites/<int:fdc_id>", methods=["DELETE"])
+@food_market_bp.route("/favorites/<fdc_id>", methods=["DELETE"])
 @csrf.exempt
 @login_required
 @user_required
 def delete_favorite(fdc_id):
+    try:
+        fdc_id = int(fdc_id)
+    except (TypeError, ValueError):
+        return _error("Invalid food identifier.")
     row = DoctorFoodFavorite.query.filter_by(doctor_id=current_user.id, fdc_id=fdc_id).first()
     if not row:
         return _error("Saved food not found.", 404)
     db.session.delete(row)
     db.session.commit()
     return jsonify({"success": True})
+
+
+@food_market_bp.route("/custom", methods=["POST"])
+@csrf.exempt
+@login_required
+@user_required
+def add_custom_food():
+    payload = request.get_json(silent=True) or {}
+    name = str(payload.get("name") or "").strip()
+    if not name:
+        return _error("Food name is required.")
+
+    category = str(payload.get("category") or "other").strip().lower()
+    if category not in USDAService.CATEGORY_GROUPS or category == "all":
+        category = "other"
+
+    def to_float(value):
+        try:
+            return float(value) if value not in (None, "") else None
+        except (TypeError, ValueError):
+            return None
+
+    nutrients = {
+        "calories": to_float(payload.get("calories")),
+        "protein_g": to_float(payload.get("protein_g")),
+        "fat_g": to_float(payload.get("fat_g")),
+        "carbohydrates_g": to_float(payload.get("carbohydrates_g")),
+        "fiber_g": to_float(payload.get("fiber_g")),
+        "sugars_g": to_float(payload.get("sugars_g")),
+        "sodium_mg": to_float(payload.get("sodium_mg")),
+    }
+
+    lowest = (
+        db.session.query(db.func.min(DoctorFoodFavorite.fdc_id))
+        .filter(DoctorFoodFavorite.doctor_id == current_user.id)
+        .scalar()
+    )
+    fdc_id = min(lowest or 0, 0) - 1
+
+    food = {
+        "fdc_id": fdc_id,
+        "name": name,
+        "data_type": "custom",
+        "brand_owner": None,
+        "brand_name": None,
+        "food_category": category.title(),
+        "category": category,
+        "serving_size": to_float(payload.get("serving_size")),
+        "serving_size_unit": payload.get("serving_size_unit") or None,
+        "ingredients": payload.get("ingredients") or None,
+        "data_source": "Doctor-added food",
+        "nutrients": nutrients,
+    }
+
+    db.session.add(
+        DoctorFoodFavorite(
+            doctor_id=current_user.id,
+            fdc_id=fdc_id,
+            food_name=name,
+            food_snapshot=food,
+        )
+    )
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Failed to add custom market food")
+        return _error("Could not save this food right now.", 500)
+    return jsonify({"success": True, "food": food})
