@@ -1,7 +1,7 @@
 {% extends "layouts/base.html" %} 
 {% block title %}Edit User{% endblock %} 
 {% block content %}
-<h1 class="h3 mb-3">Edit User: {{ user.username }}</h1>
+<h1 class="h3 mb-3 text-break">Edit User: {{ user.username }}</h1>
 <form method="post">
     {% include "users/_form.html" %}
 </form>

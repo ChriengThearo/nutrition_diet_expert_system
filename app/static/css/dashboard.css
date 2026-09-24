@@ -852,6 +852,67 @@
     }
 }
 
+/* Extra tightening for very narrow phones (320-420px) */
+@media (max-width: 420px) {
+    .dashboard-container {
+        padding: 0 10px;
+    }
+
+    .dashboard-header {
+        padding: 1.1rem;
+        border-radius: 12px;
+    }
+
+    .dashboard-title {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-card .card-header {
+        padding: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .dashboard-card .card-body {
+        padding: 1rem;
+    }
+
+    .stat-card {
+        padding: 1.1rem;
+    }
+
+    .stat-content h3 {
+        font-size: 1.6rem;
+    }
+
+    .action-grid {
+        grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+        gap: 0.4rem;
+    }
+
+    .action-item {
+        padding: 0.6rem 0.4rem;
+    }
+
+    .recipe-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    }
+
+    .score-circle {
+        width: 120px;
+        height: 120px;
+    }
+
+    .water-glass {
+        width: 30px;
+        height: 30px;
+    }
+
+    .water-glasses {
+        gap: 0.35rem;
+    }
+}
+
 /* Animations */
 @keyframes fadeInUp {
     from {

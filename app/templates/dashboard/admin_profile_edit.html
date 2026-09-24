@@ -723,17 +723,70 @@ input[type="file"].form-control {
 
 .preview-note i { color: var(--muted-2); margin-top: 1px; }
 
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 17px;
+  flex: none;
+  cursor: pointer;
+}
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 999;
+}
+
+.app-shell.sidebar-open .sidebar-backdrop { display: block; }
+
 @media (max-width: 1100px) {
   .edit-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 900px) {
   .app-shell { grid-template-columns: 1fr; }
-  .sidebar { display: none; }
+  .mobile-menu-btn { display: inline-flex; }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    width: 270px;
+    max-width: 82vw;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+  }
+  .app-shell.sidebar-open .sidebar { transform: translateX(0); }
+  .collapse-btn { display: none; }
   .topbar { height: auto; padding: 16px; align-items: flex-start; flex-direction: column; }
+  .page-title { display: flex; align-items: center; gap: 12px; width: 100%; }
+  .page-title h1 { font-size: 18px; }
   .top-actions { width: 100%; gap: 12px; flex-wrap: wrap; }
   .search-box { width: 100%; order: 2; }
   .content { padding: 16px; }
+  .panel-body { padding: 16px; }
+  .form-actions { flex-wrap: wrap; }
+  .btn-save,
+  .btn-cancel { flex: 1 1 auto; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .sidebar { width: 240px; }
+  .form-actions { flex-direction: column; }
+  .btn-save,
+  .btn-cancel { width: 100%; }
+  .edit-avatar-preview { width: 88px; height: 88px; font-size: 30px; }
 }
 .brand, .nav, .sidebar-user { position: relative; z-index: 1; }
 .brand-badge {
@@ -753,7 +806,12 @@ input[type="file"].form-control {
 {% set admin_photo_path = (current_user.photo or '')|trim %}
 {% set admin_avatar_url = url_for('main.images', filename=admin_photo_path|replace('images/', '')) if admin_photo_path else '' %}
 <div class="app-shell">
+<<<<<<< HEAD
   <aside class="sidebar">
+=======
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <aside class="sidebar" id="adminSidebar" style="--brand-leaf-bg:url('{{ brand_leaf_bg_url }}');">
+>>>>>>> 0a14f54e6dd95c34f81868d6c9b57739257c7b25
     <div class="brand">
       <div class="brand-badge"><img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert"></div>
       <div>
@@ -799,8 +857,13 @@ input[type="file"].form-control {
   <main class="main">
     <header class="topbar">
       <div class="page-title">
-        <h1>Edit Profile</h1>
-        <p>Update your account information and password</p>
+        <button class="mobile-menu-btn" type="button" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="adminSidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div>
+          <h1>Edit Profile</h1>
+          <p>Update your account information and password</p>
+        </div>
       </div>
       <div class="top-actions">
         <div class="search-box" id="navSearchBox">
@@ -1094,6 +1157,32 @@ if (sidebarCollapseBtn && appShellEl) {
   sidebarCollapseBtn.addEventListener("click", () => {
     const collapsed = appShellEl.classList.toggle("is-collapsed");
     localStorage.setItem("ndAdminSidebarCollapsed", collapsed ? "1" : "0");
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  MOBILE SIDEBAR (off-canvas drawer below 900px)
+// ═══════════════════════════════════════════════════════
+const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+if (mobileMenuBtn && appShellEl) {
+  const openMobileSidebar = () => {
+    appShellEl.classList.add("sidebar-open");
+    document.body.style.overflow = "hidden";
+    mobileMenuBtn.setAttribute("aria-expanded", "true");
+  };
+  const closeMobileSidebar = () => {
+    appShellEl.classList.remove("sidebar-open");
+    document.body.style.overflow = "";
+    mobileMenuBtn.setAttribute("aria-expanded", "false");
+  };
+  mobileMenuBtn.addEventListener("click", openMobileSidebar);
+  sidebarBackdrop?.addEventListener("click", closeMobileSidebar);
+  document.querySelectorAll(".sidebar .nav-link").forEach((link) => {
+    link.addEventListener("click", closeMobileSidebar);
+  });
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) closeMobileSidebar();
   });
 }
 

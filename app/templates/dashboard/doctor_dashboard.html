@@ -40,10 +40,16 @@
 
 <div class="nd-app">
 
+  <div class="nd-sidebar-backdrop" id="ndDoctorSidebarBackdrop"></div>
+
   <!-- ═══════════════════════════════════════════════
        SIDEBAR
   ═══════════════════════════════════════════════ -->
+<<<<<<< HEAD
   <aside class="nd-sidebar">
+=======
+  <aside class="nd-sidebar" id="ndDoctorSidebar" style="--nd-leaf-bg:url('{{ nd_leaf_bg_url }}');">
+>>>>>>> 0a14f54e6dd95c34f81868d6c9b57739257c7b25
     <div class="nd-sidebar-brand">
       <div class="nd-sidebar-logo">
         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Nutrition and Diet">
@@ -156,7 +162,12 @@
     <!-- TOP BAR -->
     <div class="nd-topbar">
       <div class="nd-topbar-left">
-        <h1 id="nd-page-title">Doctor Dashboard</h1>
+        <div class="nd-topbar-title-row">
+          <button class="nd-mobile-menu-btn" type="button" id="ndDoctorSidebarToggle" aria-label="Open menu" aria-expanded="false" aria-controls="ndDoctorSidebar">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 id="nd-page-title">Doctor Dashboard</h1>
+        </div>
         <p>Welcome back, {{ doctor_display_name }} 👋</p>
       </div>
       <div class="nd-topbar-right">
@@ -2271,23 +2282,93 @@ document.getElementById('run-test')?.addEventListener('click', function() {
   const payload = {
     personal: { age: +document.getElementById('test-age').value, gender: document.getElementById('test-gender').value,
                  weight: +document.getElementById('test-weight').value, height: +document.getElementById('test-height').value },
-    health: { blood_sugar: +document.getElementById('test-blood-sugar').value || null },
-    preferences: { diet_type: document.getElementById('test-diet-type').value, allergies,
-                   meals_per_day: +document.getElementById('test-meals-per-day').value || 3 }
+    health: { blood_sugar: +document.getElementById('test-blood-sugar').value || null,
+              dietType: document.getElementById('test-diet-type').value, allergies },
+    preferences: { meals_per_day: +document.getElementById('test-meals-per-day').value || 3 }
   };
   this.disabled = true; this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running…';
   fetch('/dashboard/doctor/test-plan', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
     .then(r => r.json()).then(data => {
       this.disabled = false; this.innerHTML = '<i class="fas fa-play"></i> Run Test';
-      const content = document.getElementById('doctorDietPlanContent');
-      if (data.success && content) {
-        content.innerHTML = `<div class="nd-alert nd-alert-success"><strong>Plan Generated!</strong> ${data.message || ''}</div>
-          <pre style="font-size:0.75rem;background:#f8faf8;border-radius:8px;padding:12px;overflow:auto;">${JSON.stringify(data, null, 2)}</pre>`;
-      } else if (content) {
-        content.innerHTML = `<div class="nd-alert nd-alert-danger">${data.message || 'Failed to generate plan.'}</div>`;
-      }
-    }).catch(() => { this.disabled = false; this.innerHTML = '<i class="fas fa-play"></i> Run Test'; });
+      renderSimulationResults(data);
+    }).catch(() => {
+      this.disabled = false; this.innerHTML = '<i class="fas fa-play"></i> Run Test';
+      renderSimulationResults({ success: false, message: 'Could not reach the server. Please try again.' });
+    });
 });
+
+function simFoodChips(foods, emptyLabel) {
+  if (!foods || !foods.length) return `<div style="font-size:0.78rem;color:#9ca3af;">${emptyLabel}</div>`;
+  return `<div style="display:flex;flex-wrap:wrap;gap:8px;">${foods.map(f => {
+    const src = f.photo ? (String(f.photo).startsWith('http') ? f.photo : '/' + f.photo) : '';
+    const img = src
+      ? `<img src="${src}" alt="${escapeHtml(f.name)}" style="width:26px;height:26px;border-radius:6px;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none';">`
+      : `<span style="width:26px;height:26px;border-radius:6px;background:#e8f5e9;color:#43a047;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-apple-alt" style="font-size:0.65rem;"></i></span>`;
+    return `<span style="display:inline-flex;align-items:center;gap:6px;background:#f8faf8;border:1px solid #dcedc8;border-radius:20px;padding:3px 10px 3px 3px;font-size:0.76rem;">${img}${escapeHtml(f.name)}</span>`;
+  }).join('')}</div>`;
+}
+
+function renderSimulationResults(data) {
+  const tbody = document.getElementById('test-results-body');
+  const noResults = document.getElementById('no-results-message');
+  const content = document.getElementById('doctorDietPlanContent');
+
+  if (!data || !data.success) {
+    if (tbody) tbody.innerHTML = '';
+    noResults?.classList.add('d-none');
+    if (content) content.innerHTML = `<div class="nd-alert nd-alert-danger"><i class="fas fa-exclamation-circle me-1"></i> ${escapeHtml((data && data.message) || 'Failed to generate diet plan.')}</div>`;
+    return;
+  }
+
+  const rule = data.rule;
+  const metrics = data.metrics || {};
+  const avoidFoods = data.avoid_foods || [];
+  const fmtNum = (v, unit) => (v === null || v === undefined) ? '—' : `${v}${unit || ''}`;
+
+  if (tbody) {
+    if (rule) {
+      const priorityColor = rule.priority === 'high' ? 'nd-badge-red' : rule.priority === 'medium' ? 'nd-badge-amber' : 'nd-badge-gray';
+      const actionChips = ['calories', 'protein', 'sugar', 'fat']
+        .filter(k => metrics[k] !== null && metrics[k] !== undefined)
+        .map(k => `<span class="nd-badge nd-badge-gray" style="text-transform:capitalize;">${k} ${metrics[k]}${k === 'calories' ? ' kcal' : ' g'}</span>`)
+        .join(' ');
+      tbody.innerHTML = `<tr>
+        <td>
+          <div style="font-weight:700;">${escapeHtml(rule.name)}</div>
+          ${rule.description ? `<div style="font-size:0.72rem;color:#9ca3af;margin:2px 0 4px;">${escapeHtml(rule.description)}</div>` : ''}
+          <span class="nd-badge ${priorityColor}">${escapeHtml(rule.priority || 'medium')}</span>
+        </td>
+        <td>${actionChips || '—'}</td>
+        <td>${avoidFoods.length ? avoidFoods.map(f => escapeHtml(f.name)).join(', ') : '—'}</td>
+      </tr>`;
+      noResults?.classList.add('d-none');
+    } else {
+      tbody.innerHTML = '';
+      noResults?.classList.remove('d-none');
+    }
+  }
+
+  if (content) {
+    content.innerHTML = `
+      <div class="nd-alert nd-alert-success"><i class="fas fa-check-circle me-1"></i> <strong>Plan Generated!</strong> ${rule ? escapeHtml(rule.name) + ' matched this profile.' : 'No rule matched — showing baseline metrics only.'}</div>
+
+      <div class="nd-form-section-title">Calculated Metrics</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;font-size:0.82rem;margin-bottom:14px;">
+        <div><strong>BMI:</strong> ${fmtNum(metrics.bmi)}</div>
+        <div><strong>Calories:</strong> ${fmtNum(metrics.calories, ' kcal')}</div>
+        <div><strong>Protein:</strong> ${fmtNum(metrics.protein, ' g')}</div>
+        <div><strong>Sugar:</strong> ${fmtNum(metrics.sugar, ' g')}</div>
+        <div><strong>Fat:</strong> ${fmtNum(metrics.fat, ' g')}</div>
+      </div>
+
+      <div class="nd-form-section-title">Recommended Foods</div>
+      <div style="margin-bottom:14px;">${simFoodChips(data.foods, 'No recommended foods for this profile.')}</div>
+
+      <div class="nd-form-section-title">Avoid Foods</div>
+      <div>${simFoodChips(avoidFoods, 'No foods to avoid.')}</div>
+    `;
+  }
+}
 
 document.getElementById('load-sample')?.addEventListener('click', function() {
   document.getElementById('test-age').value = '28';
@@ -3188,6 +3269,38 @@ if (ndThemeToggle) {
   ndThemeToggle.addEventListener('click', () => {
     const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     applyNdTheme(current === 'dark' ? 'light' : 'dark');
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  MOBILE SIDEBAR (off-canvas drawer below 992px)
+// ═══════════════════════════════════════════════════════
+const ndAppShellEl = document.querySelector('.nd-app');
+const ndSidebarToggleBtn = document.getElementById('ndDoctorSidebarToggle');
+const ndSidebarBackdropEl = document.getElementById('ndDoctorSidebarBackdrop');
+function openNdMobileSidebar() {
+  if (!ndAppShellEl) return;
+  ndAppShellEl.classList.add('sidebar-open');
+  document.body.style.overflow = 'hidden';
+  ndSidebarToggleBtn?.setAttribute('aria-expanded', 'true');
+}
+function closeNdMobileSidebar() {
+  if (!ndAppShellEl) return;
+  ndAppShellEl.classList.remove('sidebar-open');
+  document.body.style.overflow = '';
+  ndSidebarToggleBtn?.setAttribute('aria-expanded', 'false');
+}
+if (ndSidebarToggleBtn && ndAppShellEl) {
+  ndSidebarToggleBtn.addEventListener('click', () => {
+    if (ndAppShellEl.classList.contains('sidebar-open')) closeNdMobileSidebar();
+    else openNdMobileSidebar();
+  });
+  ndSidebarBackdropEl?.addEventListener('click', closeNdMobileSidebar);
+  document.querySelectorAll('.nd-sidebar .nd-nav-link:not(.nd-nav-group-toggle), .nd-sidebar .nd-nav-sublink').forEach((link) => {
+    link.addEventListener('click', closeNdMobileSidebar);
+  });
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 992) closeNdMobileSidebar();
   });
 }
 

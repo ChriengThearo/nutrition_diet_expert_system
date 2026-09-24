@@ -42,10 +42,26 @@
 }
 
 /* ── Layout ─────────────────────────────────────── */
-.nd-app { display:flex; min-height:100vh; background:var(--nd-bg); font-family:'Kantumruy Pro','Noto Sans Khmer','Inter','Segoe UI',sans-serif; color:var(--nd-ink); }
+/* Guards against any child pushing the document wider than the viewport —
+   that's what makes mobile browsers shrink the whole page to fit, so all
+   the text reads tiny. */
+html, body { max-width:100%; overflow-x:hidden; }
+.nd-app { display:flex; min-height:100vh; max-width:100%; overflow-x:hidden; background:var(--nd-bg); font-family:'Kantumruy Pro','Noto Sans Khmer','Inter','Segoe UI',sans-serif; color:var(--nd-ink); position:relative; }
 .nd-sidebar { width:252px; min-width:252px; background:var(--nd-sidebar-bg); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:100; border-right:1px solid var(--nd-border); box-shadow:2px 0 8px rgba(0,0,0,0.04); }
 .nd-sidebar-brand, .nd-sidebar > .nd-nav, .nd-sidebar-footer { position:relative; z-index:1; }
-.nd-main { margin-left:252px; flex:1; display:flex; flex-direction:column; min-height:100vh; }
+.nd-main { margin-left:252px; flex:1; display:flex; flex-direction:column; min-height:100vh; min-width:0; }
+
+/* ── Mobile sidebar drawer (button + backdrop; hidden above 992px) ── */
+.nd-mobile-menu-btn {
+  display:none; align-items:center; justify-content:center;
+  width:42px; height:42px; min-width:42px;
+  border:1px solid var(--nd-border); border-radius:10px;
+  background:#fff; color:var(--nd-ink); font-size:17px;
+  flex:none; cursor:pointer;
+}
+.nd-sidebar-backdrop { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.45); z-index:90; }
+.nd-app.sidebar-open .nd-sidebar-backdrop { display:block; }
+.nd-topbar-title-row { display:flex; align-items:center; gap:12px; min-width:0; }
 
 /* ── Sidebar ─────────────────────────────────────── */
 .nd-sidebar-brand { height:78px; padding:0 18px; display:flex; align-items:center; gap:11px; border-bottom:1px solid var(--nd-border); flex-shrink:0; }
@@ -326,8 +342,42 @@
 
 /* ── Responsive ──────────────────────────────────── */
 @media (max-width:1200px) { .nd-panels { grid-template-columns:1fr 1fr; } }
-@media (max-width:992px)  { .nd-sidebar { transform:translateX(-252px); } .nd-main { margin-left:0; } .nd-stats-row { grid-template-columns:repeat(3,1fr); } }
+@media (max-width:992px)  {
+  .nd-sidebar { transform:translateX(-252px); transition:transform 0.25s ease; box-shadow:0 20px 50px rgba(15,23,42,0.28); }
+  .nd-main { margin-left:0; }
+  .nd-mobile-menu-btn { display:inline-flex; }
+  .nd-app.sidebar-open .nd-sidebar { transform:translateX(0); }
+  .nd-stats-row { grid-template-columns:repeat(3,1fr); }
+}
 @media (max-width:768px)  { .nd-stats-row { grid-template-columns:1fr 1fr; } .nd-panels { grid-template-columns:1fr; } }
+
+/* ── Extra tightening for phones (320–430px) ─────── */
+@media (max-width:480px) {
+  .nd-content { padding:14px; }
+  .nd-topbar { padding:12px 14px; gap:10px; }
+  .nd-topbar-left h1 { font-size:18px; }
+  .nd-topbar-date { display:none; }
+  .nd-search-bar { flex-wrap:wrap; }
+  .nd-search-bar > .nd-search-input { flex:1 1 100%; }
+  .nd-rule-card-header { flex-wrap:wrap; }
+  .nd-rule-card-header > div:first-child { min-width:0; flex:1 1 100%; }
+  .nd-rule-actions { flex-wrap:wrap; }
+  .nd-market-macro-summary { flex-wrap:wrap; }
+  .nd-table th, .nd-table td { padding:7px 6px; font-size:0.72rem; }
+  .dashboard-stats-grid { grid-template-columns:1fr; }
+  .quick-actions-grid { grid-template-columns:1fr; }
+  .modal-dialog { margin:0.5rem; }
+  .modal-dialog.modal-lg { max-width:calc(100% - 1rem); }
+  /* JS-rendered inline 3-column detail grids (patient profile / food details) are too
+     cramped on very small phones — collapse to a single column for readability. */
+  [style*="grid-template-columns:1fr 1fr 1fr"] { grid-template-columns:1fr !important; }
+}
+
+/* ── Rule card / builder overflow safety (all phone widths) ── */
+.nd-search-bar { flex-wrap:wrap; }
+.nd-rule-card-header { min-width:0; }
+.nd-rule-badges, .nd-rule-detail-chips { flex-wrap:wrap; }
+.nd-rule-name, .nd-rule-desc { overflow-wrap:break-word; word-break:break-word; }
 
 
 /* ========================================
@@ -1452,6 +1502,7 @@
 :root[data-theme="dark"] .nd-topbar-icon { background-color: var(--nd-card); border-color: var(--nd-border); }
 :root[data-theme="dark"] .nd-topbar-search input::placeholder { color: #6f7b96; }
 :root[data-theme="dark"] .nd-notif-panel { background-color: var(--nd-card); border-color: var(--nd-border); }
+:root[data-theme="dark"] .nd-mobile-menu-btn { background-color: var(--nd-card); border-color: var(--nd-border); color: var(--nd-ink); }
 
 /* Stat cards / panels (legacy nd- grid) */
 :root[data-theme="dark"] .nd-stat,

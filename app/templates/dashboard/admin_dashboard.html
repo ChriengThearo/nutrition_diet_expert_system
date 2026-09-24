@@ -1240,6 +1240,32 @@ a.stat-card:hover .stat-icon {
 .dot-new { background: var(--orange); }
 .dot-risk { background: var(--red); }
 
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 17px;
+  flex: none;
+  cursor: pointer;
+}
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 999;
+}
+
+.app-shell.sidebar-open .sidebar-backdrop { display: block; }
+
 @media (max-width: 1200px) {
   .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .bottom-grid { grid-template-columns: 1fr; }
@@ -1248,23 +1274,52 @@ a.stat-card:hover .stat-icon {
 
 @media (max-width: 900px) {
   .app-shell { grid-template-columns: 1fr; }
-  .sidebar { display: none; }
+  .mobile-menu-btn { display: inline-flex; }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    width: 270px;
+    max-width: 82vw;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+  }
+  .app-shell.sidebar-open .sidebar { transform: translateX(0); }
+  .collapse-btn { display: none; }
   .topbar {
     height: auto;
-    padding: 16px;
+    padding: 14px 16px;
     align-items: flex-start;
-    flex-direction: column;
+    gap: 12px;
+    flex-wrap: wrap;
   }
+  .page-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .page-title h1 {
+    font-size: 18px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .page-title p { display: none; }
   .top-actions {
     width: 100%;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
   }
   .search-box {
     width: 100%;
     order: 2;
   }
-  .content { padding: 16px; }
+  .date-pill { display: none; }
+  .content { padding: 14px; }
 }
 
 @media (max-width: 640px) {
@@ -1272,6 +1327,14 @@ a.stat-card:hover .stat-icon {
   .patient-body { grid-template-columns: 1fr; }
   .patient-legend { gap: 12px; }
   .chart { height: 230px; }
+  .top-actions { justify-content: space-between; }
+  .chart-legend { height: auto; flex-wrap: wrap; row-gap: 8px; }
+  .panel-head { height: auto; min-height: 54px; flex-wrap: wrap; padding: 10px 16px; row-gap: 6px; }
+}
+
+@media (max-width: 420px) {
+  .sidebar { width: 240px; }
+  .stat-card { padding: 14px; }
 }
 .brand, .nav, .sidebar-user { position: relative; z-index: 1; }
 .brand-badge {
@@ -1287,7 +1350,12 @@ a.stat-card:hover .stat-icon {
 </head>
 <body>
 <div class="app-shell">
+<<<<<<< HEAD
   <aside class="sidebar">
+=======
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <aside class="sidebar" id="adminSidebar" style="--brand-leaf-bg:url('{{ brand_leaf_bg_url }}');">
+>>>>>>> 0a14f54e6dd95c34f81868d6c9b57739257c7b25
     <div class="brand">
       <div class="brand-badge"><img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Nutrition and Diet"></div>
       <div>
@@ -1333,8 +1401,13 @@ a.stat-card:hover .stat-icon {
   <main class="main">
     <header class="topbar">
       <div class="page-title">
-        <h1>Admin Dashboard</h1>
-        <p>Overview of your clinical nutrition platform</p>
+        <button class="mobile-menu-btn" type="button" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="adminSidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+        <div>
+          <h1>Admin Dashboard</h1>
+          <p>Overview of your clinical nutrition platform</p>
+        </div>
       </div>
       <div class="top-actions">
         <div class="search-box" id="navSearchBox">
@@ -1590,6 +1663,32 @@ if (sidebarCollapseBtn && appShellEl) {
   sidebarCollapseBtn.addEventListener("click", () => {
     const collapsed = appShellEl.classList.toggle("is-collapsed");
     localStorage.setItem("ndAdminSidebarCollapsed", collapsed ? "1" : "0");
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  MOBILE SIDEBAR (off-canvas drawer below 900px)
+// ═══════════════════════════════════════════════════════
+const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+if (mobileMenuBtn && appShellEl) {
+  const openMobileSidebar = () => {
+    appShellEl.classList.add("sidebar-open");
+    document.body.style.overflow = "hidden";
+    mobileMenuBtn.setAttribute("aria-expanded", "true");
+  };
+  const closeMobileSidebar = () => {
+    appShellEl.classList.remove("sidebar-open");
+    document.body.style.overflow = "";
+    mobileMenuBtn.setAttribute("aria-expanded", "false");
+  };
+  mobileMenuBtn.addEventListener("click", openMobileSidebar);
+  sidebarBackdrop?.addEventListener("click", closeMobileSidebar);
+  document.querySelectorAll(".sidebar .nav-link").forEach((link) => {
+    link.addEventListener("click", closeMobileSidebar);
+  });
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 900) closeMobileSidebar();
   });
 }
 
