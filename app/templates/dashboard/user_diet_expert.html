@@ -685,6 +685,73 @@
         box-shadow: 0 8px 20px rgba(47, 158, 122, 0.3);
     }
 
+    #resultsModal .modal-footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 14px 20px;
+    }
+
+    #resultsModal .modal-footer .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 42px;
+        margin: 0;
+        padding: 0 18px;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    #resultsModal .modal-footer .btn-outline-primary {
+        background: transparent;
+        border: 1px solid var(--hp-brand);
+        color: var(--hp-brand-strong);
+    }
+
+    #resultsModal .modal-footer .btn-outline-primary:hover {
+        background: var(--hp-brand-soft);
+        border-color: var(--hp-brand);
+    }
+
+    #resultsModal .modal-footer .btn-outline-primary:disabled {
+        opacity: 0.5;
+    }
+
+    #resultsModal .modal-footer #exportPdfBtn {
+        background: linear-gradient(120deg, var(--hp-brand), var(--hp-brand-strong));
+        border: none;
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(46, 184, 92, 0.28);
+        transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+
+    #resultsModal .modal-footer #exportPdfBtn:hover {
+        box-shadow: 0 6px 16px rgba(46, 184, 92, 0.38);
+        transform: translateY(-1px);
+    }
+
+    #resultsModal .modal-footer #exportPdfBtn:disabled {
+        box-shadow: none;
+        transform: none;
+        opacity: 0.75;
+    }
+
+    #resultsModal .modal-footer .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--hp-line);
+        color: var(--hp-ink);
+    }
+
+    #resultsModal .modal-footer .btn-secondary:hover {
+        background: var(--hp-line);
+    }
+
     .table td {
         color: var(--hp-ink-soft);
     }
@@ -1271,7 +1338,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script>
         const currentUserDisplayName = {{ (current_user.full_name or current_user.username) | tojson }};
-        const appLogoUrl = {{ url_for('static', filename='images/logo.png') | tojson }};
+        const appLogoUrl = {{ url_for('static', filename='images/logo-mark.png') | tojson }};
         let currentSection = 1;
         const totalSections = 4;
         let latestPlanResult = null;
@@ -2326,7 +2393,11 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
                     try {
-                        resolve(canvas.toDataURL('image/png'));
+                        resolve({
+                            dataUrl: canvas.toDataURL('image/png'),
+                            width: img.naturalWidth,
+                            height: img.naturalHeight,
+                        });
                     } catch (e) {
                         reject(e);
                     }
@@ -2350,8 +2421,8 @@
 
             loadImageAsDataUrl(appLogoUrl)
                 .catch(() => null)
-                .then(logoDataUrl => {
-                    buildMealPlanPdf(logoDataUrl);
+                .then(logo => {
+                    buildMealPlanPdf(logo);
                 })
                 .finally(() => {
                     if (exportBtn) {
@@ -2361,11 +2432,12 @@
                 });
         }
 
-        function buildMealPlanPdf(logoDataUrl) {
+        function buildMealPlanPdf(logo) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ unit: 'mm', format: 'a4' });
             const pageWidth = doc.internal.pageSize.getWidth();
             const margin = 14;
+            const headerHeight = 32;
             const brandGreen = [46, 125, 50];
             const brandGreenLight = [232, 245, 233];
             const inkColor = [30, 41, 51];
@@ -2388,11 +2460,16 @@
             const num = value => (value === null || value === undefined || value === '') ? null : Number(value);
 
             doc.setFillColor(brandGreen[0], brandGreen[1], brandGreen[2]);
-            doc.rect(0, 0, pageWidth, 32, 'F');
+            doc.rect(0, 0, pageWidth, headerHeight, 'F');
 
-            if (logoDataUrl) {
+            let textX = margin;
+            if (logo && logo.dataUrl && logo.width && logo.height) {
                 try {
-                    doc.addImage(logoDataUrl, 'PNG', margin, 5, 22, 22);
+                    const logoHeight = 20;
+                    const logoWidth = logoHeight * (logo.width / logo.height);
+                    const logoY = (headerHeight - logoHeight) / 2;
+                    doc.addImage(logo.dataUrl, 'PNG', margin, logoY, logoWidth, logoHeight);
+                    textX = margin + logoWidth + 6;
                 } catch (e) {
                     console.error('Could not embed logo in PDF:', e);
                 }
@@ -2401,10 +2478,10 @@
             doc.setTextColor(255, 255, 255);
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(16);
-            doc.text('Nutrition and Diet', margin + 26, 14);
+            doc.text('Nutrition and Diet', textX, 15);
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(9);
-            doc.text('Expert System — Personalized Meal Plan', margin + 26, 20);
+            doc.text('Expert System — Personalized Meal Plan', textX, 21);
 
             const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             doc.setFontSize(9);
