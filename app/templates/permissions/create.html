@@ -164,17 +164,17 @@ textarea { font: inherit; }
 .is-collapsed .sidebar-user { grid-template-columns: 40px; justify-content: center; }
 
 .brand {
-  height: 88px;
+  min-height: 88px;
   padding: 20px 15px 15px 24px;
   display: grid;
-  grid-template-columns: 95px minmax(0, 1fr) 28px;
+  grid-template-columns: 52px minmax(0, 1fr) 28px;
   align-items: center;
   gap: 10px;
 }
 
-.brand-mark { width: 36px; height: 44px; object-fit: contain; }
-.brand-name { margin: 0; color: var(--ink); font-size: 20px; font-weight: 900; line-height: 1.05; }
-.brand-sub { margin: 4px 0 0; color: var(--text); font-size: 12px; font-weight: 500; }
+.brand-mark { width: 52px; height: auto; object-fit: contain; }
+.brand-name { margin: 0; color: var(--ink); font-size: 13px; font-weight: 900; line-height: 1.2; }
+.brand-sub { margin: 4px 0 0; color: var(--text); font-size: 11px; font-weight: 500; }
 
 .collapse-btn {
   width: 28px;
@@ -708,10 +708,10 @@ textarea.form-control {
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
   <aside class="sidebar" id="permSidebar" style="--brand-leaf-bg:url('{{ brand_leaf_bg_url }}');">
     <div class="brand">
-      <div class="brand-badge"><img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert"></div>
+      <div class="brand-badge"><img class="brand-mark" src="{{ url_for('static', filename='images/logo.png') }}" alt="Nutrition and Diet"></div>
       <div>
-        <p class="brand-name">Diet Expert</p>
-        <p class="brand-sub">Clinical Nutrition Suite</p>
+        <p class="brand-name">Nutrition and Diet</p>
+        <p class="brand-sub">Expert System</p>
       </div>
       <button class="collapse-btn" type="button" id="sidebarCollapseBtn" aria-label="Collapse sidebar"><i class="fas fa-chevron-left"></i></button>
     </div>

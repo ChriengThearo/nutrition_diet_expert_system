@@ -191,10 +191,10 @@ select { font: inherit; }
 }
 
 .brand {
-  height: 88px;
+  min-height: 88px;
   padding: 18px 10px 14px 16px;
   display: grid;
-  grid-template-columns: 95px minmax(0, 1fr) 28px;
+  grid-template-columns: 52px minmax(0, 1fr) 28px;
   align-items: center;
   gap: 8px;
 }
@@ -211,15 +211,12 @@ select { font: inherit; }
   font-size: 13px;
   font-weight: 900;
   line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .brand-sub {
   margin: 4px 0 0;
   color: var(--text);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
 }
 
@@ -1338,7 +1335,7 @@ a.stat-card:hover .stat-icon {
 }
 .brand, .nav, .sidebar-user { position: relative; z-index: 1; }
 .brand-badge {
-  width: 95px;
+  width: 52px;
   height: auto;
   display: flex;
   align-items: center;
