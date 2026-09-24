@@ -1254,6 +1254,9 @@
                         <button type="button" class="btn btn-outline-primary" id="refreshPlanBtn">
                             <i class="fas fa-rotate-right me-2"></i>ប្ដូរក្រុមអាហារ
                         </button>
+                        <button type="button" class="btn btn-success" id="exportPdfBtn">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">បិទ</button>
                     </div>
                 </div>
@@ -1264,7 +1267,11 @@
 
     {% block extra_js %}
     <script id="lastFormDataJson" type="application/json">{{ last_form_data | tojson }}</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script>
+        const currentUserDisplayName = {{ (current_user.full_name or current_user.username) | tojson }};
+        const appLogoUrl = {{ url_for('static', filename='images/logo.png') | tojson }};
         let currentSection = 1;
         const totalSections = 4;
         let latestPlanResult = null;
@@ -1500,6 +1507,7 @@
             setupAnalystGate();
             prefillFromLastPlan();
             attachRefreshPlanHandler();
+            attachExportPdfHandler();
         });
 
         function setupAnalystGate() {
@@ -2293,6 +2301,247 @@
                 persistActiveFoodGroup();
             });
             updateRefreshPlanButton();
+        }
+
+        function attachExportPdfHandler() {
+            const exportBtn = document.getElementById('exportPdfBtn');
+            if (!exportBtn || exportBtn.dataset.bound === '1') {
+                return;
+            }
+
+            exportBtn.dataset.bound = '1';
+            exportBtn.addEventListener('click', function () {
+                exportPlanToPdf();
+            });
+        }
+
+        function loadImageAsDataUrl(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    try {
+                        resolve(canvas.toDataURL('image/png'));
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+                img.onerror = reject;
+                img.src = url;
+            });
+        }
+
+        function exportPlanToPdf() {
+            if (!latestPlanResult || !window.jspdf) {
+                return;
+            }
+
+            const exportBtn = document.getElementById('exportPdfBtn');
+            const originalLabel = exportBtn ? exportBtn.innerHTML : '';
+            if (exportBtn) {
+                exportBtn.disabled = true;
+                exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Preparing…';
+            }
+
+            loadImageAsDataUrl(appLogoUrl)
+                .catch(() => null)
+                .then(logoDataUrl => {
+                    buildMealPlanPdf(logoDataUrl);
+                })
+                .finally(() => {
+                    if (exportBtn) {
+                        exportBtn.disabled = false;
+                        exportBtn.innerHTML = originalLabel;
+                    }
+                });
+        }
+
+        function buildMealPlanPdf(logoDataUrl) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 14;
+            const brandGreen = [46, 125, 50];
+            const brandGreenLight = [232, 245, 233];
+            const inkColor = [30, 41, 51];
+            const mutedColor = [110, 122, 133];
+
+            const data = latestPlanResult;
+            const profile = data.profile || {};
+            const metrics = data.metrics || {};
+            const activeGroup = resultFoodGroups[activeResultFoodGroupIndex] || { foods: [], avoid_foods: [] };
+            const foods = Array.isArray(activeGroup.foods) ? activeGroup.foods : [];
+            const avoidFoods = Array.isArray(activeGroup.avoid_foods) ? activeGroup.avoid_foods : [];
+            const foodNames = foods.map(item => item.name || item).filter(Boolean);
+            const avoidFoodNames = avoidFoods.map(item => item.name || item).filter(Boolean);
+            const mealsCount = Number(profile.meals_per_day)
+                || Number(document.querySelector('input[name="mealsPerDay"]:checked')?.value)
+                || 3;
+            const meals = splitMeals(foodNames, mealsCount);
+
+            const fmt = (value, unit) => (value === null || value === undefined || value === '') ? 'N/A' : `${value}${unit || ''}`;
+            const num = value => (value === null || value === undefined || value === '') ? null : Number(value);
+
+            doc.setFillColor(brandGreen[0], brandGreen[1], brandGreen[2]);
+            doc.rect(0, 0, pageWidth, 32, 'F');
+
+            if (logoDataUrl) {
+                try {
+                    doc.addImage(logoDataUrl, 'PNG', margin, 5, 22, 22);
+                } catch (e) {
+                    console.error('Could not embed logo in PDF:', e);
+                }
+            }
+
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text('Nutrition and Diet', margin + 26, 14);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.text('Expert System — Personalized Meal Plan', margin + 26, 20);
+
+            const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            doc.setFontSize(9);
+            doc.text(`Prepared for: ${currentUserDisplayName}`, pageWidth - margin, 13, { align: 'right' });
+            doc.text(`Generated: ${generatedDate}`, pageWidth - margin, 19, { align: 'right' });
+
+            let y = 40;
+
+            function sectionTitle(title) {
+                if (y > 265) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.setFillColor(brandGreenLight[0], brandGreenLight[1], brandGreenLight[2]);
+                doc.rect(margin, y - 5, pageWidth - margin * 2, 8, 'F');
+                doc.setTextColor(brandGreen[0], brandGreen[1], brandGreen[2]);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(11);
+                doc.text(title, margin + 2, y);
+                y += 8;
+            }
+
+            sectionTitle('Your Profile Indicators');
+            doc.autoTable({
+                startY: y,
+                margin: { left: margin, right: margin },
+                theme: 'plain',
+                styles: { fontSize: 9, textColor: inkColor, cellPadding: 1.5 },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 32 } },
+                body: [
+                    ['Age', fmt(profile.age, ' yrs')],
+                    ['Gender', profile.gender ? titleCase(profile.gender) : 'Not specified'],
+                    ['Weight', fmt(profile.weight, ' kg')],
+                    ['Height', fmt(profile.height, ' cm')],
+                ],
+            });
+            y = doc.lastAutoTable.finalY + 6;
+
+            sectionTitle('Key Nutrition Targets');
+            doc.autoTable({
+                startY: y,
+                margin: { left: margin, right: margin },
+                theme: 'plain',
+                styles: { fontSize: 9, textColor: inkColor, cellPadding: 1.5 },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 32 } },
+                body: [
+                    ['BMI', fmt(num(metrics.bmi))],
+                    ['Calories', fmt(num(metrics.calories), ' kcal/day')],
+                    ['Protein', fmt(num(metrics.protein), ' g')],
+                    ['Sugar', fmt(num(metrics.sugar), ' g')],
+                    ['Fat', fmt(num(metrics.fat), ' g')],
+                ],
+            });
+            y = doc.lastAutoTable.finalY + 6;
+
+            sectionTitle('Health & Preferences');
+            const allergiesText = profile.allergies && profile.allergies.length
+                ? profile.allergies.map(titleCase).join(', ')
+                : 'None';
+            doc.autoTable({
+                startY: y,
+                margin: { left: margin, right: margin },
+                theme: 'plain',
+                styles: { fontSize: 9, textColor: inkColor, cellPadding: 1.5 },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40 } },
+                body: [
+                    ['Diet type', profile.diet_type ? titleCase(profile.diet_type) : 'Not specified'],
+                    ['Allergies', allergiesText],
+                    ['Blood sugar', (profile.blood_sugar !== undefined && profile.blood_sugar !== null && profile.blood_sugar !== '')
+                        ? `${profile.blood_sugar} mg/dL` : 'Not provided'],
+                    ['Meals / day', String(mealsCount)],
+                ],
+            });
+            y = doc.lastAutoTable.finalY + 6;
+
+            sectionTitle('Daily Meal Plan');
+            const mealRows = [];
+            [['breakfast', 'Breakfast'], ['lunch', 'Lunch'], ['dinner', 'Dinner'], ['late_dinner', 'Late Dinner']].forEach(([key, label]) => {
+                const items = meals[key] || [];
+                if (items.length) {
+                    mealRows.push([label, items.join(', ')]);
+                }
+            });
+            doc.autoTable({
+                startY: y,
+                margin: { left: margin, right: margin },
+                head: [['Meal', 'Foods']],
+                body: mealRows.length ? mealRows : [['—', 'No items available']],
+                theme: 'striped',
+                headStyles: { fillColor: brandGreen, textColor: 255, fontSize: 9 },
+                styles: { fontSize: 9, textColor: inkColor, cellPadding: 2 },
+                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 28 } },
+            });
+            y = doc.lastAutoTable.finalY + 6;
+
+            sectionTitle('Foods to Avoid');
+            doc.setTextColor(inkColor[0], inkColor[1], inkColor[2]);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            const avoidText = avoidFoodNames.length ? avoidFoodNames.join(', ') : 'None';
+            const avoidLines = doc.splitTextToSize(avoidText, pageWidth - margin * 2 - 4);
+            doc.text(avoidLines, margin + 2, y);
+            y += avoidLines.length * 5 + 6;
+
+            sectionTitle('Important Notes');
+            const notes = [
+                'This plan is a general recommendation.',
+                'Adjust portions according to your hunger and tolerance.',
+                'Consult a healthcare professional before making major dietary changes.',
+                'Track your progress and refine the plan as needed.',
+            ];
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.setTextColor(inkColor[0], inkColor[1], inkColor[2]);
+            notes.forEach(note => {
+                const lines = doc.splitTextToSize(`• ${note}`, pageWidth - margin * 2 - 4);
+                doc.text(lines, margin + 2, y);
+                y += lines.length * 5;
+            });
+
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                const pageHeight = doc.internal.pageSize.getHeight();
+                doc.setDrawColor(brandGreen[0], brandGreen[1], brandGreen[2]);
+                doc.setLineWidth(0.5);
+                doc.line(margin, pageHeight - 14, pageWidth - margin, pageHeight - 14);
+                doc.setFontSize(8);
+                doc.setTextColor(mutedColor[0], mutedColor[1], mutedColor[2]);
+                doc.text('Generated by Nutrition and Diet — Expert System', margin, pageHeight - 9);
+                doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, pageHeight - 9, { align: 'right' });
+            }
+
+            const fileSafeName = String(currentUserDisplayName || 'meal-plan')
+                .replace(/[^a-z0-9]+/gi, '-')
+                .replace(/^-+|-+$/g, '') || 'meal-plan';
+            doc.save(`meal-plan-${fileSafeName}-${new Date().toISOString().slice(0, 10)}.pdf`);
         }
 
         function renderResultsContent(data, shouldShowModal) {
