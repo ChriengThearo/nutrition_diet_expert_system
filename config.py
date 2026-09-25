@@ -11,6 +11,10 @@ class Config:
     SKIP_DB_CREATE_ALL = os.getenv("SKIP_DB_CREATE_ALL", "0") == "1"
     USDA_SCANNER_WARMUP = os.getenv("USDA_SCANNER_WARMUP", "1") == "1"
 
+    # Google OAuth (Sign in with Google)
+    GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+
     # Database configuration from .env
     DATABASE_URL = os.getenv("DATABASE_URL")
     DB_HOST = os.getenv("DB_HOST", "localhost")

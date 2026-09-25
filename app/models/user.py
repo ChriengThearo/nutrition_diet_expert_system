@@ -13,10 +13,12 @@ class UserTable(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     full_name = db.Column(db.String(120), nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=True)
     photo = db.Column(db.String(255))
     specialty = db.Column(db.String(120))
     license_number = db.Column(db.String(60))
+    google_id = db.Column(db.String(255), unique=True, nullable=True)
+    auth_provider = db.Column(db.String(20), nullable=False, default="local")
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
@@ -35,6 +37,8 @@ class UserTable(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password: str) -> bool:
+        if not self.password_hash:
+            return False
         return check_password_hash(self.password_hash, password)
 
     def has_role(self, role_name: str) -> bool:

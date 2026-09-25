@@ -1,12 +1,21 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required
 from app.models.user import UserTable
 from app.models.role import RoleTable
 from app.services.user_service import UserService
 from app.services.rbac_service import sync_rbac
-from extensions import db
+from extensions import db, oauth
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+
+
+def _redirect_after_login(user: UserTable):
+    if user.has_role("admin"):
+        return redirect(url_for("dashboard.admin_dashboard"))
+    elif user.has_role("doctor"):
+        return redirect(url_for("dashboard.doctor_dashboard"))
+    else:
+        return redirect(url_for("dashboard.user_dashboard"))
 
 
 @auth_bp.route("/loginn")
@@ -140,6 +149,59 @@ def register():
             return redirect(url_for("dashboard.user_dashboard"))
 
     return render_template("auth/register.html")
+
+
+@auth_bp.route("/google/login")
+def google_login():
+    if not oauth.create_client("google"):
+        flash("Google sign-in is not configured.", "danger")
+        return redirect(url_for("auth.login"))
+    redirect_uri = url_for("auth.google_callback", _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+
+@auth_bp.route("/google/callback")
+def google_callback():
+    if not oauth.create_client("google"):
+        flash("Google sign-in is not configured.", "danger")
+        return redirect(url_for("auth.login"))
+
+    try:
+        token = oauth.google.authorize_access_token()
+        userinfo = token.get("userinfo") or oauth.google.userinfo(token=token)
+    except Exception:
+        current_app.logger.exception("Google OAuth callback failed")
+        flash("Google sign-in failed. Please try again.", "danger")
+        return redirect(url_for("auth.login"))
+
+    email = (userinfo.get("email") or "").strip().lower()
+    google_id = userinfo.get("sub")
+
+    if not email or not userinfo.get("email_verified"):
+        flash("Your Google account must have a verified email to sign in.", "danger")
+        return redirect(url_for("auth.login"))
+
+    user = UserTable.query.filter_by(email=email).first()
+    if user:
+        if not user.google_id:
+            user.google_id = google_id
+            db.session.commit()
+    else:
+        user = UserService.create_google_user(
+            email=email,
+            full_name=userinfo.get("name") or email.split("@")[0],
+            google_id=google_id,
+            photo=userinfo.get("picture"),
+        )
+
+    if not user.is_active:
+        flash("Your account is inactive. Please contact administrator.", "warning")
+        return redirect(url_for("auth.login"))
+
+    login_user(user)
+    sync_rbac()
+    flash("Logged in with Google successfully.", "success")
+    return _redirect_after_login(user)
 
 
 @auth_bp.route("/logout")
