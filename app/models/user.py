@@ -1,8 +1,11 @@
-from datetime import datetime
+import secrets
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from extensions import db
 from flask_login import UserMixin
 from app.models.associations import tbl_user_roles, tbl_user_goals
+
+VERIFICATION_CODE_TTL_MINUTES = 15
 
 
 class UserTable(UserMixin, db.Model):
@@ -19,6 +22,9 @@ class UserTable(UserMixin, db.Model):
     license_number = db.Column(db.String(60))
     google_id = db.Column(db.String(255), unique=True, nullable=True)
     auth_provider = db.Column(db.String(20), nullable=False, default="local")
+    is_email_verified = db.Column(db.Boolean, default=False, nullable=False)
+    email_verification_code_hash = db.Column(db.String(255), nullable=True)
+    email_verification_expires_at = db.Column(db.DateTime, nullable=True)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     updated_at = db.Column(
@@ -40,6 +46,26 @@ class UserTable(UserMixin, db.Model):
         if not self.password_hash:
             return False
         return check_password_hash(self.password_hash, password)
+
+    def generate_verification_code(self) -> str:
+        code = f"{secrets.randbelow(1_000_000):06d}"
+        self.email_verification_code_hash = generate_password_hash(code)
+        self.email_verification_expires_at = datetime.utcnow() + timedelta(
+            minutes=VERIFICATION_CODE_TTL_MINUTES
+        )
+        return code
+
+    def check_verification_code(self, code: str) -> bool:
+        if not self.email_verification_code_hash or not self.email_verification_expires_at:
+            return False
+        if datetime.utcnow() > self.email_verification_expires_at:
+            return False
+        return check_password_hash(self.email_verification_code_hash, code)
+
+    def mark_email_verified(self) -> None:
+        self.is_email_verified = True
+        self.email_verification_code_hash = None
+        self.email_verification_expires_at = None
 
     def has_role(self, role_name: str) -> bool:
         target = (role_name or "").strip().lower()

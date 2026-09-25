@@ -79,6 +79,7 @@ class UserService:
             photo=(photo or "").strip() or DEFAULT_AVATAR_PATH,
             google_id=google_id,
             auth_provider="google",
+            is_email_verified=True,
         )
 
         db.session.add(user)

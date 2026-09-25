@@ -1,0 +1,160 @@
+{% extends "layouts/base.html" %}
+{% block title %}Verify Email | Diet Expert{% endblock %}
+
+{% block extra_css %}
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  :root {
+    --verify-primary: #2a8f6f;
+    --verify-accent: #ef6f51;
+    --verify-accent-strong: #d95435;
+    --verify-ink: #132630;
+    --verify-muted: #5f7281;
+    --verify-border: #d7e2e8;
+  }
+
+  body {
+    font-family: "Kantumruy Pro", "DM Sans", sans-serif;
+    background:
+      radial-gradient(circle at 9% 16%, #ffd7c8 0%, transparent 34%),
+      radial-gradient(circle at 94% 90%, #c7f4e8 0%, transparent 34%),
+      linear-gradient(140deg, #fff9f3, #edf9f2);
+    min-height: 100vh;
+  }
+
+  .verify-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+    min-height: 80vh;
+  }
+
+  .verify-card {
+    width: 100%;
+    max-width: 440px;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(17, 24, 39, 0.16);
+    padding: 2.4rem 2.2rem;
+    text-align: center;
+  }
+
+  .verify-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #d6f5ec;
+    color: var(--verify-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 1rem;
+  }
+
+  .verify-card h1 {
+    font-family: "Kantumruy Pro", "Sora", sans-serif;
+    font-size: 1.5rem;
+    color: var(--verify-ink);
+    margin-bottom: 0.4rem;
+  }
+
+  .verify-subtitle {
+    color: var(--verify-muted);
+    margin-bottom: 1.6rem;
+  }
+
+  .verify-subtitle strong {
+    color: var(--verify-ink);
+  }
+
+  .code-input {
+    text-align: center;
+    letter-spacing: 0.6em;
+    font-size: 1.4rem;
+    font-weight: 700;
+    border: 1px solid var(--verify-border);
+    border-radius: 12px;
+    min-height: 54px;
+    color: var(--verify-ink);
+  }
+
+  .code-input:focus {
+    border-color: #89cfbd;
+    box-shadow: 0 0 0 0.22rem rgba(47, 158, 122, 0.15);
+  }
+
+  .verify-submit {
+    margin-top: 1rem;
+    min-height: 47px;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(120deg, var(--verify-accent), var(--verify-accent-strong));
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .verify-submit:hover {
+    color: #ffffff;
+  }
+
+  .verify-links {
+    margin-top: 1.2rem;
+    color: var(--verify-muted);
+    font-size: 0.92rem;
+  }
+
+  .verify-links button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--verify-primary);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="verify-page">
+  <div class="verify-card">
+    <div class="verify-icon"><i class="fas fa-envelope-open-text"></i></div>
+    <h1>Verify your email</h1>
+    <p class="verify-subtitle">
+      We sent a 6-digit code to <strong>{{ email }}</strong>. Enter it below to activate your account.
+    </p>
+
+    <form method="POST" action="{{ url_for('auth.verify_email') }}" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+      <input
+        type="text"
+        class="form-control code-input"
+        name="code"
+        inputmode="numeric"
+        pattern="[0-9]{6}"
+        maxlength="6"
+        placeholder="------"
+        autofocus
+        required
+      />
+      <button type="submit" class="btn verify-submit w-100">
+        <i class="fas fa-check me-2"></i>Verify Email
+      </button>
+    </form>
+
+    <p class="verify-links mb-0">
+      Didn't get it?
+      <form method="POST" action="{{ url_for('auth.resend_verification_code') }}" class="d-inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <button type="submit">Resend code</button>
+      </form>
+    </p>
+  </div>
+</section>
+{% endblock %}

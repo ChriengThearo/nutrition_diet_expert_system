@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, session
 from flask_login import login_user, logout_user, login_required
 from app.models.user import UserTable
 from app.models.role import RoleTable
 from app.services.user_service import UserService
 from app.services.rbac_service import sync_rbac
+from app.services.mail_service import MailService
 from extensions import db, oauth
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -16,6 +17,17 @@ def _redirect_after_login(user: UserTable):
         return redirect(url_for("dashboard.doctor_dashboard"))
     else:
         return redirect(url_for("dashboard.user_dashboard"))
+
+
+def _send_verification_code(user: UserTable) -> bool:
+    code = user.generate_verification_code()
+    db.session.commit()
+    try:
+        MailService.send_verification_code(user.email, user.full_name, code)
+        return True
+    except Exception:
+        current_app.logger.exception("Failed to send verification email to %s", user.email)
+        return False
 
 
 @auth_bp.route("/loginn")
@@ -37,6 +49,17 @@ def login():
                     "Your account is inactive. Please contact administrator.", "warning"
                 )
                 return redirect(url_for("auth.login"))
+
+            if not user.is_email_verified:
+                session["pending_verification_user_id"] = user.id
+                if _send_verification_code(user):
+                    flash("Please verify your email. We've sent you a code.", "warning")
+                else:
+                    flash(
+                        "Please verify your email, but we couldn't send the code. Try resending it.",
+                        "warning",
+                    )
+                return redirect(url_for("auth.verify_email"))
 
             login_user(user)
             sync_rbac()
@@ -137,18 +160,58 @@ def register():
         )
 
         sync_rbac()
-        login_user(new_user)
-        flash("Account created successfully. You are now logged in.", "success")
-
-        # Redirect based on user role
-        if new_user.has_role("admin"):
-            return redirect(url_for("dashboard.admin_dashboard"))
-        elif new_user.has_role("doctor"):
-            return redirect(url_for("dashboard.doctor_dashboard"))
+        session["pending_verification_user_id"] = new_user.id
+        if _send_verification_code(new_user):
+            flash("Account created. Check your email for a verification code.", "success")
         else:
-            return redirect(url_for("dashboard.user_dashboard"))
+            flash(
+                "Account created, but we couldn't send the verification email. Try resending it.",
+                "warning",
+            )
+        return redirect(url_for("auth.verify_email"))
 
     return render_template("auth/register.html")
+
+
+@auth_bp.route("/verify-email", methods=["GET", "POST"])
+def verify_email():
+    user_id = session.get("pending_verification_user_id")
+    user = UserTable.query.get(user_id) if user_id else None
+
+    if not user or user.is_email_verified:
+        session.pop("pending_verification_user_id", None)
+        return redirect(url_for("auth.login"))
+
+    if request.method == "POST":
+        code = request.form.get("code", "").strip()
+        if user.check_verification_code(code):
+            user.mark_email_verified()
+            db.session.commit()
+            session.pop("pending_verification_user_id", None)
+            login_user(user)
+            sync_rbac()
+            flash("Email verified successfully.", "success")
+            return _redirect_after_login(user)
+        flash("Invalid or expired code.", "danger")
+
+    return render_template("auth/verify_email.html", email=user.email)
+
+
+@auth_bp.route("/verify-email/resend", methods=["POST"])
+def resend_verification_code():
+    user_id = session.get("pending_verification_user_id")
+    user = UserTable.query.get(user_id) if user_id else None
+
+    if not user or user.is_email_verified:
+        flash("No pending verification.", "warning")
+        return redirect(url_for("auth.login"))
+
+    if _send_verification_code(user):
+        flash("A new code has been sent to your email.", "success")
+    else:
+        flash("Could not send the email right now. Please try again shortly.", "danger")
+
+    return redirect(url_for("auth.verify_email"))
 
 
 @auth_bp.route("/google/login")
@@ -185,7 +248,9 @@ def google_callback():
     if user:
         if not user.google_id:
             user.google_id = google_id
-            db.session.commit()
+        if not user.is_email_verified:
+            user.mark_email_verified()
+        db.session.commit()
     else:
         user = UserService.create_google_user(
             email=email,
