@@ -1,4 +1,5 @@
 from flask import Flask, redirect, url_for, render_template
+from werkzeug.middleware.proxy_fix import ProxyFix
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from config import Config
 from extensions import db, csrf, login_manager, migrate, oauth
@@ -8,6 +9,10 @@ from app.models.user import UserTable
 def create_app(config_class: type[Config] = Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    # Railway (and most PaaS hosts) terminate HTTPS at the edge and forward
+    # requests over plain HTTP, so without this Flask builds http:// URLs
+    # (e.g. the Google OAuth redirect_uri) instead of https://.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     db.init_app(app)
     csrf.init_app(app)
     login_manager.init_app(app)
