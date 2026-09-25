@@ -56,7 +56,40 @@ class UserService:
 
         db.session.commit()
         return user
-    
+
+    @staticmethod
+    def create_google_user(
+        email: str,
+        full_name: str,
+        google_id: str,
+        photo: Optional[str] = None,
+        ) -> UserTable:
+        base_username = (email.split("@")[0] or "user")[:70]
+        username = base_username
+        suffix = 1
+        while UserTable.query.filter_by(username=username).first():
+            suffix += 1
+            username = f"{base_username}{suffix}"[:80]
+
+        user = UserTable(
+            username=username,
+            email=email,
+            full_name=full_name,
+            is_active=True,
+            photo=(photo or "").strip() or DEFAULT_AVATAR_PATH,
+            google_id=google_id,
+            auth_provider="google",
+        )
+
+        db.session.add(user)
+        db.session.flush()
+
+        role = UserService._ensure_default_role()
+        user.roles = [role]
+
+        db.session.commit()
+        return user
+
     @staticmethod
     def update_user(
         user: UserTable,

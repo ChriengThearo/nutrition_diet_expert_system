@@ -370,6 +370,16 @@
         </button>
       </form>
 
+      <div class="d-flex align-items-center gap-2 my-3">
+        <hr class="flex-grow-1 m-0" />
+        <span class="text-muted small">or</span>
+        <hr class="flex-grow-1 m-0" />
+      </div>
+
+      <a href="{{ url_for('auth.google_login') }}" class="btn btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-2">
+        <i class="fab fa-google"></i> Continue with Google
+      </a>
+
       <p class="login-links mb-1">
         Need an account?
         <a href="{{ url_for('auth.register') }}">Create one</a>
