@@ -32,7 +32,7 @@ def _send_verification_code(user: UserTable) -> bool:
 
 @auth_bp.route("/loginn")
 def login_typo_redirect():
-    return redirect(url_for("auth.login"))
+    return redirect(url_for("auth.login"), code=301)
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])

@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template
+from flask import Flask, redirect, url_for, render_template, request, abort
 from werkzeug.middleware.proxy_fix import ProxyFix
 from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from config import Config
@@ -14,6 +14,14 @@ def create_app(config_class: type[Config] = Config):
     # (e.g. the Google OAuth redirect_uri) instead of https://.
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
     db.init_app(app)
+
+    # Run before Flask-WTF's global CSRF hook so disabled POSTs also return 404.
+    @app.before_request
+    def hide_unreviewed_child_bmi():
+        if (not app.config.get("CHILD_BMI_ENABLED", False)
+                and request.endpoint in {"main.child_bmi", "main.child_bmi_km"}):
+            abort(404)
+
     csrf.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
@@ -51,8 +59,18 @@ def create_app(config_class: type[Config] = Config):
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(food_market_bp)
 
+    from app.seo import apply_index_policy, page_seo
+
+    app.context_processor(page_seo)
+    app.after_request(apply_index_policy)
+
+    @app.errorhandler(404)
+    def handle_404(e):
+        return render_template("errors/404.html"), 404
+
     @app.errorhandler(OperationalError)
     def handle_db_error(e):
+        app.logger.error("Database operation failed (%s)", type(e).__name__)
         return render_template("errors/503.html"), 503
 
     @app.errorhandler(SQLAlchemyError)
@@ -64,16 +82,6 @@ def create_app(config_class: type[Config] = Config):
         return render_template("errors/503.html"), 500
 
     with app.app_context():
-        try:
-            if not app.config.get("SKIP_DB_CREATE_ALL", False):
-                db.create_all()
-            try:
-                from app.services.rbac_service import migrate_permission_codes
-                migrate_permission_codes()
-            except Exception:
-                pass
-        except Exception:
-            pass
         try:
             # Load CLIP and the bundled USDA text index as soon as the worker
             # starts. This keeps the first user's scan from paying the model

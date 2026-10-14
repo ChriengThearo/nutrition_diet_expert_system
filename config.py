@@ -1,14 +1,26 @@
 import os
 from dotenv import load_dotenv
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 # Load environment variables
 load_dotenv()
 
 
+def normalize_database_url(url):
+    """Use the installed psycopg 3 driver for provider-issued Postgres URLs."""
+    if url.startswith("postgres://"):
+        return "postgresql+psycopg://" + url[len("postgres://"):]
+    if url.startswith("postgresql://"):
+        return "postgresql+psycopg://" + url[len("postgresql://"):]
+    return url
+
+
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-this")
-    SKIP_DB_CREATE_ALL = os.getenv("SKIP_DB_CREATE_ALL", "0") == "1"
+    PUBLIC_SITE_URL = "https://nutritiondietexpertsystem-production.up.railway.app"
+    DEPLOYMENT_ENVIRONMENT = os.getenv("RAILWAY_ENVIRONMENT_NAME")
+    # Enable only after qualified calculation and Khmer-language review.
+    CHILD_BMI_ENABLED = os.getenv("CHILD_BMI_ENABLED", "0") == "1"
     USDA_SCANNER_WARMUP = os.getenv("USDA_SCANNER_WARMUP", "1") == "1"
 
     # Google OAuth (Sign in with Google)
@@ -32,7 +44,7 @@ class Config:
 
     # SQLAlchemy configuration
     if DATABASE_URL:
-        SQLALCHEMY_DATABASE_URI = DATABASE_URL
+        SQLALCHEMY_DATABASE_URI = normalize_database_url(DATABASE_URL)
     else:
         SQLALCHEMY_DATABASE_URI = (
             f"mysql+pymysql://{DB_USER}:{quote(DB_PASSWORD)}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
@@ -54,7 +66,9 @@ class Config:
         # statements don't survive that, causing intermittent
         # "prepared statement already exists" errors on repeated/batched
         # queries. Disabling prepare_threshold keeps every query unprepared.
-        SQLALCHEMY_ENGINE_OPTIONS["connect_args"] = {"prepare_threshold": None}
+        SQLALCHEMY_ENGINE_OPTIONS["connect_args"] = {"connect_timeout": 5}
+        if urlsplit(SQLALCHEMY_DATABASE_URI).port == 6543:
+            SQLALCHEMY_ENGINE_OPTIONS["connect_args"]["prepare_threshold"] = None
 
     # Security
     SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS

@@ -108,7 +108,7 @@
     <div class="rules-container">
         <div class="text-center mb-5">
             <h1 class="display-5 fw-bold">Diet Rules Library</h1>
-            <p class="lead text-muted">Comprehensive collection of medical diet rules and treatment plans</p>
+            <p class="lead text-muted">Diet-rule information available in this system. Consult a healthcare professional before using it for a medical condition.</p>
         </div>
 
         <div class="filter-section">
@@ -146,7 +146,7 @@
                     <button class="btn btn-outline-primary btn-sm" onclick="exportRules()">
                         <i class="fas fa-download me-1"></i>Export
                     </button>
-                    {% if current_user.has_role('doctor') or current_user.has_role('admin') %}
+                    {% if current_user.is_authenticated and (current_user.has_role('doctor') or current_user.has_role('admin')) %}
                     <a href="{{ url_for('main.create_rule') }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus me-1"></i>Create Rule
                     </a>
@@ -156,7 +156,7 @@
 
             <div id="rulesList">
                 {% for rule in rules %}
-                <div class="card rule-card" data-status="{{ 'active' if rule.active else 'inactive' }}">
+                <div class="card rule-card" data-status="{{ 'active' if rule.is_active else 'inactive' }}">
                     <div class="rule-header">
                         <h5 class="mb-0">{{ rule.name }}</h5>
                         <small>Rule ID: #{{ rule.id }}</small>
@@ -172,8 +172,8 @@
                                 <span>Updated: {{ rule.updated_at.strftime('%b %d, %Y') }}</span>
                             </div>
                             <div class="meta-item">
-                                <span class="status-badge status-active">
-                                    Active
+                                <span class="status-badge {{ 'status-active' if rule.is_active else 'status-inactive' }}">
+                                    {{ 'Active' if rule.is_active else 'Inactive' }}
                                 </span>
                             </div>
                         </div>
@@ -194,7 +194,7 @@
                             <button class="btn btn-outline-primary btn-sm" onclick="viewDetails('{{ rule.id }}')">
                                 <i class="fas fa-info-circle me-1"></i>Details
                             </button>
-                            {% if current_user.has_role('doctor') or current_user.has_role('admin') %}
+                            {% if current_user.is_authenticated and (current_user.has_role('doctor') or current_user.has_role('admin')) %}
                             <button class="btn btn-outline-secondary btn-sm" onclick="editRule('{{ rule.id }}')">
                                 <i class="fas fa-edit me-1"></i>Edit
                             </button>
