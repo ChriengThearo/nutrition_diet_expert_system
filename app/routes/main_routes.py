@@ -7,15 +7,23 @@ from flask import (
     url_for,
     send_from_directory,
     current_app,
+    Response,
+    abort,
 )
 from flask_login import login_required, current_user
 import os
+import math
+from app.public_copy import ADULT, CHILD
+from app.seo import production_url, is_production_request
+from app.services.bmi_reference import child_bmi_result
+from app.services.profile_images import profile_name, profile_upload_directory
 from app.models.goal import GoalsTable
 from app.models.diet_rule import DietRulesTable
 from app.models.food import FoodsTable
 from app.models.food_group import FoodGroupTable
 from app.forms.diet_rule_forms import DietRuleForm
 from app.services.diet_rule_service import DietRuleService
+from app.routes.access_control import permission_required
 from extensions import db
 
 main_bp = Blueprint("main", __name__)
@@ -23,7 +31,32 @@ main_bp = Blueprint("main", __name__)
 
 @main_bp.route("/")
 def home():
-    return render_template("main/home.html")
+    return render_template("main/home.html", ui_lang="en")
+
+
+@main_bp.route("/km/")
+def home_km():
+    return render_template("main/home.html", ui_lang="km")
+
+
+@main_bp.route("/robots.txt")
+def robots_txt():
+    if is_production_request():
+        body = "User-agent: *\nAllow: /\nSitemap: " + production_url("/sitemap.xml") + "\n"
+    else:
+        body = "User-agent: *\nAllow: /\n"
+    return Response(body, mimetype="text/plain")
+
+
+@main_bp.route("/sitemap.xml")
+def sitemap_xml():
+    if not is_production_request():
+        return Response("", status=404, mimetype="application/xml")
+    paths = ("/", "/km/", "/bmi", "/km/bmi")
+    urls = "".join(f"<url><loc>{production_url(path)}</loc></url>" for path in paths)
+    return Response('<?xml version="1.0" encoding="UTF-8"?>'
+                    f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>',
+                    mimetype="application/xml")
 
 
 @main_bp.route("/project-poster")
@@ -52,24 +85,76 @@ def admin_shortcut_subpath(subpath: str):
 
 @main_bp.route("/bmi", methods=["GET", "POST"])
 def bmi():
+    return _adult_bmi("en")
+
+
+@main_bp.route("/bmi/")
+def bmi_trailing_slash():
+    return redirect(url_for("main.bmi"), code=308)
+
+
+@main_bp.route("/km/bmi", methods=["GET", "POST"])
+def bmi_km():
+    return _adult_bmi("km")
+
+
+@main_bp.route("/km/bmi/")
+def bmi_km_trailing_slash():
+    return redirect(url_for("main.bmi_km"), code=308)
+
+
+def _adult_bmi(lang):
+    copy = ADULT[lang].copy()
+    if not current_app.config.get("CHILD_BMI_ENABLED", False):
+        copy["age_error"] = copy["age_disabled"]
+    values = {}
     if request.method == "POST":
         try:
-            height = float(request.form["height"]) / 100  # Convert cm to m
+            age = int(request.form["age"])
+            height_cm = float(request.form["height"])
             weight = float(request.form["weight"])
-            bmi_value = round(weight / (height**2), 2)
-            category = get_bmi_category(bmi_value)
-            return render_template(
-                "main/bmi.html",
-                bmi=bmi_value,
-                category=category,
-                age=request.form.get("age", ""),
-                gender=request.form.get("gender", "male"),
-                height_val=request.form.get("height", ""),
-                weight_val=request.form.get("weight", ""),
-            )
-        except ValueError:
-            flash("Please enter valid numbers for height and weight.", "error")
-    return render_template("main/bmi.html")
+            if age < 20 or not (math.isfinite(height_cm) and 50 <= height_cm <= 300
+                                              and math.isfinite(weight) and 10 <= weight <= 500):
+                raise ValueError
+            raw_bmi = weight / (height_cm / 100) ** 2
+            values = {"bmi": round(raw_bmi, 2),
+                      "category_key": get_bmi_category(raw_bmi).lower().replace(" ", "_"),
+                      "age": age, "height_val": height_cm, "weight_val": weight}
+        except (KeyError, ValueError, ZeroDivisionError):
+            flash(copy["age_error"], "error")
+    return render_template("main/bmi.html", page_lang=lang, t=copy,
+                           server_result=values or None)
+
+
+@main_bp.route("/bmi/child-teen", methods=["GET", "POST"])
+def child_bmi():
+    return _child_bmi("en")
+
+
+@main_bp.route("/km/bmi/child-teen", methods=["GET", "POST"])
+def child_bmi_km():
+    return _child_bmi("km")
+
+
+def _child_bmi(lang):
+    result = None
+    error = None
+    values = {key: request.form.get(key, "") for key in
+              ("age_years", "age_months", "sex", "height_cm", "weight_kg")}
+    if request.method == "POST":
+        try:
+            age_years = int(values["age_years"])
+            if age_years >= 20:
+                return redirect(url_for("main.bmi_km" if lang == "km" else "main.bmi"), code=303)
+            age_months = int(values["age_months"])
+            result = child_bmi_result(age_years, age_months, values["sex"],
+                                      values["height_cm"], values["weight_kg"])
+        except (ValueError, TypeError):
+            error = CHILD[lang]["input_error"]
+    rendered = render_template("main/child_bmi.html", page_lang=lang, t=CHILD[lang],
+                               result=result, error=error, values=values)
+    return Response(rendered, status=400 if error else 200,
+                    headers={"Cache-Control": "no-store"})
 
 
 @main_bp.route("/match", methods=["GET", "POST"])
@@ -78,7 +163,15 @@ def match():
     if request.method == "POST":
         goal_id = request.form.get("goal")
         bmi_raw = (request.form.get("bmi") or "").strip()
-        bmi = float(bmi_raw) if bmi_raw else None
+        try:
+            bmi = float(bmi_raw) if bmi_raw else None
+        except ValueError:
+            bmi = None
+            flash("Enter a valid BMI number or leave it blank.", "error")
+            return render_template("main/match.html", goals=goals), 400
+        if bmi is not None and (not math.isfinite(bmi) or not 10 <= bmi <= 50):
+            flash("Enter a BMI from 10 to 50 or leave it blank.", "error")
+            return render_template("main/match.html", goals=goals), 400
 
         # Find matching diet rules based on goal
         goal = GoalsTable.query.get(goal_id)
@@ -86,7 +179,8 @@ def match():
         if goal:
             # Get diet rules that match the selected goal
             matching_rules = DietRulesTable.query.filter(
-                DietRulesTable.goals.contains(goal)
+                DietRulesTable.goals.contains(goal),
+                DietRulesTable.is_active.is_(True),
             ).all()
             return render_template(
                 "main/match.html",
@@ -106,6 +200,8 @@ def rules():
 
 
 @main_bp.route("/rules/create", methods=["GET", "POST"])
+@login_required
+@permission_required("rule.create", "You have no permission to create rules.")
 def create_rule():
     form = DietRuleForm()
 
@@ -117,7 +213,7 @@ def create_rule():
                 "description": form.description.data,
                 "conditions": form.conditions.data,
                 "goals": form.goals.data,
-                "active": form.active.data,
+                "is_active": form.active.data,
             }
 
             # Create rule using service
@@ -134,6 +230,12 @@ def create_rule():
 
 @main_bp.route("/images/<path:filename>")
 def images(filename):
+    if filename.startswith("profiles/"):
+        name = profile_name("images/" + filename)
+        if (name is None or not current_user.is_authenticated
+                or current_user.photo != f"images/profiles/{name}"):
+            abort(404)
+        return send_from_directory(profile_upload_directory(), name)
     images_dir = os.path.join(current_app.static_folder, "images")
     return send_from_directory(images_dir, filename)
 
@@ -164,9 +266,11 @@ def qa():
     answer = None
 
     if request.method == "POST":
-        question = request.form.get("question")
-        # For simplicity, provide a basic answer. In a real app, this could integrate with an AI service.
-        answer = f"Thank you for your question: '{question}'. This is a placeholder answer. Please consult a healthcare professional for personalized advice."
+        question = (request.form.get("question") or "").strip()
+        if not question:
+            flash("Enter a question to submit the demo form.", "error")
+            return render_template("main/qa.html"), 400
+        answer = "This demo received your question but does not provide a health answer. Consult a qualified healthcare professional for personal concerns."
 
     return render_template("main/qa.html", question=question, answer=answer)
 
@@ -175,8 +279,8 @@ def get_bmi_category(bmi):
     if bmi < 18.5:
         return "Underweight"
     elif 18.5 <= bmi < 25:
-        return "Normal weight"
+        return "Healthy weight"
     elif 25 <= bmi < 30:
         return "Overweight"
     else:
-        return "Obese"
+        return "Obesity"

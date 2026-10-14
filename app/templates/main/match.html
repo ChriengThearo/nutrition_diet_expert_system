@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Diet Plan Matcher{% endblock %}
+{% block title %}Diet Rule Matcher{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -101,12 +101,13 @@
 <div class="container">
     <div class="matcher-container">
         <div class="text-center mb-5">
-            <h1 class="display-5 fw-bold">Diet Plan Matcher</h1>
-            <p class="lead text-muted">Find personalized diet plans based on your goals</p>
+            <h1 class="display-5 fw-bold">Diet Rule Matcher</h1>
+            <p class="lead text-muted">Explore diet-rule information based on your selected goal.</p>
         </div>
 
         <div class="selection-form">
             <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="row">
                     <div class="col-12 col-md-6 mb-3">
                         <label for="goal" class="form-label">Health Goal</label>
@@ -131,12 +132,13 @@
                                min="10" 
                                max="50"
                                value="{{ bmi or '' }}">
+                        <div class="form-text">For reference only. Rules are matched by the selected goal, not BMI.</div>
                     </div>
                 </div>
                 
                 <div class="text-center">
                     <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="fas fa-search me-2"></i>Find Diet Plans
+                        <i class="fas fa-search me-2"></i>Find Diet Rules
                     </button>
                 </div>
             </form>
@@ -144,27 +146,27 @@
             {% if bmi %}
             <div class="bmi-display">
                 <strong>Your BMI: {{ bmi }}</strong>
-                <div class="small">This helps us personalize your diet recommendations</div>
+                <div class="small">For reference only; it does not change the matching rules.</div>
             </div>
             {% endif %}
         </div>
 
         {% if matching_rules %}
         <div class="results-section">
-            <h3 class="mb-4">Matching Diet Plans ({{ matching_rules|length }} found)</h3>
+            <h3 class="mb-4">Matching Diet Rules ({{ matching_rules|length }} found)</h3>
             
             {% for rule in matching_rules %}
             <div class="card rule-card">
                 <div class="rule-header">
                     <h5 class="mb-0">{{ rule.name }}</h5>
-                    <small>Created by Medical Team</small>
+                    <small>Diet rule in this system</small>
                 </div>
                 <div class="rule-content">
                     <p class="text-muted">{{ rule.description }}</p>
                     
                     <div class="mb-3">
                         <span class="match-indicator match-high">
-                            <i class="fas fa-check-circle me-1"></i>High Match
+                            <i class="fas fa-check-circle me-1"></i>Goal match
                         </span>
                         {% if selected_goal %}
                         <small class="text-muted ms-2">
@@ -182,14 +184,8 @@
                     
                     <div class="d-flex flex-wrap gap-2">
                         <a href="{{ url_for('main.foods', rule_id=rule.id) }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-utensils me-1"></i>View Meal Plan
+                            <i class="fas fa-utensils me-1"></i>View Foods
                         </a>
-                        <button class="btn btn-outline-primary btn-sm" onclick="saveRule('{{ rule.id }}')">
-                            <i class="fas fa-bookmark me-1"></i>Save Plan
-                        </button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="shareRule('{{ rule.id }}')">
-                            <i class="fas fa-share me-1"></i>Share
-                        </button>
                     </div>
                 </div>
             </div>
@@ -200,10 +196,9 @@
         {% if selected_goal %}
         <div class="no-results">
             <i class="fas fa-search fa-3x mb-3 text-muted"></i>
-            <h5>No matching diet plans found</h5>
+            <h5>No matching diet rules found</h5>
             <p class="text-muted">
-                We couldn't find diet plans matching your selected goal.
-                Try adjusting your selection or consult with a healthcare professional.
+                No diet rules are linked to your selected goal. Try another goal.
             </p>
             <div class="mt-3">
                 <a href="{{ url_for('dashboard.dashboard_home') }}" class="btn btn-primary">
@@ -222,34 +217,6 @@
 
 {% block extra_js %}
 <script>
-function saveRule(ruleId) {
-    // In a real implementation, this would save the rule to user's profile
-    console.log('Saving rule:', ruleId);
-    alert('Diet plan saved to your profile!');
-}
-
-function shareRule(ruleId) {
-    // In a real implementation, this would open a share dialog
-    console.log('Sharing rule:', ruleId);
-    
-    if (navigator.share) {
-        navigator.share({
-            title: 'Diet Plan',
-            text: 'Check out this personalized diet plan!',
-            url: window.location.href
-        });
-    } else {
-        // Fallback for browsers that don't support Web Share API
-        const dummy = document.createElement('input');
-        document.body.appendChild(dummy);
-        dummy.value = window.location.href;
-        dummy.select();
-        document.execCommand('copy');
-        document.body.removeChild(dummy);
-        alert('Link copied to clipboard!');
-    }
-}
-
 // Auto-submit form when both selections are made (optional enhancement)
 document.addEventListener('DOMContentLoaded', function() {
     const goalSelect = document.getElementById('goal');

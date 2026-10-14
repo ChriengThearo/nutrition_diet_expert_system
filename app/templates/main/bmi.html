@@ -1,8 +1,9 @@
 {% extends "layouts/dashboard_user_shell.html" if (current_user.is_authenticated and current_user.has_role('user')) else "layouts/base_enhanced.html" %}
 
-{% block title %}BMI Calculator{% endblock %}
-{% block page_title %}គណនា BMI{% endblock %}
-{% block page_subtitle %}គណនាសន្ទស្សន៍ម៉ាសរាងកាយរបស់អ្នក{% endblock %}
+{% block title %}{{ t.title }}{% endblock %}
+{% block meta_description %}{{ t.description }}{% endblock %}
+{% block page_title %}{{ t.heading }}{% endblock %}
+{% block page_subtitle %}{{ t.intro }}{% endblock %}
 
 {% block footer %}{% endblock %}
 {% block breadcrumb %}{% endblock %}
@@ -75,17 +76,6 @@
         padding: 0 0.75rem; height: 46px; font-size: 1rem; font-weight: 600; color: var(--nd-ink, #1a1a2e);
     }
     .input-icon-wrap .unit-suffix { display: flex; align-items: center; padding-right: 0.9rem; color: var(--nd-muted, #94a3b8); font-size: 0.85rem; white-space: nowrap; }
-
-    .gender-toggle { display: flex; gap: 0.75rem; }
-    .gender-opt {
-        position: relative; flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-        border: 1.5px solid var(--nd-border, #e2e8f0); border-radius: 10px; padding: 0.7rem; font-weight: 600; color: var(--nd-ink, #333);
-        cursor: pointer; transition: all 0.15s; margin: 0;
-    }
-    .gender-opt input { position: absolute; opacity: 0; pointer-events: none; }
-    .gender-opt i { color: var(--nd-muted, #94a3b8); transition: color 0.15s; }
-    .gender-opt.selected { border-color: #0f766e; background: rgba(15, 118, 110, 0.06); color: #0f766e; }
-    .gender-opt.selected i { color: #0f766e; }
 
     .btn-calculate-full {
         width: 100%; margin-top: 1.6rem;
@@ -250,6 +240,8 @@
         .result-head { flex-wrap: wrap; row-gap: 0.75rem; }
         .result-head > div:first-child { width: 100%; }
         .btn-save-result { margin-left: auto; }
+        html[lang="km"] .bmi-shell .dashboard-container > p:first-of-type { min-height: 80px; }
+        html[lang="km"] .bmi-shell .dashboard-container > p:nth-of-type(2) { min-height: 30px; }
     }
 </style>
 {% endblock %}
@@ -257,7 +249,11 @@
 {% block content %}
 <div class="dashboard-shell user-shell bmi-shell">
 <div class="dashboard-container">
-    <h1><i class="fas fa-calculator me-2" style="color: #0f766e;"></i>BMI Calculator</h1>
+    <h1><i class="fas fa-calculator me-2" style="color: #0f766e;"></i>{{ t.heading }}</h1>
+    <p>{{ t.intro }}</p>
+    <p><a href="{{ url_for('main.home_km' if page_lang == 'km' else 'main.home') }}">{{ 'ទំព័រដើម' if page_lang == 'km' else 'Home' }}</a> ·
+       <a href="{{ url_for('main.bmi_km' if page_lang == 'en' else 'main.bmi') }}">{{ 'ខ្មែរ' if page_lang == 'en' else 'English' }}</a>{% if config.CHILD_BMI_ENABLED %} ·
+       <a href="{{ url_for('main.child_bmi_km' if page_lang == 'km' else 'main.child_bmi') }}">{{ t.child_link }}</a>{% endif %}</p>
 
     <div class="row g-4">
         <!-- Left: Input Form -->
@@ -266,13 +262,13 @@
                 <div class="card-head">
                     <div class="head-icon"><i class="fas fa-user"></i></div>
                     <div class="head-text">
-                        <h2>Your Information</h2>
-                        <p>Enter your details to calculate BMI</p>
+                        <h2>{{ t.your_information }}</h2>
+                        <p>{{ t.enter_details }}</p>
                     </div>
                 </div>
 
                 <div class="field-group">
-                    <label for="weight">Weight (kg)</label>
+                    <label for="weight">{{ t.weight }}</label>
                     <div class="input-icon-wrap">
                         <span class="input-icon-cell"><i class="fas fa-weight-scale"></i></span>
                         <input type="number" id="weight" placeholder="65" step="0.1" min="10" max="500">
@@ -281,7 +277,7 @@
                 </div>
 
                 <div class="field-group">
-                    <label for="height">Height (cm)</label>
+                    <label for="height">{{ t.height }}</label>
                     <div class="input-icon-wrap">
                         <span class="input-icon-cell"><i class="fas fa-ruler-vertical"></i></span>
                         <input type="number" id="height" placeholder="175" step="0.1" min="50" max="300">
@@ -290,34 +286,20 @@
                 </div>
 
                 <div class="field-group">
-                    <label for="age">Age (years)</label>
+                    <label for="age">{{ t.age }}</label>
                     <div class="input-icon-wrap">
                         <span class="input-icon-cell"><i class="fas fa-calendar-days"></i></span>
-                        <input type="number" id="age" placeholder="21" min="2" max="120">
-                        <span class="unit-suffix">years</span>
-                    </div>
-                </div>
-
-                <div class="field-group">
-                    <label>Gender</label>
-                    <div class="gender-toggle">
-                        <label class="gender-opt selected" id="genderMaleOpt">
-                            <input type="radio" name="gender" value="male" checked>
-                            <i class="fas fa-mars"></i> Male
-                        </label>
-                        <label class="gender-opt" id="genderFemaleOpt">
-                            <input type="radio" name="gender" value="female">
-                            <i class="fas fa-venus"></i> Female
-                        </label>
+                        <input type="number" id="age" placeholder="21" min="20" required>
+                        <span class="unit-suffix">{{ 'ឆ្នាំ' if page_lang == 'km' else 'years' }}</span>
                     </div>
                 </div>
 
                 <button type="button" class="btn-calculate-full" id="btnCalculate">
-                    <i class="fas fa-calculator"></i> Calculate BMI
+                    <i class="fas fa-calculator"></i> {{ t.calculate }}
                 </button>
-                <button type="button" class="btn-text-clear" id="btnClear"><i class="fas fa-rotate-left me-1"></i>Clear</button>
+                <button type="button" class="btn-text-clear" id="btnClear"><i class="fas fa-rotate-left me-1"></i>{{ t['clear'] }}</button>
 
-                <p class="privacy-note"><i class="fas fa-shield-halved"></i> Your data is private and secure</p>
+                <p class="privacy-note"><i class="fas fa-shield-halved"></i> {{ t.privacy }}</p>
             </div>
         </div>
 
@@ -328,18 +310,22 @@
                     <div style="display:flex; align-items:flex-start; gap:0.85rem;">
                         <div class="head-icon"><i class="fas fa-gauge-high"></i></div>
                         <div class="head-text">
-                            <h2>Your Result</h2>
-                            <p>Here's your BMI and health status</p>
+                            <h2>{{ t.result }}</h2>
+                            <p>{{ t.result_intro }}</p>
                         </div>
                     </div>
-                    <button type="button" class="btn-save-result" id="btnSave"><i class="far fa-bookmark"></i> Save Result</button>
+                    <button type="button" class="btn-save-result" id="btnSave"><i class="far fa-bookmark"></i> {{ t.save }}</button>
                 </div>
 
                 <div id="resultBody">
+                    {% if server_result %}
+                    <div class="tip-box tip-normal"><div><strong>{{ t.result }}: {{ server_result.bmi }}</strong><p>{{ t[server_result.category_key] }}. {{ t.screening_note }}</p></div></div>
+                    {% else %}
                     <div class="empty-result">
                         <i class="fas fa-calculator fa-3x mb-3" style="opacity: 0.3;"></i>
-                        <p>Enter your details and click <strong>Calculate</strong> to see your BMI result here.</p>
+                        <p>{{ t.empty }}</p>
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -349,13 +335,18 @@
     <div class="row mt-4 g-4">
         <div class="col-12">
             <div class="about-bmi">
-                <h6><i class="fas fa-info-circle me-2"></i>About BMI</h6>
-                <p>
-                    BMI (Body Mass Index) is a widely used measure to assess weight status. It's calculated
-                    by dividing weight in kilograms by the square of height in meters. While useful as a screening tool,
-                    BMI doesn't account for muscle mass, bone density, or body composition. For personalized health
-                    advice, consult with a healthcare professional.
-                </p>
+                <h2 class="h5"><i class="fas fa-info-circle me-2"></i>{{ t.about_heading }}</h2>
+                <p>{{ t.formula }}</p>
+                <p class="mt-2">{{ t.about }}</p>
+                <h3 class="h6 mt-3">{{ t.category_heading }}</h3>
+                <ul class="mb-2 ps-3">
+                    <li>{{ t.underweight }}: {{ t.underweight_range }}</li>
+                    <li>{{ t.healthy_weight }}: {{ t.healthy_range }}</li>
+                    <li>{{ t.overweight }}: {{ t.overweight_range }}</li>
+                    <li>{{ t.obesity }}: {{ t.obesity_range }}</li>
+                </ul>
+                <p>{{ t.category_note }}</p>
+                <p><a href="https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html" rel="noopener">{{ 'ប្រភព៖ CDC អំពីប្រភេទ BMI សម្រាប់មនុស្សពេញវ័យ' if page_lang == 'km' else 'Source: CDC adult BMI categories' }}</a></p>
             </div>
         </div>
     </div>
@@ -365,6 +356,7 @@
 
 {% block extra_js %}
 <script>
+const bmiText = {{ t|tojson }};
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('age').focus();
 
@@ -378,56 +370,55 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    document.querySelectorAll('input[name="gender"]').forEach(function(radio) {
-        radio.addEventListener('change', updateGenderSelection);
-    });
 });
-
-function updateGenderSelection() {
-    var male = document.querySelector('input[name="gender"][value="male"]').checked;
-    document.getElementById('genderMaleOpt').classList.toggle('selected', male);
-    document.getElementById('genderFemaleOpt').classList.toggle('selected', !male);
-}
 
 var lastResult = null;
 
 function calculateBMI() {
+    var age = Number(document.getElementById('age').value);
     var heightCm = parseFloat(document.getElementById('height').value);
     var weight = parseFloat(document.getElementById('weight').value);
 
-    if (!heightCm || !weight || heightCm <= 0 || weight <= 0) {
-        alert('Please enter valid Height and Weight values.');
+    if (!Number.isInteger(age) || age < 20) {
+        alert(bmiText.age_error);
+        return;
+    }
+    if (!Number.isFinite(heightCm) || !Number.isFinite(weight) ||
+        heightCm < 50 || heightCm > 300 || weight < 10 || weight > 500) {
+        alert(bmiText.measurement_error);
         return;
     }
 
     var heightM = heightCm / 100;
-    var bmi = weight / (heightM * heightM);
-    bmi = Math.round(bmi * 10) / 10;
+    var rawBmi = weight / (heightM * heightM);
+    var bmi = Math.round(rawBmi * 10) / 10;
+    var displayBmi = bmi.toFixed(1);
+    // Keep the displayed number on the same side of each CDC boundary as the
+    // unrounded value used for the category. Extra precision appears only
+    // when ordinary one-decimal rounding would imply a different category.
+    var boundaries = [18.5, 25, 30];
+    for (var precision = 2; precision <= 12 && boundaries.some(function(boundary) {
+        return (rawBmi < boundary) !== (Number(displayBmi) < boundary);
+    }); precision++) {
+        displayBmi = rawBmi.toFixed(precision);
+    }
 
     var category, catClass, catKey, catIconColor;
-    if (bmi < 18.5) {
-        category = 'Underweight'; catClass = 'category-underweight'; catKey = 'underweight';
-    } else if (bmi < 25) {
-        category = 'Normal Weight'; catClass = 'category-normal'; catKey = 'normal';
-    } else if (bmi < 30) {
-        category = 'Overweight'; catClass = 'category-overweight'; catKey = 'overweight';
+    if (rawBmi < 18.5) {
+        category = bmiText.underweight; catClass = 'category-underweight'; catKey = 'underweight';
+    } else if (rawBmi < 25) {
+        category = bmiText.healthy_weight; catClass = 'category-normal'; catKey = 'normal';
+    } else if (rawBmi < 30) {
+        category = bmiText.overweight; catClass = 'category-overweight'; catKey = 'overweight';
     } else {
-        category = 'Obese'; catClass = 'category-obese'; catKey = 'obese';
+        category = bmiText.obesity; catClass = 'category-obese'; catKey = 'obese';
     }
 
     // Scale runs 10 - 40 across the gauge / spectrum bar
     var minScale = 10, maxScale = 40;
-    var pct = Math.max(0, Math.min(1, (bmi - minScale) / (maxScale - minScale)));
+    var pct = Math.max(0, Math.min(1, (rawBmi - minScale) / (maxScale - minScale)));
     var needleDeg = (pct * 180) - 90;
     var markerPct = pct * 100;
-
-    var tips = {
-        underweight: { title: 'You are underweight.', desc: 'Consider a nutrient-rich diet to help reach a healthier weight, and check in with a healthcare professional for personalized advice.' },
-        normal: { title: 'You have a normal body weight. Great job!', desc: 'Keep maintaining a healthy lifestyle with a balanced diet and regular exercise.' },
-        overweight: { title: 'You are overweight.', desc: 'Consider a balanced diet and more physical activity to help reach a healthier weight.' },
-        obese: { title: 'You are in the obese range.', desc: 'It is recommended to consult a healthcare professional for personalized guidance on reaching a healthier weight.' }
-    };
-    var tip = tips[catKey];
 
     var html = '' +
         '<div class="gauge-outer">' +
@@ -444,8 +435,8 @@ function calculateBMI() {
             '<div class="gauge-needle-pivot" id="gaugeNeedle"><div class="bar"></div></div>' +
             '<div class="gauge-pivot-dot"></div>' +
             '<div class="gauge-center">' +
-                '<div class="gauge-your-bmi">Your BMI</div>' +
-                '<div class="gauge-value ' + catClass + '">' + bmi + '</div>' +
+                '<div class="gauge-your-bmi">BMI</div>' +
+                '<div class="gauge-value ' + catClass + '">' + displayBmi + '</div>' +
                 '<div class="gauge-category ' + catClass + '"><i class="fas fa-circle-check"></i> ' + category + '</div>' +
             '</div>' +
         '</div>' +
@@ -458,17 +449,17 @@ function calculateBMI() {
                 '<div class="spectrum-marker" id="spectrumMarker" style="left:0%;"></div>' +
             '</div>' +
             '<div class="spectrum-labels">' +
-                '<div class="lbl-col lbl-uw"><span class="lbl-name uw">Underweight</span><span class="lbl-range">&lt; 18.5</span></div>' +
-                '<div class="lbl-col lbl-normal"><span class="lbl-name normal">Normal Weight</span><span class="lbl-range">18.5 - 24.9</span></div>' +
-                '<div class="lbl-col lbl-ow"><span class="lbl-name ow">Overweight</span><span class="lbl-range">25 - 29.9</span></div>' +
-                '<div class="lbl-col lbl-ob"><span class="lbl-name ob">Obese</span><span class="lbl-range">&ge; 30</span></div>' +
+                '<div class="lbl-col lbl-uw"><span class="lbl-name uw">' + bmiText.underweight + '</span><span class="lbl-range">&lt; 18.5</span></div>' +
+                '<div class="lbl-col lbl-normal"><span class="lbl-name normal">' + bmiText.healthy_weight + '</span><span class="lbl-range">18.5 - &lt;25</span></div>' +
+                '<div class="lbl-col lbl-ow"><span class="lbl-name ow">' + bmiText.overweight + '</span><span class="lbl-range">25 - &lt;30</span></div>' +
+                '<div class="lbl-col lbl-ob"><span class="lbl-name ob">' + bmiText.obesity + '</span><span class="lbl-range">&ge; 30</span></div>' +
             '</div>' +
         '</div>' +
         '<div class="tip-box tip-' + catKey + '">' +
             '<div class="tip-icon"><i class="fas fa-heart"></i></div>' +
             '<div>' +
-                '<div class="tip-title">' + tip.title + '</div>' +
-                '<p class="tip-desc">' + tip.desc + '</p>' +
+                '<div class="tip-title">' + category + '</div>' +
+                '<p class="tip-desc">' + bmiText.screening_note + '</p>' +
             '</div>' +
         '</div>';
 
@@ -480,21 +471,20 @@ function calculateBMI() {
     }, 50);
 
     lastResult = {
-        bmi: bmi, category: category,
-        age: document.getElementById('age').value,
-        gender: document.querySelector('input[name="gender"]:checked').value,
+        bmi: Number(displayBmi), category: category,
+        age: age,
         height: heightCm, weight: weight,
         savedAt: new Date().toISOString()
     };
     var saveBtn = document.getElementById('btnSave');
     saveBtn.classList.remove('saved');
-    saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save Result';
+    saveBtn.innerHTML = '<i class="far fa-bookmark"></i> ' + bmiText.save;
 }
 
 function saveResult() {
     var saveBtn = document.getElementById('btnSave');
     if (!lastResult) {
-        alert('Calculate your BMI first, then you can save the result.');
+        alert(bmiText.save_first);
         return;
     }
     try {
@@ -502,9 +492,9 @@ function saveResult() {
         history.unshift(lastResult);
         localStorage.setItem('bmi_results', JSON.stringify(history.slice(0, 20)));
         saveBtn.classList.add('saved');
-        saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved';
+        saveBtn.innerHTML = '<i class="fas fa-check"></i> ' + bmiText.saved;
     } catch (e) {
-        alert('Could not save the result on this device.');
+        alert(bmiText.save_error);
     }
 }
 
@@ -512,18 +502,16 @@ function clearForm() {
     document.getElementById('age').value = '';
     document.getElementById('height').value = '';
     document.getElementById('weight').value = '';
-    document.querySelectorAll('input[name="gender"]')[0].checked = true;
-    updateGenderSelection();
 
     lastResult = null;
     var saveBtn = document.getElementById('btnSave');
     saveBtn.classList.remove('saved');
-    saveBtn.innerHTML = '<i class="far fa-bookmark"></i> Save Result';
+    saveBtn.innerHTML = '<i class="far fa-bookmark"></i> ' + bmiText.save;
 
     document.getElementById('resultBody').innerHTML =
         '<div class="empty-result">' +
             '<i class="fas fa-calculator fa-3x mb-3" style="opacity: 0.3;"></i>' +
-            '<p>Enter your details and click <strong>Calculate</strong> to see your BMI result here.</p>' +
+            '<p>' + bmiText.empty + '</p>' +
         '</div>';
 
     document.getElementById('age').focus();

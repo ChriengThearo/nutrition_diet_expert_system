@@ -1,14 +1,18 @@
 <!DOCTYPE html>
-{% set ui_lang = session.get('ui_lang', 'km') %}
+{% set home_url = url_for('main.home_km' if ui_lang == 'km' else 'main.home') %}
 <html lang="{{ 'km' if ui_lang == 'km' else 'en' }}">
 <head>
   <meta charset="utf-8" />
-  <title>{{ 'ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Diet Expert System' }}</title>
+  <title>{{ 'ឧបករណ៍សម្រេចចិត្តអាហារ និង BMI | ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Nutrition and Diet Expert System | Practical Food Tools' }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta
-    name="description"
-    content="{{ 'ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភសម្រាប់គណនា BMI ផ្គូផ្គងគោលដៅ របបអាហារ និងការរៀបចំផែនការសុខភាពប្រចាំថ្ងៃ។' if ui_lang == 'km' else 'A nutrition expert system for BMI checks, goal matching, diet rules, and guided healthy planning.' }}"
-  />
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}" />
+  <meta name="description" content="{{ 'ស្វែងយល់អំពីឧបករណ៍សម្រេចចិត្តអាហារប្រចាំថ្ងៃ និងគណនា BMI សម្រាប់មនុស្សពេញវ័យ។' if ui_lang == 'km' else 'Explore practical food decision tools and an adult BMI calculator. Learn how the system supports everyday meal planning.' }}" />
+  <link rel="canonical" href="{{ canonical_url }}" />
+  {% for code, alternate in alternate_urls.items() %}<link rel="alternate" hreflang="{{ code }}" href="{{ alternate }}" />{% endfor %}
+  <meta property="og:title" content="{{ 'ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Nutrition and Diet Expert System' }}" />
+  <meta property="og:description" content="{{ 'ឧបករណ៍អនុវត្តបានសម្រាប់សម្រេចចិត្តអាហារ និងពិនិត្យ BMI។' if ui_lang == 'km' else 'Practical tools for food decisions and adult BMI screening.' }}" />
+  <meta property="og:url" content="{{ canonical_url }}" />
+  <script type="application/ld+json">{{ {"@context":"https://schema.org","@type":"WebSite","name":("ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភ" if ui_lang == "km" else "Nutrition and Diet Expert System"),"url":canonical_url,"inLanguage":ui_lang}|tojson }}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -84,6 +88,8 @@
       font-size: 1.6rem;
       min-width: 0;
     }
+
+    .home-dashboard-nav .brand-name-short { display: none; }
 
     .home-dashboard-nav .user-avatar {
       width: 32px;
@@ -515,7 +521,7 @@
       margin-bottom: 0.65rem;
     }
 
-    .step h4 {
+    .step h3 {
       font-size: 1rem;
       margin: 0 0 0.45rem;
       color: #162835;
@@ -620,41 +626,14 @@
       max-width: 40ch;
     }
 
-    .footer-social {
-      display: flex;
-      gap: 0.55rem;
-      margin-top: 1rem;
-    }
-
-    .footer-social a {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--brand-soft);
-      color: var(--brand-strong);
-      text-decoration: none;
-      font-size: 0.86rem;
-      transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-    }
-
-    .footer-social a:hover {
-      background: var(--brand);
-      color: #fff;
-      transform: translateY(-2px);
-    }
-
-    .footer-col h5 {
+    .footer-col h2 {
       margin: 0 0 0.9rem;
       font-family: "Kantumruy Pro", "Sora", sans-serif;
       font-size: 0.98rem;
       color: #162835;
     }
 
-    .footer-links,
-    .footer-contact {
+    .footer-links {
       list-style: none;
       margin: 0;
       padding: 0;
@@ -671,31 +650,6 @@
     }
 
     .footer-links a:hover {
-      color: var(--brand-strong);
-    }
-
-    .footer-contact li {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.55rem;
-      color: var(--ink-soft);
-      font-size: 0.88rem;
-      line-height: 1.5;
-    }
-
-    .footer-contact i {
-      margin-top: 0.2rem;
-      color: var(--brand-strong);
-      width: 16px;
-      text-align: center;
-    }
-
-    .footer-contact a {
-      color: var(--ink-soft);
-      text-decoration: none;
-    }
-
-    .footer-contact a:hover {
       color: var(--brand-strong);
     }
 
@@ -776,6 +730,9 @@
         font-size: 1.02rem;
       }
 
+      .home-dashboard-nav .brand-name-full { display: none; }
+      .home-dashboard-nav .brand-name-short { display: inline; white-space: nowrap; }
+
       .hero-copy,
       .hero-panel {
         border-radius: 20px;
@@ -802,9 +759,10 @@
 <body>
   <nav class="navbar navbar-expand-lg shadow-sm sticky-top navbar-light navbar-user-dashboard home-dashboard-nav">
     <div class="container-fluid">
-      <a class="navbar-brand d-flex align-items-center gap-2 flex-wrap" href="{{ url_for('main.home') }}">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert logo" />
-        <span style="font-weight:800;letter-spacing:0.015em;line-height:1.2;">Nutrition and Diet Expert System</span>
+      <a class="navbar-brand d-flex align-items-center gap-2" href="{{ home_url }}" aria-label="Nutrition and Diet Expert System">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" width="95" height="52" alt="Nutrition and Diet Expert System logo" />
+        <span class="brand-name-full" style="font-weight:800;letter-spacing:0.015em;line-height:1.2;">Nutrition and Diet Expert System</span>
+        <span class="brand-name-short" style="font-weight:800;letter-spacing:0.015em;line-height:1.2;">NDES</span>
       </a>
 
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#homeNavbarNav"
@@ -872,6 +830,7 @@
             {% include "dashboard/_dashboard_switcher.html" %}
           </li>
           {% endif %}
+          {% endif %}
           {% set language_display_label = 'ភាសា' if ui_lang == 'km' else 'Language' %}
           <li class="nav-item dropdown me-2">
             <a class="nav-link dropdown-toggle d-flex align-items-center language-mode-trigger" href="#" id="homeLanguageModeDropdown"
@@ -882,28 +841,29 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="homeLanguageModeDropdown">
               <li>
-                <button
+                <a
                   class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'km' %}active{% endif %}"
-                  type="button" data-language-option="km">
+                  href="{{ url_for('main.home_km') }}">
                   <span>{{ 'ខ្មែរ' if ui_lang == 'km' else 'Khmer' }}</span>
                   {% if ui_lang == 'km' %}
                   <i class="fas fa-check text-success"></i>
                   {% endif %}
-                </button>
+                </a>
               </li>
               <li>
-                <button
+                <a
                   class="dropdown-item d-flex justify-content-between align-items-center {% if ui_lang == 'en' %}active{% endif %}"
-                  type="button" data-language-option="en">
+                  href="{{ url_for('main.home') }}">
                   <span>{{ 'អង់គ្លេស' if ui_lang == 'km' else 'English' }}</span>
                   {% if ui_lang == 'en' %}
                   <i class="fas fa-check text-success"></i>
                   {% endif %}
-                </button>
+                </a>
               </li>
             </ul>
           </li>
 
+          {% if current_user.is_authenticated %}
           {% set nav_display_name = 'ភ្ញៀវ' if session.get('user_guest_mode') else current_user.username %}
           {% set nav_default_avatar_url = url_for('main.images', filename='brand/avatar.png') %}
           {% set nav_photo_path = (current_user.photo or '')|trim %}
@@ -961,17 +921,17 @@
             <div class="trust-item">
               <span class="trust-icon"><i class="fas fa-heart-pulse"></i></span>
               <strong>{{ 'ពិនិត្យ BMI' if ui_lang == 'km' else 'BMI Check' }}</strong>
-              <span class="trust-desc">{{ 'បញ្ចូលកម្ពស់ និងទម្ងន់ ដើម្បីមើលសន្ទស្សន៍ម៉ាសរាងកាយ និងស្ថានភាពសុខភាពរបស់អ្នកភ្លាមៗ។' if ui_lang == 'km' else 'Enter your height and weight to see your BMI and health status instantly.' }}</span>
+              <span class="trust-desc">{{ 'សម្រាប់អ្នកអាយុ ២០ ឆ្នាំឡើង គណនា BMI តាមកម្ពស់ និងទម្ងន់សម្រាប់ពិនិត្យបឋម។' if ui_lang == 'km' else 'Adults 20+ can calculate BMI from height and weight for initial screening.' }}</span>
             </div>
             <div class="trust-item">
               <span class="trust-icon"><i class="fas fa-book-medical"></i></span>
               <strong>{{ 'ច្បាប់អាហារ' if ui_lang == 'km' else 'Diet Rules' }}</strong>
-              <span class="trust-desc">{{ 'អនុសាសន៍អាហារមានរចនាសម្ព័ន្ធ និងបានផ្ទៀងផ្ទាត់ សម្រាប់ស្ថានភាពរបស់អ្នក។' if ui_lang == 'km' else 'Structured, validated food recommendations tailored to your condition.' }}</span>
+              <span class="trust-desc">{{ 'ស្វែងយល់ពីឧបករណ៍រៀបចំអាហារប្រចាំថ្ងៃរបស់ប្រព័ន្ធ។' if ui_lang == 'km' else 'Explore everyday meal planning tools in the system.' }}</span>
             </div>
             <div class="trust-item">
               <span class="trust-icon"><i class="fas fa-bullseye"></i></span>
               <strong>{{ 'ផ្តោតលើគោលដៅ' if ui_lang == 'km' else 'Goal Focused' }}</strong>
-              <span class="trust-desc">{{ 'ផែនការដែលកែសម្រួលទៅតាមគោលដៅសុខភាពផ្ទាល់ខ្លួនរបស់អ្នក។' if ui_lang == 'km' else 'Plans that adjust to match your personal health goals.' }}</span>
+              <span class="trust-desc">{{ 'ស្វែងយល់ព័ត៌មានអាហារតាមគោលដៅរបស់អ្នក។' if ui_lang == 'km' else 'Explore food information by goal.' }}</span>
             </div>
           </div>
 
@@ -988,30 +948,32 @@
               <i class="fas fa-right-to-bracket"></i>{{ 'ចូលគណនី' if ui_lang == 'km' else 'Sign In' }}
             </a>
             {% endif %}
+            <a class="btn-subtle" href="{{ url_for('main.bmi_km' if ui_lang == 'km' else 'main.bmi') }}">{{ 'គណនា BMI សម្រាប់មនុស្សពេញវ័យ' if ui_lang == 'km' else 'Adult BMI calculator' }}</a>
+            {% if config.CHILD_BMI_ENABLED %}<a class="btn-subtle" href="{{ url_for('main.child_bmi_km' if ui_lang == 'km' else 'main.child_bmi') }}">{{ 'គណនា BMI កុមារ និងយុវវ័យ' if ui_lang == 'km' else 'Child and teen BMI calculator' }}</a>{% endif %}
           </div>
         </div>
 
         <div class="hero-panel">
           <div class="img-slider">
             <div class="img-slider-track" id="homeSlider">
-              <img src="{{ url_for('static', filename='images/woman.png') }}" alt="{{ 'របៀបរស់នៅអាហារសុខភាពល្អ' if ui_lang == 'km' else 'Healthy food lifestyle' }}" />
-              <img src="{{ url_for('static', filename='images/a_dish_of_food.png') }}" alt="{{ 'មុខម្ហូបសុខភាពល្អ' if ui_lang == 'km' else 'Healthy dish' }}" />
-              <img src="{{ url_for('static', filename='images/recommendation.jpg') }}" alt="{{ 'អនុសាសន៍អាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Nutrition recommendation' }}" />
-              <img src="{{ url_for('static', filename='images/woman.png') }}" alt="{{ 'របៀបរស់នៅអាហារសុខភាពល្អ' if ui_lang == 'km' else 'Healthy food lifestyle' }}" />
+              <img src="{{ url_for('static', filename='images/woman-1000.webp') }}" srcset="{{ url_for('static', filename='images/woman-600.webp') }} 600w, {{ url_for('static', filename='images/woman-1000.webp') }} 1000w" sizes="(max-width: 640px) 90vw, 500px" width="1000" height="833" loading="eager" fetchpriority="high" alt="{{ 'មនុស្សនៅជាមួយអាហារសុខភាព' if ui_lang == 'km' else 'Person with healthy food' }}" />
+              <img src="{{ url_for('static', filename='images/a_dish_of_food-1000.webp') }}" srcset="{{ url_for('static', filename='images/a_dish_of_food-600.webp') }} 600w, {{ url_for('static', filename='images/a_dish_of_food-1000.webp') }} 1000w" sizes="(max-width: 640px) 90vw, 500px" width="1000" height="667" loading="lazy" alt="{{ 'មុខម្ហូបនៅលើចាន' if ui_lang == 'km' else 'A prepared meal on a plate' }}" />
+              <img src="{{ url_for('static', filename='images/recommendation-1000.webp') }}" srcset="{{ url_for('static', filename='images/recommendation-600.webp') }} 600w, {{ url_for('static', filename='images/recommendation-1000.webp') }} 1000w" sizes="(max-width: 640px) 90vw, 500px" width="1000" height="667" loading="lazy" alt="{{ 'ការបង្ហាញអាហារជាជម្រើស' if ui_lang == 'km' else 'Food choices illustration' }}" />
+              <img src="{{ url_for('static', filename='images/woman-1000.webp') }}" srcset="{{ url_for('static', filename='images/woman-600.webp') }} 600w, {{ url_for('static', filename='images/woman-1000.webp') }} 1000w" sizes="(max-width: 640px) 90vw, 500px" width="1000" height="833" loading="lazy" alt="" />
             </div>
           </div>
           <div class="hero-floating float-a">
             <i class="fas fa-apple-whole"></i>
             <div>
               <strong>{{ 'ជម្រើសសមតុល្យ' if ui_lang == 'km' else 'Balanced Choices' }}</strong>
-              <span>{{ 'អនុសាសន៍ផ្តោតលើអាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Nutrition-first recommendations' }}</span>
+              <span>{{ 'ព័ត៌មានអំពីជម្រើសអាហារ' if ui_lang == 'km' else 'Food choice information' }}</span>
             </div>
           </div>
           <div class="hero-floating float-b">
-            <i class="fas fa-chart-line"></i>
+            <i class="fas fa-user"></i>
             <div>
-              <strong>{{ 'តាមដានវឌ្ឍនភាព' if ui_lang == 'km' else 'Progress Tracking' }}</strong>
-              <span>{{ 'មើលនិន្នាការសុខភាពរបស់អ្នកតាមពេលវេលា' if ui_lang == 'km' else 'See your health trend over time' }}</span>
+              <strong>{{ 'ឧបករណ៍ក្នុងគណនី' if ui_lang == 'km' else 'Account Tools' }}</strong>
+              <span>{{ 'ចូលគណនីដើម្បីមើលឧបករណ៍ដែលមានសម្រាប់អ្នក។' if ui_lang == 'km' else 'Sign in to see the tools available to your account.' }}</span>
             </div>
           </div>
         </div>
@@ -1020,15 +982,16 @@
       <section id="about" class="section-panel">
         <h2 class="section-title">{{ 'អំពីប្រព័ន្ធរបស់យើង' if ui_lang == 'km' else 'About Our System' }}</h2>
         <p class="section-subtitle">
-          {{ 'មូលហេតុដែលប្រព័ន្ធជំនួយអាហារូបត្ថម្ភនេះកើតមាន និងសម្រាប់អ្នកណា។' if ui_lang == 'km' else 'Why Nutrition and Diet Expert System exists, and who it is built for.' }}
+          {{ 'ព័ត៌មានអំពីឧបករណ៍ BMI និងមុខងារអាហាររបស់គេហទំព័រ។' if ui_lang == 'km' else 'What the site offers through its BMI and food tools.' }}
         </p>
         <div class="about-grid">
           <div class="about-copy">
             <p>
-              {{ 'ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភ គឺជាវេទិកាផ្អែកលើច្បាប់ ដែលបំប្លែង BMI និងគោលដៅសុខភាពរបស់អ្នក ទៅជាការណែនាំអាហារច្បាស់លាស់ និងមានរចនាសម្ព័ន្ធ ដោយអ្នកមិនចាំបាច់ជាអ្នកជំនាញផ្នែកអាហារូបត្ថម្ភទេ។' if ui_lang == 'km' else 'Nutrition and Diet Expert System is a rule-based platform that turns your BMI and health goals into clear, structured diet guidance — without requiring you to be a nutrition expert yourself.' }}
+              {{ 'គេហទំព័រនេះផ្តល់ឧបករណ៍គណនា BMI សម្រាប់មនុស្សពេញវ័យ និងព័ត៌មានអាហារផ្អែកលើច្បាប់។ BMI តែមួយមិនអាចវិនិច្ឆ័យសុខភាព ឬបង្កើតផែនការអាហារផ្ទាល់ខ្លួនបានទេ។' if ui_lang == 'km' else 'This site offers an adult BMI screening calculator and rule-based food tools. BMI alone cannot diagnose health conditions or provide a personal diet plan.' }}
+              <a href="https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html" rel="noopener">{{ 'ប្រភព៖ CDC អំពី BMI សម្រាប់មនុស្សពេញវ័យ' if ui_lang == 'km' else 'Source: CDC adult BMI guidance' }}</a>
             </p>
             <p>
-              {{ 'ប្រព័ន្ធនេះគាំទ្រតួនាទីចំនួនបី៖ អ្នកប្រើប្រាស់តាមដានសុខភាព និងផែនការអាហាររបស់ខ្លួន វេជ្ជបណ្ឌិតត្រួតពិនិត្យ និងគ្រប់គ្រងច្បាប់អាហារសម្រាប់អ្នកជំងឺ ហើយអ្នកគ្រប់គ្រងត្រួតពិនិត្យគណនី តួនាទី និងសិទ្ធិនានាទូទាំងប្រព័ន្ធ។' if ui_lang == 'km' else 'It supports three roles — Users track their own health and diet plans, Doctors review and manage diet rules for patients, and Admins oversee accounts, roles, and permissions across the whole system.' }}
+              {{ 'កម្មវិធីនេះមានផ្នែកគណនីដាច់ដោយឡែកសម្រាប់អ្នកប្រើប្រាស់ វេជ្ជបណ្ឌិត និងអ្នកគ្រប់គ្រង។' if ui_lang == 'km' else 'The app includes separate account areas for users, doctors, and administrators.' }}
             </p>
           </div>
           <ul class="about-highlights">
@@ -1036,7 +999,7 @@
               <i class="fas fa-diagram-project"></i>
               <div>
                 <strong>{{ 'ម៉ាស៊ីនផ្អែកលើច្បាប់' if ui_lang == 'km' else 'Rule-Based Engine' }}</strong>
-                <span>{{ 'អនុសាសន៍នីមួយៗត្រូវបានផ្អែកលើច្បាប់អាហារដែលបានផ្ទៀងផ្ទាត់ មិនមែនការទាយទេ។' if ui_lang == 'km' else 'Every recommendation traces back to a validated diet rule, not guesswork.' }}</span>
+                <span>{{ 'ប្រព័ន្ធប្រើច្បាប់អាហារដើម្បីរៀបចំព័ត៌មានសម្រាប់ការសម្រេចចិត្ត។' if ui_lang == 'km' else 'The system uses diet rules to organize information for food decisions.' }}</span>
               </div>
             </li>
             <li>
@@ -1049,8 +1012,8 @@
             <li>
               <i class="fas fa-shield-heart"></i>
               <div>
-                <strong>{{ 'រចនាបញ្ចេញសុខភាពជាមុន' if ui_lang == 'km' else 'Health-First Design' }}</strong>
-                <span>{{ 'BMI និងគោលដៅរបស់អ្នក នៅតែជាចំណុចកណ្តាលនៃរាល់អនុសាសន៍របស់ប្រព័ន្ធ។' if ui_lang == 'km' else 'BMI and goals stay at the center of every suggestion the system makes.' }}</span>
+                <strong>{{ 'ព័ត៌មានពិនិត្យបឋម' if ui_lang == 'km' else 'Screening Information' }}</strong>
+                <span>{{ 'លទ្ធផល BMI ជាព័ត៌មានសម្រាប់ពិនិត្យបឋម។ សូមពិគ្រោះអ្នកជំនាញសុខភាពសម្រាប់ការសម្រេចចិត្តផ្ទាល់ខ្លួន។' if ui_lang == 'km' else 'BMI results are screening information. Discuss individual health decisions with a professional.' }}</span>
               </div>
             </li>
           </ul>
@@ -1060,28 +1023,28 @@
       <section id="usage-process" class="section-panel">
         <h2 class="section-title">{{ 'ដំណើរការប្រើប្រាស់' if ui_lang == 'km' else 'How It Works' }}</h2>
         <p class="section-subtitle">
-          {{ 'ចាប់ផ្តើមពីការចុះឈ្មោះ រហូតដល់ការទទួលបានផែនការផ្ទាល់ខ្លួន — ត្រឹម ៤ ជំហានសាមញ្ញ។' if ui_lang == 'km' else 'From creating your account to getting a personalized plan — four simple steps.' }}
+          {{ 'ស្វែងយល់ឧបករណ៍ដែលមានតាមរយៈបួនជំហាន។' if ui_lang == 'km' else 'Explore the available tools in four steps.' }}
         </p>
         <div class="steps">
           <article class="step">
             <span class="step-index">1</span>
-            <h4>{{ 'ចុះឈ្មោះ ឬចូលគណនី' if ui_lang == 'km' else 'Register or Sign In' }}</h4>
-            <p>{{ 'បង្កើតគណនីឥតគិតថ្លៃដោយប្រើអ៊ីមែលរបស់អ្នក ឬចូលគណនីវិញ ប្រសិនបើអ្នកមានគណនីរួចហើយ ដើម្បីដោះសោឧបករណ៍ផ្ទាល់ខ្លួន។' if ui_lang == 'km' else 'Create a free account with your email, or sign in if you already have one, to unlock the personalized tools.' }}</p>
+            <h3>{{ 'ចុះឈ្មោះ ឬចូលគណនី' if ui_lang == 'km' else 'Register or Sign In' }}</h3>
+            <p>{{ 'បង្កើតគណនីដោយប្រើអ៊ីមែល ឬចូលគណនីដែលមានរួច ដើម្បីប្រើឧបករណ៍ដែលត្រូវការគណនី។' if ui_lang == 'km' else 'Create an account with your email, or sign in to use tools that require an account.' }}</p>
           </article>
           <article class="step">
             <span class="step-index">2</span>
-            <h4>{{ 'ពិនិត្យ BMI របស់អ្នក' if ui_lang == 'km' else 'Check Your BMI' }}</h4>
-            <p>{{ 'បញ្ចូលកម្ពស់ និងទម្ងន់របស់អ្នក ដើម្បីឱ្យប្រព័ន្ធគណនាសន្ទស្សន៍ម៉ាសរាងកាយ និងស្ថានភាពសុខភាពរបស់អ្នក។' if ui_lang == 'km' else 'Enter your height and weight so the system can calculate your body mass index and baseline health status.' }}</p>
+            <h3>{{ 'ពិនិត្យ BMI របស់អ្នក' if ui_lang == 'km' else 'Check Your BMI' }}</h3>
+            <p>{{ 'សម្រាប់អាយុ ២០ ឆ្នាំឡើង បញ្ចូលកម្ពស់ និងទម្ងន់ ដើម្បីគណនា BMI សម្រាប់ពិនិត្យបឋម។' if ui_lang == 'km' else 'If you are 20 or older, enter height and weight to calculate BMI for initial screening.' }}</p>
           </article>
           <article class="step">
             <span class="step-index">3</span>
-            <h4>{{ 'ទទួលបានច្បាប់អាហារដែលផ្គូផ្គង' if ui_lang == 'km' else 'Get Matched Diet Rules' }}</h4>
-            <p>{{ 'ជ្រើសរើសគោលដៅសុខភាពរបស់អ្នក ប្រព័ន្ធនឹងផ្គូផ្គងវាជាមួយ BMI របស់អ្នក ដើម្បីស្នើអនុសាសន៍អាហារត្រឹមត្រូវ។' if ui_lang == 'km' else 'Pick your health goal and the system matches it with your BMI to suggest validated diet rules and foods.' }}</p>
+            <h3>{{ 'ទទួលបានច្បាប់អាហារដែលផ្គូផ្គង' if ui_lang == 'km' else 'Get Matched Diet Rules' }}</h3>
+            <p>{{ 'ជ្រើសរើសគោលដៅ ដើម្បីមើលព័ត៌មានអាហារដែលមានក្នុងប្រព័ន្ធ។' if ui_lang == 'km' else 'Choose a goal to explore food information available in the system.' }}</p>
           </article>
           <article class="step">
             <span class="step-index">4</span>
-            <h4>{{ 'តាមដាន និងសួរសំណួរ' if ui_lang == 'km' else 'Track and Ask Questions' }}</h4>
-            <p>{{ 'ប្រើផ្ទាំងគ្រប់គ្រងរបស់អ្នក ដើម្បីតាមដានលទ្ធផល កែសម្រួលផែនការ និងសួរសំណួរអំពីអាហារូបត្ថម្ភបានគ្រប់ពេល។' if ui_lang == 'km' else 'Use your dashboard to monitor outcomes, adjust the plan, and ask nutrition questions anytime.' }}</p>
+            <h3>{{ 'តាមដាន និងសួរសំណួរ' if ui_lang == 'km' else 'Track and Ask Questions' }}</h3>
+            <p>{{ 'ប្រើផ្ទាំងគ្រប់គ្រង ដើម្បីមើលព័ត៌មានដែលអ្នកបានរក្សាទុក នៅពេលសេវាកម្មមានដំណើរការ។' if ui_lang == 'km' else 'Use your dashboard to review saved information when the service is available.' }}</p>
           </article>
         </div>
       </section>
@@ -1089,13 +1052,13 @@
       <section id="get-started" class="bottom-cta">
         <div>
           <span class="cta-eyebrow">{{ 'ចាប់ផ្តើម' if ui_lang == 'km' else 'Get Started' }}</span>
-          <h3>{{ 'រួចរាល់សម្រាប់ផែនការអាហារផ្ទាល់ខ្លួនរបស់អ្នកហើយឬនៅ?' if ui_lang == 'km' else 'Ready to personalize your nutrition plan?' }}</h3>
-          <p>{{ 'ចូលរួមឥឡូវនេះ ដើម្បីផ្លាស់ប្តូរពីដំបូន្មានទូទៅ ទៅជាអនុសាសន៍ជាក់លាក់ដែលអាចអនុវត្តបាន។' if ui_lang == 'km' else 'Join now and move from generic advice to role-based, actionable recommendations.' }}</p>
+          <h3>{{ 'ស្វែងយល់ឧបករណ៍របស់គេហទំព័រ' if ui_lang == 'km' else 'Explore the site tools' }}</h3>
+          <p>{{ 'បង្កើតគណនីសម្រាប់ឧបករណ៍ដែលត្រូវការចូលប្រើ។ ឧបករណ៍គណនា BMI សម្រាប់មនុស្សពេញវ័យអាចប្រើបានដោយមិនចាំបាច់មានគណនី។' if ui_lang == 'km' else 'Create an account for tools that require sign-in. The adult BMI calculator is open to everyone.' }}</p>
         </div>
         {% if current_user.is_authenticated %}
         <a href="{{ url_for('dashboard.dashboard_home') }}">{{ 'បើកផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Open Dashboard' }}</a>
         {% else %}
-        <a href="{{ url_for('auth.register') }}">{{ 'ចាប់ផ្តើមឥតគិតថ្លៃ' if ui_lang == 'km' else 'Start Free' }}</a>
+        <a href="{{ url_for('auth.register') }}">{{ 'បង្កើតគណនី' if ui_lang == 'km' else 'Create Account' }}</a>
         {% endif %}
       </section>
     </main>
@@ -1103,101 +1066,46 @@
     <footer class="site-footer">
       <div class="footer-top">
         <div class="footer-col footer-brand-col">
-          <a class="footer-brand" href="{{ url_for('main.home') }}">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Diet Expert logo" />
+          <a class="footer-brand" href="{{ home_url }}">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" width="95" height="52" loading="lazy" alt="Nutrition and Diet Expert System logo" />
             <span>{{ 'ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Nutrition and Diet Expert System' }}</span>
           </a>
           <p class="footer-tagline">
-            {{ 'ជួយអ្នករៀបចំផែនការអាហារឱ្យសមស្របទៅនឹងគោលដៅសុខភាពរបស់អ្នក ជារៀងរាល់ថ្ងៃ។' if ui_lang == 'km' else 'Helping you plan meals that fit your health goals, every single day.' }}
+            {{ 'ស្វែងយល់ព័ត៌មានអាហារ និងឧបករណ៍គណនា BMI សម្រាប់មនុស្សពេញវ័យ។' if ui_lang == 'km' else 'Explore food information and an adult BMI screening calculator.' }}
           </p>
-          <div class="footer-social">
-            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-          </div>
         </div>
 
         <div class="footer-col">
-          <h5>{{ 'តំណភ្ជាប់រហ័ស' if ui_lang == 'km' else 'Quick Links' }}</h5>
+          <h2>{{ 'តំណភ្ជាប់រហ័ស' if ui_lang == 'km' else 'Quick Links' }}</h2>
           <ul class="footer-links">
-            <li><a href="{{ url_for('main.home') }}">{{ 'ទំព័រដើម' if ui_lang == 'km' else 'Home' }}</a></li>
+            <li><a href="{{ home_url }}">{{ 'ទំព័រដើម' if ui_lang == 'km' else 'Home' }}</a></li>
             {% if current_user.is_authenticated %}
             <li><a href="{{ url_for('dashboard.dashboard_home') }}">{{ 'ផ្ទាំងគ្រប់គ្រង' if ui_lang == 'km' else 'Dashboard' }}</a></li>
             {% else %}
             <li><a href="{{ url_for('auth.login') }}">{{ 'ចូលគណនី' if ui_lang == 'km' else 'Login' }}</a></li>
             <li><a href="{{ url_for('auth.register') }}">{{ 'ចុះឈ្មោះ' if ui_lang == 'km' else 'Register' }}</a></li>
             {% endif %}
-            <li><a href="{{ url_for('main.home') }}#usage-process">{{ 'ដំណើរការប្រើប្រាស់' if ui_lang == 'km' else 'Usage Process' }}</a></li>
+            <li><a href="{{ home_url }}#usage-process">{{ 'ដំណើរការប្រើប្រាស់' if ui_lang == 'km' else 'Usage Process' }}</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
-          <h5>{{ 'ព័ត៌មានទំនាក់ទំនង' if ui_lang == 'km' else 'Contact' }}</h5>
-          <ul class="footer-contact">
-            <li><i class="fas fa-envelope"></i><a href="mailto:support@nutritionexpert.com">support@nutritionexpert.com</a></li>
-            <li><i class="fas fa-phone"></i><a href="tel:+855885340788">+855 885340788</a></li>
-            <li><i class="fas fa-map-marker-alt"></i><span>Sangkat Chrouy Changva, Phnom Penh</span></li>
+          <h2>{{ 'ឧបករណ៍ BMI' if ui_lang == 'km' else 'BMI tools' }}</h2>
+          <ul class="footer-links">
+            <li><a href="{{ url_for('main.bmi_km' if ui_lang == 'km' else 'main.bmi') }}">{{ 'សម្រាប់មនុស្សពេញវ័យ' if ui_lang == 'km' else 'For adults' }}</a></li>
+            {% if config.CHILD_BMI_ENABLED %}<li><a href="{{ url_for('main.child_bmi_km' if ui_lang == 'km' else 'main.child_bmi') }}">{{ 'សម្រាប់កុមារ និងយុវវ័យ' if ui_lang == 'km' else 'For children and teens' }}</a></li>{% endif %}
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <small>&copy; 2026 {{ 'ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Diet Expert System' }}. {{ 'រក្សាសិទ្ធិគ្រប់យ៉ាង។' if ui_lang == 'km' else 'All rights reserved.' }}</small>
+        <small>{{ 'ប្រព័ន្ធជំនួយអាហារូបត្ថម្ភ' if ui_lang == 'km' else 'Nutrition and Diet Expert System' }}</small>
       </div>
     </footer>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    (function () {
-      const languageOptions = document.querySelectorAll("[data-language-option]");
-      if (!languageOptions.length) {
-        return;
-      }
-
-      const endpoint = "{{ url_for('dashboard.set_language_mode') }}";
-      const currentLanguage = "{{ ui_lang }}";
-      const fallbackErrorMessage = currentLanguage === "km"
-        ? "មិនអាចប្តូរភាសាបានទេ។"
-        : "Unable to switch language mode.";
-
-      languageOptions.forEach((option) => {
-        option.addEventListener("click", async function (event) {
-          event.preventDefault();
-          const selectedLanguage = option.getAttribute("data-language-option");
-
-          if (!selectedLanguage || selectedLanguage === currentLanguage) {
-            return;
-          }
-
-          option.disabled = true;
-          try {
-            const response = await fetch(endpoint, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              credentials: "same-origin",
-              body: JSON.stringify({ language: selectedLanguage })
-            });
-
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok || data.success === false) {
-              throw new Error(data.message || fallbackErrorMessage);
-            }
-
-            window.location.reload();
-          } catch (error) {
-            console.error("Failed to update language mode:", error);
-            alert(error.message || fallbackErrorMessage);
-          } finally {
-            option.disabled = false;
-          }
-        });
-      });
-    })();
-
     (function () {
       const track = document.getElementById("homeSlider");
       if (track) {

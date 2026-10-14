@@ -1,0 +1,71 @@
+{% extends "layouts/base_enhanced.html" %}
+{% block title %}{{ t.title }}{% endblock %}
+{% block meta_description %}{{ t.description }}{% endblock %}
+{% block breadcrumb %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block extra_css %}
+<style>
+  .child-bmi-wrap { max-width: 980px; margin: 2rem auto 4rem; padding: 0 1rem; }
+  .child-bmi-intro { max-width: 46rem; color: #52606d; }
+  .child-bmi-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+  .child-bmi-card { background: #fff; border: 1px solid #dce7e2; border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 24px rgba(23,53,43,.06); }
+  .child-bmi-card label { display: block; font-weight: 650; margin: .8rem 0 .3rem; }
+  .child-bmi-card input, .child-bmi-card select { width: 100%; padding: .65rem .75rem; border: 1px solid #aebfba; border-radius: 8px; background: #fff; color: #172d27; }
+  .child-bmi-card small { display: block; color: #52606d; margin-top: .35rem; }
+  .child-bmi-card button { margin-top: 1.25rem; background: #247b60; color: #fff; border: 0; border-radius: 8px; padding: .75rem 1rem; font-weight: 700; }
+  .child-bmi-card button:hover { background: #195b47; }
+  .child-bmi-result dt { color: #52606d; margin-top: 1rem; }
+  .child-bmi-result dd { font-size: 1.35rem; font-weight: 750; margin: .1rem 0; }
+  .child-bmi-note { border-left: 4px solid #247b60; padding: .7rem 1rem; background: #f1f8f5; margin-top: 1.5rem; }
+  .child-bmi-links { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; }
+  @media (max-width: 700px) { .child-bmi-grid { grid-template-columns: 1fr; } .child-bmi-wrap { margin-top: 1rem; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="child-bmi-wrap">
+  <h1>{{ t.heading }}</h1>
+  <p class="child-bmi-intro">{{ t.intro }}</p>
+  <nav class="child-bmi-links" aria-label="BMI tools and language">
+    <a href="{{ url_for('main.home_km' if page_lang == 'km' else 'main.home') }}">{{ 'ទំព័រដើម' if page_lang == 'km' else 'Home' }}</a>
+    <a href="{{ url_for('main.child_bmi_km' if page_lang == 'en' else 'main.child_bmi') }}">{{ 'ខ្មែរ' if page_lang == 'en' else 'English' }}</a>
+    <a href="{{ url_for('main.bmi_km' if page_lang == 'km' else 'main.bmi') }}">{{ t.adult_link }}</a>
+  </nav>
+  <div class="child-bmi-grid">
+    <form class="child-bmi-card" method="post" action="{{ request.path }}" autocomplete="off">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="age_years">{{ t.years }}</label>
+      <input id="age_years" name="age_years" type="number" min="2" max="19" step="1" required value="{{ values.age_years }}">
+      <label for="age_months">{{ t.months }}</label>
+      <input id="age_months" name="age_months" type="number" min="0" max="11" step="1" required value="{{ values.age_months }}">
+      <label for="sex">{{ t.sex }}</label>
+      <select id="sex" name="sex" required>
+        <option value="">—</option>
+        <option value="male" {% if values.sex == 'male' %}selected{% endif %}>{{ t.male }}</option>
+        <option value="female" {% if values.sex == 'female' %}selected{% endif %}>{{ t.female }}</option>
+      </select>
+      <small>{{ t.sex_help }}</small>
+      <label for="height_cm">{{ t.height }}</label>
+      <input id="height_cm" name="height_cm" type="number" min="50" max="250" step="0.1" required value="{{ values.height_cm }}">
+      <label for="weight_kg">{{ t.weight }}</label>
+      <input id="weight_kg" name="weight_kg" type="number" min="5" max="300" step="0.1" required value="{{ values.weight_kg }}">
+      <button type="submit">{{ t.calculate }}</button>
+      <small>{{ t.no_save }}</small>
+    </form>
+    <section class="child-bmi-card" aria-live="polite">
+      <h2 class="h4">{{ t.result }}</h2>
+      {% if error %}<p role="alert" class="alert alert-danger">{{ error }}</p>{% endif %}
+      {% if result %}
+      <dl class="child-bmi-result">
+        <dt>{{ t.bmi }}</dt><dd>{{ '%.1f'|format(result.bmi) }}</dd>
+        <dt>{{ t.percentile }}</dt>
+        <dd>{% if result.percentile < 0.05 %}&lt;0.1{% elif result.percentile >= 99.95 %}&gt;99.9{% else %}{{ '%.1f'|format(result.percentile) }}{% endif %}%</dd>
+        <dt>{{ t.category }}</dt><dd>{{ t[result.category] }}</dd>
+      </dl>
+      {% endif %}
+      <p class="child-bmi-note">{{ t.reference }}</p>
+      <p>{{ t.under2 }}</p>
+      <p><a href="https://www.cdc.gov/growthcharts/extended-bmi-data-files.htm" rel="noopener">{{ t.source }}</a></p>
+    </section>
+  </div>
+</div>
+{% endblock %}
