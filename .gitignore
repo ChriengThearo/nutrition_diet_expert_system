@@ -8,3 +8,7 @@ __pycache__/
 .vercel
 .env*
 instance/usda_scanner/
+# Legacy profile uploads may remain locally during migration; never commit them.
+/app/static/images/profiles/
+# Current profile images live outside the public static tree.
+/instance/profile_uploads/

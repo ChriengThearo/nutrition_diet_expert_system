@@ -1,5 +1,6 @@
 """Small, explicit index policy for the public Flask pages."""
 
+import posixpath
 from urllib.parse import urlsplit
 
 from flask import current_app, request
@@ -15,6 +16,15 @@ CHILD_PAGES = {
     "main.child_bmi": ("/bmi/child-teen", "child_bmi"),
     "main.child_bmi_km": ("/km/bmi/child-teen", "child_bmi"),
 }
+
+
+def is_profile_upload():
+    if request.endpoint not in {"static", "main.images"}:
+        return False
+    filename = (request.view_args or {}).get("filename", "").replace("\\", "/")
+    filename = posixpath.normpath("/" + filename).lstrip("/")
+    prefix = "images/profiles/" if request.endpoint == "static" else "profiles/"
+    return filename.startswith(prefix)
 
 
 def production_url(path):
@@ -50,12 +60,22 @@ def page_seo():
 
 
 def apply_index_policy(response):
-    if request.endpoint in {"static", "main.robots_txt", "main.sitemap_xml"}:
+    if request.endpoint in {"static", "main.images"}:
+        if is_profile_upload():
+            response.headers["X-Robots-Tag"] = "noindex"
+            response.headers["Cache-Control"] = "private, no-store"
+            response.headers["X-Content-Type-Options"] = "nosniff"
+        elif request.endpoint == "main.images":
+            response.headers["X-Robots-Tag"] = "noindex"
+        return response
+    if request.endpoint in {"main.robots_txt", "main.sitemap_xml"}:
         return response
     public = request.endpoint in PUBLIC_PAGES
     if not (public and request.method == "GET" and response.status_code == 200
             and is_production_request()):
         response.headers["X-Robots-Tag"] = "noindex"
     if request.endpoint in CHILD_PAGES:
+        response.headers["Cache-Control"] = "no-store"
+    if request.endpoint in {"main.qa", "main.match"} and request.method == "POST":
         response.headers["Cache-Control"] = "no-store"
     return response

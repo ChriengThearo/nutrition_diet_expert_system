@@ -22,6 +22,13 @@ def create_app(config_class: type[Config] = Config):
                 and request.endpoint in {"main.child_bmi", "main.child_bmi_km"}):
             abort(404)
 
+    @app.before_request
+    def block_public_profile_static_paths():
+        """Static URLs must never serve user-uploaded profile images."""
+        from app.seo import is_profile_upload
+        if request.endpoint == "static" and is_profile_upload():
+            abort(404)
+
     csrf.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)

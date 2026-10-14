@@ -22,6 +22,7 @@ class Config:
     # Enable only after qualified calculation and Khmer-language review.
     CHILD_BMI_ENABLED = os.getenv("CHILD_BMI_ENABLED", "0") == "1"
     USDA_SCANNER_WARMUP = os.getenv("USDA_SCANNER_WARMUP", "1") == "1"
+    PROFILE_UPLOAD_DIR = os.getenv("PROFILE_UPLOAD_DIR")
 
     # Google OAuth (Sign in with Google)
     GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")

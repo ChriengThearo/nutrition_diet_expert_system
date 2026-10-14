@@ -336,7 +336,16 @@
         <div class="col-12">
             <div class="about-bmi">
                 <h2 class="h5"><i class="fas fa-info-circle me-2"></i>{{ t.about_heading }}</h2>
-                <p>{{ t.about }}</p>
+                <p>{{ t.formula }}</p>
+                <p class="mt-2">{{ t.about }}</p>
+                <h3 class="h6 mt-3">{{ t.category_heading }}</h3>
+                <ul class="mb-2 ps-3">
+                    <li>{{ t.underweight }}: {{ t.underweight_range }}</li>
+                    <li>{{ t.healthy_weight }}: {{ t.healthy_range }}</li>
+                    <li>{{ t.overweight }}: {{ t.overweight_range }}</li>
+                    <li>{{ t.obesity }}: {{ t.obesity_range }}</li>
+                </ul>
+                <p>{{ t.category_note }}</p>
                 <p><a href="https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html" rel="noopener">{{ 'ប្រភព៖ CDC អំពីប្រភេទ BMI សម្រាប់មនុស្សពេញវ័យ' if page_lang == 'km' else 'Source: CDC adult BMI categories' }}</a></p>
             </div>
         </div>
@@ -383,6 +392,16 @@ function calculateBMI() {
     var heightM = heightCm / 100;
     var rawBmi = weight / (heightM * heightM);
     var bmi = Math.round(rawBmi * 10) / 10;
+    var displayBmi = bmi.toFixed(1);
+    // Keep the displayed number on the same side of each CDC boundary as the
+    // unrounded value used for the category. Extra precision appears only
+    // when ordinary one-decimal rounding would imply a different category.
+    var boundaries = [18.5, 25, 30];
+    for (var precision = 2; precision <= 12 && boundaries.some(function(boundary) {
+        return (rawBmi < boundary) !== (Number(displayBmi) < boundary);
+    }); precision++) {
+        displayBmi = rawBmi.toFixed(precision);
+    }
 
     var category, catClass, catKey, catIconColor;
     if (rawBmi < 18.5) {
@@ -397,7 +416,7 @@ function calculateBMI() {
 
     // Scale runs 10 - 40 across the gauge / spectrum bar
     var minScale = 10, maxScale = 40;
-    var pct = Math.max(0, Math.min(1, (bmi - minScale) / (maxScale - minScale)));
+    var pct = Math.max(0, Math.min(1, (rawBmi - minScale) / (maxScale - minScale)));
     var needleDeg = (pct * 180) - 90;
     var markerPct = pct * 100;
 
@@ -417,7 +436,7 @@ function calculateBMI() {
             '<div class="gauge-pivot-dot"></div>' +
             '<div class="gauge-center">' +
                 '<div class="gauge-your-bmi">BMI</div>' +
-                '<div class="gauge-value ' + catClass + '">' + bmi + '</div>' +
+                '<div class="gauge-value ' + catClass + '">' + displayBmi + '</div>' +
                 '<div class="gauge-category ' + catClass + '"><i class="fas fa-circle-check"></i> ' + category + '</div>' +
             '</div>' +
         '</div>' +
@@ -431,8 +450,8 @@ function calculateBMI() {
             '</div>' +
             '<div class="spectrum-labels">' +
                 '<div class="lbl-col lbl-uw"><span class="lbl-name uw">' + bmiText.underweight + '</span><span class="lbl-range">&lt; 18.5</span></div>' +
-                '<div class="lbl-col lbl-normal"><span class="lbl-name normal">' + bmiText.healthy_weight + '</span><span class="lbl-range">18.5 - 24.9</span></div>' +
-                '<div class="lbl-col lbl-ow"><span class="lbl-name ow">' + bmiText.overweight + '</span><span class="lbl-range">25 - 29.9</span></div>' +
+                '<div class="lbl-col lbl-normal"><span class="lbl-name normal">' + bmiText.healthy_weight + '</span><span class="lbl-range">18.5 - &lt;25</span></div>' +
+                '<div class="lbl-col lbl-ow"><span class="lbl-name ow">' + bmiText.overweight + '</span><span class="lbl-range">25 - &lt;30</span></div>' +
                 '<div class="lbl-col lbl-ob"><span class="lbl-name ob">' + bmiText.obesity + '</span><span class="lbl-range">&ge; 30</span></div>' +
             '</div>' +
         '</div>' +
@@ -452,7 +471,7 @@ function calculateBMI() {
     }, 50);
 
     lastResult = {
-        bmi: bmi, category: category,
+        bmi: Number(displayBmi), category: category,
         age: age,
         height: heightCm, weight: weight,
         savedAt: new Date().toISOString()

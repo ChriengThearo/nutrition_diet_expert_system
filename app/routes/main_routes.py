@@ -8,6 +8,7 @@ from flask import (
     send_from_directory,
     current_app,
     Response,
+    abort,
 )
 from flask_login import login_required, current_user
 import os
@@ -15,12 +16,14 @@ import math
 from app.public_copy import ADULT, CHILD
 from app.seo import production_url, is_production_request
 from app.services.bmi_reference import child_bmi_result
+from app.services.profile_images import profile_name, profile_upload_directory
 from app.models.goal import GoalsTable
 from app.models.diet_rule import DietRulesTable
 from app.models.food import FoodsTable
 from app.models.food_group import FoodGroupTable
 from app.forms.diet_rule_forms import DietRuleForm
 from app.services.diet_rule_service import DietRuleService
+from app.routes.access_control import permission_required
 from extensions import db
 
 main_bp = Blueprint("main", __name__)
@@ -160,7 +163,15 @@ def match():
     if request.method == "POST":
         goal_id = request.form.get("goal")
         bmi_raw = (request.form.get("bmi") or "").strip()
-        bmi = float(bmi_raw) if bmi_raw else None
+        try:
+            bmi = float(bmi_raw) if bmi_raw else None
+        except ValueError:
+            bmi = None
+            flash("Enter a valid BMI number or leave it blank.", "error")
+            return render_template("main/match.html", goals=goals), 400
+        if bmi is not None and (not math.isfinite(bmi) or not 10 <= bmi <= 50):
+            flash("Enter a BMI from 10 to 50 or leave it blank.", "error")
+            return render_template("main/match.html", goals=goals), 400
 
         # Find matching diet rules based on goal
         goal = GoalsTable.query.get(goal_id)
@@ -168,7 +179,8 @@ def match():
         if goal:
             # Get diet rules that match the selected goal
             matching_rules = DietRulesTable.query.filter(
-                DietRulesTable.goals.contains(goal)
+                DietRulesTable.goals.contains(goal),
+                DietRulesTable.is_active.is_(True),
             ).all()
             return render_template(
                 "main/match.html",
@@ -188,6 +200,8 @@ def rules():
 
 
 @main_bp.route("/rules/create", methods=["GET", "POST"])
+@login_required
+@permission_required("rule.create", "You have no permission to create rules.")
 def create_rule():
     form = DietRuleForm()
 
@@ -199,7 +213,7 @@ def create_rule():
                 "description": form.description.data,
                 "conditions": form.conditions.data,
                 "goals": form.goals.data,
-                "active": form.active.data,
+                "is_active": form.active.data,
             }
 
             # Create rule using service
@@ -216,6 +230,12 @@ def create_rule():
 
 @main_bp.route("/images/<path:filename>")
 def images(filename):
+    if filename.startswith("profiles/"):
+        name = profile_name("images/" + filename)
+        if (name is None or not current_user.is_authenticated
+                or current_user.photo != f"images/profiles/{name}"):
+            abort(404)
+        return send_from_directory(profile_upload_directory(), name)
     images_dir = os.path.join(current_app.static_folder, "images")
     return send_from_directory(images_dir, filename)
 
@@ -246,9 +266,11 @@ def qa():
     answer = None
 
     if request.method == "POST":
-        question = request.form.get("question")
-        # For simplicity, provide a basic answer. In a real app, this could integrate with an AI service.
-        answer = f"Thank you for your question: '{question}'. This is a placeholder answer. Please consult a healthcare professional for personalized advice."
+        question = (request.form.get("question") or "").strip()
+        if not question:
+            flash("Enter a question to submit the demo form.", "error")
+            return render_template("main/qa.html"), 400
+        answer = "This demo received your question but does not provide a health answer. Consult a qualified healthcare professional for personal concerns."
 
     return render_template("main/qa.html", question=question, answer=answer)
 

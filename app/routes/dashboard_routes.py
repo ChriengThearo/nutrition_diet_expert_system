@@ -28,6 +28,7 @@ from app.forms.dashboard_forms import UserProfileEditForm, DoctorProfileEditForm
 from app.services.dashboard_services import DashboardService
 from app.services.diet_rule_service import DietRuleService
 from app.routes.access_control import permission_required
+from app.services.profile_images import save_profile_image
 from extensions import db, csrf
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import selectinload
@@ -661,15 +662,7 @@ def admin_profile_edit():
 
         photo_file = form.photo.data
         if photo_file and getattr(photo_file, "filename", ""):
-            filename = secure_filename(photo_file.filename)
-            _, ext = os.path.splitext(filename)
-            safe_ext = ext.lower() if ext else ""
-            unique_name = f"user_{current_user.id}_{uuid.uuid4().hex}{safe_ext}"
-            project_root = current_app.static_folder
-            upload_dir = os.path.join(project_root, "images", "profiles")
-            os.makedirs(upload_dir, exist_ok=True)
-            photo_file.save(os.path.join(upload_dir, unique_name))
-            current_user.photo = f"images/profiles/{unique_name}"
+            current_user.photo = save_profile_image(photo_file, current_user.id)
 
         if form.new_password.data:
             current_user.set_password(form.new_password.data)
@@ -2383,15 +2376,7 @@ def doctor_profile_edit():
 
         photo_file = form.photo.data
         if photo_file and getattr(photo_file, "filename", ""):
-            filename = secure_filename(photo_file.filename)
-            _, ext = os.path.splitext(filename)
-            safe_ext = ext.lower() if ext else ""
-            unique_name = f"user_{current_user.id}_{uuid.uuid4().hex}{safe_ext}"
-            project_root = current_app.static_folder
-            upload_dir = os.path.join(project_root, "images", "profiles")
-            os.makedirs(upload_dir, exist_ok=True)
-            photo_file.save(os.path.join(upload_dir, unique_name))
-            current_user.photo = f"images/profiles/{unique_name}"
+            current_user.photo = save_profile_image(photo_file, current_user.id)
 
         if form.new_password.data:
             current_user.set_password(form.new_password.data)
@@ -3101,15 +3086,7 @@ def user_profile_edit():
 
         photo_file = form.photo.data
         if photo_file and getattr(photo_file, "filename", ""):
-            filename = secure_filename(photo_file.filename)
-            _, ext = os.path.splitext(filename)
-            safe_ext = ext.lower() if ext else ""
-            unique_name = f"user_{current_user.id}_{uuid.uuid4().hex}{safe_ext}"
-            project_root = current_app.static_folder
-            upload_dir = os.path.join(project_root, "images", "profiles")
-            os.makedirs(upload_dir, exist_ok=True)
-            photo_file.save(os.path.join(upload_dir, unique_name))
-            current_user.photo = f"images/profiles/{unique_name}"
+            current_user.photo = save_profile_image(photo_file, current_user.id)
 
         try:
             db.session.commit()

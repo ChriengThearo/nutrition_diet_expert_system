@@ -146,7 +146,7 @@
                     <button class="btn btn-outline-primary btn-sm" onclick="exportRules()">
                         <i class="fas fa-download me-1"></i>Export
                     </button>
-                    {% if current_user.is_authenticated and (current_user.has_role('doctor') or current_user.has_role('admin')) %}
+                    {% if current_user.is_authenticated and current_user.has_permission('rule.create') %}
                     <a href="{{ url_for('main.create_rule') }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus me-1"></i>Create Rule
                     </a>
